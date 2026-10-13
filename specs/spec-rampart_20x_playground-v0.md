@@ -166,21 +166,21 @@ against the owning plugin, not a type created here.
 #### Implementation
 
 `grift/mock-inventory.grift.json`, one batch whose recorded source is this plugin. A node is mock if and only
-if that batch created it; no dimension is added for the purpose. The nodes are intended to sit on the `dcom` `design` position.
+if that batch created it; no dimension is added for the purpose. The nodes sit on the `dcom` `design` position (convention below).
 `aws_core` v0.5.0 and its handling of the `aws-us-gov` partition were not exercised in drafting.
 
-**Open design question, for review.** `dcom` stamps through default dimensions on a plugin's own types
-(`req-dcom-inheritance`), and this plugin owns none; the stamp for an `aws_core` type is `aws_core`'s to
-declare, and whether it inherits `dcom` at all was not checked. How a data-only instance places another
-plugin's node types on `design` is not covered by `req-dcom-stamping`. The ACIDs below state the intent;
-the mechanism is to be settled in review.
+**Convention (ruled by George, 2026-10-13).** Every entity this plugin seeds through a GRIFT batch carries
+`dcom: design` in its `dimensions`, written per entity in the bundle. This is the playground's own convention
+for seeded entries, not the type-default stamping `req-dcom-inheritance` describes, since the plugin owns no
+types. Untried: how the grid merges this per-entity value with a type default that says otherwise, and whether
+`aws_core` stamps `dcom` at all.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
-| req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Mechanism open; see above. |
+| req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; merge with type defaults untried. |
 | req-rampart-20x-playground-mock-inventory-3 | Marked Mock | Proposed | Every mock node was created by a batch whose source is this plugin, and no node created by another source is treated as mock. | Keeps mock, observed and absent apart. Designed; the batch-source query is untried. |
 | req-rampart-20x-playground-mock-inventory-4 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
 
