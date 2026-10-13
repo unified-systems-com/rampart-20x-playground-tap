@@ -42,7 +42,7 @@ authorization boundary. The presenter says so; the pages and panels are not adju
 **Provenance markers.**
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
 carries `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `remediation_sla_days` and
-`remediation_due_at`; `github_core` (`main`, plugin_version 0.12.2; latest tag v0.9.0) declares `code_scanning_alert` and no Dependabot model;
+`remediation_due_at`; `github_core` (`main`, plugin_version 0.12.2; latest tag v0.12.2) declares `code_scanning_alert` and no Dependabot model;
 `rampart-20x-tap` and `highbar-tap` carry no release tags; `tap` had 48 Dependabot alerts (2 open) and 71 open code scanning alerts (43 Trivy, 26 Grype, 2 SonarCloud).
 *Documented* (a spec says so): `dcom` stamps through default dimensions on types a plugin owns
 (`req-dcom-inheritance`); an instance plugin composes by edge and ships no vocabulary
@@ -91,9 +91,12 @@ FedRAMP authorization boundary.
 
 #### Implementation
 
-The manifest declares no `[models]` or `[edges]`. Every dependency is an install dependency in
-`pyproject.toml` and the manifest's `depends_on` is empty, because nothing here imports another plugin's
-Python (the `git_serious_double_tap` shape). The one permitted code path is a programmatic JavaScript
+The manifest declares no `[models]` or `[edges]`. `pyproject.toml` lists no dependencies and the
+manifest's `depends_on` is empty, because nothing here imports another plugin's Python and the two bundles
+written so far use core entity types only; the composed plugins are installed by the `demo` record, not by
+pip resolution (the `dcom` shape, whose `ci` record installs itself alone). When the mock inventory and
+findings land they seed other plugins' types by string, which is a vocabulary dependency, so `depends_on`
+gains those plugins (with a `note`) in the same change (`new-plugin` Tier 1b). The one permitted code path is a programmatic JavaScript
 layout, written through the `create-layout` skill, if a page cannot be drawn from data.
 
 #### Acceptance Criteria
@@ -120,10 +123,16 @@ plugin's own tests run in. `demo` is the stack George boots on screen.
 imports (none), and seeds only this plugin's bundles plus the dependency bundles its pages mount.
 `boot/demo.boot.json` installs `identity_core`, `administrivia`, `dcom`, `aws_core`, `computing_core`,
 `github_core` (with `git_core`), `compliance_core`, `fedramp_20x_ksi`, `rampart_20x` and this plugin, and
-seeds their bundles in dependency order. Every plugin is pinned by the **peeled commit SHA** beside its
+seeds, in dependency order, `administrivia`, `dcom`, the `dimension` bundle of `aws_core`,
+`computing_core` and `fedramp_20x_ksi`, and this plugin; those plugins' pages, regions and KSI seed stay out
+until a page mounts them. Every plugin is pinned by the **peeled commit SHA** beside its
 tag (`git ls-remote <url> 'refs/tags/<tag>*'`, the `^{}` line). `rampart_20x` has no tag, so it is pinned
-by the SHA of its `main` at the time the record is written, and the record says so in a `note`.
-The demo record loads a passkey stored locally, through the mechanism the base TAP instance already offers.
+by the SHA of its `main` at the time the record is written, and the record says so in a `note`. This
+plugin's own entry pins its release tag (`v0.1.0`), which the release script cuts after the scaffold merges:
+a record cannot carry the commit that introduces it, and the validator exempts a self entry from `commit`
+only when `rev` is its own release tag. Until then a development spawn uses a copy of the record whose self
+entry names a branch. Login uses the local passkey that `spawn-session.sh` replays into the stack
+(`req-tap-auth-passkey-dev-bootstrap`); the record carries no passkey setting.
 Okta, Duo and Teleport are not in either record.
 
 #### Acceptance Criteria

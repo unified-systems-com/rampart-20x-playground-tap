@@ -1,0 +1,32 @@
+manifest_version = "0"
+plugin_version = "0.1.0"
+requires_tap = ">=0.2.1"
+slug = "rampart_20x_playground"
+name = "TAP Rampart 20x Playground"
+description = "A data-only instance plugin: the keystone, mocked GovCloud inventory and findings, and the pages that show a deployment design, an inventory, vulnerabilities and VDR reports."
+
+# No code-import dependencies and no vocabulary dependencies in this wave: the two bundles written so far
+# (keystone, dimensions) use core entity types only. When the mock inventory and findings land they seed
+# aws_core, computing_core and fedramp_20x_ksi types, which are string references and therefore a
+# vocabulary dependency to declare here (new-plugin Tier 1b) in the same change.
+depends_on = []
+
+# Pure configuration: no crypto, no native deps (spec-fips.md, req-tap-plugin-manifest-v0-fips).
+[fips]
+status = "compatible"
+
+[grift]
+keystone = "grift/keystone.grift.json"
+dimensions = "grift/dimensions.grift.json"
+
+# In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
+# each record; refresh with the core tooling, never hand-edit.
+[[boot.records]]
+name = "demo"
+description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
+sha256 = "9a4e3f7af415cfc5b85ceae5989b8416f4aa11942f990db68028d49b488c6cdc"
+
+[[boot.records]]
+name = "ci"
+description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
+sha256 = "46a67a10dc7ae526c1c1eba505068bc0780230bcd9286ebea49710d0b31b3eca"
