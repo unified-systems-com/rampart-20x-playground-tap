@@ -17,7 +17,8 @@ Indicators) can be shown on screen.**
 **Default dimensions.** Not applicable: the plugin owns no TAP-managed types (`req-rampart-20x-playground-nongoals`).
 The page and panel nodes it seeds are core entities and carry core's defaults. Entities seeded by the two
 data bundles carry `dcom: design`, per the convention in `req-rampart-20x-playground-mock-inventory`; pages,
-panels, Searches and the keystone carry no `dcom` value (ruled 2026-10-13).
+panels, Searches and the keystone carry no `dcom` value (ruled 2026-10-13). Inventory items also carry one
+`inventory` value (`req-rampart-20x-playground-dimensions`).
 
 ## Philosophy
 
@@ -64,6 +65,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock is not a boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Sixteen dimension nodes: the six `inventory` categories and the six `dataclass` classes, with their axes |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
@@ -153,6 +155,68 @@ the mock-data statement of `req-rampart-20x-playground-nongoals-3`; `context_jso
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-keystone-1 | One Keystone | Proposed | `MATCH (k:keystone) RETURN k` returns exactly one node on a booted `demo` stack. | |
 
+### Dimensions
+----
+RID: `req-rampart-20x-playground-dimensions`
+
+Status: `Proposed`
+
+Two axes of dimension nodes, created up front: `inventory`, which sorts what the inventory page lists into
+six categories, and `dataclass`, which classifies kinds of data. Both follow `dcom`'s pack shape
+(`req-dcom-naming`): flat `dimension` nodes, no edges, the hierarchy carried by the dotted name. They live in
+this plugin for now, as the "build it all here, break it out later" phase allows; `inventory` and `dataclass`
+are neutral keys that more than one plugin could use, so extraction into a vocabulary plugin is expected
+(ruled 2026-10-13, Q4a).
+
+**The `inventory` axis** (descriptions as given by the owner):
+
+| Node | Label it defines | Meaning |
+| --- | --- | --- |
+| `inventory` | axis | The category an inventory item belongs to. |
+| `inventory.applications` | `inventory: applications` | Applications: running applications inside the environment. |
+| `inventory.libraries` | `inventory: libraries` | Libraries: software libraries. |
+| `inventory.os` | `inventory: os` | Operating systems and containers. |
+| `inventory.secrets` | `inventory: secrets` | Secrets: secret material, keys, certificates, secrets. |
+| `inventory.cloud` | `inventory: cloud` | Cloud services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library or OS/container. |
+| `inventory.saas` | `inventory: saas` | Third-party SaaS: interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from. |
+
+**The `dataclass` axis.** Names as given by the owner; the meanings are this spec's proposal and are for review.
+
+| Node | Label it defines | Meaning (proposed) |
+| --- | --- | --- |
+| `dataclass` | axis | The class of data an item holds or handles. |
+| `dataclass.customer` | axis (child) | Data that belongs to customers. |
+| `dataclass.infra` | axis (child) | Data that belongs to running the infrastructure. |
+| `dataclass.customer.data` | `dataclass.customer: data` | Customer data. |
+| `dataclass.customer.creds` | `dataclass.customer: creds` | Customer credentials. |
+| `dataclass.customer.logs` | `dataclass.customer: logs` | Customer logs. |
+| `dataclass.infra.code` | `dataclass.infra: code` | Infrastructure code. |
+| `dataclass.infra.secrets` | `dataclass.infra: secrets` | Infrastructure secrets. |
+| `dataclass.infra.logs` | `dataclass.infra: logs` | Infrastructure logs. |
+
+By `req-dcom-naming` the label a value node defines is everything before its last dot as the key, and the last
+segment as the value, so an entity can carry one `dataclass.customer` value and one `dataclass.infra` value.
+That rule says names deeper than axis-and-value "carry no defined meaning"; `dataclass` is two levels deep, so
+it leans on that undefined territory (see the review ask). In v0 nothing is stamped with a `dataclass` value:
+the nodes exist so classification can start without a vocabulary change.
+
+#### Implementation
+
+`grift/dimensions.grift.json`, one batch of sixteen `dimension` nodes (seven `inventory`, nine `dataclass`),
+no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
+`req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
+the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-dimensions-1 | Sixteen Nodes | Proposed | Importing the bundle yields exactly sixteen `dimension` nodes, with the names in the two tables above. | |
+| req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the six category nodes. | |
+| req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the sixteen nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
+
 ### Mock Inventory
 ----
 RID: `req-rampart-20x-playground-mock-inventory`
@@ -183,6 +247,7 @@ default that says otherwise, and whether `fedramp_20x_ksi` stamps `dcom` on its 
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
 | req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; `aws_core` stamps nothing, so no merge is in play. |
 | req-rampart-20x-playground-mock-inventory-3 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
+| req-rampart-20x-playground-mock-inventory-4 | One Category Or None | Proposed | Every mock inventory item carries exactly one `inventory` value from the six categories; a node that fits none (for example pure topology) carries no `inventory` key. | The mapping of existing `aws_core`, `computing_core` and `github_core` types to categories was not checked. A category with no existing type (libraries is the likeliest) is a finding for the owning plugin. |
 
 ### Mock Findings
 ----
@@ -237,17 +302,21 @@ RID: `req-rampart-20x-playground-page-inventory`
 
 Status: `Proposed`
 
-The system inventory: every mock resource, grouped by kind, each row linking to its entity page.
+The system inventory, in six categories: applications, libraries, operating systems and containers, secrets,
+cloud services and third-party SaaS. Each category is a section listing the items stamped with that
+`inventory` value, each row linking to its entity page.
 
 #### Implementation
 
-Route `/playground/inventory`; one Search over the mock inventory; an existing table panel.
+Route `/playground/inventory`; six Searches, one per `inventory` value, each filtering on
+`n.dimensions["inventory"]`; an existing table panel per section.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and lists every mock inventory resource. | |
+| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders six sections, one per `inventory` category. | |
+| req-rampart-20x-playground-page-inventory-2 | Section Matches Dimension | Proposed | Each section lists exactly the entities whose `inventory` value is that section's category. | |
 
 ### Vulnerabilities Page
 ----
@@ -368,6 +437,7 @@ is a `github-core-tap` PR. The pull is run by hand from an existing collector, w
 | Document | Contents | Seeded by |
 | --- | --- | --- |
 | `grift/keystone.grift.json` | The keystone node | `req-rampart-20x-playground-keystone` |
+| `grift/dimensions.grift.json` | The `inventory` and `dataclass` dimension nodes | `req-rampart-20x-playground-dimensions` |
 | `grift/mock-inventory.grift.json` | Mocked GovCloud resources | `req-rampart-20x-playground-mock-inventory` |
 | `grift/mock-findings.grift.json` | Mocked `vdr_finding` and `vdr_report` rows | `req-rampart-20x-playground-mock-findings` |
 | `grift/pages.grift.json` | The four pages, their Searches and panel edges | the four `page` requirements |
