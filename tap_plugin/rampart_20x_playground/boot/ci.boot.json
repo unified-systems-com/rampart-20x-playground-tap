@@ -9,7 +9,7 @@
         "source": {
           "type": "git",
           "url": "https://github.com/CriticalSecLLC/rampart-20x-playground-tap",
-          "rev": "main"
+          "rev": "v0.1.0"
         }
       }
     ]
