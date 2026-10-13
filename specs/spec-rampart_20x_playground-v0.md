@@ -449,8 +449,14 @@ those. The sample holds no OpenSSL alert: OpenSSL arrives through code scanning 
 Prerequisite, in `github-core-tap` (its own PR, not this repository): the Dependabot alert model and collector
 already specified there as `req-github-core-dependabot-alerts` (Proposed) and tracked by
 `unified-systems-com/github-core-tap#68`, open and unassigned as of 2026-10-13. That requirement keys the model on
-repository and alert number and does not mention linking it to a `compliance_core` finding the way
-`code_scanning_alert` is (`github-core-tap#89`); whether it should is a question for that issue. Here: the
+repository and alert number and does not yet say how it links to a finding. Ruled 2026-10-13: every source drops in
+behind one generic finding, the shape `github-core-tap#89` gives code scanning. One `compliance_core__compliance_finding`
+is minted per alert; the source-specific alert (`github_core__dependabot_alert`, as `code_scanning_alert` is for
+code scanning) is a detail node linked to it by `DETAILS_FINDING__github_core`; the repository is placed on the finding by
+the `compliance_core` placement edge. One query then spans Dependabot, Trivy, Grype and SonarCloud. The generic finding
+is thin (name, summary, description, open or resolved), so severity, CVE and dates live on the detail node and the VDR
+evaluation fields on `vdr_finding`. The edge name is unsettled in `#89` (`HAS_COMPLIANCE_FINDING` in its body,
+`CARRIES_COMPLIANCE_FINDING` in the manifest); this spec follows whichever `github-core-tap` settles on. Here: the
 collector run is by hand, against `tap`, and its output is the data the finding-entry decision is made from.
 
 #### Acceptance Criteria
@@ -461,6 +467,7 @@ collector run is by hand, against `tap`, and its output is the data the finding-
 | req-rampart-20x-playground-dependabot-pull-2 | Tap Only | Proposed | After the pull, the grid holds Dependabot alerts for `unified-systems-com/tap` and no other repository. | |
 | req-rampart-20x-playground-dependabot-pull-3 | Entry Decided From Data | Proposed | The fields a finding entry carries are recorded in this spec, from the pulled alerts, before `mock-findings` is built. | The mapping of alert fields to `vdr_finding` is the open decision. |
 | req-rampart-20x-playground-dependabot-pull-4 | No Code Here | Proposed | The playground package contains no collector and no script that loads alerts. | |
+| req-rampart-20x-playground-dependabot-pull-5 | One Generic Finding | Proposed | Each pulled alert is one `compliance_core__compliance_finding` with its `dependabot_alert` detail node behind it, not a Dependabot-specific finding type. | Follows `github-core-tap#89`; edge name pending there. |
 
 ## Reference data
 
