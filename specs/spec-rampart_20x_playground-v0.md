@@ -35,7 +35,7 @@ decided then, not now. Compliance vocabulary — exceptions in particular — is
 
 The inventory and findings are **mock data**. They are never presented as collected, and never as an
 authorization boundary. Mock, observed and absent are three different states; the playground keeps them
-distinguishable (`req-rampart-20x-playground-mock-inventory-3`).
+distinguishable (`req-rampart-20x-playground-mock-inventory-3`): a mock row is one that this plugin's own seed batches created.
 
 **Provenance markers.**
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
@@ -46,7 +46,7 @@ carries `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `remediati
 (`req-dcom-inheritance`); an instance plugin composes by edge and ships no vocabulary
 (`req-git-serious-double-tap-scope`).
 *Designed* (this spec's own claims, unbuilt and untested): every route, page arrangement, seed bundle,
-the demo boot record's passkey loading, and the `playground.provenance` dimension.
+the demo boot record's passkey loading, and the batch-source test for "mock".
 
 ## Goals
 
@@ -165,8 +165,8 @@ against the owning plugin, not a type created here.
 
 #### Implementation
 
-`grift/mock-inventory.grift.json`. Every node carries `playground.provenance: mock`, declared by a small
-dimension bundle in this plugin. The nodes are intended to sit on the `dcom` `design` position.
+`grift/mock-inventory.grift.json`, one batch whose recorded source is this plugin. A node is mock if and only
+if that batch created it; no dimension is added for the purpose. The nodes are intended to sit on the `dcom` `design` position.
 `aws_core` v0.5.0 and its handling of the `aws-us-gov` partition were not exercised in drafting.
 
 **Open design question, for review.** `dcom` stamps through default dimensions on a plugin's own types
@@ -181,7 +181,7 @@ the mechanism is to be settled in review.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
 | req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Mechanism open; see above. |
-| req-rampart-20x-playground-mock-inventory-3 | Marked Mock | Proposed | Every mock node carries `playground.provenance: mock`; a node without it is not mock. | Keeps mock, observed and absent apart. |
+| req-rampart-20x-playground-mock-inventory-3 | Marked Mock | Proposed | Every mock node was created by a batch whose source is this plugin, and no node created by another source is treated as mock. | Keeps mock, observed and absent apart. Designed; the batch-source query is untried. |
 | req-rampart-20x-playground-mock-inventory-4 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
 
 ### Mock Findings
@@ -197,7 +197,7 @@ spread in severity, reachability, KEV status and age that the SLA view has somet
 
 `grift/mock-findings.grift.json`, using `fedramp_20x_ksi`'s `vdr_finding` and `vdr_report` as they are.
 Findings fill `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `first_detected`,
-`remediation_sla_days` and `remediation_due_at`; every row carries `playground.provenance: mock`. At least
+`remediation_sla_days` and `remediation_due_at`; every row is created by a batch whose source is this plugin. At least
 one finding past its due date and one comfortably inside it, so both sides of "vulnerabilities against
 SLA" appear.
 
@@ -207,7 +207,7 @@ SLA" appear.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-findings-1 | Existing Types Only | Proposed | Every row is a `fedramp_20x_ksi__vdr_finding` or `fedramp_20x_ksi__vdr_report`; the bundle imports clean. | |
 | req-rampart-20x-playground-mock-findings-2 | Both Sides Of SLA | Proposed | The seed holds at least one finding past `remediation_due_at` and one not yet due, on a fixed reference date stated in the bundle. | A fixed date keeps the demo repeatable. |
-| req-rampart-20x-playground-mock-findings-3 | Marked Mock | Proposed | Every row carries `playground.provenance: mock`. | |
+| req-rampart-20x-playground-mock-findings-3 | Marked Mock | Proposed | Every row was created by a batch whose source is this plugin. | |
 
 ### Landing Page
 ----
@@ -247,7 +247,7 @@ Route `/playground/inventory`; one Search over the mock inventory; an existing t
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and lists every node carrying `playground.provenance: mock` that is an inventory resource. | |
+| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and lists every mock inventory resource. | |
 
 ### Vulnerabilities Page
 ----
@@ -261,14 +261,14 @@ It shows mock and observed rows alike, marked apart.
 #### Implementation
 
 Route `/playground/vulnerabilities`; one Search over `fedramp_20x_ksi__vdr_finding`; an existing table
-panel; a provenance column.
+panel; a column naming the batch source.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and lists the seeded findings. | |
-| req-rampart-20x-playground-page-vulnerabilities-2 | Provenance Shown | Proposed | Each row states mock or not mock. | |
+| req-rampart-20x-playground-page-vulnerabilities-2 | Source Shown | Proposed | Each row states whether this plugin's seed batch created it. | |
 
 ### VDR Reports Page
 ----
