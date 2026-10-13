@@ -433,7 +433,7 @@ Status: `Proposed`
 Pull the live Dependabot alerts for `unified-systems-com/tap` up front, and use what they contain to decide what
 a vulnerability or finding entry carries. Scope is `tap` only (ruled 2026-10-13); other repositories and
 organizations are later. The playground adds no collector and no model: the alert model belongs in
-`github-core-tap`, by a reviewed PR that is a prerequisite of this requirement, in the shape of its
+`github-core-tap` (`#68`), by a reviewed PR that is a prerequisite of this requirement, in the shape of its
 `code_scanning_alert`. The pull is then run from `github_core`'s own collector with its existing credential.
 
 **Observed 2026-10-13** (read-only sample through the GitHub API; nothing loaded onto the grid): 48 alerts,
@@ -446,15 +446,18 @@ those. The sample holds no OpenSSL alert: OpenSSL arrives through code scanning 
 
 #### Implementation
 
-Prerequisite, in `github-core-tap` (its own issue and PR, not this repository): a Dependabot alert model with a
-declared natural key, linked to a `compliance_core` finding the way `code_scanning_alert` is. Here: the
+Prerequisite, in `github-core-tap` (its own PR, not this repository): the Dependabot alert model and collector
+already specified there as `req-github-core-dependabot-alerts` (Proposed) and tracked by
+`unified-systems-com/github-core-tap#68`, open and unassigned as of 2026-10-13. That requirement keys the model on
+repository and alert number and does not mention linking it to a `compliance_core` finding the way
+`code_scanning_alert` is (`github-core-tap#89`); whether it should is a question for that issue. Here: the
 collector run is by hand, against `tap`, and its output is the data the finding-entry decision is made from.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dependabot-pull-1 | Model Exists First | Proposed | A Dependabot alert model is released in `github-core-tap` before any pull is run. | Prerequisite, other repository. |
+| req-rampart-20x-playground-dependabot-pull-1 | Model Exists First | Proposed | The Dependabot alert model of `github-core-tap#68` is released before any pull is run. | Prerequisite, other repository. |
 | req-rampart-20x-playground-dependabot-pull-2 | Tap Only | Proposed | After the pull, the grid holds Dependabot alerts for `unified-systems-com/tap` and no other repository. | |
 | req-rampart-20x-playground-dependabot-pull-3 | Entry Decided From Data | Proposed | The fields a finding entry carries are recorded in this spec, from the pulled alerts, before `mock-findings` is built. | The mapping of alert fields to `vdr_finding` is the open decision. |
 | req-rampart-20x-playground-dependabot-pull-4 | No Code Here | Proposed | The playground package contains no collector and no script that loads alerts. | |
