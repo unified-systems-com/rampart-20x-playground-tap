@@ -35,8 +35,8 @@ decided then, not now. Compliance vocabulary — exceptions in particular — is
 `compliance_core`; the playground consumes what lands there.
 
 The inventory and findings are **mock data**. They are never presented as collected, and never as an
-authorization boundary. Mock, observed and absent are three different states; the playground keeps them
-distinguishable (`req-rampart-20x-playground-mock-inventory-3`): a mock row is one that this plugin's own seed batches created.
+authorization boundary. The presenter says so; the pages and panels are not adjusted to say it (ruled
+2026-10-13).
 
 **Provenance markers.**
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
@@ -47,7 +47,7 @@ carries `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `remediati
 (`req-dcom-inheritance`); an instance plugin composes by edge and ships no vocabulary
 (`req-git-serious-double-tap-scope`).
 *Designed* (this spec's own claims, unbuilt and untested): every route, page arrangement, seed bundle,
-the demo boot record's passkey loading, and the batch-source test for "mock".
+the demo boot record's passkey loading.
 
 ## Goals
 
@@ -55,8 +55,7 @@ the demo boot record's passkey loading, and the batch-source test for "mock".
 | :---: | --- | --- |
 | 1 | Show The Approach | A viewer sees a GovCloud deployment design, its inventory, its vulnerabilities and their SLA position without being told how the graph works. |
 | 2 | Data Only | Everything the playground ships is bundles, Searches, pages, panel configurations, tags and layout hints. |
-| 3 | Mock Is Marked | A mocked row is distinguishable from an observed one on every page that shows either. |
-| 4 | Pieces On The Board | Use the models that exist now; gaps become findings against the plugin that owns the concept, not code here. |
+| 3 | Pieces On The Board | Use the models that exist now; gaps become findings against the plugin that owns the concept, not code here. |
 
 ## Requirements
 
@@ -101,8 +100,8 @@ layout, written through the `create-layout` skill, if a page cannot be drawn fro
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-nongoals-1 | No Vocabulary | Proposed | `manage.py plugins` reports `models=0/0 edges=0/0` for the plugin. | |
 | req-rampart-20x-playground-nongoals-2 | No Network | Proposed | The plugin's `ci` record contains no collector and no credential, and boots offline. | |
+| req-rampart-20x-playground-nongoals-3 | Mock Is Not A Boundary | Proposed | The keystone description says the data is mock and the design is not an authorization boundary. | |
 | req-rampart-20x-playground-nongoals-4 | No Dcom On App Entities | Proposed | The keystone, page, panel and Searches seeded by this plugin carry no `dcom` key. | The axis describes the system under design, not the app showing it. |
-| req-rampart-20x-playground-nongoals-3 | Mock Is Not A Boundary | Proposed | The keystone description and the landing page both say the design is a mock and not an authorization boundary. | |
 
 ### Boot Records
 ----
@@ -167,8 +166,7 @@ against the owning plugin, not a type created here.
 
 #### Implementation
 
-`grift/mock-inventory.grift.json`, one batch whose recorded source is this plugin. A node is mock if and only
-if that batch created it; no dimension is added for the purpose. The nodes sit on the `dcom` `design` position (convention below).
+`grift/mock-inventory.grift.json`. The nodes sit on the `dcom` `design` position (convention below).
 `aws_core` v0.5.0 and its handling of the `aws-us-gov` partition were not exercised in drafting.
 
 **Convention (ruled by George, 2026-10-13).** Every entity seeded through one of this plugin's two data
@@ -184,8 +182,7 @@ default that says otherwise, and whether `fedramp_20x_ksi` stamps `dcom` on its 
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
 | req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; `aws_core` stamps nothing, so no merge is in play. |
-| req-rampart-20x-playground-mock-inventory-3 | Marked Mock | Proposed | Every mock node was created by a batch whose source is this plugin, and no node created by another source is treated as mock. | Keeps mock, observed and absent apart. Designed; the batch-source query is untried. |
-| req-rampart-20x-playground-mock-inventory-4 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
+| req-rampart-20x-playground-mock-inventory-3 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
 
 ### Mock Findings
 ----
@@ -200,7 +197,7 @@ spread in severity, reachability, KEV status and age that the SLA view has somet
 
 `grift/mock-findings.grift.json`, using `fedramp_20x_ksi`'s `vdr_finding` and `vdr_report` as they are.
 Findings fill `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `first_detected`,
-`remediation_sla_days` and `remediation_due_at`; every row is created by a batch whose source is this plugin. At least
+`remediation_sla_days` and `remediation_due_at`. At least
 one finding past its due date and one comfortably inside it, so both sides of "vulnerabilities against
 SLA" appear.
 
@@ -210,8 +207,7 @@ SLA" appear.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-findings-1 | Existing Types Only | Proposed | Every row is a `fedramp_20x_ksi__vdr_finding` or `fedramp_20x_ksi__vdr_report`; the bundle imports clean. | |
 | req-rampart-20x-playground-mock-findings-2 | Both Sides Of SLA | Proposed | The seed holds at least one finding past `remediation_due_at` and one not yet due, on a fixed reference date stated in the bundle. | A fixed date keeps the demo repeatable. |
-| req-rampart-20x-playground-mock-findings-4 | On The Design Axis | Proposed | Every mock `vdr_finding` and `vdr_report` carries `dcom: design` and no other `dcom` value. | Same convention; merge with any `fedramp_20x_ksi` default untried. |
-| req-rampart-20x-playground-mock-findings-3 | Marked Mock | Proposed | Every row was created by a batch whose source is this plugin. | |
+| req-rampart-20x-playground-mock-findings-3 | On The Design Axis | Proposed | Every mock `vdr_finding` and `vdr_report` carries `dcom: design` and no other `dcom` value. | Same convention; merge with any `fedramp_20x_ksi` default untried. |
 
 ### Landing Page
 ----
@@ -233,7 +229,6 @@ the mock inventory, and a projection through `create-layout` if the arrangement 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-landing-1 | Route Serves | Proposed | `GET /playground` returns 200 on a booted `demo` stack and renders the design graph. | |
-| req-rampart-20x-playground-page-landing-2 | Mock Stated | Proposed | The page shows the mock-data statement. | |
 
 ### Inventory Page
 ----
@@ -260,19 +255,18 @@ RID: `req-rampart-20x-playground-page-vulnerabilities`
 Status: `Proposed`
 
 The vulnerabilities: every `vdr_finding`, with PAIN, reachability, KEV, age and the resource it concerns.
-It shows mock and observed rows alike, marked apart.
+It shows every `vdr_finding`, mock or not, without distinction.
 
 #### Implementation
 
 Route `/playground/vulnerabilities`; one Search over `fedramp_20x_ksi__vdr_finding`; an existing table
-panel; a column naming the batch source.
+panel.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and lists the seeded findings. | |
-| req-rampart-20x-playground-page-vulnerabilities-2 | Source Shown | Proposed | Each row states whether this plugin's seed batch created it. | |
 
 ### VDR Reports Page
 ----
