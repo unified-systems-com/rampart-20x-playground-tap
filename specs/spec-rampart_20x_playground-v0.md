@@ -66,7 +66,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
-| req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | The GovCloud design diagram |
+| req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Vulnerabilities |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
@@ -215,14 +215,15 @@ RID: `req-rampart-20x-playground-page-landing`
 
 Status: `Proposed`
 
-The first screen: the keystone, the statement that the design is a mock, and the GovCloud deployment
-design drawn as a graph of the mock inventory.
+The first screen is the system visualization, not the keystone: a layout of the GovCloud deployment design,
+drawn as a graph of the mock inventory. Later versions add zooming into other elevations and layouts of the
+same system; those are not v0 and are not yet requirements (ruled 2026-10-13).
 
 #### Implementation
 
 Route `/playground`. One `page` node mounting existing panel types by `USES_PANEL` edge, one Search over
 the mock inventory, and a projection through `create-layout` if the arrangement needs one. Graph chrome is
-`node_style: icon-badge`. Links to the three pages below.
+`node_style: icon-badge`. Links to the three pages below. The page does not mount the keystone.
 
 #### Acceptance Criteria
 
