@@ -43,7 +43,7 @@ authorization boundary. The presenter says so; the pages and panels are not adju
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
 carries `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `remediation_sla_days` and
 `remediation_due_at`; `github_core` (`main`, plugin_version 0.12.2; latest tag v0.9.0) declares `code_scanning_alert` and no Dependabot model;
-`rampart-20x-tap` and `highbar-tap` carry no release tags.
+`rampart-20x-tap` and `highbar-tap` carry no release tags; `tap` had 48 Dependabot alerts (2 open) and 71 open code scanning alerts (43 Trivy, 26 Grype, 2 SonarCloud).
 *Documented* (a spec says so): `dcom` stamps through default dimensions on types a plugin owns
 (`req-dcom-inheritance`); an instance plugin composes by edge and ships no vocabulary
 (`req-git-serious-double-tap-scope`).
@@ -68,15 +68,15 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Sixteen dimension nodes: the six `inventory` categories and the six `dataclass` classes, with their axes |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
+| req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
-| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Vulnerabilities |
+| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Vulnerabilities, organized by source, Dependabot first |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
 | req-rampart-20x-playground-page-ksi | [KSI Page](#ksi-page) | Backlog | KSI implementation view |
 | req-rampart-20x-playground-ranking | [VDR Ranking](#vdr-ranking) | Backlog | Ranking process; likely its own plugin |
-| req-rampart-20x-playground-vuln-pull | [One-Off Vulnerability Pull](#one-off-vulnerability-pull) | Backlog | Pull recent OpenSSL vulnerabilities in through existing code scanning |
 
 ### v0 Non-Goals
 ----
@@ -324,19 +324,27 @@ RID: `req-rampart-20x-playground-page-vulnerabilities`
 
 Status: `Proposed`
 
-The vulnerabilities: every `vdr_finding`, with PAIN, reachability, KEV, age and the resource it concerns.
-It shows every `vdr_finding`, mock or not, without distinction.
+The vulnerabilities, organized by source. Dependabot is the first source and the first section. The other
+sources are the code scanning tools that report on `tap`; on 2026-10-13 these were Trivy (container and OS
+packages such as glibc), Grype (every one of its 26 open alerts was for `openssl-fips-provider`) and SonarCloud
+(code findings), each shown as its own section. Which findings appear as `vdr_finding` entries, and how a source's
+alerts map onto one, is the open decision of `req-rampart-20x-playground-dependabot-pull-3`.
 
 #### Implementation
 
-Route `/playground/vulnerabilities`; one Search over `fedramp_20x_ksi__vdr_finding`; an existing table
-panel.
+Route `/playground/vulnerabilities`; one Search and one existing table panel per source section. The Dependabot
+section reads the alert model of `req-rampart-20x-playground-dependabot-pull`; the code scanning sections read
+`github_core__code_scanning_alert` as `github_core` already collects it, one section per detecting tool. The
+mock findings of `req-rampart-20x-playground-mock-findings` are not assigned a section here; where they appear
+is left to the finding-entry decision.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and lists the seeded findings. | |
+| req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and renders one section per source. | |
+| req-rampart-20x-playground-page-vulnerabilities-2 | Dependabot First | Proposed | The first section on the page is Dependabot. | |
+| req-rampart-20x-playground-page-vulnerabilities-3 | One Section Per Source | Proposed | Each code scanning tool that has alerts for `tap` has its own section, and no alert appears in two sections. | |
 
 ### VDR Reports Page
 ----
@@ -416,21 +424,40 @@ reached, and not before.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-ranking-1 | Home Decided First | Backlog | The owning plugin is chosen before any ranking logic is written; none is written in this plugin. | |
 
-### One-Off Vulnerability Pull
+### Dependabot Pull
 ----
-RID: `req-rampart-20x-playground-vuln-pull`
+RID: `req-rampart-20x-playground-dependabot-pull`
 
-Status: `Backlog`
+Status: `Proposed`
 
-Pull recent OpenSSL vulnerabilities onto the grid through the code scanning data `github_core` already
-collects. The owner reports they already arrive that way, so no new model is expected; if one is needed it
-is a `github-core-tap` PR. The pull is run by hand from an existing collector, with no collector code here.
+Pull the live Dependabot alerts for `unified-systems-com/tap` up front, and use what they contain to decide what
+a vulnerability or finding entry carries. Scope is `tap` only (ruled 2026-10-13); other repositories and
+organizations are later. The playground adds no collector and no model: the alert model belongs in
+`github-core-tap`, by a reviewed PR that is a prerequisite of this requirement, in the shape of its
+`code_scanning_alert`. The pull is then run from `github_core`'s own collector with its existing credential.
+
+**Observed 2026-10-13** (read-only sample through the GitHub API; nothing loaded onto the grid): 48 alerts,
+all in `tap`, 46 fixed and 2 open, all Python (`pip`) packages, every alert with a CVE. Each alert carries the
+GHSA and CVE ids, a summary, `severity` and a CVSS vector and score, CWEs, the package and its ecosystem, the
+manifest path, runtime or development scope, direct or transitive, the vulnerable range and first patched
+version, created, fixed and dismissed times and state, and an EPSS value. It does **not** carry the VDR
+evaluation fields (`pain`, `internet_reachable`, `is_kev`) or an SLA; an evaluation step would have to supply
+those. The sample holds no OpenSSL alert: OpenSSL arrives through code scanning (see the vulnerabilities page).
+
+#### Implementation
+
+Prerequisite, in `github-core-tap` (its own issue and PR, not this repository): a Dependabot alert model with a
+declared natural key, linked to a `compliance_core` finding the way `code_scanning_alert` is. Here: the
+collector run is by hand, against `tap`, and its output is the data the finding-entry decision is made from.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-vuln-pull-1 | Existing Alerts Suffice | Backlog | Before any model work, a query confirms the OpenSSL vulnerabilities of interest exist as `github_core__code_scanning_alert` nodes. | Reported, not yet checked. |
+| req-rampart-20x-playground-dependabot-pull-1 | Model Exists First | Proposed | A Dependabot alert model is released in `github-core-tap` before any pull is run. | Prerequisite, other repository. |
+| req-rampart-20x-playground-dependabot-pull-2 | Tap Only | Proposed | After the pull, the grid holds Dependabot alerts for `unified-systems-com/tap` and no other repository. | |
+| req-rampart-20x-playground-dependabot-pull-3 | Entry Decided From Data | Proposed | The fields a finding entry carries are recorded in this spec, from the pulled alerts, before `mock-findings` is built. | The mapping of alert fields to `vdr_finding` is the open decision. |
+| req-rampart-20x-playground-dependabot-pull-4 | No Code Here | Proposed | The playground package contains no collector and no script that loads alerts. | |
 
 ## Reference data
 
