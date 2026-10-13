@@ -1,0 +1,248 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1361f-0018-7686-b775-a0b31a6428dc",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground Dimension Pack v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.dimensions",
+        "name": "rampart-20x-playground Dimension Pack v0.1.0",
+        "description": "Two dimension axes as sixteen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus six categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1361f-00e1-72d2-be64-99a1d1e263aa",
+            "entity_type": "dimension",
+            "name": "inventory",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory",
+            "description": "The category an inventory item belongs to. Every item on the inventory page carries one `inventory` value: `applications`, `libraries`, `os`, `secrets`, `cloud` or `saas`. The six values are the nodes named `inventory.<value>`. An entity carries one value or none."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-0121-7400-9dac-2bcccedd2c21",
+            "entity_type": "dimension",
+            "name": "inventory.applications",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.applications",
+            "description": "The `applications` category on the inventory axis: running applications inside the environment."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-016d-74e9-8dfb-eb3f43bf485c",
+            "entity_type": "dimension",
+            "name": "inventory.libraries",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.libraries",
+            "description": "The `libraries` category on the inventory axis: software libraries."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-01b3-7047-9145-3a18d4292f05",
+            "entity_type": "dimension",
+            "name": "inventory.os",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.os",
+            "description": "The `os` category on the inventory axis: operating systems and containers."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-01f4-707e-a8f0-ac6ffb9b295c",
+            "entity_type": "dimension",
+            "name": "inventory.secrets",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.secrets",
+            "description": "The `secrets` category on the inventory axis: secret material, keys, certificates and secrets."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-0262-7343-98fe-fb33a45fba63",
+            "entity_type": "dimension",
+            "name": "inventory.cloud",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.cloud",
+            "description": "The `cloud` category on the inventory axis: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library or OS/container."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-02b3-7009-8b48-203ff6935827",
+            "entity_type": "dimension",
+            "name": "inventory.saas",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.saas",
+            "description": "The `saas` category on the inventory axis: third-party SaaS, the interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-0300-7089-b1e2-05fb297f69a3",
+            "entity_type": "dimension",
+            "name": "dataclass",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass",
+            "description": "The class of data an item holds or handles. Two sub-axes, `dataclass.customer` and `dataclass.infra`, each take one value per entity. Nothing is stamped with a `dataclass` value in v0; the nodes exist so classification can start without a vocabulary change."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-034f-7394-9656-e37b286d5298",
+            "entity_type": "dimension",
+            "name": "dataclass.customer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer",
+            "description": "The customer sub-axis of `dataclass`: data that belongs to customers. Its values are `dataclass.customer.data`, `dataclass.customer.creds` and `dataclass.customer.logs`."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-039a-74f4-a5e2-a254ebdf1611",
+            "entity_type": "dimension",
+            "name": "dataclass.infra",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.infra",
+            "description": "The infrastructure sub-axis of `dataclass`: data that belongs to running the infrastructure. Its values are `dataclass.infra.code`, `dataclass.infra.secrets` and `dataclass.infra.logs`."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-03e9-70cd-a397-7ad28270b309",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.data",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.data",
+            "description": "The `data` value on the `dataclass.customer` sub-axis: customer data."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-0454-715b-b33e-1f29d2fcaca7",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.creds",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.creds",
+            "description": "The `creds` value on the `dataclass.customer` sub-axis: customer credentials."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-04bc-7028-837c-5c1ae59c281c",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.logs",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.logs",
+            "description": "The `logs` value on the `dataclass.customer` sub-axis: customer logs."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-0522-7227-a6af-a2d44529fa6e",
+            "entity_type": "dimension",
+            "name": "dataclass.infra.code",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.infra.code",
+            "description": "The `code` value on the `dataclass.infra` sub-axis: infrastructure code."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-056e-7653-b1e1-a65a70a75bc8",
+            "entity_type": "dimension",
+            "name": "dataclass.infra.secrets",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.infra.secrets",
+            "description": "The `secrets` value on the `dataclass.infra` sub-axis: infrastructure secrets."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1361f-05af-77d2-b445-1a13739cbf51",
+            "entity_type": "dimension",
+            "name": "dataclass.infra.logs",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.infra.logs",
+            "description": "The `logs` value on the `dataclass.infra` sub-axis: infrastructure logs."
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}

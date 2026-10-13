@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "profile_kind": "dev_local",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, github_core, compliance_core, fedramp_20x_ksi and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "install": {
+    "plugins": [
+      {
+        "slug": "identity_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/identity-core-tap",
+          "rev": "v0.1.3",
+          "commit": "53da388b6f47590090ef3bdc8d98731acff4c8e2"
+        }
+      },
+      {
+        "slug": "administrivia",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/administrivia-tap",
+          "rev": "v0.2.0",
+          "commit": "cf205b31e83ff8774cfae59db4810a4d9bd06aea"
+        }
+      },
+      {
+        "slug": "dcom",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/dcom-tap",
+          "rev": "v0.1.0",
+          "commit": "932762f34a2cdbc112f66be18babbb4488ce929b"
+        }
+      },
+      {
+        "slug": "aws_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/aws-core-tap",
+          "rev": "v0.5.0",
+          "commit": "d93ca2ee02140aa40134a64025743dc6e381ffc8"
+        }
+      },
+      {
+        "slug": "computing_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/computing-core-tap",
+          "rev": "v0.5.0",
+          "commit": "485c76a67690e37b5a168850fc20cf11508dad0d"
+        }
+      },
+      {
+        "slug": "git_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/git-core-tap",
+          "rev": "v0.1.1",
+          "commit": "9e941010f155f1223340ff404d7cbd14cd1db1e0"
+        }
+      },
+      {
+        "slug": "github_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/github-core-tap",
+          "rev": "v0.12.2",
+          "commit": "32788517921e04c1f69fb78473b05257c0c4e95b"
+        }
+      },
+      {
+        "slug": "compliance_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/compliance-core-tap",
+          "rev": "v0.4.0",
+          "commit": "e5464e4dd87758d41552d45df42c0303b0de48e3"
+        }
+      },
+      {
+        "slug": "fedramp_20x_ksi",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
+          "rev": "v0.3.1",
+          "commit": "3480c74dc8e95d410e8b05fc426157a5574f1874"
+        }
+      },
+      {
+        "slug": "rampart_20x",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/CriticalSecLLC/rampart-20x-tap",
+          "rev": "d97460e11141623ead50074e463353c9f280d83c",
+          "commit": "d97460e11141623ead50074e463353c9f280d83c"
+        },
+        "note": "Untagged: rampart-20x-tap has no release tags, so this pins the SHA of its main at the time this record was written (2026-10-13)."
+      },
+      {
+        "slug": "rampart_20x_playground",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/CriticalSecLLC/rampart-20x-playground-tap",
+          "rev": "main"
+        },
+        "note": "Self entry, unpinned in the first scaffold PR because a record cannot contain the commit that introduces it. A follow-up pins the merge commit; `spawn --dev-plugins` substitutes the checkout regardless."
+      }
+    ]
+  },
+  "population": {
+    "on_failure": "abort",
+    "steps": [
+      {
+        "type": "seed-plugin",
+        "plugin": "administrivia",
+        "enabled": true,
+        "note": "TAP admin pages and grid landing."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "dcom",
+        "enabled": true,
+        "note": "The dcom axis, so the `design` dimension node exists for seeded entities to carry."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "aws_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "aws_core's vocabulary dimension nodes only; its pages and region seed arrive when a page mounts them."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "computing_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "computing_core's vocabulary dimension nodes only."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_ksi",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "fedramp_20x_ksi's vocabulary dimension nodes only; its KSI seed, pages and schedule stay out until the VDR pages need them."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "enabled": true,
+        "note": "This plugin's own bundles: keystone and dimensions. Last, so every dimension it references already exists."
+      }
+    ]
+  }
+}

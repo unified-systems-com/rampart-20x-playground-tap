@@ -1,0 +1,43 @@
+# rampart-20x-playground-tap: a data-only instance plugin that shows a mocked FedRAMP 20x VDR story.
+# It composes existing plugins through its boot records and holds only bundles, Searches, pages and
+# panel configuration. Anything repeatable lands in the plugin that owns the concept.
+#
+# Identity chain (req-tap-plugin-arch-identity, gate-enforced; <slug>-tap since 2026-08-26):
+#   slug             = "rampart_20x_playground"
+#   distribution     = "rampart-20x-playground-tap"        (PEP 503: slug `_`->`-`, `-tap` suffix)
+#   import namespace = "tap_plugin.rampart_20x_playground" (PEP 420; NO tap_plugin/__init__.py)
+#   entry-point key  = "rampart_20x_playground"            (== slug)
+[project]
+name = "rampart-20x-playground-tap"
+description = "TAP Rampart 20x Playground plugin: a data-only instance plugin showing a mocked FedRAMP 20x VDR story on a GovCloud design."
+readme = "README.md"
+requires-python = ">=3.14"
+dynamic = ["version"]
+
+# No Tier-0 install dependencies: nothing here imports another plugin's Python, and the plugins this
+# instance composes are installed by the boot records (boot/demo.boot.json), not by pip resolution.
+dependencies = []
+
+[project.entry-points."tap.plugins"]
+rampart_20x_playground = "tap_plugin.rampart_20x_playground.apps:Rampart20xPlaygroundConfig"
+
+# The plugin's OWN dev closure (PEP 735), so its suite runs in a bare checkout. Never installed by boot.
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "factory-boy>=3.3",
+]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+fallback_version = "0.0.0"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["tap_plugin/rampart_20x_playground"]

@@ -1,0 +1,117 @@
+"""Structural, strict and loads validation for rampart_20x_playground, plus the identity chain and the
+surfaces it deliberately does not have (`req-rampart-20x-playground-nongoals`, `-boot`)."""
+
+from __future__ import annotations
+
+import json
+import tomllib
+from pathlib import Path
+
+import pytest
+from tap.plugin_testing import find_plugin_source_root
+from tap_plugins.manifest import load_manifest
+from tap_plugins.validate.service import validate_plugin
+
+SLUG = "rampart_20x_playground"
+PLUGIN_ROOT = find_plugin_source_root(__file__)
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+
+pytestmark = pytest.mark.skipif(
+    PLUGIN_ROOT is None,
+    reason="source-layout validation needs the plugin source tree; installed as a wheel here "
+    "(delegated to the plugin repo's own build).",
+)
+
+
+def _raw_manifest() -> dict:
+    with (PACKAGE_ROOT / "tap-plugin.toml").open("rb") as fh:
+        return tomllib.load(fh)
+
+
+def _record(name: str) -> dict:
+    return json.loads((PACKAGE_ROOT / "boot" / f"{name}.boot.json").read_text(encoding="utf-8"))
+
+
+class TestValidation:
+    """The validator is the authority on structure; do not re-implement its checks here."""
+
+    def test_structure_passes(self) -> None:
+        result = validate_plugin(PLUGIN_ROOT, level="structure")
+        assert result.ok, result.to_human()
+
+    def test_strict_passes(self) -> None:
+        result = validate_plugin(PLUGIN_ROOT, level="structure", strict=True)
+        assert result.ok, result.to_human()
+
+    def test_loads_passes(self) -> None:
+        result = validate_plugin(PLUGIN_ROOT, level="loads", strict=True)
+        assert result.ok, result.to_human()
+
+
+class TestIdentityChain:
+    """`req-tap-plugin-arch-identity`: the validator checks the chain agrees; these assert the VALUES."""
+
+    @staticmethod
+    def _pyproject() -> dict:
+        assert PLUGIN_ROOT is not None
+        with (PLUGIN_ROOT / "pyproject.toml").open("rb") as fh:
+            return tomllib.load(fh)
+
+    def test_dist_name(self) -> None:
+        from tap.plugin_identity import dist_name_for_slug
+
+        assert self._pyproject()["project"]["name"] == dist_name_for_slug(SLUG) == "rampart-20x-playground-tap"
+
+    def test_entry_point(self) -> None:
+        entry_points = self._pyproject()["project"]["entry-points"]["tap.plugins"]
+        assert entry_points == {SLUG: "tap_plugin.rampart_20x_playground.apps:Rampart20xPlaygroundConfig"}
+
+    def test_namespace_has_no_init(self) -> None:
+        assert PLUGIN_ROOT is not None
+        assert not (PLUGIN_ROOT / "tap_plugin" / "__init__.py").exists()
+
+    def test_manifest_slug(self) -> None:
+        assert load_manifest(PACKAGE_ROOT).slug == SLUG
+
+
+class TestSurfaces:
+    """What the plugin deliberately does NOT ship (`req-rampart-20x-playground-nongoals-1`)."""
+
+    def test_no_models_no_edges(self) -> None:
+        manifest = load_manifest(PACKAGE_ROOT)
+        assert manifest.models == []
+        assert manifest.edges == []
+
+    def test_grift_bundles(self) -> None:
+        grift = load_manifest(PACKAGE_ROOT).grift
+        assert sorted(entry.path for entry in grift) == ["grift/dimensions.grift.json", "grift/keystone.grift.json"]
+
+    def test_fips_posture_declared(self) -> None:
+        assert _raw_manifest()["fips"]["status"] == "compatible"
+
+
+class TestBootRecords:
+    """`req-rampart-20x-playground-boot`. The validator checks digests, closure and credential-freedom."""
+
+    def test_both_records_declared(self) -> None:
+        names = {entry["name"] for entry in _raw_manifest()["boot"]["records"]}
+        assert names == {"ci", "demo"}
+
+    def test_ci_installs_only_itself(self) -> None:
+        installed = [entry["slug"] for entry in _record("ci")["install"]["plugins"]]
+        assert installed == [SLUG]
+
+    def test_demo_pins_every_released_plugin_by_commit(self) -> None:
+        """`req-rampart-20x-playground-boot-2`. Self is unpinned in the first scaffold PR (a record cannot
+        carry the commit that introduces it); every other entry must carry a 40-hex commit."""
+        for entry in _record("demo")["install"]["plugins"]:
+            if entry["slug"] == SLUG:
+                continue
+            commit = entry["source"].get("commit", "")
+            assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), entry["slug"]
+
+    def test_excluded_plugins_absent(self) -> None:
+        """`req-rampart-20x-playground-boot-4`."""
+        for name in ("ci", "demo"):
+            slugs = {entry["slug"] for entry in _record(name)["install"]["plugins"]}
+            assert not slugs & {"okta", "duo", "teleport", "highbar"}, name
