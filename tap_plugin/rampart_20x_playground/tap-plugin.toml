@@ -24,7 +24,7 @@ dimensions = "grift/dimensions.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "9a4e3f7af415cfc5b85ceae5989b8416f4aa11942f990db68028d49b488c6cdc"
+sha256 = "6cf970e37debdd3b5e8cf0d656adb79811ab5d6c65ec1d7274914859207342cd"
 
 [[boot.records]]
 name = "ci"

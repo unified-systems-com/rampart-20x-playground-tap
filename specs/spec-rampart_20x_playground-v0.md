@@ -143,6 +143,7 @@ Okta, Duo and Teleport are not in either record.
 | req-rampart-20x-playground-boot-2 | Pinned By Commit | Proposed | Every `install.plugins` entry in `demo` carries a 40-hex commit SHA that equals the `^{}` line of its tag, or, for `rampart_20x`, the `main` SHA with an "untagged" note. | A tag-object SHA is a defect. |
 | req-rampart-20x-playground-boot-3 | Demo Boots And Logs In | Proposed | `spawn-session.sh <label> --from <demo record>` stands up healthy, and a locally stored passkey logs in. | Designed; not yet tried. |
 | req-rampart-20x-playground-boot-4 | No Excluded Plugins | Proposed | Neither record installs `okta`, `duo`, `teleport` or `highbar`. | |
+| req-rampart-20x-playground-boot-5 | Installed In Dependency Order | Proposed | In `demo`, every entry comes after the sibling plugins its distribution requires (for example `compliance_core` and `git_core` before `github_core`). | Each entry is installed on its own, so an unmet sibling dependency aborts pre-boot. Proved by booting the record. |
 
 ### Keystone
 ----
