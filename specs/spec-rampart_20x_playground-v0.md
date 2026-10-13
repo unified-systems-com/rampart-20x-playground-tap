@@ -15,8 +15,9 @@ Indicators) can be shown on screen.**
 | Kind | Instance (anchor) plugin, data only — consumes `identity_core`, `administrivia`, `dcom`, `aws_core`, `computing_core`, `github_core` (with `git_core`), `compliance_core`, `fedramp_20x_ksi` and `rampart_20x`; consumed by nothing. |
 
 **Default dimensions.** Not applicable: the plugin owns no TAP-managed types (`req-rampart-20x-playground-nongoals`).
-The page and panel nodes it seeds are core entities and carry core's defaults. How the mocked inventory
-sits on the `dcom` axis is `req-rampart-20x-playground-mock-inventory`.
+The page and panel nodes it seeds are core entities and carry core's defaults. Entities seeded by the two
+data bundles carry `dcom: design`, per the convention in `req-rampart-20x-playground-mock-inventory`; pages,
+panels, Searches and the keystone carry no `dcom` value (ruled 2026-10-13).
 
 ## Philosophy
 
@@ -100,6 +101,7 @@ layout, written through the `create-layout` skill, if a page cannot be drawn fro
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-nongoals-1 | No Vocabulary | Proposed | `manage.py plugins` reports `models=0/0 edges=0/0` for the plugin. | |
 | req-rampart-20x-playground-nongoals-2 | No Network | Proposed | The plugin's `ci` record contains no collector and no credential, and boots offline. | |
+| req-rampart-20x-playground-nongoals-4 | No Dcom On App Entities | Proposed | The keystone, page, panel and Searches seeded by this plugin carry no `dcom` key. | The axis describes the system under design, not the app showing it. |
 | req-rampart-20x-playground-nongoals-3 | Mock Is Not A Boundary | Proposed | The keystone description and the landing page both say the design is a mock and not an authorization boundary. | |
 
 ### Boot Records
@@ -169,18 +171,19 @@ against the owning plugin, not a type created here.
 if that batch created it; no dimension is added for the purpose. The nodes sit on the `dcom` `design` position (convention below).
 `aws_core` v0.5.0 and its handling of the `aws-us-gov` partition were not exercised in drafting.
 
-**Convention (ruled by George, 2026-10-13).** Every entity this plugin seeds through a GRIFT batch carries
-`dcom: design` in its `dimensions`, written per entity in the bundle. This is the playground's own convention
-for seeded entries, not the type-default stamping `req-dcom-inheritance` describes, since the plugin owns no
-types. Untried: how the grid merges this per-entity value with a type default that says otherwise, and whether
-`aws_core` stamps `dcom` at all.
+**Convention (ruled by George, 2026-10-13).** Every entity seeded through one of this plugin's two data
+bundles (`mock-inventory`, `mock-findings`) carries `dcom: design` in its `dimensions`, written per entity in
+the GRIFT batch. This is the playground's own convention for seeded entries, not the type-default stamping
+`req-dcom-inheritance` describes, since the plugin owns no types. `aws_core` does not stamp `dcom` (ruled), so
+on those nodes the per-entity value is the only one. Untried: how the grid merges the value with a type
+default that says otherwise, and whether `fedramp_20x_ksi` stamps `dcom` on its types (not checked).
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
-| req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; merge with type defaults untried. |
+| req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; `aws_core` stamps nothing, so no merge is in play. |
 | req-rampart-20x-playground-mock-inventory-3 | Marked Mock | Proposed | Every mock node was created by a batch whose source is this plugin, and no node created by another source is treated as mock. | Keeps mock, observed and absent apart. Designed; the batch-source query is untried. |
 | req-rampart-20x-playground-mock-inventory-4 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
 
@@ -207,6 +210,7 @@ SLA" appear.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-mock-findings-1 | Existing Types Only | Proposed | Every row is a `fedramp_20x_ksi__vdr_finding` or `fedramp_20x_ksi__vdr_report`; the bundle imports clean. | |
 | req-rampart-20x-playground-mock-findings-2 | Both Sides Of SLA | Proposed | The seed holds at least one finding past `remediation_due_at` and one not yet due, on a fixed reference date stated in the bundle. | A fixed date keeps the demo repeatable. |
+| req-rampart-20x-playground-mock-findings-4 | On The Design Axis | Proposed | Every mock `vdr_finding` and `vdr_report` carries `dcom: design` and no other `dcom` value. | Same convention; merge with any `fedramp_20x_ksi` default untried. |
 | req-rampart-20x-playground-mock-findings-3 | Marked Mock | Proposed | Every row was created by a batch whose source is this plugin. | |
 
 ### Landing Page
