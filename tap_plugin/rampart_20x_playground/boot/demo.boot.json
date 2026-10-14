@@ -1,7 +1,7 @@
 {
   "version": 1,
   "profile_kind": "dev_local",
-  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, github_core, compliance_core, fedramp_20x_ksi and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
   "install": {
     "plugins": [
       {
@@ -40,8 +40,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/aws-core-tap",
-          "rev": "v0.5.0",
-          "commit": "d93ca2ee02140aa40134a64025743dc6e381ffc8"
+          "rev": "v0.6.0",
+          "commit": "0f664cf04597e9aa78ed5a44f83c1863a2e17e3e"
         }
       },
       {
@@ -65,16 +65,6 @@
         }
       },
       {
-        "slug": "github_core",
-        "enabled": true,
-        "source": {
-          "type": "git",
-          "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.12.2",
-          "commit": "32788517921e04c1f69fb78473b05257c0c4e95b"
-        }
-      },
-      {
         "slug": "compliance_core",
         "enabled": true,
         "source": {
@@ -83,6 +73,17 @@
           "rev": "v0.4.0",
           "commit": "e5464e4dd87758d41552d45df42c0303b0de48e3"
         }
+      },
+      {
+        "slug": "github_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/github-core-tap",
+          "rev": "v0.13.0",
+          "commit": "dddae9baf958ce09a08be79b96a63b3c7ca86364"
+        },
+        "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
       {
         "slug": "fedramp_20x_ksi",

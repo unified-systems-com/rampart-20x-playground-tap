@@ -110,6 +110,20 @@ class TestBootRecords:
             commit = entry["source"].get("commit", "")
             assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), entry["slug"]
 
+    def test_demo_installs_siblings_in_dependency_order(self) -> None:
+        """`req-rampart-20x-playground-boot-5`. Each entry is installed on its own, so a sibling distribution
+        it requires must come earlier in the list. Known constraints from the pinned releases' pyprojects;
+        rampart_20x's own dependencies are unread (private repo), so it stays last before this plugin."""
+        order = [entry["slug"] for entry in _record("demo")["install"]["plugins"]]
+        needs = {
+            "github_core": ("git_core", "compliance_core", "identity_core"),
+            "fedramp_20x_ksi": ("compliance_core",),
+        }
+        for slug, deps in needs.items():
+            for dep in deps:
+                assert order.index(dep) < order.index(slug), f"{dep} must be installed before {slug}"
+        assert order[-2:] == ["rampart_20x", SLUG]
+
     def test_excluded_plugins_absent(self) -> None:
         """`req-rampart-20x-playground-boot-4`."""
         for name in ("ci", "demo"):
