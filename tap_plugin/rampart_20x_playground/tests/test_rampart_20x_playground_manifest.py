@@ -84,7 +84,11 @@ class TestSurfaces:
 
     def test_grift_bundles(self) -> None:
         grift = load_manifest(PACKAGE_ROOT).grift
-        assert sorted(entry.path for entry in grift) == ["grift/dimensions.grift.json", "grift/keystone.grift.json"]
+        assert sorted(entry.path for entry in grift) == [
+            "grift/dimensions.grift.json",
+            "grift/keystone.grift.json",
+            "grift/security-alerts.grift.json",
+        ]
 
     def test_fips_posture_declared(self) -> None:
         assert _raw_manifest()["fips"]["status"] == "compatible"
@@ -97,9 +101,9 @@ class TestBootRecords:
         names = {entry["name"] for entry in _raw_manifest()["boot"]["records"]}
         assert names == {"ci", "demo"}
 
-    def test_ci_installs_only_itself(self) -> None:
+    def test_ci_installs_the_dependency_closure_and_itself(self) -> None:
         installed = [entry["slug"] for entry in _record("ci")["install"]["plugins"]]
-        assert installed == [SLUG]
+        assert installed == ["identity_core", "git_core", "compliance_core", "github_core", SLUG]
 
     def test_demo_pins_every_released_plugin_by_commit(self) -> None:
         """`req-rampart-20x-playground-boot-2`. Self is unpinned in the first scaffold PR (a record cannot
