@@ -65,7 +65,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock is not a boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Seventeen dimension nodes: eight `inventory` (the axis and seven categories) and nine `dataclass` (the axis, two branches and six classes) |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Nineteen dimension nodes: ten `inventory` (the axis and nine categories) and nine `dataclass` (the axis, two branches and six classes) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -185,8 +185,10 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `inventory` | axis | The category an inventory item belongs to. |
 | `inventory.applications` | `inventory: applications` | Applications: running applications inside the environment. |
 | `inventory.libraries` | `inventory: libraries` | Libraries: software libraries. |
+| `inventory.packages` | `inventory: packages` | Packages: packages a package manager installed, one row per ecosystem, name and version. |
 | `inventory.os` | `inventory: os` | Operating systems. |
 | `inventory.containers` | `inventory: containers` | Containers: container images, one row per class of identical image. |
+| `inventory.crypto` | `inventory: crypto` | Crypto: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each. |
 | `inventory.secrets` | `inventory: secrets` | Secrets: secret material, keys, certificates, secrets. |
 | `inventory.cloud` | `inventory: cloud` | Cloud services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library, OS or container. |
 | `inventory.saas` | `inventory: saas` | Third-party SaaS: interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from. |
@@ -213,7 +215,7 @@ the nodes exist so classification can start without a vocabulary change.
 
 #### Implementation
 
-`grift/dimensions.grift.json`, one batch of seventeen `dimension` nodes (eight `inventory`, nine `dataclass`),
+`grift/dimensions.grift.json`, one batch of nineteen `inventory` and `dataclass` `dimension` nodes (ten `inventory`, nine `dataclass`),
 no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
 `req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
 the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
@@ -222,10 +224,10 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dimensions-1 | Seventeen Nodes | Proposed | Importing the bundle yields exactly seventeen `dimension` nodes, with the names in the two tables above. | |
-| req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the seven category nodes. | |
+| req-rampart-20x-playground-dimensions-1 | Nineteen Nodes | Proposed | Importing the bundle yields exactly nineteen `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | |
+| req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the nine category nodes. | |
 | req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
-| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the seventeen nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the nineteen nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 
 ### Mock Inventory

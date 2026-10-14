@@ -4,7 +4,7 @@ A data-only TAP instance plugin (`rampart_20x_playground`) that demonstrates Fed
 Vulnerability Detection and Response (VDR), and later Key Security Indicator (KSI), capabilities
 for a podcast demo. It composes existing plugins; it ships no models, edges or code.
 
-- **Owns:** a keystone and seventeen dimension nodes today; mocked AWS GovCloud inventory and findings
+- **Owns:** a keystone and nineteen `inventory` and `dataclass` dimension nodes today; mocked AWS GovCloud inventory and findings
   and the pages that show a deployment design, an inventory, vulnerabilities and VDR reports (vulns x
   SLA) as they land. All inventory and findings are mock data, never collected.
 - **Lives elsewhere:** vocabulary belongs to the `*_core` plugins, `fedramp_20x_ksi` and

@@ -14,7 +14,7 @@ KEYSTONE = PACKAGE_ROOT / "grift" / "keystone.grift.json"
 
 pytestmark = pytest.mark.django_db(databases=["default", "search_readonly"])
 
-INVENTORY = ("applications", "libraries", "os", "containers", "secrets", "cloud", "saas")
+INVENTORY = ("applications", "libraries", "packages", "os", "containers", "crypto", "secrets", "cloud", "saas")
 DATACLASS = (
     "customer.data", "customer.creds", "customer.logs", "infra.code", "infra.secrets", "infra.logs",
 )
@@ -34,7 +34,7 @@ def _import(path: Path) -> None:
 class TestDimensions:
     """`req-rampart-20x-playground-dimensions-1`."""
 
-    def test_seventeen_dimension_nodes(self) -> None:
+    def test_nineteen_dimension_nodes(self) -> None:
         from tap_grid.models import Dimension
 
         _import(DIMENSIONS)
@@ -42,7 +42,7 @@ class TestDimensions:
         expected = ["inventory", *(f"inventory.{v}" for v in INVENTORY), "dataclass", "dataclass.customer",
                     "dataclass.infra", *(f"dataclass.{v}" for v in DATACLASS)]
         assert names == sorted(expected)
-        assert len(names) == 17
+        assert len(names) == 19
 
     def test_dictionary_nodes_carry_no_dcom_value(self) -> None:
         """Dictionary entries are not entries (`req-dcom-stamping`)."""

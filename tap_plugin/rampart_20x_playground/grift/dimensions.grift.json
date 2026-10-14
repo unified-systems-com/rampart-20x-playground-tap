@@ -6,15 +6,15 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a13be3-0373-7abc-b91e-e972f1c2ee93",
+        "entity_id": "01a13c39-3f6d-7525-a4f4-041485d4c5d5",
         "entity_type": "batch",
-        "name": "rampart-20x-playground Dimension Pack v0.2.0",
+        "name": "rampart-20x-playground Dimension Pack v0.3.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.dimensions",
-        "name": "rampart-20x-playground Dimension Pack v0.2.0",
-        "description": "Two dimension axes as seventeen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus seven categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension)."
+        "name": "rampart-20x-playground Dimension Pack v0.3.0",
+        "description": "Two dimension axes as nineteen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus nine categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension). v0.3.0 adds `inventory.packages` and `inventory.crypto` (req-rampart-20x-playground-inventory-software)."
       },
       "nodes": [
         {
@@ -28,7 +28,7 @@
           },
           "node": {
             "name": "inventory",
-            "description": "The category an inventory item belongs to. Every item on the inventory page carries one `inventory` value: `applications`, `libraries`, `os`, `containers`, `secrets`, `cloud` or `saas`. The seven values are the nodes named `inventory.<value>`. An entity carries one value or none."
+            "description": "The category an inventory item belongs to. Every item on the inventory page carries one `inventory` value: `applications`, `libraries`, `packages`, `os`, `containers`, `crypto`, `secrets`, `cloud` or `saas`. The nine values are the nodes named `inventory.<value>`. An entity carries one value or none."
           }
         },
         {
@@ -61,6 +61,20 @@
         },
         {
           "entity": {
+            "entity_id": "01a13c39-3f6d-7525-a4f4-0415d9282472",
+            "entity_type": "dimension",
+            "name": "inventory.packages",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.packages",
+            "description": "The `packages` category on the inventory axis: packages a package manager installed, one row per ecosystem, name and version."
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1361f-01b3-7047-9145-3a18d4292f05",
             "entity_type": "dimension",
             "name": "inventory.os",
@@ -85,6 +99,20 @@
           "node": {
             "name": "inventory.containers",
             "description": "The `containers` category on the inventory axis: container images, one row per class of identical image."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c39-3f6d-7525-a4f4-0416b879e087",
+            "entity_type": "dimension",
+            "name": "inventory.crypto",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.crypto",
+            "description": "The `crypto` category on the inventory axis: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each."
           }
         },
         {

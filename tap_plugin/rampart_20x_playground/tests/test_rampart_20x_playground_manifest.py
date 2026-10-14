@@ -89,6 +89,7 @@ class TestSurfaces:
             "grift/dimensions.grift.json",
             "grift/inventory-entities.grift.json",
             "grift/inventory-page.grift.json",
+            "grift/inventory-software.grift.json",
             "grift/keystone.grift.json",
             "grift/mock-inventory.grift.json",
             "grift/pages.grift.json",

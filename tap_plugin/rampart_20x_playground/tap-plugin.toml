@@ -9,7 +9,7 @@ description = "A data-only instance plugin: the keystone, mocked GovCloud invent
 depends_on = [
     { slug = "github_core", note = "The security-alerts bundle seeds github_core__code_scanning_alert, github_core__dependabot_alert and github_core__github_repository, plus the DETAILS_FINDING edge between an alert and its finding." },
     { slug = "aws_core", note = "The mock inventory seeds aws_core nodes (account, VPC, subnet, load balancer, ECS, RDS, secrets, keys, Lambda, buckets, and from v0.7.0 the CodePipeline pipeline and CodeBuild projects) and the official edges between them (ENROLLS_ACCOUNT, BELONGS_TO_ACCOUNT, PARTITIONED_INTO_SUBNET, ATTACHED_TO_VPC, RESIDES_IN_SUBNET, RUNS_SERVICE, ENCRYPTED_WITH_KEY, RETRIEVES_SOURCE_FROM, RUNS_BUILD, WRITES_OBJECT, RETRIEVES_SECRET_FROM); the landing layout nests on them." },
-    { slug = "computing_core", note = "The mock inventory seeds computing_core__host and computing_core__os_user for the computers of customers, the developer and the administrator, joined by DEFINES_OS_USER; the inventory entities bundle seeds computing_core__program, computing_core__file, computing_core__public_key and computing_core__private_key, with no edges." },
+    { slug = "computing_core", note = "The mock inventory seeds computing_core__host and computing_core__os_user for the computers of customers, the developer and the administrator, joined by DEFINES_OS_USER; the inventory entities bundle seeds computing_core__program, computing_core__file, computing_core__public_key and computing_core__private_key, with no edges. The inventory software bundle seeds computing_core__operating_system (Wolfi), a computing_core__host of kind container for the web image, computing_core__package (apk, pypi and npm), computing_core__library (the self-built OpenSSL FIPS provider and the source-built cryptography) and computing_core__crypto_provider (the crypto-BOM scan, scope tap-web), joined by RUNS_OPERATING_SYSTEM, INSTALLS_PACKAGE, LOADS_LIBRARY (from the TAP web program) and CARRIES_CRYPTO_PROVIDER." },
     { slug = "identity_core", note = "The mock inventory seeds identity_core__human and the HELD_BY_HUMAN edge from a local account or GitHub account to the person who holds it." },
     { slug = "dcom", note = "Every mock inventory entity carries the dcom dimension value design; the dimension nodes come from the dcom plugin." },
     { slug = "compliance_core", note = "The security-alerts bundle seeds compliance_core__compliance_finding (one per alert) and the CARRIES_COMPLIANCE_FINDING edge that places each finding on its repository." },
@@ -26,6 +26,7 @@ security_alerts = "grift/security-alerts.grift.json"
 actor_dimensions = "grift/dimensions-actors.grift.json"
 mock_inventory = "grift/mock-inventory.grift.json"
 inventory_entities = "grift/inventory-entities.grift.json"
+inventory_software = "grift/inventory-software.grift.json"
 pages = "grift/pages.grift.json"
 inventory_page = "grift/inventory-page.grift.json"
 vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
