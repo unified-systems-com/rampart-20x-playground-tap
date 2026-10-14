@@ -1,11 +1,12 @@
 # Rampart 20x Playground Inventory Specification
 
-**The system inventory as six small tables instead of one wide spreadsheet: applications, libraries, operating
-systems and containers, secrets, cloud services and third-party SaaS, each with only the columns that make
-sense for what it lists.**
+**The system inventory as seven small tables instead of one wide spreadsheet: applications, libraries, operating
+systems, containers, secrets, cloud services and third-party SaaS, each with only the columns that make sense
+for what it lists.**
 
 This file elaborates `req-rampart-20x-playground-page-inventory` and the `inventory` axis of
-`req-rampart-20x-playground-dimensions` in `spec-rampart_20x_playground-v0.md`. It inherits the v0 rules: the
+`req-rampart-20x-playground-dimensions` in `spec-rampart_20x_playground-v0.md`, and changes the latter (see
+`req-rampart-20x-playground-inventory-dimension`). It inherits the v0 rules: the
 plugin ships data only, the entities are fabricated for the demo from existing types, and every one carries
 `dcom: design`.
 
@@ -36,43 +37,64 @@ the search results quoted under `req-rampart-20x-playground-inventory-rows`; the
 
 | # | Name | Description |
 | :---: | --- | --- |
-| 1 | One Table Per Kind | Six tables, each with only the columns that apply to its rows. |
+| 1 | One Table Per Kind | Seven tables, each with only the columns that apply to its rows. |
 | 2 | Derived, Not Typed | Counts, findings and consumer numbers are computed from the graph. |
 | 3 | FedRAMP Row Rules | Identical containers count once; instances stay countable. |
 | 4 | Library Per Version | A library is one row per name and version, with its consumers counted. |
 | 5 | Secrets Without Values | Secret material is listed by kind and location, never by value. |
+| 6 | Material Apart From Its Home | A secret is its own row, separate from the resource or file that holds it. |
 
 ## Requirements
 
 | RID | Name | Status | Notes |
 | --- | --- | :---: | --- |
-| req-rampart-20x-playground-inventory-tables | [Six Tables](#six-tables) | Proposed | The categories and what each lists |
+| req-rampart-20x-playground-inventory-tables | [Seven Tables](#seven-tables) | Proposed | The categories and what each lists |
+| req-rampart-20x-playground-inventory-dimension | [Dimension Change](#dimension-change) | Proposed | Splits `inventory.os` into operating systems and containers |
 | req-rampart-20x-playground-inventory-common | [Common Columns](#common-columns) | Proposed | The columns every table carries |
 | req-rampart-20x-playground-inventory-rows | [Row Rules](#row-rules) | Proposed | What counts as one row, with the FedRAMP basis |
 | req-rampart-20x-playground-inventory-applications | [Applications](#applications) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-libraries | [Libraries](#libraries) | Proposed | Columns and rows |
-| req-rampart-20x-playground-inventory-os | [Operating Systems And Containers](#operating-systems-and-containers) | Proposed | Columns and rows |
+| req-rampart-20x-playground-inventory-os | [Operating Systems](#operating-systems) | Proposed | Columns and rows |
+| req-rampart-20x-playground-inventory-containers | [Containers](#containers) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-secrets | [Secrets](#secrets) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-cloud | [Cloud Services](#cloud-services) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-saas | [Third-Party SaaS](#third-party-saas) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-derived | [Derived Columns](#derived-columns) | Proposed | How computed columns are produced |
 | req-rampart-20x-playground-inventory-gaps | [Recorded Gaps](#recorded-gaps) | Proposed | Columns the grid cannot supply yet |
 
-### Six Tables
+### Seven Tables
 ----
 RID: `req-rampart-20x-playground-inventory-tables`
 
 Status: `Proposed`
 
-Six tables, one per value of the `inventory` dimension: applications, libraries, operating systems and
+Seven tables, one per value of the `inventory` dimension: applications, libraries, operating systems,
 containers, secrets, cloud services, third-party SaaS. Each is a Search over `n.dimensions["inventory"]` and an
 existing table panel, as `req-rampart-20x-playground-page-inventory` already states. This spec adds the columns
 and the row rules.
 
 #### Acceptance Criteria
 
-- Exactly six tables; none for network endpoints or for people and their computers.
+- Exactly seven tables; none for network endpoints or for people and their computers.
 - Nothing from TAP's own internals (modules, registries, workers) appears in any table.
+
+### Dimension Change
+----
+RID: `req-rampart-20x-playground-inventory-dimension`
+
+Status: `Proposed`
+
+The v0 spec has one category, `inventory.os`, described as "operating systems and containers". Operating
+systems and containers are now separate tables, so the axis gains a value: `inventory.os` becomes operating
+systems only and a new `inventory.containers` covers images (approved by George, 2026-10-14). The dictionary goes from sixteen dimension nodes
+to seventeen (eight `inventory`, nine `dataclass`), and `req-rampart-20x-playground-dimensions` and its tests
+(`test_sixteen_dimension_nodes`) change with it.
+
+#### Acceptance Criteria
+
+- `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns seven category nodes.
+- Every entity in the container table is stamped `inventory: containers`, and none in the operating-systems
+  table is.
 
 ### Common Columns
 ----
@@ -126,13 +148,15 @@ RID: `req-rampart-20x-playground-inventory-applications`
 
 Status: `Proposed`
 
-The running programs of the deployment: the TAP web program (and gunicorn that hosts it) and the database
-engine. Columns: version, vendor or source, function, what it runs in, the ports it listens on, runtime or
+The running programs of the deployment: the TAP web program (and gunicorn that hosts it) and the specific
+PostgreSQL database instance. The managed service that runs the database is a cloud-services row, not this one.
+Columns: version, vendor or source, function, what it runs in, the ports it listens on, runtime or
 language, whether it is public, FIPS status (derived from TAP's own validation record), open findings.
 
 #### Acceptance Criteria
 
 - The TAP web program has a row with its ports and the container it runs in.
+- The PostgreSQL database instance has a row here and the RDS service has a different row under cloud services.
 
 ### Libraries
 ----
@@ -158,25 +182,44 @@ excluded as the findings are.
 - The consumers count for a library on the web image equals the number of image classes that include it, not
   the number of running tasks.
 
-### Operating Systems And Containers
+### Operating Systems
 ----
 RID: `req-rampart-20x-playground-inventory-os`
 
 Status: `Proposed`
 
-Two kinds of row: an operating system, and a container image class.
+Operating systems, as their own table. The base of the product's images is Wolfi, the Chainguard distribution
+(TAP's Dockerfile builds on `cgr.dev/chainguard/wolfi-base`, pinned by digest; read from the repository, not run).
 
 #### Implementation
 
-Operating system columns: name and version, patch level, end of life (derived), baseline configuration.
-Container columns: image tag and digest, base image, architecture, instances (derived), identical across
-instances (derived), libraries (derived count), in latest scan (derived), authenticated scan (not applicable
-to image scans; shown as such), baseline configuration.
+Columns: name, version or build, vendor, patch level, end of life (derived), baseline configuration, in latest
+scan (derived), images built on it (derived count), libraries it ships (derived count), FIPS status.
+
+#### Acceptance Criteria
+
+- Wolfi has one row, however many images are built on it.
+- The images-built-on-it count equals the number of container rows that name it as their base.
+
+### Containers
+----
+RID: `req-rampart-20x-playground-inventory-containers`
+
+Status: `Proposed`
+
+Container image classes, per `req-rampart-20x-playground-inventory-rows`.
+
+#### Implementation
+
+Columns: image tag and digest, base operating system (a link to its row), architecture, instances (derived),
+identical across instances (derived), libraries (derived count), in latest scan (derived), authenticated scan
+(not applicable to image scans; shown as such), baseline configuration.
 
 #### Acceptance Criteria
 
 - The web image appears as one container row, not one per task.
-- The base operating system the image is built on appears as its own row and the container row links to it.
+- Each container row names its base operating system and the link resolves to a row in the operating-systems
+  table.
 
 ### Secrets
 ----
@@ -184,13 +227,18 @@ RID: `req-rampart-20x-playground-inventory-secrets`
 
 Status: `Proposed`
 
-Secret material: secrets, keys and certificates, listed by kind and where they are held, never by value.
-Columns: kind (secret, key or certificate), algorithm, key size, where it is held (a file, a running program or
+Secret material: secrets, keys and certificates, listed by kind and where they are held, never by value. A
+secret is its own row and its home is a different row: the key material of a KMS key is a secret row here, and
+the AWS KMS key that holds it is a cloud-services row (George, 2026-10-14). The same applies to a certificate on
+disk (the secret, and the file that holds it) and to a secret in Secrets Manager (the secret, and the service
+resource). Columns: kind (secret, key or certificate), algorithm, key size, where it is held (a file, a running program or
 Secrets Manager), who uses it, what protects it (the KMS key), rotation, expiry.
 
 #### Acceptance Criteria
 
 - No row, property or batch carries a secret value, a file's content or a private-key fingerprint.
+- The KMS key appears twice: as key material under secrets, and as the AWS resource under cloud services, and
+  the first names the second as where it is held.
 - The load balancer's certificate and the container's certificate are two rows, the second with its public and
   private halves identified.
 
@@ -201,14 +249,17 @@ RID: `req-rampart-20x-playground-inventory-cloud`
 Status: `Proposed`
 
 Cloud capabilities that are neither application, library nor operating system: the load balancer, cluster,
-database service, VPC, subnets, internet gateway, Route 53 zone, ECR, Secrets Manager, KMS, S3 buckets, Lambda
-function, and the CodePipeline and CodeBuild resources once `aws_core` has types for them. Columns: service,
+database service, internet gateway, Route 53 zone, ECR, Secrets Manager, KMS, S3 buckets, Lambda
+function, the KMS key as a resource, and the CodePipeline and CodeBuild resources once `aws_core` has types for
+them. Columns: service,
 resource type, ARN or ID, public, encrypted at rest, Multi-AZ, FIPS endpoint, who manages it (customer
 configured or AWS managed).
 
 #### Acceptance Criteria
 
-- Every cloud-service node on the board has a row.
+- Every cloud-service node on the board has a row, except the conceptual containers.
+- Neither a subnet (in any zone) nor the VPC has a row: they are conceptual containers, not systems
+  (George, 2026-10-14).
 
 ### Third-Party SaaS
 ----
@@ -252,15 +303,14 @@ Status: `Proposed`
 | No owner column | The workbook's administrator and owner columns pointed at people; with no people table there is nothing to point at. |
 | Findings on a library | Findings attach to scan results by package and version, not yet to a library node. |
 | Container image identity | The image digest needs a home on the task or container node. |
+| Secret and key nodes | `secret` and `asymmetric_key` are proposed in the internals spec and do not exist; neither does an edge from a KMS key or a file to the secret it holds. |
+| Dimension change | `inventory.containers` is a new dimension node; the v0 spec and `dimensions.grift.json` change with it. |
 
 ## Open Questions
 
 | # | Question |
 | :---: | --- |
-| Q1 | Does the KMS key belong under Secrets (it is key material) or Cloud Services (it is an AWS resource)? |
-| Q2 | Are the zone copies of one subnet tier one row or several? They are stacked on the board. |
-| Q3 | Does the database appear under Applications (the engine) as well as Cloud Services (the managed instance), or only the latter? |
-| Q4 | Is the base operating system a row of its own, or a column on the container row? |
+| Q1 | The dimension change touches the v0 spec, `dimensions.grift.json` and one test. Does it go in the pull request that carries this spec, or in a build pull request of its own? |
 
 ## Sources
 
