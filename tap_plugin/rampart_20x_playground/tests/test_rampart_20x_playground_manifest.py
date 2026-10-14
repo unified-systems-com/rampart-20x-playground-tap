@@ -93,6 +93,7 @@ class TestSurfaces:
             "grift/mock-inventory.grift.json",
             "grift/pages.grift.json",
             "grift/security-alerts.grift.json",
+            "grift/vulnerabilities-page.grift.json",
         ]
 
     def test_fips_posture_declared(self) -> None:

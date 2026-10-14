@@ -28,6 +28,7 @@ mock_inventory = "grift/mock-inventory.grift.json"
 inventory_entities = "grift/inventory-entities.grift.json"
 pages = "grift/pages.grift.json"
 inventory_page = "grift/inventory-page.grift.json"
+vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.

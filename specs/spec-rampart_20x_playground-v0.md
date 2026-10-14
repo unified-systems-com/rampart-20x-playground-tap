@@ -347,7 +347,8 @@ Status: `Proposed`
 The vulnerabilities, organized by source. Dependabot is the first source and the first section. The other
 sources are the code scanning tools that report on `tap`; on 2026-10-13 these were Trivy (container and OS
 packages such as glibc), Grype (every one of its 26 open alerts was for `openssl-fips-provider`) and SonarCloud
-(code findings), each shown as its own section. Which findings appear as `vdr_finding` entries, and how a source's
+(code findings), each shown as its own section. Read from the grid on 2026-10-14, the kept alerts carry a fourth
+tool, CodeQL (22 alerts, Python source findings), which has its own section as well. Which findings appear as `vdr_finding` entries, and how a source's
 alerts map onto one, is the open decision of `req-rampart-20x-playground-dependabot-pull-3`.
 
 #### Implementation
@@ -365,6 +366,9 @@ is left to the finding-entry decision.
 | req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and renders one section per source. | |
 | req-rampart-20x-playground-page-vulnerabilities-2 | Dependabot First | Proposed | The first section on the page is Dependabot. | |
 | req-rampart-20x-playground-page-vulnerabilities-3 | One Section Per Source | Proposed | Each code scanning tool that has alerts for `tap` has its own section, and no alert appears in two sections. | |
+| req-rampart-20x-playground-page-vulnerabilities-4 | Sections Are Searches | Proposed | Each section is a standard table panel bound by `USES_SEARCH` to one Search and mounted by one `USES_PANEL` edge; a code scanning Search selects by `tool_name`, so the sections partition the code scanning alerts. | Data only: no JavaScript, no model, no edge of its own. |
+| req-rampart-20x-playground-page-vulnerabilities-5 | Newest First, Real Data | Proposed | Each Search orders its alerts newest first by the alert's `created_at`. The page and its panels carry no `dcom` value and no text calling the data mock: the alerts are observed. | The table panel has no default sort and Gryphon cannot order text severity critical-first, so severity is a clickable heading, not the default order. |
+| req-rampart-20x-playground-page-vulnerabilities-6 | Columns Are Fields | Proposed | Every column reads a field the alert model holds: Dependabot shows package, ecosystem, severity, state, advisory, alert link, fixed version, manifest and dates; code scanning shows tool, rule, severity, state, location, alert link and dates. | The finding's status is not a column: a table row is one node and the finding is one hop away, where Gryphon cannot order. |
 
 ### VDR Reports Page
 ----
