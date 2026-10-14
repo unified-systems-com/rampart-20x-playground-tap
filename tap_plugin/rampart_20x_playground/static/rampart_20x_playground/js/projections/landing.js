@@ -76,10 +76,10 @@ const ACTOR_PLACE = {
     developer: {[T.host]: {stage: 4, order: 0}, [T.human]: {stage: 5, order: 0}},
 };
 //: Shown as icon nodes: the type icon is the card, the name is below it.
-const ICON_TYPES = [T.lambda, T.bucket, T.secret, T.human, T.host, T.platform];
+const ICON_TYPES = [T.human, T.host, T.platform];
 const ICON = {width: 84, height: 84};
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.lambda, T.bucket, T.secret];
 const SOLO = {width: 72, height: 72};
 //: Top-level nodes that stand on the same horizontal line as the request path (anchored on the load balancer):
 //: the customer and their computer, GitHub, the developer's computer and the developer. The administrator
