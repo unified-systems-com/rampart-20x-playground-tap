@@ -28,6 +28,7 @@ import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
+import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
     organization: "aws_core__aws_organization",
@@ -65,15 +66,26 @@ const E = {
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
 };
 const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
-//: Top-level columns, left to right, by the `actor` and `device` dimension values on a person or a computer.
-//: Everything else with a `layout:column` tag (the organization, GitHub) takes the tag. The row reads
-//: customer, the product account's machinery, GitHub, developer.
-const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 3};
+//: Top-level columns, left to right: customer, their computer, the product account (the organization
+//: tags itself column 2), GitHub (column 3), the developer's computer, the developer. A person or a
+//: computer takes its place from its `actor` / `device` dimension; the administrator and their computer
+//: stand beneath the organization, the computer above the person.
+const ACTOR_PLACE = {
+    customer: {[T.human]: {stage: 0, order: 0}, [T.host]: {stage: 1, order: 0}},
+    administrator: {[T.host]: {stage: 2, order: 1}, [T.human]: {stage: 2, order: 2}},
+    developer: {[T.host]: {stage: 4, order: 0}, [T.human]: {stage: 5, order: 0}},
+};
 //: Shown as icon nodes: the type icon is the card, the name is below it.
-const ICON_TYPES = [T.igw, T.alb, T.rds, T.lambda, T.bucket, T.secret, T.human, T.host, T.platform];
+const ICON_TYPES = [T.lambda, T.bucket, T.secret, T.human, T.host, T.platform];
 const ICON = {width: 84, height: 84};
-//: Place in the column: the person, then their computer.
-const KIND_ORDER = {[T.human]: 1, [T.host]: 2};
+//: Shown as icon-centric-solo nodes: the icon and the name, no card.
+const SOLO_TYPES = [T.igw, T.alb, T.rds];
+const SOLO = {width: 72, height: 72};
+//: Top-level nodes that stand on the same horizontal line as the request path (anchored on the load balancer):
+//: the customer and their computer, GitHub, the developer's computer and the developer. The administrator
+//: and their computer stay beneath the organization.
+const ROW_TYPES = [T.human, T.host, T.platform];
+const ROW_APART = "administrator";
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -89,10 +101,9 @@ export async function execute(context) {
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
     const piles = _collapseZoneCopies(cy);
-    applyIconNodes(cy, {
-        members: cy.nodes().filter((n) => ICON_TYPES.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS)),
-        ...ICON, iconNodeId: "landing",
-    });
+    const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
+    applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
 
@@ -115,7 +126,7 @@ export async function execute(context) {
         baseSizes,
         padding: 24,
         paddings: Object.fromEntries(CONTAINERS.map((t) => [t, pad])),
-        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 28},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56},
         innerLayouts: {
             [T.cluster]: {name: "flow", gap: 28, sort: "label"},
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -138,6 +149,18 @@ export async function execute(context) {
         const z = Number(pile.representative.style("z-index")) || 0;
         cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("z-index", z - card.data("_stack_depth")));
     });
+
+    // The people, computers and GitHub already have their columns; put them on the request path's line.
+    if (cy.scratch("landing_row")) cy.scratch("landing_row").destroy();
+    const anchor = shown([T.alb]).first();
+    if (anchor.nonempty()) {
+        const row = cy.nodes().filter((n) => {
+            const dims = n.data("dimensions") || {};
+            return ROW_TYPES.includes(n.data("entity_type")) && (dims.actor || dims.device) !== ROW_APART
+                && n.data("_viewport_parent") === undefined && !n.hasClass(ELEVATION_HIDDEN_CLASS);
+        });
+        cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
+    }
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -213,21 +236,15 @@ function _stampVpcColumns(cy) {
 }
 
 /**
- * Stamp the top-level `ranked` columns, left to right: customers, then the organization with the
- * administrator beneath it, then GitHub, then the developer. A person or computer takes its column
- * from its `actor` / `device` dimension; a node with a `layout:column` tag takes the tag.
+ * Stamp the top-level `ranked` columns (see ACTOR_PLACE); a node with a `layout:column` tag takes the tag.
  */
 function _stampRootColumns(cy) {
     cy.nodes().forEach((n) => {
-        const type = n.data("entity_type");
         const dims = n.data("dimensions") || {};
         const tags = n.data("tags") || {};
-        const actor = dims.actor || dims.device;
-        if (actor in ACTOR_COLUMN && KIND_ORDER[type]) {
-            const column = ACTOR_COLUMN[actor];
-            //: The administrator goes beneath the organization, which is first in column 1.
-            const below = column === 1 ? 1 : 0;
-            n.data({_stage: column, _order: below + KIND_ORDER[type]});
+        const place = (ACTOR_PLACE[dims.actor || dims.device] || {})[n.data("entity_type")];
+        if (place) {
+            n.data({_stage: place.stage, _order: place.order});
         } else if (tags["layout:column"] !== undefined) {
             n.data({_stage: Number(tags["layout:column"]), _order: Number(tags["layout:order"] || 0)});
         }

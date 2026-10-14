@@ -113,7 +113,7 @@ The layout expresses the three flows as three directions meeting at the centre.
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious web and worker containers sit at the centre of the view. | |
+| req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious containers sit at the centre of the view. | |
 | req-rampart-20x-playground-govcloud-layout-2 | Request Nodes Are Horizontal | Proposed | The nodes of the request path, from the customer computer to the containers, sit on a single horizontal line. | Placement only; lines follow `grid-true`. |
 | req-rampart-20x-playground-govcloud-layout-3 | Route53 Upper-Left | Proposed | Route53 is placed in the upper-left of the product account. | |
 | req-rampart-20x-playground-govcloud-layout-4 | Deployment Enters From The Right | Proposed | The deployment path enters the product account from the right. | |
@@ -132,7 +132,7 @@ The account where git-serious runs. It holds, from the customer side inward:
 - **DNS:** a Route53 public hosted zone (public zones are supported in GovCloud as of April 2025, per the AWS announcement linked below).
 - **Edge:** an internet gateway on the VPC, AWS WAF in front of the load balancer, an ACM certificate for TLS.
 - **Network:** one VPC with public, private and isolated subnet tiers across two availability zones. The load balancer sits in the public tier, the containers in the private tier, the database in the isolated tier.
-- **Containers:** an ECS cluster running the git-serious web service and the worker service (the task queue, split from the web container; see Recorded Gaps).
+- **Containers:** an ECS cluster running the one git-serious service, whose container runs the web server and the task queue together, as the product does today (ruled 2026-10-14: realism for what is deployed; a separate worker service is planned, see Recorded Gaps).
 - **Data:** an RDS Postgres instance, Multi-AZ, replacing the database container of a development stack.
 - **Secrets and keys:** Secrets Manager secrets the containers read, and KMS keys encrypting the database, the secrets and the logs.
 - **Delivery:** an ECR repository and the deploy step (GitHub Actions through an OIDC trust), both inside the account.
@@ -294,7 +294,7 @@ Until those land the view can use the existing types where they apply.
 **Elsewhere:**
 
 - Web-tier high availability: `unified-systems-com/tap#1020` (epic).
-- A worker service split from the web container is part of that epic (`unified-systems-com/tap#1016`).
+- A worker service split from the web container is part of that epic (`unified-systems-com/tap#1016`). It is not drawn until it ships.
 
 #### Acceptance Criteria
 

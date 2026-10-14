@@ -33,7 +33,7 @@
             "partition": "aws-us-gov",
             "name": "organization",
             "tags": {
-              "layout:column": "1",
+              "layout:column": "2",
               "layout:order": "0"
             }
           }
@@ -478,65 +478,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d23c3f9cc2ee",
-            "entity_type": "aws_core__aws_ecs_service",
-            "name": "worker",
-            "dimensions": {
-              "tap.cloud": "aws",
-              "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
-            }
-          },
-          "node": {
-            "service_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:service/git-serious/worker",
-            "status": "ACTIVE",
-            "desired_count": 2,
-            "running_count": 2,
-            "launch_type": "FARGATE",
-            "name": "worker"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d23e597d4226",
-            "entity_type": "aws_core__aws_ecs_task",
-            "name": "worker task a",
-            "dimensions": {
-              "tap.cloud": "aws",
-              "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
-            }
-          },
-          "node": {
-            "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/worker-a",
-            "status": "RUNNING",
-            "launch_type": "FARGATE",
-            "name": "worker task a"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d2405ad1e83a",
-            "entity_type": "aws_core__aws_ecs_task",
-            "name": "worker task b",
-            "dimensions": {
-              "tap.cloud": "aws",
-              "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
-            }
-          },
-          "node": {
-            "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/worker-b",
-            "status": "RUNNING",
-            "launch_type": "FARGATE",
-            "name": "worker task b"
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d24211bfdd43",
             "entity_type": "aws_core__aws_rds_instance",
             "name": "database",
@@ -791,7 +732,7 @@
             "host": "github.com",
             "html_url": "https://github.com",
             "tags": {
-              "layout:column": "2",
+              "layout:column": "3",
               "layout:order": "9"
             }
           }
@@ -1254,54 +1195,6 @@
           },
           "edge": {
             "from_entity_id": "01a13b2b-a806-70ab-bec7-d23ae734451d",
-            "to_entity_id": "01a13b2b-a806-70ab-bec7-d22ca0e6e322",
-            "edge_type": "RESIDES_IN_SUBNET__aws_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d23d46f8f5ea",
-            "entity_type": "edge",
-            "name": "01a13b2b-a806-70ab-bec7-d23521f9e4a4 --[RUNS_SERVICE__aws_core]--> 01a13b2b-a806-70ab-bec7-d23c3f9cc2ee",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a13b2b-a806-70ab-bec7-d23521f9e4a4",
-            "to_entity_id": "01a13b2b-a806-70ab-bec7-d23c3f9cc2ee",
-            "edge_type": "RUNS_SERVICE__aws_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d23f0ba684bf",
-            "entity_type": "edge",
-            "name": "01a13b2b-a806-70ab-bec7-d23e597d4226 --[RESIDES_IN_SUBNET__aws_core]--> 01a13b2b-a806-70ab-bec7-d22a04b8f486",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a13b2b-a806-70ab-bec7-d23e597d4226",
-            "to_entity_id": "01a13b2b-a806-70ab-bec7-d22a04b8f486",
-            "edge_type": "RESIDES_IN_SUBNET__aws_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2b-a806-70ab-bec7-d241ae792381",
-            "entity_type": "edge",
-            "name": "01a13b2b-a806-70ab-bec7-d2405ad1e83a --[RESIDES_IN_SUBNET__aws_core]--> 01a13b2b-a806-70ab-bec7-d22ca0e6e322",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a13b2b-a806-70ab-bec7-d2405ad1e83a",
             "to_entity_id": "01a13b2b-a806-70ab-bec7-d22ca0e6e322",
             "edge_type": "RESIDES_IN_SUBNET__aws_core",
             "properties": {}
