@@ -1,8 +1,8 @@
 # Rampart 20x Playground Inventory Specification
 
-**The system inventory as seven small tables instead of one wide spreadsheet: applications, libraries, operating
-systems, containers, secrets, cloud services and third-party SaaS, each with only the columns that make sense
-for what it lists.**
+**The system inventory as nine small tables instead of one wide spreadsheet: applications, libraries, packages,
+operating systems, containers, crypto, secrets, cloud services and third-party SaaS, each with only the columns
+that make sense for what it lists.**
 
 This file elaborates `req-rampart-20x-playground-page-inventory` and the `inventory` axis of
 `req-rampart-20x-playground-dimensions` in `spec-rampart_20x_playground-v0.md`, and changes the latter (see
@@ -37,45 +37,49 @@ the search results quoted under `req-rampart-20x-playground-inventory-rows`; the
 
 | # | Name | Description |
 | :---: | --- | --- |
-| 1 | One Table Per Kind | Seven tables, each with only the columns that apply to its rows. |
+| 1 | One Table Per Kind | Nine tables, each with only the columns that apply to its rows. |
 | 2 | Derived, Not Typed | Counts, findings and consumer numbers are computed from the graph. |
 | 3 | FedRAMP Row Rules | Identical containers count once; instances stay countable. |
 | 4 | Library Per Version | A library is one row per name and version, with its consumers counted. |
 | 5 | Secrets Without Values | Secret material is listed by kind and location, never by value. |
 | 6 | Material Apart From Its Home | A secret is its own row, separate from the resource or file that holds it. |
+| 7 | Packages From A Named Source | A package row says which document it was read from, so an SBOM-specific view can be cut later. |
 
 ## Requirements
 
 | RID | Name | Status | Notes |
 | --- | --- | :---: | --- |
-| req-rampart-20x-playground-inventory-tables | [Seven Tables](#seven-tables) | Proposed | The categories and what each lists |
-| req-rampart-20x-playground-inventory-dimension | [Dimension Change](#dimension-change) | Proposed | Splits `inventory.os` into operating systems and containers |
+| req-rampart-20x-playground-inventory-tables | [Nine Tables](#nine-tables) | Proposed | The categories and what each lists |
+| req-rampart-20x-playground-inventory-dimension | [Dimension Change](#dimension-change) | Proposed | Splits `inventory.os` into operating systems and containers; adds packages and crypto |
 | req-rampart-20x-playground-inventory-common | [Common Columns](#common-columns) | Proposed | The columns every table carries |
 | req-rampart-20x-playground-inventory-rows | [Row Rules](#row-rules) | Proposed | What counts as one row, with the FedRAMP basis |
 | req-rampart-20x-playground-inventory-applications | [Applications](#applications) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-libraries | [Libraries](#libraries) | Proposed | Columns and rows |
+| req-rampart-20x-playground-inventory-packages | [Packages](#packages) | Proposed | Columns, rows and the source column |
 | req-rampart-20x-playground-inventory-os | [Operating Systems](#operating-systems) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-containers | [Containers](#containers) | Proposed | Columns and rows |
+| req-rampart-20x-playground-inventory-crypto | [Crypto](#crypto) | Proposed | The crypto-BOM providers, with their disposition |
 | req-rampart-20x-playground-inventory-secrets | [Secrets](#secrets) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-cloud | [Cloud Services](#cloud-services) | Proposed | Columns and rows |
 | req-rampart-20x-playground-inventory-saas | [Third-Party SaaS](#third-party-saas) | Proposed | Columns and rows |
+| req-rampart-20x-playground-inventory-software | [Software Bundle](#software-bundle) | Proposed | The data behind the operating-system, library, package, container and crypto tables |
 | req-rampart-20x-playground-inventory-derived | [Derived Columns](#derived-columns) | Proposed | How computed columns are produced |
 | req-rampart-20x-playground-inventory-gaps | [Recorded Gaps](#recorded-gaps) | Proposed | Columns the grid cannot supply yet |
 
-### Seven Tables
+### Nine Tables
 ----
 RID: `req-rampart-20x-playground-inventory-tables`
 
 Status: `Proposed`
 
-Seven tables, one per value of the `inventory` dimension: applications, libraries, operating systems,
-containers, secrets, cloud services, third-party SaaS. Each is a Search over `n.dimensions["inventory"]` and an
+Nine tables, one per value of the `inventory` dimension, in page order: applications, libraries, packages,
+operating systems, containers, crypto, secrets, cloud services, third-party SaaS. Each is a Search over `n.dimensions["inventory"]` and an
 existing table panel, as `req-rampart-20x-playground-page-inventory` already states. This spec adds the columns
 and the row rules.
 
 #### Acceptance Criteria
 
-- Exactly seven tables; none for network endpoints or for people and their computers.
+- Exactly nine tables; none for network endpoints or for people and their computers.
 - Nothing from TAP's own internals (modules, registries, workers) appears in any table.
 
 ### Dimension Change
@@ -86,13 +90,14 @@ Status: `Proposed`
 
 The v0 spec has one category, `inventory.os`, described as "operating systems and containers". Operating
 systems and containers are now separate tables, so the axis gains a value: `inventory.os` becomes operating
-systems only and a new `inventory.containers` covers images (approved by George, 2026-10-14). The dictionary goes from sixteen dimension nodes
-to seventeen (eight `inventory`, nine `dataclass`), and `req-rampart-20x-playground-dimensions` and its tests
-(`test_sixteen_dimension_nodes`) change with it.
+systems only and a new `inventory.containers` covers images (approved by George, 2026-10-14). The axis gains
+two more values for the software tables: `inventory.packages` and `inventory.crypto` (George, 2026-10-14).
+The dictionary goes from sixteen dimension nodes to nineteen (ten `inventory`, nine `dataclass`), and
+`req-rampart-20x-playground-dimensions` and its tests (`test_sixteen_dimension_nodes`) change with it.
 
 #### Acceptance Criteria
 
-- `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns seven category nodes.
+- `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns nine category nodes.
 - Every entity in the container table is stamped `inventory: containers`, and none in the operating-systems
   table is.
 
@@ -164,23 +169,50 @@ RID: `req-rampart-20x-playground-inventory-libraries`
 
 Status: `Proposed`
 
-Every library, listed once per name and version, with the number of consumers. This replaces counting a library
-once per container: a library used by two identical containers is one row with the container class as its
-consumer.
+Libraries are the things built outside a package manager, listed once per name and version: the self-built
+OpenSSL FIPS provider and the `cryptography` library built from source (George, 2026-10-14). Everything a
+package manager installed is a package row (see `req-rampart-20x-playground-inventory-packages`), not a library
+row. This replaces the earlier reading of this section, which put every package and library of the web image
+here.
 
 #### Implementation
 
-Columns: name, version, ecosystem (apk, pip and so on), fixed version where known, whether it carries
-cryptography, license, consumers (derived count of image classes or programs that include it), open findings.
-The set is every package and library on the web image, taken from the same scan data that feeds the findings
-(the OpenSSL FIPS provider, glibc, Python, gosu, oauthlib and the rest), with the database image's packages
-excluded as the findings are.
+Columns: name, version, ecosystem, how it was built (self-built or source-built), what it was built from, path,
+license, CPE. Whether a library carries cryptography is not a column: it is the presence of a
+`CARRIES_CRYPTO_PROVIDER` edge to a crypto provider (see `req-rampart-20x-playground-inventory-crypto`). The
+count of consumers, fixed version and open findings stay derived columns not yet built.
 
 #### Acceptance Criteria
 
-- Two entries of the same library at different versions are two rows.
-- The consumers count for a library on the web image equals the number of image classes that include it, not
-  the number of running tasks.
+- The table has exactly two rows on the web image: the OpenSSL FIPS provider (source kind self-built, version
+  and CPE from `docker/sbom-supplemental.json`) and `cryptography` (source kind source-built, version from
+  `uv.lock`).
+- No apk or Python package that a package manager installed has a row here.
+
+### Packages
+----
+RID: `req-rampart-20x-playground-inventory-packages`
+
+Status: `Proposed`
+
+Every package the web image's package managers installed, one row per ecosystem, name and version. Where two
+versions of a package are present, both are rows. The database image's packages are out of scope, as they are
+for the findings. Each row carries a source column naming the document it was read from. This sets up a later
+SBOM-specific view: the rows are the SBOM's rows (George, 2026-10-14).
+
+#### Implementation
+
+Columns: name, version, ecosystem (apk, pypi, npm), source, architecture, license, package URL. Until a
+generated SBOM exists, the source column names the same inputs the SBOM scan reads, with an honest label: the
+apk database (`apk`), `uv.lock` (`pypi`) and the vendored `package-lock.json` (`npm`). When the real SBOM
+replaces them, the source becomes `sbom`; the rows and the table do not change. Licence is blank where the
+source holds none (`uv.lock` carries none).
+
+#### Acceptance Criteria
+
+- No two rows share ecosystem, name and version.
+- Every row names its source, and no row says `sbom` before a generated SBOM is its source.
+- The web image's host has an `INSTALLS_PACKAGE` edge to each row.
 
 ### Operating Systems
 ----
@@ -193,12 +225,15 @@ Operating systems, as their own table. The base of the product's images is Wolfi
 
 #### Implementation
 
-Columns: name, version or build, vendor, patch level, end of life (derived), baseline configuration, in latest
-scan (derived), images built on it (derived count), libraries it ships (derived count), FIPS status.
+Columns: name, OS ID, version ID, build, vendor, rolling, base image. Wolfi is a rolling distribution:
+`/etc/os-release` says `ID=wolfi` and `VERSION_ID="20230201"`, a fixed placeholder, so the build is the digest
+of the pinned base image in the Dockerfile (`cgr.dev/chainguard/wolfi-base:latest@sha256:...`), which is the
+node's `build_id`. Patch level, end of life, baseline configuration, images-built-on-it and FIPS status wait for
+fields or edges that do not exist yet.
 
 #### Acceptance Criteria
 
-- Wolfi has one row, however many images are built on it.
+- Wolfi has one row per pinned base-image digest, however many images are built on it.
 - The images-built-on-it count equals the number of container rows that name it as their base.
 
 ### Containers
@@ -211,7 +246,9 @@ Container image classes, per `req-rampart-20x-playground-inventory-rows`.
 
 #### Implementation
 
-Columns: image tag and digest, base operating system (a link to its row), architecture, instances (derived),
+Rows: the web image's host (a `computing_core__host` of kind container, joined to its operating system by
+`RUNS_OPERATING_SYSTEM`) and the GHCR package version of the product image. Columns: kind, image tag and digest,
+base operating system (a link to its row), architecture, instances (derived),
 identical across instances (derived), libraries (derived count), in latest scan (derived), authenticated scan
 (not applicable to image scans; shown as such), baseline configuration.
 
@@ -220,6 +257,30 @@ identical across instances (derived), libraries (derived count), in latest scan 
 - The web image appears as one container row, not one per task.
 - Each container row names its base operating system and the link resolves to a row in the operating-systems
   table.
+
+### Crypto
+----
+RID: `req-rampart-20x-playground-inventory-crypto`
+
+Status: `Proposed`
+
+What the crypto-BOM scan (`req-fips-crypto-bom`) parsed out of the web image: one row per cryptographic
+implementation and the file it was found in, with the reviewed decision about it. Key material is not shown and
+is not held by the node type (`req-rampart-20x-playground-inventory-secrets` still governs secrets).
+
+#### Implementation
+
+Columns: name, provider, provider kind, artifact, boundary, FIPS validation, scope, rationale. The scope is
+`tap-web`. The code that carries a provider is joined by a `CARRIES_CRYPTO_PROVIDER` edge: the OpenSSL FIPS
+provider library carries its own provider row, `cryptography` carries the row for its Rust extension, an apk
+package carries the rows for the binaries it owns (by the apk database's file ownership), and a Python package
+carries the rows for the extensions in its directory. A provider whose file no package, library or program owns
+(the `uv` binary) has no carrier edge, and the table says so by the absence.
+
+#### Acceptance Criteria
+
+- The rows equal the findings of `tap.crypto_bom.core_report()` plus the shipped-provider finding, nothing more.
+- No row, property or edge carries key material or a fingerprint.
 
 ### Secrets
 ----
@@ -275,6 +336,32 @@ authorization status, what it connects to.
 
 - GitHub.com and GHCR each have a row.
 
+### Software Bundle
+----
+RID: `req-rampart-20x-playground-inventory-software`
+
+Status: `Proposed`
+
+The data behind the operating-system, library, package, container and crypto tables is one bundle,
+`grift/inventory-software.grift.json`, of existing `computing_core` types (v0.6.0): `operating_system`, `host`
+(kind container), `package`, `library` and `crypto_provider`, with the official edges `RUNS_OPERATING_SYSTEM`,
+`INSTALLS_PACKAGE`, `LOADS_LIBRARY` and `CARRIES_CRYPTO_PROVIDER`.
+
+#### Implementation
+
+Values are read, not invented: the OS from the web container's `/etc/os-release` and the Dockerfile pin; apk
+packages from the container's apk database; Python packages from `uv.lock`; npm packages from the vendored
+`package-lock.json`; the self-built provider from `docker/sbom-supplemental.json`; crypto providers from the
+crypto-BOM scan run inside the web container. Every entity carries `dcom: design` because the bundle is
+hand-seeded, and none is stamped `overview`, so none appears on the Overview board. A field the source does not
+hold (a Python package's licence, a library's language) is left unset.
+
+#### Acceptance Criteria
+
+- Every entity carries `dcom: design` and one `inventory` value; no entity carries `overview`.
+- Every edge joins types the edge supports, and every endpoint exists.
+- Re-running the read against the same image reproduces the rows.
+
 ### Derived Columns
 ----
 RID: `req-rampart-20x-playground-inventory-derived`
@@ -302,6 +389,8 @@ Status: `Proposed`
 | Properties the types do not hold | Function, baseline configuration, vendor authorization, rotation and responsibility have no field on today's types; each is a candidate for a tag or a dimension or a plugin field, decided before it is used. |
 | No owner column | The workbook's administrator and owner columns pointed at people; with no people table there is nothing to point at. |
 | Findings on a library | Findings attach to scan results by package and version, not yet to a library node. |
+| Fixed version and consumers | A package or library row shows no fixed version, consumer count or open findings: findings attach to scan results, not yet to a package node. |
+| `uv` and `uvx` | They enter the image by `COPY --from` and `docker/sbom-supplemental.json` calls them `copied-image` libraries; they are not rows here, pending a ruling on whether a copied binary is a library. |
 | Container image identity | The image digest needs a home on the task or container node. |
 | Secret and key nodes | `secret` and `asymmetric_key` are proposed in the internals spec and do not exist; neither does an edge from a KMS key or a file to the secret it holds. |
 | Dimension change | `inventory.containers` is a new dimension node; the v0 spec and `dimensions.grift.json` change with it. |
