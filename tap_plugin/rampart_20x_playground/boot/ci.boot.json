@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "rampart_20x_playground CI record (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in. The install set is the depends_on closure (github_core, which needs git_core, identity_core and compliance_core) plus this plugin, because the security-alerts bundle writes github_core and compliance_core types. The consumer substitutes the checkout under test for the self entry, so the CHECKOUT runs. Population seeds this plugin's own GRIFT, which proves every bundle parses and imports against a real grid. DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets and any step that reaches the network beyond the pinned installs, so a fork can run this lane and it cannot flake on a third party.",
+  "description": "rampart_20x_playground CI record (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in. The install set is the depends_on closure (github_core, which needs git_core, identity_core and compliance_core; aws_core; dcom) plus this plugin, because the bundles write github_core, compliance_core and aws_core types and carry the dcom dimension. The consumer substitutes the checkout under test for the self entry, so the CHECKOUT runs. Population seeds this plugin's own GRIFT, which proves every bundle parses and imports against a real grid. DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets and any step that reaches the network beyond the pinned installs, so a fork can run this lane and it cannot flake on a third party.",
   "install": {
     "plugins": [
       {
@@ -11,6 +11,26 @@
           "url": "https://github.com/unified-systems-com/identity-core-tap",
           "rev": "v0.1.3",
           "commit": "53da388b6f47590090ef3bdc8d98731acff4c8e2"
+        }
+      },
+      {
+        "slug": "dcom",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/dcom-tap",
+          "rev": "v0.1.0",
+          "commit": "932762f34a2cdbc112f66be18babbb4488ce929b"
+        }
+      },
+      {
+        "slug": "aws_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/aws-core-tap",
+          "rev": "v0.6.0",
+          "commit": "0f664cf04597e9aa78ed5a44f83c1863a2e17e3e"
         }
       },
       {
@@ -58,6 +78,19 @@
   "population": {
     "on_failure": "abort",
     "steps": [
+      {
+        "type": "seed-plugin",
+        "plugin": "dcom",
+        "enabled": true,
+        "note": "The dcom axis, so the design dimension node exists for seeded entities to carry."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "aws_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "aws_core's vocabulary dimension nodes only."
+      },
       {
         "type": "seed-plugin",
         "plugin": "rampart_20x_playground",
