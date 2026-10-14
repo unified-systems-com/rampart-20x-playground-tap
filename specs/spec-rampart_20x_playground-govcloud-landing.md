@@ -370,6 +370,7 @@ up, which is not built yet.
 | req-rampart-20x-playground-govcloud-actors-4 | Deploy Path Is In The Data | Proposed | The repository, workflow, run and package version are in the mock inventory, and the repository is joined to the product account's identity provider; the page shows GitHub as one icon node. | Ruled 2026-10-14; the internals are hidden by the icon node, ruled 2026-10-14. |
 | req-rampart-20x-playground-govcloud-actors-5 | Mock Repository Is Not Observed | Proposed | The mock repository and accounts use names that no observed node uses, and the page selects only `dcom: design` nodes. | The observed `unified-systems-com/tap` repository stays off the page. |
 | req-rampart-20x-playground-govcloud-actors-6 | Top-Most Pieces Are Icon Nodes | Proposed | The internet gateway, the load balancer, the database instance, the people, their computers and GitHub are drawn as icon nodes, selected by entity type; nothing inside them is drawn. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-7 | Running Parts Only | Proposed | The page is named Overview and shows the running parts of the system: the organization, the accounts, the ECS cluster and service and the identity provider are not selected by its Searches and stay on the grid. | Ruled 2026-10-14. The URL stays `/playground`. |
 
 ### Deferred To The Zoom View
 ----
