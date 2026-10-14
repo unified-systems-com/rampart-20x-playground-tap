@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a13b2b-a806-70ab-bec7-d2146402d3c7",
         "entity_type": "batch",
-        "name": "rampart-20x-playground mock inventory (aws)",
+        "name": "rampart-20x-playground mock inventory",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.mock-inventory",
-        "name": "rampart-20x-playground mock inventory (aws)",
-        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges. Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5)."
+        "name": "rampart-20x-playground mock inventory",
+        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges, the people and computers around it (identity_core, computing_core) and the GitHub side of its deploy path (github_core). Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5)."
       },
       "nodes": [
         {
@@ -31,7 +31,11 @@
             "organization_id": "o-mockgitserious",
             "management_account_id": "100000000000",
             "partition": "aws-us-gov",
-            "name": "git-serious organization"
+            "name": "git-serious organization",
+            "tags": {
+              "layout:column": "1",
+              "layout:order": "0"
+            }
           }
         },
         {
@@ -602,6 +606,367 @@
             "repository_arn": "arn:aws-us-gov:ecr:us-gov-west-1:100000000001:repository/git-serious",
             "name": "git-serious images"
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "entity_type": "aws_core__aws_iam_oidc_provider",
+            "name": "github actions oidc provider",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "provider_arn": "arn:aws-us-gov:iam::100000000001:oidc-provider/token.actions.githubusercontent.com",
+            "url": "https://token.actions.githubusercontent.com",
+            "name": "github actions oidc provider"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d089f8463a23",
+            "entity_type": "identity_core__human",
+            "name": "customer a",
+            "dimensions": {
+              "actor": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "customer-a",
+            "name": "customer a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08a12acd38f",
+            "entity_type": "computing_core__host",
+            "name": "customer a computer",
+            "dimensions": {
+              "device": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "mock",
+            "stable_id": "customer-a-computer",
+            "kind": "workstation",
+            "os": "Windows",
+            "name": "customer a computer"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08bbc6f13d9",
+            "entity_type": "computing_core__os_user",
+            "name": "customer-a",
+            "dimensions": {
+              "device": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "host_realm": "mock",
+            "host_stable_id": "customer-a-computer",
+            "local_id": "1000",
+            "uid": 1000,
+            "name": "customer-a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08e43c0ca33",
+            "entity_type": "identity_core__human",
+            "name": "customer b",
+            "dimensions": {
+              "actor": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "customer-b",
+            "name": "customer b"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08f46ba82c2",
+            "entity_type": "computing_core__host",
+            "name": "customer b computer",
+            "dimensions": {
+              "device": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "mock",
+            "stable_id": "customer-b-computer",
+            "kind": "workstation",
+            "os": "macOS",
+            "name": "customer b computer"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
+            "entity_type": "computing_core__os_user",
+            "name": "customer-b",
+            "dimensions": {
+              "device": "customer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "host_realm": "mock",
+            "host_stable_id": "customer-b-computer",
+            "local_id": "1000",
+            "uid": 1000,
+            "name": "customer-b"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
+            "entity_type": "identity_core__human",
+            "name": "developer a",
+            "dimensions": {
+              "actor": "developer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "developer-a",
+            "name": "developer a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d094a2e288d5",
+            "entity_type": "computing_core__host",
+            "name": "developer a laptop",
+            "dimensions": {
+              "device": "developer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "mock",
+            "stable_id": "developer-a-computer",
+            "kind": "workstation",
+            "os": "macOS",
+            "name": "developer a laptop"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09544f9f56b",
+            "entity_type": "computing_core__os_user",
+            "name": "developer-a",
+            "dimensions": {
+              "device": "developer",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "host_realm": "mock",
+            "host_stable_id": "developer-a-computer",
+            "local_id": "1000",
+            "uid": 1000,
+            "name": "developer-a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0981ee3d5c9",
+            "entity_type": "identity_core__human",
+            "name": "administrator a",
+            "dimensions": {
+              "actor": "administrator",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "admin-a",
+            "name": "administrator a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0994866fe99",
+            "entity_type": "computing_core__host",
+            "name": "administrator a workstation",
+            "dimensions": {
+              "device": "administrator",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "mock",
+            "stable_id": "admin-a-computer",
+            "kind": "workstation",
+            "os": "Linux",
+            "name": "administrator a workstation"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09a2de02db3",
+            "entity_type": "computing_core__os_user",
+            "name": "admin-a",
+            "dimensions": {
+              "device": "administrator",
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "host_realm": "mock",
+            "host_stable_id": "admin-a-computer",
+            "local_id": "1000",
+            "uid": 1000,
+            "name": "admin-a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09dbe59ea09",
+            "entity_type": "github_core__github_platform",
+            "name": "github.com",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "host": "github.com",
+            "html_url": "https://github.com",
+            "tags": {
+              "layout:column": "2",
+              "layout:order": "9"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09ea4b1c43b",
+            "entity_type": "github_core__github_account",
+            "name": "git-serious-dev",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "login": "git-serious-dev",
+            "account_type": "Organization",
+            "html_url": "https://github.com/git-serious-dev"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09fd10a258e",
+            "entity_type": "github_core__github_account",
+            "name": "dev-a",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "login": "dev-a",
+            "account_type": "User",
+            "html_url": "https://github.com/dev-a"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a098ad4542",
+            "entity_type": "github_core__github_repository",
+            "name": "git-serious-dev/git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "full_name": "git-serious-dev/git-serious",
+            "owner_login": "git-serious-dev",
+            "name": "git-serious-dev/git-serious",
+            "default_branch": "main",
+            "visibility": "private",
+            "html_url": "https://github.com/git-serious-dev/git-serious"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a194cf2624",
+            "entity_type": "github_core__github_workflow",
+            "name": "build and deploy",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "full_name": "git-serious-dev/git-serious",
+            "workflow_id": 90001,
+            "path": ".github/workflows/deploy.yml",
+            "state": "active",
+            "name": "build and deploy"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a22c89fe24",
+            "entity_type": "github_core__github_actions_run",
+            "name": "build and deploy run 1",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "full_name": "git-serious-dev/git-serious",
+            "run_id": 1001,
+            "run_number": 1,
+            "event": "push",
+            "status": "completed",
+            "conclusion": "success",
+            "head_branch": "main"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a3c4f44e63",
+            "entity_type": "github_core__github_package",
+            "name": "ghcr.io git-serious image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "owner_login": "git-serious-dev",
+            "package_type": "container",
+            "name": "ghcr.io git-serious image",
+            "visibility": "private",
+            "repository_full_name": "git-serious-dev/git-serious"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a42b4d80c9",
+            "entity_type": "github_core__github_package_version",
+            "name": "git-serious image version",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "owner_login": "git-serious-dev",
+            "package_type": "container",
+            "package_name": "git-serious",
+            "version_id": 5001,
+            "version": "sha256:mock",
+            "container_tags": [
+              "latest"
+            ]
+          }
         }
       ],
       "edges": [
@@ -1082,6 +1447,326 @@
             "from_entity_id": "01a13b2b-a806-70ab-bec7-d24608d641e1",
             "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
             "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0879a8f83ce",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d21606cf61e9 --[OWNS_OIDC_PROVIDER__aws_core]--> 01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "edge_type": "OWNS_OIDC_PROVIDER__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08863f14755",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0860a85aa35 --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08cfca057e4",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d08a12acd38f --[DEFINES_OS_USER__computing_core]--> 01a13b55-8896-76ca-9f21-d08bbc6f13d9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d08a12acd38f",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d08bbc6f13d9",
+            "edge_type": "DEFINES_OS_USER__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d08d82ca4c5b",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d08bbc6f13d9 --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d089f8463a23",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d08bbc6f13d9",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d089f8463a23",
+            "edge_type": "HELD_BY_HUMAN__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09166059f39",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d08f46ba82c2 --[DEFINES_OS_USER__computing_core]--> 01a13b55-8896-76ca-9f21-d0904e3f5c25",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d08f46ba82c2",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
+            "edge_type": "DEFINES_OS_USER__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d092bfb8072d",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0904e3f5c25 --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d08e43c0ca33",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d08e43c0ca33",
+            "edge_type": "HELD_BY_HUMAN__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0961e10a069",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d094a2e288d5 --[DEFINES_OS_USER__computing_core]--> 01a13b55-8896-76ca-9f21-d09544f9f56b",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d094a2e288d5",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d09544f9f56b",
+            "edge_type": "DEFINES_OS_USER__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d097df242f4b",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09544f9f56b --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d0938084edbe",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09544f9f56b",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
+            "edge_type": "HELD_BY_HUMAN__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09b8778c5e0",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0994866fe99 --[DEFINES_OS_USER__computing_core]--> 01a13b55-8896-76ca-9f21-d09a2de02db3",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0994866fe99",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d09a2de02db3",
+            "edge_type": "DEFINES_OS_USER__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d09cab646b43",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09a2de02db3 --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d0981ee3d5c9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09a2de02db3",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0981ee3d5c9",
+            "edge_type": "HELD_BY_HUMAN__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a5ab84d03d",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09dbe59ea09 --[HOSTS_ACCOUNT__github_core]--> 01a13b55-8896-76ca-9f21-d09ea4b1c43b",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09dbe59ea09",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d09ea4b1c43b",
+            "edge_type": "HOSTS_ACCOUNT__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a61003e991",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09dbe59ea09 --[HOSTS_ACCOUNT__github_core]--> 01a13b55-8896-76ca-9f21-d09fd10a258e",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09dbe59ea09",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d09fd10a258e",
+            "edge_type": "HOSTS_ACCOUNT__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a78e87da95",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09ea4b1c43b --[OWNS_REPO__github_core]--> 01a13b55-8896-76ca-9f21-d0a098ad4542",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09ea4b1c43b",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a098ad4542",
+            "edge_type": "OWNS_REPO__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a8119b1efe",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0a098ad4542 --[DEFINES_WORKFLOW__github_core]--> 01a13b55-8896-76ca-9f21-d0a194cf2624",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0a098ad4542",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a194cf2624",
+            "edge_type": "DEFINES_WORKFLOW__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0a95ec49f39",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0a22c89fe24 --[EXECUTES_WORKFLOW__github_core]--> 01a13b55-8896-76ca-9f21-d0a194cf2624",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0a22c89fe24",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a194cf2624",
+            "edge_type": "EXECUTES_WORKFLOW__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0aa4d1f364c",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09ea4b1c43b --[PUBLISHES_PACKAGE__github_core]--> 01a13b55-8896-76ca-9f21-d0a3c4f44e63",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09ea4b1c43b",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a3c4f44e63",
+            "edge_type": "PUBLISHES_PACKAGE__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0abe6176a96",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0a3c4f44e63 --[PUBLISHES_PACKAGE_VERSION__github_core]--> 01a13b55-8896-76ca-9f21-d0a42b4d80c9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0a3c4f44e63",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a42b4d80c9",
+            "edge_type": "PUBLISHES_PACKAGE_VERSION__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0acf423b6cb",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0a22c89fe24 --[BUILDS_PACKAGE_VERSION__github_core]--> 01a13b55-8896-76ca-9f21-d0a42b4d80c9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0a22c89fe24",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0a42b4d80c9",
+            "edge_type": "BUILDS_PACKAGE_VERSION__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0ada713ae25",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d0a098ad4542 --[FEDERATES_VIA_PROVIDER__github_core]--> 01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d0a098ad4542",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0860a85aa35",
+            "edge_type": "FEDERATES_VIA_PROVIDER__github_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-8896-76ca-9f21-d0ae97625598",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d09fd10a258e --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d0938084edbe",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d09fd10a258e",
+            "to_entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
+            "edge_type": "HELD_BY_HUMAN__identity_core",
             "properties": {}
           }
         }

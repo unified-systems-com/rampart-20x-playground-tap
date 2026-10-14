@@ -1,0 +1,136 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a13b55-1c43-77a5-91b5-9de2c786b0fa",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground Actor Dimensions v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.dimensions-actors",
+        "name": "rampart-20x-playground Actor Dimensions v0.1.0",
+        "description": "Two dimension axes as eight dimension nodes: `actor` (customer, developer, administrator) and `device` (the same three, for end-computing devices). Placement hints for the landing view; no edges, the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` and no `dcom` value."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de35c440d79",
+            "entity_type": "dimension",
+            "name": "actor",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "actor",
+            "description": "Which kind of person an identity is, on the playground's landing view: `customer`, `developer` or `administrator`. The three values are the nodes named `actor.<value>`. An entity carries one value or none. The layout reads it to place people; it carries no access meaning."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de47b769e01",
+            "entity_type": "dimension",
+            "name": "actor.customer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "actor.customer",
+            "description": "The `customer` value on the actor axis: a customer of the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de57cba82ce",
+            "entity_type": "dimension",
+            "name": "actor.developer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "actor.developer",
+            "description": "The `developer` value on the actor axis: a developer who builds and ships the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de6dcd27ce9",
+            "entity_type": "dimension",
+            "name": "actor.administrator",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "actor.administrator",
+            "description": "The `administrator` value on the actor axis: an infrastructure administrator who operates the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de76f360fc3",
+            "entity_type": "dimension",
+            "name": "device",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "device",
+            "description": "Whose end-computing device a computer is, on the playground's landing view: `customer`, `developer` or `administrator`. The three values are the nodes named `device.<value>`. An entity carries one value or none. It is a separate axis from `actor` because a person and their computer are different things. The layout reads it to place devices; it carries no access meaning."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de8c806e97e",
+            "entity_type": "dimension",
+            "name": "device.customer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "device.customer",
+            "description": "The `customer` value on the device axis: the end-computing device of a customer of the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9de964300fec",
+            "entity_type": "dimension",
+            "name": "device.developer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "device.developer",
+            "description": "The `developer` value on the device axis: the end-computing device of a developer who builds and ships the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-1c43-77a5-91b5-9deaf53f8620",
+            "entity_type": "dimension",
+            "name": "device.administrator",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "device.administrator",
+            "description": "The `administrator` value on the device axis: the end-computing device of an infrastructure administrator who operates the system."
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}

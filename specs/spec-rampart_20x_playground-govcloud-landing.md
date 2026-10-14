@@ -63,6 +63,7 @@ plugins loaded. The implementer verifies each claimed edge with the plugins load
 | req-rampart-20x-playground-govcloud-grid-true | [Grid-True Edges](#grid-true-edges) | Proposed | Every drawn relationship maps to an existing edge; the rest are recorded gaps; the mapping needs an `aws_core` release newer than the pinned `v0.5.0` |
 | req-rampart-20x-playground-govcloud-gaps | [Recorded Gaps](#recorded-gaps) | Proposed | The arrows, nodes and edge splits this view needs and the grid does not yet have |
 | req-rampart-20x-playground-govcloud-population | [Population](#population) | Proposed | Drawn from the mock inventory bundle, as data, with no code |
+| req-rampart-20x-playground-govcloud-actors | [People, Computers And Placement Hints](#people-computers-and-placement-hints) | Proposed | Customers, a developer and an administrator with their computers, placed by two small dimension axes, `actor` and `device` |
 | req-rampart-20x-playground-govcloud-deferred | [Deferred To The Zoom View](#deferred-to-the-zoom-view) | Proposed | High availability, egress and endpoints, agents, cross-region backup |
 
 ### Landing View
@@ -324,6 +325,41 @@ is the natural target for real collection.
 | req-rampart-20x-playground-govcloud-population-2 | Same Convention As The Mock Inventory | Proposed | Every node and edge for the view is in the mock inventory bundle, and every node carries `dcom: design`. | `req-rampart-20x-playground-mock-inventory-2`. |
 | req-rampart-20x-playground-govcloud-population-4 | No Collision With Observed Nodes | Proposed | No mock node shares a natural key with an observed node; the mock git-serious repository does not use `unified-systems-com/tap`. | Observed nodes hang findings off that key. |
 | req-rampart-20x-playground-govcloud-population-3 | Idempotent | Proposed | Re-running the population produces the same grid, with no duplicate nodes or edges. | |
+
+### People, Computers And Placement Hints
+----
+RID: `req-rampart-20x-playground-govcloud-actors`
+
+Status: `Proposed`
+
+The view shows the people around the system and their computers: two customers, a developer and an
+infrastructure administrator, each with an end-computing device. A computer is a `computing_core` host that
+defines a local account (`DEFINES_OS_USER`); the account is held by the person (`HELD_BY_HUMAN`, an
+`identity_core` human). The developer's GitHub account is held by the same person. All of it uses edges that
+exist; nothing is joined by name.
+
+A human and a host carry no tags, so the layout reads where they go from two small dimension axes this
+plugin ships in `grift/dimensions-actors.grift.json`: `actor` on the person and `device` on the computer, each
+with the values `customer`, `developer` and `administrator`. They are kept as two axes because a person and
+their computer are different things. They carry no access meaning. Customers stand at the left, the
+administrator beneath the organization, and the developer with GitHub at the right.
+
+The GitHub side of the deploy path is drawn from `github_core` nodes: the platform, an organization account
+and the developer's account, the repository, its workflow and a run, and the container package with a version.
+The run builds the version (`BUILDS_PACKAGE_VERSION`); the repository federates into the product account's
+GitHub Actions identity provider (`FEDERATES_VIA_PROVIDER`), which stands for the deploy step's trust. There is
+no edge from the package version to the ECR repository or from the deploy step to the service, so those hops
+are recorded gaps, not lines.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-govcloud-actors-1 | People Have Computers | Proposed | Each of two customers, the developer and the administrator appears with a computer, a local account on it and the human who holds it. | Official edges only. |
+| req-rampart-20x-playground-govcloud-actors-2 | Two Axes | Proposed | `actor` is stamped on people and `device` on computers, with the values `customer`, `developer`, `administrator`, as dimension nodes shipped by this plugin. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-3 | Placement From Facts | Proposed | Customers stand left, the administrator beneath the organization, the developer and GitHub right; the layout reads only those dimensions and tags. | No placement by label or id. |
+| req-rampart-20x-playground-govcloud-actors-4 | Deploy Path Is On The Board | Proposed | GitHub, the repository, workflow, run and package version appear, and the repository is joined to the product account's identity provider. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-5 | Mock Repository Is Not Observed | Proposed | The mock repository and accounts use names that no observed node uses, and the page selects only `dcom: design` nodes. | The observed `unified-systems-com/tap` repository stays off the page. |
 
 ### Deferred To The Zoom View
 ----
