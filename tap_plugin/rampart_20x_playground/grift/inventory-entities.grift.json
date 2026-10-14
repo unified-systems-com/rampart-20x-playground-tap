@@ -31,7 +31,6 @@
             "program_name": "tap-web",
             "version": "0.2.1",
             "path": "/app",
-            "description": "MOCK. The TAP web application, served by gunicorn inside the web container.",
             "name": "TAP web program"
           }
         },
@@ -47,7 +46,6 @@
           },
           "node": {
             "program_name": "gunicorn",
-            "description": "MOCK. The WSGI server that hosts the TAP web program.",
             "name": "gunicorn"
           }
         },
@@ -63,7 +61,6 @@
           },
           "node": {
             "program_name": "postgres",
-            "description": "MOCK. The PostgreSQL database instance TAP keeps its grid in. The managed service that runs it is the 'git-serious database' row under cloud services.",
             "name": "PostgreSQL database instance"
           }
         },
@@ -80,7 +77,6 @@
           "node": {
             "file_path": "/etc/ssl/certs/git-serious.pem",
             "file_type": "certificate",
-            "description": "MOCK. The container's TLS certificate as a file. Its public and private halves are the two key rows beside it. No content is recorded.",
             "name": "container tls certificate"
           }
         },
@@ -97,7 +93,6 @@
           "node": {
             "algorithm": "RSA",
             "key_size": 2048,
-            "description": "MOCK. The public half of the container's TLS certificate.",
             "name": "container tls public key"
           }
         },
@@ -114,7 +109,6 @@
           "node": {
             "algorithm": "RSA",
             "key_size": 2048,
-            "description": "MOCK. The private half of the container's TLS certificate. Key material and fingerprint are deliberately not recorded.",
             "name": "container tls private key"
           }
         }

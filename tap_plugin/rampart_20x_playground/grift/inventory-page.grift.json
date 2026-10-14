@@ -71,12 +71,6 @@
                   "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
                 },
                 {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
-                },
-                {
                   "field": "data.program_name",
                   "title": "Program",
                   "widthGrow": 1,
@@ -150,12 +144,6 @@
                   "title": "Name",
                   "widthGrow": 2,
                   "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
-                },
-                {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
                 }
               ]
             }
@@ -213,12 +201,6 @@
                   "title": "Name",
                   "widthGrow": 2,
                   "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
-                },
-                {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
                 }
               ]
             }
@@ -276,12 +258,6 @@
                   "title": "Name",
                   "widthGrow": 2,
                   "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
-                },
-                {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
                 },
                 {
                   "field": "data.version",
@@ -393,12 +369,6 @@
                     }
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
-                },
-                {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
                 },
                 {
                   "field": "data.algorithm",
@@ -523,12 +493,6 @@
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
                 {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
-                },
-                {
                   "field": "dimensions.aws_account",
                   "title": "Account",
                   "width": 130,
@@ -648,12 +612,6 @@
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
                 {
-                  "field": "data.description",
-                  "title": "Description",
-                  "widthGrow": 3,
-                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
-                },
-                {
                   "field": "data.host",
                   "title": "Host",
                   "widthGrow": 1,
@@ -674,13 +632,13 @@
           "entity": {
             "entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
             "entity_type": "page",
-            "name": "Playground inventory",
+            "name": "Inventory",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Playground inventory",
+            "name": "Inventory",
             "slug": "/playground/inventory",
             "description": "The mock deployment's inventory as seven small tables: applications, libraries, operating systems, containers, secrets, cloud services and third-party SaaS.",
             "layout": {
