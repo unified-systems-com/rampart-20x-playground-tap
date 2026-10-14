@@ -30,6 +30,13 @@ const T = {
     subnet: "aws_core__aws_subnet",
     igw: "aws_core__aws_internet_gateway",
     cluster: "aws_core__aws_ecs_cluster",
+    human: "identity_core__human",
+    host: "computing_core__host",
+    platform: "github_core__github_platform",
+    ghAccount: "github_core__github_account",
+    repo: "github_core__github_repository",
+    workflow: "github_core__github_workflow",
+    package: "github_core__github_package",
 };
 const E = {
     enrolls: "ENROLLS_ACCOUNT__aws_core",
@@ -38,8 +45,20 @@ const E = {
     attachedToVpc: "ATTACHED_TO_VPC__aws_core",
     residesInSubnet: "RESIDES_IN_SUBNET__aws_core",
     runsService: "RUNS_SERVICE__aws_core",
+    definesOsUser: "DEFINES_OS_USER__computing_core",
+    hostsAccount: "HOSTS_ACCOUNT__github_core",
+    ownsRepo: "OWNS_REPO__github_core",
+    definesWorkflow: "DEFINES_WORKFLOW__github_core",
+    executesWorkflow: "EXECUTES_WORKFLOW__github_core",
+    publishesPackage: "PUBLISHES_PACKAGE__github_core",
+    publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
 };
-const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster];
+const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
+//: Top-level columns, left to right, by the `actor` and `device` dimension values on a person or a computer.
+//: Everything else with a `layout:column` tag (the organization, GitHub) takes the tag.
+const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 2};
+//: Place in the column: the person, then their computer.
+const KIND_ORDER = {[T.human]: 1, [T.host]: 2};
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -55,6 +74,7 @@ export async function execute(context) {
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
     const piles = _collapseZoneCopies(cy);
     _stampVpcColumns(cy);
+    _stampRootColumns(cy);
 
     const result = await projectNested(cy, {
         relationships: [
@@ -64,12 +84,26 @@ export async function execute(context) {
             {name: "vpc-holds-gateway", gryphon: `(parent:${T.vpc})<-[:${E.attachedToVpc}]-(child)`},
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
             {name: "cluster-holds", gryphon: `(parent:${T.cluster})-[:${E.runsService}]->(child)`},
+            {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
+            {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
+            {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
+            {name: "repo-holds-workflow", gryphon: `(parent:${T.repo})-[:${E.definesWorkflow}]->(child)`},
+            {name: "workflow-holds-run", gryphon: `(parent:${T.workflow})<-[:${E.executesWorkflow}]-(child)`},
+            {name: "github-account-holds-package", gryphon: `(parent:${T.ghAccount})-[:${E.publishesPackage}]->(child)`},
+            {name: "package-holds-version", gryphon: `(parent:${T.package})-[:${E.publishesVersion}]->(child)`},
         ],
         baseSizes,
         padding: 24,
         paddings: Object.fromEntries(CONTAINERS.map((t) => [t, pad])),
-        innerLayout: {name: "flow", gap: 28, sort: "label"},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 28},
         innerLayouts: {
+            [T.cluster]: {name: "flow", gap: 28, sort: "label"},
+            [T.host]: {name: "flow", gap: 12, sort: "label"},
+            [T.platform]: {name: "flow", gap: 20, sort: "label"},
+            [T.ghAccount]: {name: "flow", gap: 20, sort: "label"},
+            [T.repo]: {name: "flow", gap: 12, sort: "label"},
+            [T.workflow]: {name: "flow", gap: 12, sort: "label"},
+            [T.package]: {name: "flow", gap: 12, sort: "label"},
             [T.organization]: {name: "flow", gap: 24, sort: "area-desc", aspect: 0.6},
             [T.account]: {name: "flow", gap: 28, sort: "area-desc", aspect: 1.6},
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
@@ -154,5 +188,27 @@ function _stampVpcColumns(cy) {
     });
     cy.edges().forEach((e) => {
         if (_edgeType(e) === E.attachedToVpc) e.source().data({_stage: 0, _order: 0});
+    });
+}
+
+/**
+ * Stamp the top-level `ranked` columns, left to right: customers, then the organization with the
+ * administrator beneath it, then the developer with GitHub beneath. A person or computer takes its column
+ * from its `actor` / `device` dimension; a node with a `layout:column` tag takes the tag.
+ */
+function _stampRootColumns(cy) {
+    cy.nodes().forEach((n) => {
+        const type = n.data("entity_type");
+        const dims = n.data("dimensions") || {};
+        const tags = n.data("tags") || {};
+        const actor = dims.actor || dims.device;
+        if (actor in ACTOR_COLUMN && KIND_ORDER[type]) {
+            const column = ACTOR_COLUMN[actor];
+            //: The administrator goes beneath the organization, which is first in column 1.
+            const below = column === 1 ? 1 : 0;
+            n.data({_stage: column, _order: below + KIND_ORDER[type]});
+        } else if (tags["layout:column"] !== undefined) {
+            n.data({_stage: Number(tags["layout:column"]), _order: Number(tags["layout:order"] || 0)});
+        }
     });
 }

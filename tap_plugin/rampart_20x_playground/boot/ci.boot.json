@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "rampart_20x_playground CI record (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in. The install set is the depends_on closure (github_core, which needs git_core, identity_core and compliance_core; aws_core; dcom) plus this plugin, because the bundles write github_core, compliance_core and aws_core types and carry the dcom dimension. The consumer substitutes the checkout under test for the self entry, so the CHECKOUT runs. Population seeds this plugin's own GRIFT, which proves every bundle parses and imports against a real grid. DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets and any step that reaches the network beyond the pinned installs, so a fork can run this lane and it cannot flake on a third party.",
+  "description": "rampart_20x_playground CI record (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in. The install set is the depends_on closure (github_core, which needs git_core, identity_core and compliance_core; aws_core; computing_core; dcom) plus this plugin, because the bundles write github_core, compliance_core, aws_core, computing_core and identity_core types and carry the dcom dimension. The consumer substitutes the checkout under test for the self entry, so the CHECKOUT runs. Population seeds this plugin's own GRIFT, which proves every bundle parses and imports against a real grid. DELIBERATELY EXCLUDED: every other plugin, all credentials, all required_secrets and any step that reaches the network beyond the pinned installs, so a fork can run this lane and it cannot flake on a third party.",
   "install": {
     "plugins": [
       {
@@ -31,6 +31,16 @@
           "url": "https://github.com/unified-systems-com/aws-core-tap",
           "rev": "v0.6.0",
           "commit": "0f664cf04597e9aa78ed5a44f83c1863a2e17e3e"
+        }
+      },
+      {
+        "slug": "computing_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/computing-core-tap",
+          "rev": "v0.5.0",
+          "commit": "485c76a67690e37b5a168850fc20cf11508dad0d"
         }
       },
       {
@@ -90,6 +100,13 @@
         "bundle": "dimension",
         "enabled": true,
         "note": "aws_core's vocabulary dimension nodes only."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "computing_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "computing_core's vocabulary dimension nodes only."
       },
       {
         "type": "seed-plugin",

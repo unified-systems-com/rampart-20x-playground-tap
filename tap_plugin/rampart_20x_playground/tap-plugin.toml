@@ -6,10 +6,11 @@ name = "TAP Rampart 20x Playground"
 description = "A data-only instance plugin: the keystone, mocked GovCloud inventory and findings, and the pages that show a deployment design, an inventory, vulnerabilities and VDR reports."
 
 # Vocabulary dependencies (new-plugin Tier 1b): the bundles reference other plugins' entity types by string.
-# More arrive with the mock inventory (aws_core, computing_core, dcom) in the same change that seeds them.
 depends_on = [
     { slug = "github_core", note = "The security-alerts bundle seeds github_core__code_scanning_alert, github_core__dependabot_alert and github_core__github_repository, plus the DETAILS_FINDING edge between an alert and its finding." },
     { slug = "aws_core", note = "The mock inventory seeds aws_core nodes (account, VPC, subnet, load balancer, ECS, RDS, secrets, keys) and the official edges between them (ENROLLS_ACCOUNT, BELONGS_TO_ACCOUNT, PARTITIONED_INTO_SUBNET, ATTACHED_TO_VPC, RESIDES_IN_SUBNET, RUNS_SERVICE, ENCRYPTED_WITH_KEY); the landing layout nests on them." },
+    { slug = "computing_core", note = "The mock inventory seeds computing_core__host and computing_core__os_user for the computers of customers, the developer and the administrator, joined by DEFINES_OS_USER." },
+    { slug = "identity_core", note = "The mock inventory seeds identity_core__human and the HELD_BY_HUMAN edge from a local account or GitHub account to the person who holds it." },
     { slug = "dcom", note = "Every mock inventory entity carries the dcom dimension value design; the dimension nodes come from the dcom plugin." },
     { slug = "compliance_core", note = "The security-alerts bundle seeds compliance_core__compliance_finding (one per alert) and the CARRIES_COMPLIANCE_FINDING edge that places each finding on its repository." },
 ]
@@ -22,6 +23,7 @@ status = "compatible"
 keystone = "grift/keystone.grift.json"
 dimensions = "grift/dimensions.grift.json"
 security_alerts = "grift/security-alerts.grift.json"
+actor_dimensions = "grift/dimensions-actors.grift.json"
 mock_inventory = "grift/mock-inventory.grift.json"
 pages = "grift/pages.grift.json"
 
@@ -35,4 +37,4 @@ sha256 = "719746e99792602557ede3a564deed743f067901f72adb89e3b887b8def2bd80"
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "8670915dc8745339db228a2f23199358ced497fa9d19a79ee5d1911884075b9c"
+sha256 = "b5cf3a3b8eae7913cf58501b9f5d658b317713104112f60a2889febfa9619edb"

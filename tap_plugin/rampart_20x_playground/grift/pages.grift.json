@@ -26,13 +26,13 @@
           },
           "node": {
             "name": "playground \u2014 landing nodes",
-            "description": "Every node of the mock GovCloud deployment: the organization, its accounts and what the product account holds.",
+            "description": "Every designed (dcom design) node of the mock deployment, so observed nodes of the same types stay off the page: the organization, its accounts and what the product account holds, the people and their computers, and the GitHub side of the deploy path.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n)",
-                "WHERE n.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "WHERE n.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"] AND n.dimensions.dcom = \"design\"",
                 "RETURN n"
               ]
             }
@@ -73,7 +73,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
                 "RETURN a, b"
               ]
             }
@@ -134,7 +134,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:RESIDES_IN_SUBNET__aws_core]->(b:aws_core__aws_subnet)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
                 "RETURN a, b"
               ]
             }
@@ -175,7 +175,208 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:ENCRYPTED_WITH_KEY__aws_core]->(b:aws_core__aws_kms_key)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62675541b0e",
+            "entity_type": "search",
+            "name": "playground \u2014 landing os-user",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing os-user",
+            "description": "Each computer and the local account it defines.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__host)-[:DEFINES_OS_USER__computing_core]->(b:computing_core__os_user)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62754aa8c57",
+            "entity_type": "search",
+            "name": "playground \u2014 landing held",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing held",
+            "description": "Each account and the person who holds it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:HELD_BY_HUMAN__identity_core]->(b:identity_core__human)",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e6286467dca1",
+            "entity_type": "search",
+            "name": "playground \u2014 landing hosts-account",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing hosts-account",
+            "description": "Each GitHub platform and the accounts it hosts.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_platform)-[:HOSTS_ACCOUNT__github_core]->(b:github_core__github_account)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e6292935d4d1",
+            "entity_type": "search",
+            "name": "playground \u2014 landing owns-repo",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing owns-repo",
+            "description": "Each GitHub account and the repositories it owns.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_account)-[:OWNS_REPO__github_core]->(b:github_core__github_repository)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62a97a60ed6",
+            "entity_type": "search",
+            "name": "playground \u2014 landing workflow",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing workflow",
+            "description": "Each repository and the workflows it defines.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_repository)-[:DEFINES_WORKFLOW__github_core]->(b:github_core__github_workflow)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62be9ff3749",
+            "entity_type": "search",
+            "name": "playground \u2014 landing executes",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing executes",
+            "description": "Each workflow run and the workflow it executes.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_actions_run)-[:EXECUTES_WORKFLOW__github_core]->(b:github_core__github_workflow)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62c5a69d6cb",
+            "entity_type": "search",
+            "name": "playground \u2014 landing package",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing package",
+            "description": "Each GitHub account and the packages it publishes.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_account)-[:PUBLISHES_PACKAGE__github_core]->(b:github_core__github_package)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62d6f5fcd83",
+            "entity_type": "search",
+            "name": "playground \u2014 landing pkg-version",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing pkg-version",
+            "description": "Each package and its versions.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_package)-[:PUBLISHES_PACKAGE_VERSION__github_core]->(b:github_core__github_package_version)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62e9deb4aef",
+            "entity_type": "search",
+            "name": "playground \u2014 landing builds",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing builds",
+            "description": "Each workflow run and the package version it builds.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_actions_run)-[:BUILDS_PACKAGE_VERSION__github_core]->(b:github_core__github_package_version)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e62fc4c75dcc",
+            "entity_type": "search",
+            "name": "playground \u2014 landing federates",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing federates",
+            "description": "Each repository and the AWS identity provider it federates through.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:github_core__github_repository)-[:FEDERATES_VIA_PROVIDER__github_core]->(b:aws_core__aws_iam_oidc_provider)",
                 "RETURN a, b"
               ]
             }
@@ -190,7 +391,7 @@
           },
           "node": {
             "name": "Playground landing layout",
-            "description": "landing.js: nests the organization's accounts on ENROLLS_ACCOUNT, an account's members on BELONGS_TO_ACCOUNT, a VPC's subnets and gateway, and a subnet's residents; every other edge is a line.",
+            "description": "landing.js: nests the organization's accounts, an account's members, a VPC's subnets and a subnet's residents, a computer's local accounts, and GitHub's accounts, repositories, workflows, packages; every other edge is a line.",
             "definition": {
               "js_file": "tap_plugin/rampart_20x_playground/static/rampart_20x_playground/js/projections/landing.js"
             }
@@ -251,7 +452,7 @@
           "node": {
             "name": "Playground landing graph",
             "slug": "playground-landing-graph",
-            "description": "The mock GovCloud deployment as nested accounts, networks and services.",
+            "description": "The mock GovCloud deployment as nested accounts, networks and services, with the people and computers around it and the GitHub side of its deploy path.",
             "view": "tap_viz/panels/graph_panel.html",
             "config": {
               "height": "100%",
@@ -413,6 +614,146 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a13b2c-82d6-73d2-baa8-173c2ed68eaf",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e630a56eed6e",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-os-user",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62675541b0e",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e63170de4a2b",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-held",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62754aa8c57",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e63249bb03b3",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-hosts-account",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e6286467dca1",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e6338a8c30ba",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-owns-repo",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e6292935d4d1",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e6348e774be9",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-workflow",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62a97a60ed6",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e635ccfb87ca",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-executes",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62be9ff3749",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e636e8ae0ed9",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-package",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62c5a69d6cb",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e637ebe4b120",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-pkg-version",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62d6f5fcd83",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e6385026ae9c",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-builds",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62e9deb4aef",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b55-c458-724a-b213-e63927189bac",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-federates",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b55-c458-724a-b213-e62fc4c75dcc",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
