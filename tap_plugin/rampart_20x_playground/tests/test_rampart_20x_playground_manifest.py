@@ -87,6 +87,8 @@ class TestSurfaces:
         assert sorted(entry.path for entry in grift) == [
             "grift/dimensions.grift.json",
             "grift/keystone.grift.json",
+            "grift/mock-inventory.grift.json",
+            "grift/pages.grift.json",
             "grift/security-alerts.grift.json",
         ]
 
@@ -103,7 +105,7 @@ class TestBootRecords:
 
     def test_ci_installs_the_dependency_closure_and_itself(self) -> None:
         installed = [entry["slug"] for entry in _record("ci")["install"]["plugins"]]
-        assert installed == ["identity_core", "git_core", "compliance_core", "github_core", SLUG]
+        assert installed == ["identity_core", "dcom", "aws_core", "git_core", "compliance_core", "github_core", SLUG]
 
     def test_demo_pins_every_released_plugin_by_commit(self) -> None:
         """`req-rampart-20x-playground-boot-2`. Self is unpinned in the first scaffold PR (a record cannot

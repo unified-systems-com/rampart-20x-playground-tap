@@ -1,0 +1,503 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a13b2c-82d6-73d2-baa8-17342d832cab",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground pages",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.pages",
+        "name": "rampart-20x-playground pages",
+        "description": "The playground's pages, panels, Searches and projection. Carry no dcom value (req-rampart-20x-playground-nongoals-4)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-17353bda4c2c",
+            "entity_type": "search",
+            "name": "playground \u2014 landing nodes",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing nodes",
+            "description": "Every node of the mock GovCloud deployment: the organization, its accounts and what the product account holds.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-17366a8674bc",
+            "entity_type": "search",
+            "name": "playground \u2014 landing enrolls",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing enrolls",
+            "description": "Each account the organization enrolls.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_organization)-[:ENROLLS_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "entity_type": "search",
+            "name": "playground \u2014 landing belongs",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing belongs",
+            "description": "Each resource and the account that owns it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1738c01fc9c1",
+            "entity_type": "search",
+            "name": "playground \u2014 landing partitioned",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing partitioned",
+            "description": "Each VPC and the subnets it is partitioned into.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_vpc)-[:PARTITIONED_INTO_SUBNET__aws_core]->(b:aws_core__aws_subnet)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1739d0ea3431",
+            "entity_type": "search",
+            "name": "playground \u2014 landing igw",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing igw",
+            "description": "Each internet gateway and the VPC it is attached to.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_internet_gateway)-[:ATTACHED_TO_VPC__aws_core]->(b:aws_core__aws_vpc)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173ab1161fec",
+            "entity_type": "search",
+            "name": "playground \u2014 landing resides",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing resides",
+            "description": "Each resource and the subnet it resides in.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:RESIDES_IN_SUBNET__aws_core]->(b:aws_core__aws_subnet)",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173bdba98cfa",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs",
+            "description": "Each ECS cluster and the services it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_ecs_cluster)-[:RUNS_SERVICE__aws_core]->(b:aws_core__aws_ecs_service)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173c2ed68eaf",
+            "entity_type": "search",
+            "name": "playground \u2014 landing encrypted",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing encrypted",
+            "description": "Each resource and the KMS key that encrypts it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:ENCRYPTED_WITH_KEY__aws_core]->(b:aws_core__aws_kms_key)",
+                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
+            "entity_type": "layout",
+            "name": "Playground landing layout",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground landing layout",
+            "description": "landing.js: nests the organization's accounts on ENROLLS_ACCOUNT, an account's members on BELONGS_TO_ACCOUNT, a VPC's subnets and gateway, and a subnet's residents; every other edge is a line.",
+            "definition": {
+              "js_file": "tap_plugin/rampart_20x_playground/static/rampart_20x_playground/js/projections/landing.js"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
+            "entity_type": "elevation",
+            "name": "Playground landing elevation",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground landing elevation",
+            "description": "The landing view at one elevation.",
+            "definition": {
+              "zoom": 1.0,
+              "description": "The landing view at one elevation.",
+              "layouts": [
+                "01a13b2c-82d6-73d2-baa8-173dc709ece5"
+              ],
+              "double_tap_targets": []
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-173f13ace217",
+            "entity_type": "projection",
+            "name": "Playground landing projection",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground landing projection",
+            "description": "Landing: one elevation, the landing.js layout module, icon-badge chrome, opens fitted.",
+            "definition": {
+              "node_style": {
+                "mode": "icon-badge"
+              },
+              "elevations": [
+                "01a13b2c-82d6-73d2-baa8-173e83503bfa"
+              ],
+              "default_elevation_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
+              "min_zoom": "fit",
+              "lock_nodes": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "entity_type": "panel",
+            "name": "Playground landing graph",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Playground landing graph",
+            "slug": "playground-landing-graph",
+            "description": "The mock GovCloud deployment as nested accounts, networks and services.",
+            "view": "tap_viz/panels/graph_panel.html",
+            "config": {
+              "height": "100%",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "entity_type": "page",
+            "name": "Playground",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Playground",
+            "slug": "/playground",
+            "nav_weight": 100,
+            "description": "The mock GovCloud deployment of git-serious at account elevation.",
+            "layout": {
+              "full_bleed": true,
+              "columns": {
+                "col-1": {
+                  "width": "1fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "landing",
+                      "height": "90vh"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-17423333b70e",
+            "entity_type": "edge",
+            "name": "panel USES_PROJECTION projection",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173f13ace217",
+            "edge_type": "USES_PROJECTION",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-17435aa6650a",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-nodes",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-17353bda4c2c",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1744ac51ee1c",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-enrolls",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-17366a8674bc",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1745e8dd19a6",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-belongs",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174645d2635e",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-partitioned",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1738c01fc9c1",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1747f33e41da",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-igw",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1739d0ea3431",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1748510a9163",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-resides",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173ab1161fec",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1749195e2362",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173bdba98cfa",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174a0ca22341",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-encrypted",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173c2ed68eaf",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174bd3444df3",
+            "entity_type": "edge",
+            "name": "projection USES_ELEVATION elevation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-173f13ace217",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
+            "edge_type": "USES_ELEVATION",
+            "properties": {
+              "hotlink": {
+                "model": "projection",
+                "spec": "projection-elevations",
+                "value": "01a13b2c-82d6-73d2-baa8-173e83503bfa"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174cc51b5aaf",
+            "entity_type": "edge",
+            "name": "projection USES_DEFAULT_ELEVATION elevation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-173f13ace217",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
+            "edge_type": "USES_DEFAULT_ELEVATION",
+            "properties": {
+              "hotlink": {
+                "model": "projection",
+                "spec": "projection-default-elevation",
+                "value": "01a13b2c-82d6-73d2-baa8-173e83503bfa"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174d739677c2",
+            "entity_type": "edge",
+            "name": "elevation USES_LAYOUT layout",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
+            "edge_type": "USES_LAYOUT",
+            "properties": {
+              "hotlink": {
+                "model": "elevation",
+                "spec": "elevation-layouts",
+                "value": "01a13b2c-82d6-73d2-baa8-173dc709ece5"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-174ef008303f",
+            "entity_type": "edge",
+            "name": "page USES_PANEL panel",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "landing"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
