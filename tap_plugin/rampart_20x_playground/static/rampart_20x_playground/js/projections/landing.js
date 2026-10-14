@@ -11,13 +11,17 @@
  *   - subnet ⊃ what runs in it    RESIDES_IN_SUBNET (resource → subnet)
  *   - cluster ⊃ its services      RUNS_SERVICE (cluster → service)
  *
- * Order comes from typed fields and tags on the nodes: a subnet's `availability_zone` picks its column
- * in the VPC and its `layout:order` tag (public 0, private 1, isolated 2) its place in the column.
+ * Order comes from tags on the nodes: a subnet's `layout:order` tag (public 0, private 1, isolated 2) is
+ * its column in the VPC, after the internet gateway, so the request path reads left to right: gateway,
+ * public tier (load balancer), private tier (web task, worker), isolated tier (database).
+ * The subnets of one tier in several zones are copies of each other: they are drawn as one stacked
+ * subnet carrying the count, with what runs in the first zone inside it (stack.js).
  * Every other edge in the scene is a line.
  */
 
-import {projectNested} from "/static/tap_viz/js/runtime/nested-projection.js";
+import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
+import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 
 const T = {
     organization: "aws_core__aws_organization",
@@ -36,8 +40,6 @@ const E = {
     runsService: "RUNS_SERVICE__aws_core",
 };
 const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster];
-//: Column for what a VPC holds directly, left of its zone columns.
-const VPC_LEVEL_STAGE = -1;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -51,6 +53,7 @@ export async function execute(context) {
 
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
+    const piles = _collapseZoneCopies(cy);
     _stampVpcColumns(cy);
 
     const result = await projectNested(cy, {
@@ -74,6 +77,14 @@ export async function execute(context) {
         },
     });
 
+    piles.forEach((pile) => {
+        applyStack(cy, pile);
+        // The runtime draws a pile's cards below every nesting layer; lift them to just under their own box
+        // so they show inside the VPC.
+        const z = Number(pile.representative.style("z-index")) || 0;
+        cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("z-index", z - card.data("_stack_depth")));
+    });
+
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
         if (!cy.nodes().some((c) => c.data("_viewport_parent") === n.id())) n.addClass("tap-viewport-parent");
@@ -91,26 +102,57 @@ function _edgeType(e) {
 }
 
 /**
- * Stamp the `ranked` columns inside each VPC: one column per availability zone of its subnets (zones in
- * name order), the subnet tiers in `layout:order` within it; what the VPC holds directly stands in a
- * column to their left.
+ * The subnets of one VPC that share a tier (the same `layout:order` tag) are zone copies of each other.
+ * Collapse all but the first (by label) and what resides in them before nesting, so the box is sized for
+ * one; return the stack options to apply once the scene is positioned.
  */
-function _stampVpcColumns(cy) {
-    const subnetsOf = new Map();
+function _collapseZoneCopies(cy) {
+    const byTier = new Map();
     cy.edges().forEach((e) => {
         if (_edgeType(e) !== E.partitioned) return;
-        if (!subnetsOf.has(e.source().id())) subnetsOf.set(e.source().id(), []);
-        subnetsOf.get(e.source().id()).push(e.target());
+        const subnet = e.target();
+        const key = e.source().id() + "|" + ((subnet.data("tags") || {})["layout:order"] ?? "");
+        if (!byTier.has(key)) byTier.set(key, []);
+        byTier.get(key).push(subnet);
     });
-    subnetsOf.forEach((subnets) => {
-        const zone = (s) => (s.data("fields") || {}).availability_zone || "";
-        const zones = [...new Set(subnets.map(zone))].sort((a, b) => a.localeCompare(b));
-        subnets.forEach((s) => {
-            const tier = Number((s.data("tags") || {})["layout:order"]);
-            s.data({_stage: zones.indexOf(zone(s)), _order: Number.isFinite(tier) ? tier : 99});
+    const residentsOf = new Map();
+    cy.edges().forEach((e) => {
+        if (_edgeType(e) !== E.residesInSubnet) return;
+        if (!residentsOf.has(e.target().id())) residentsOf.set(e.target().id(), []);
+        residentsOf.get(e.target().id()).push(e.source());
+    });
+    const piles = [];
+    byTier.forEach((subnets, key) => {
+        if (subnets.length < 2) return;
+        subnets.sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
+        const [representative, ...copies] = subnets;
+        // Out of the nesting while it runs, so the boxes are sized for one zone; applyStack collapses the copies.
+        const hide = (n) => n.addClass(ELEVATION_HIDDEN_CLASS + " " + STACK_COLLAPSED_CLASS);
+        copies.forEach((copy) => {
+            hide(copy);
+            (residentsOf.get(copy.id()) || []).forEach(hide);
+        });
+        piles.push({
+            members: subnets, representative, stackId: "zones:" + key, direction: "down-right", depthCap: 2, chip: false,
+            label: ((representative.data("tags") || {}).tier || representative.data("label")) + " ×" + subnets.length,
         });
     });
+    return piles;
+}
+
+/**
+ * Stamp the `ranked` columns inside each VPC, left to right: the internet gateway, then the subnet tiers
+ * in `layout:order`.
+ */
+function _stampVpcColumns(cy) {
     cy.edges().forEach((e) => {
-        if (_edgeType(e) === E.attachedToVpc) e.source().data({_stage: VPC_LEVEL_STAGE, _order: 0});
+        if (_edgeType(e) !== E.partitioned) return;
+        const subnet = e.target();
+        if (subnet.hasClass(ELEVATION_HIDDEN_CLASS)) return;
+        const tier = Number((subnet.data("tags") || {})["layout:order"]);
+        subnet.data({_stage: Number.isFinite(tier) ? tier + 1 : 99, _order: 0});
+    });
+    cy.edges().forEach((e) => {
+        if (_edgeType(e) === E.attachedToVpc) e.source().data({_stage: 0, _order: 0});
     });
 }
