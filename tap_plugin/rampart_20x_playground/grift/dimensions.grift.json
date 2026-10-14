@@ -6,15 +6,15 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a1361f-0018-7686-b775-a0b31a6428dc",
+        "entity_id": "01a13be3-0373-7abc-b91e-e972f1c2ee93",
         "entity_type": "batch",
-        "name": "rampart-20x-playground Dimension Pack v0.1.0",
+        "name": "rampart-20x-playground Dimension Pack v0.2.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.dimensions",
-        "name": "rampart-20x-playground Dimension Pack v0.1.0",
-        "description": "Two dimension axes as sixteen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus six categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable."
+        "name": "rampart-20x-playground Dimension Pack v0.2.0",
+        "description": "Two dimension axes as seventeen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus seven categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension)."
       },
       "nodes": [
         {
@@ -28,7 +28,7 @@
           },
           "node": {
             "name": "inventory",
-            "description": "The category an inventory item belongs to. Every item on the inventory page carries one `inventory` value: `applications`, `libraries`, `os`, `secrets`, `cloud` or `saas`. The six values are the nodes named `inventory.<value>`. An entity carries one value or none."
+            "description": "The category an inventory item belongs to. Every item on the inventory page carries one `inventory` value: `applications`, `libraries`, `os`, `containers`, `secrets`, `cloud` or `saas`. The seven values are the nodes named `inventory.<value>`. An entity carries one value or none."
           }
         },
         {
@@ -70,7 +70,21 @@
           },
           "node": {
             "name": "inventory.os",
-            "description": "The `os` category on the inventory axis: operating systems and containers."
+            "description": "The `os` category on the inventory axis: operating systems."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7e16-b968-45cf60428726",
+            "entity_type": "dimension",
+            "name": "inventory.containers",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "inventory.containers",
+            "description": "The `containers` category on the inventory axis: container images, one row per class of identical image."
           }
         },
         {

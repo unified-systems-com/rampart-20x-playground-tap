@@ -1,0 +1,968 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a13be3-0373-7113-979c-927c9d675947",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground inventory page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.inventory-page",
+        "name": "rampart-20x-playground inventory page v0.1.0",
+        "description": "The /playground/inventory page: seven standard table panels, each bound by USES_SEARCH to a Search over the inventory dimension (req-rampart-20x-playground-inventory-tables). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-721e-848d-0d3a016bd1bd",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory applications",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory applications",
+            "description": "Every entity whose `inventory` dimension is `applications` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"applications\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7705-bed6-93bb9b7d1b24",
+            "entity_type": "panel",
+            "name": "Applications",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Applications",
+            "slug": "playground-inventory-applications",
+            "description": "The running programs of the deployment: the TAP web program, gunicorn that hosts it, and the PostgreSQL database instance. The managed service that runs the database is a cloud-services row. Version is blank where the mock does not claim one. Ports, container, runtime, vendor, whether it is public, FIPS status and open findings are not shown: no field or edge holds them yet.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                },
+                {
+                  "field": "data.program_name",
+                  "title": "Program",
+                  "widthGrow": 1,
+                  "header_tooltip": "The program's executable name."
+                },
+                {
+                  "field": "data.version",
+                  "title": "Version",
+                  "width": 100,
+                  "header_tooltip": "The program's version. Blank where the mock does not claim one."
+                },
+                {
+                  "field": "data.path",
+                  "title": "Runs from",
+                  "widthGrow": 1,
+                  "header_tooltip": "The path the program runs from. Blank where the mock does not claim one."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7122-86e0-cc3084c90429",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory libraries",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory libraries",
+            "description": "Every entity whose `inventory` dimension is `libraries` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"libraries\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-72f6-a2f8-a695d8db4210",
+            "entity_type": "panel",
+            "name": "Libraries",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Libraries",
+            "slug": "playground-inventory-libraries",
+            "description": "Every library, once per name and version, with its consumers. Empty on purpose: no installed computing_core, aws_core or github_core type holds a software library or package inventory, so there is nothing to list yet. Name, version, ecosystem, fixed version, cryptography, license, consumers and open findings wait for a library node type.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7222-ac6f-26878165b898",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory operating-systems",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory operating-systems",
+            "description": "Every entity whose `inventory` dimension is `os` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"os\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7fd0-80f6-21fcc289db61",
+            "entity_type": "panel",
+            "name": "Operating systems",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Operating systems",
+            "slug": "playground-inventory-operating-systems",
+            "description": "Operating systems, one row each however many images are built on them. Empty on purpose: the only field that names an operating system is computing_core's host.os, and a host is a machine or container, not an operating system. Version, vendor, patch level, end of life and the image and library counts wait for an operating-system node type.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7d21-ab76-e1a4e8564e21",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory containers",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory containers",
+            "description": "Every entity whose `inventory` dimension is `containers` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"containers\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-725f-8fc6-52297b0f6a8c",
+            "entity_type": "panel",
+            "name": "Containers",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Containers",
+            "slug": "playground-inventory-containers",
+            "description": "Container image classes: one row per image, however many tasks run it. The only image the mock holds is the GHCR package version of the product image. The base operating system, architecture, instance count, identical-across-instances check, libraries and last-scan columns are not shown: no edge joins an image to its tasks, its base or its packages.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                },
+                {
+                  "field": "data.version",
+                  "title": "Image digest",
+                  "widthGrow": 2,
+                  "tooltip": "full_value",
+                  "header_tooltip": "The image digest, as the registry reports it."
+                },
+                {
+                  "field": "data.container_tags",
+                  "title": "Tags",
+                  "widthGrow": 1,
+                  "formatter": "json",
+                  "header_tooltip": "The tags that point at this digest."
+                },
+                {
+                  "field": "data.package_name",
+                  "title": "Package",
+                  "widthGrow": 1,
+                  "header_tooltip": "The registry package the image belongs to."
+                },
+                {
+                  "field": "data.owner_login",
+                  "title": "Owner",
+                  "widthGrow": 1,
+                  "header_tooltip": "The GitHub account that owns the package."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7b13-9ff9-42399d911d49",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory secrets",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory secrets",
+            "description": "Every entity whose `inventory` dimension is `secrets` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"secrets\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-74a7-970e-df87720d6496",
+            "entity_type": "panel",
+            "name": "Secrets",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Secrets",
+            "slug": "playground-inventory-secrets",
+            "description": "Secret material by kind and where it is held, never by value: the load balancer's ACM certificate, and the container's certificate with its file and its public and private halves. Values, file contents and fingerprints are not recorded. Secrets Manager secrets and the KMS key appear under cloud services as the resources that hold them; there is no secret or key-material node type and no edge from a holder to what it holds. Rotation, expiry, who uses it and what protects it are not shown.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "entity_type",
+                  "title": "Kind",
+                  "widthGrow": 2,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "labels": {
+                      "aws_core__aws_alb": "Application Load Balancer",
+                      "aws_core__aws_ecs_cluster": "ECS cluster",
+                      "aws_core__aws_ecs_service": "ECS service",
+                      "aws_core__aws_rds_instance": "RDS database",
+                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
+                      "aws_core__aws_kms_key": "KMS key",
+                      "aws_core__aws_ecr_repository": "ECR repository",
+                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
+                      "aws_core__aws_internet_gateway": "Internet gateway",
+                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
+                      "aws_core__aws_acm_certificate": "ACM certificate",
+                      "computing_core__file": "File",
+                      "computing_core__public_key": "Public key",
+                      "computing_core__private_key": "Private key",
+                      "github_core__github_platform": "GitHub platform",
+                      "github_core__github_package": "GHCR package",
+                      "aws_core__aws_organization": "AWS organization"
+                    }
+                  },
+                  "header_tooltip": "What kind of entity the row is, from its grid type."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                },
+                {
+                  "field": "data.algorithm",
+                  "title": "Algorithm",
+                  "width": 110,
+                  "header_tooltip": "The key algorithm. Blank where the entity is not a key."
+                },
+                {
+                  "field": "data.key_size",
+                  "title": "Key size",
+                  "width": 90,
+                  "align": "right",
+                  "header_tooltip": "The key size in bits. Blank where the entity is not a key."
+                },
+                {
+                  "field": "data.file_path",
+                  "title": "Held in file",
+                  "widthGrow": 2,
+                  "header_tooltip": "The path of the file that holds the certificate."
+                },
+                {
+                  "field": "data.domain_name",
+                  "title": "Domain",
+                  "widthGrow": 2,
+                  "header_tooltip": "The domain an ACM certificate is issued for."
+                },
+                {
+                  "field": "dimensions.aws_account",
+                  "title": "Account",
+                  "width": 130,
+                  "header_tooltip": "The AWS account id the entity is stamped with. Blank for entities outside AWS."
+                },
+                {
+                  "field": "dimensions.aws_region",
+                  "title": "Region",
+                  "width": 120,
+                  "header_tooltip": "The AWS region the entity is stamped with. Blank for entities outside AWS."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7ae6-a0ae-23f7021c6217",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory cloud-services",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory cloud-services",
+            "description": "Every entity whose `inventory` dimension is `cloud` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"cloud\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7ddd-bcbe-82b91c481e56",
+            "entity_type": "panel",
+            "name": "Cloud services",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Cloud services",
+            "slug": "playground-inventory-cloud-services",
+            "description": "The AWS resources of the deployment that are neither application, library nor operating system, one row per resource. Subnets and the VPC are conceptual containers and have no row; the ECS tasks are instances of the product image and are not listed. Scheme, encryption and Multi-AZ show only where the resource type has the field; a dash means not observed. ARN or ID, FIPS endpoint, who manages it and open findings are not shown: the ARN lives in a differently named field on each type, and nothing holds the rest.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "entity_type",
+                  "title": "Service",
+                  "widthGrow": 2,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "labels": {
+                      "aws_core__aws_alb": "Application Load Balancer",
+                      "aws_core__aws_ecs_cluster": "ECS cluster",
+                      "aws_core__aws_ecs_service": "ECS service",
+                      "aws_core__aws_rds_instance": "RDS database",
+                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
+                      "aws_core__aws_kms_key": "KMS key",
+                      "aws_core__aws_ecr_repository": "ECR repository",
+                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
+                      "aws_core__aws_internet_gateway": "Internet gateway",
+                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
+                      "aws_core__aws_acm_certificate": "ACM certificate",
+                      "computing_core__file": "File",
+                      "computing_core__public_key": "Public key",
+                      "computing_core__private_key": "Private key",
+                      "github_core__github_platform": "GitHub platform",
+                      "github_core__github_package": "GHCR package",
+                      "aws_core__aws_organization": "AWS organization"
+                    }
+                  },
+                  "header_tooltip": "What kind of entity the row is, from its grid type."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                },
+                {
+                  "field": "dimensions.aws_account",
+                  "title": "Account",
+                  "width": 130,
+                  "header_tooltip": "The AWS account id the entity is stamped with. Blank for entities outside AWS."
+                },
+                {
+                  "field": "dimensions.aws_region",
+                  "title": "Region",
+                  "width": 120,
+                  "header_tooltip": "The AWS region the entity is stamped with. Blank for entities outside AWS."
+                },
+                {
+                  "field": "data.scheme",
+                  "title": "Scheme",
+                  "width": 130,
+                  "header_tooltip": "A load balancer's scheme: internet-facing or internal. Blank for other services."
+                },
+                {
+                  "field": "data.encrypted",
+                  "title": "Encrypted",
+                  "width": 100,
+                  "align": "center",
+                  "formatter": "tickCross",
+                  "header_tooltip": "Whether the database is encrypted at rest. A dash means the resource type does not report it."
+                },
+                {
+                  "field": "data.multi_az",
+                  "title": "Multi-AZ",
+                  "width": 100,
+                  "align": "center",
+                  "formatter": "tickCross",
+                  "header_tooltip": "Whether the database spans availability zones. A dash means the resource type does not report it."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7b70-8d25-9ee986f9276d",
+            "entity_type": "search",
+            "name": "playground \u2014 inventory saas",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 inventory saas",
+            "description": "Every entity whose `inventory` dimension is `saas` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n)",
+                "WHERE n.dimensions[\"inventory\"] = \"saas\"",
+                "RETURN n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7901-adcd-b2e05141fa82",
+            "entity_type": "panel",
+            "name": "Third-party SaaS",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Third-party SaaS",
+            "slug": "playground-inventory-saas",
+            "description": "Outside systems the deployment depends on: GitHub.com where the code comes from, the GHCR package that holds the product image, and AWS where it is hosted. Purpose, data shared, how it authenticates, the vendor's authorization status and what it connects to are not shown: no field holds them.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 100,
+              "chrome": "minimal",
+              "columns": [
+                {
+                  "field": "entity_id",
+                  "title": "ID",
+                  "width": 100,
+                  "formatter": "ellipsisSuffix",
+                  "tooltip": "full_value",
+                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "header_tooltip": "The node's name, the same text as its label on the Overview board. Click the row to open the entity."
+                },
+                {
+                  "field": "entity_type",
+                  "title": "Service",
+                  "widthGrow": 2,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "labels": {
+                      "aws_core__aws_alb": "Application Load Balancer",
+                      "aws_core__aws_ecs_cluster": "ECS cluster",
+                      "aws_core__aws_ecs_service": "ECS service",
+                      "aws_core__aws_rds_instance": "RDS database",
+                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
+                      "aws_core__aws_kms_key": "KMS key",
+                      "aws_core__aws_ecr_repository": "ECR repository",
+                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
+                      "aws_core__aws_internet_gateway": "Internet gateway",
+                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
+                      "aws_core__aws_acm_certificate": "ACM certificate",
+                      "computing_core__file": "File",
+                      "computing_core__public_key": "Public key",
+                      "computing_core__private_key": "Private key",
+                      "github_core__github_platform": "GitHub platform",
+                      "github_core__github_package": "GHCR package",
+                      "aws_core__aws_organization": "AWS organization"
+                    }
+                  },
+                  "header_tooltip": "What kind of entity the row is, from its grid type."
+                },
+                {
+                  "field": "data.description",
+                  "title": "Description",
+                  "widthGrow": 3,
+                  "header_tooltip": "A sentence on what the entity is. Blank where the entity has none."
+                },
+                {
+                  "field": "data.host",
+                  "title": "Host",
+                  "widthGrow": 1,
+                  "header_tooltip": "The platform's host name."
+                },
+                {
+                  "field": "data.html_url",
+                  "title": "Link",
+                  "widthGrow": 2,
+                  "formatter": "externalLink",
+                  "header_tooltip": "The system's web address."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "entity_type": "page",
+            "name": "Playground inventory",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Playground inventory",
+            "slug": "/playground/inventory",
+            "description": "The mock deployment's inventory as seven small tables: applications, libraries, operating systems, containers, secrets, cloud services and third-party SaaS.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "1fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "applications",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "libraries",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "operating-systems",
+                      "height": "auto"
+                    },
+                    "row-4": {
+                      "panel-id": "containers",
+                      "height": "auto"
+                    },
+                    "row-5": {
+                      "panel-id": "secrets",
+                      "height": "auto"
+                    },
+                    "row-6": {
+                      "panel-id": "cloud-services",
+                      "height": "auto"
+                    },
+                    "row-7": {
+                      "panel-id": "saas",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7b02-8886-3224ac3b38c5",
+            "entity_type": "edge",
+            "name": "Applications USES_SEARCH playground \u2014 inventory applications",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-7705-bed6-93bb9b7d1b24",
+            "to_entity_id": "01a13be3-0373-721e-848d-0d3a016bd1bd",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-75e9-ace8-2aa2117cdfc3",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Applications",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-7705-bed6-93bb9b7d1b24",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "applications"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7e38-a84f-13d521e7bc35",
+            "entity_type": "edge",
+            "name": "Libraries USES_SEARCH playground \u2014 inventory libraries",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-72f6-a2f8-a695d8db4210",
+            "to_entity_id": "01a13be3-0373-7122-86e0-cc3084c90429",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7936-b309-1584ffade73b",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Libraries",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-72f6-a2f8-a695d8db4210",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "libraries"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7e02-8b4a-be7e6ebfa964",
+            "entity_type": "edge",
+            "name": "Operating systems USES_SEARCH playground \u2014 inventory operating-systems",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-7fd0-80f6-21fcc289db61",
+            "to_entity_id": "01a13be3-0373-7222-ac6f-26878165b898",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7b0d-bc39-cbf0ca0b4fe4",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Operating systems",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-7fd0-80f6-21fcc289db61",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "operating-systems"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7ccf-8bb5-1c0d7b72016b",
+            "entity_type": "edge",
+            "name": "Containers USES_SEARCH playground \u2014 inventory containers",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-725f-8fc6-52297b0f6a8c",
+            "to_entity_id": "01a13be3-0373-7d21-ab76-e1a4e8564e21",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7bac-a453-d4cf57cd2c2d",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Containers",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-725f-8fc6-52297b0f6a8c",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "containers"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-75e1-881b-eba48c7824ec",
+            "entity_type": "edge",
+            "name": "Secrets USES_SEARCH playground \u2014 inventory secrets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-74a7-970e-df87720d6496",
+            "to_entity_id": "01a13be3-0373-7b13-9ff9-42399d911d49",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7fa2-9ff9-feb3f674ef1a",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Secrets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-74a7-970e-df87720d6496",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "secrets"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7a6f-812f-352f46c190e1",
+            "entity_type": "edge",
+            "name": "Cloud services USES_SEARCH playground \u2014 inventory cloud-services",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-7ddd-bcbe-82b91c481e56",
+            "to_entity_id": "01a13be3-0373-7ae6-a0ae-23f7021c6217",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-77bc-a185-2ccde184470f",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Cloud services",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-7ddd-bcbe-82b91c481e56",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "cloud-services"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7e08-848e-9ca0bd7a626c",
+            "entity_type": "edge",
+            "name": "Third-party SaaS USES_SEARCH playground \u2014 inventory saas",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-7901-adcd-b2e05141fa82",
+            "to_entity_id": "01a13be3-0373-7b70-8d25-9ee986f9276d",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-751e-935d-9b9893ced80d",
+            "entity_type": "edge",
+            "name": "Playground inventory USES_PANEL Third-party SaaS",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a13be3-0373-7901-adcd-b2e05141fa82",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "saas"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

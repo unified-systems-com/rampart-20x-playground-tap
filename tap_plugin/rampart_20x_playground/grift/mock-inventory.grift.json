@@ -24,7 +24,8 @@
             "name": "organization",
             "dimensions": {
               "tap.cloud": "aws",
-              "dcom": "design"
+              "dcom": "design",
+              "inventory": "saas"
             }
           },
           "node": {
@@ -173,7 +174,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -191,7 +193,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "secrets"
             }
           },
           "node": {
@@ -228,7 +231,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -389,7 +393,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -409,7 +414,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -426,7 +432,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -485,7 +492,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -506,7 +514,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -523,7 +532,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -540,7 +550,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -557,7 +568,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -725,7 +737,8 @@
             "entity_type": "github_core__github_platform",
             "name": "github.com",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "inventory": "saas"
             }
           },
           "node": {
@@ -827,7 +840,8 @@
             "entity_type": "github_core__github_package",
             "name": "ghcr.io git-serious image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "inventory": "saas"
             }
           },
           "node": {
@@ -844,7 +858,8 @@
             "entity_type": "github_core__github_package_version",
             "name": "image version",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "inventory": "containers"
             }
           },
           "node": {
