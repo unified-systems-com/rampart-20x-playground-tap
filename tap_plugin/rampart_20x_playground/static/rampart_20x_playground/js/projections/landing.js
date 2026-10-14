@@ -147,6 +147,9 @@ export async function execute(context) {
         // so they show inside the VPC.
         const z = Number(pile.representative.style("z-index")) || 0;
         cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("z-index", z - card.data("_stack_depth")));
+        // The front of the pile has the strongest border and each card behind it a fainter one.
+        pile.representative.style("border-opacity", 1);
+        cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("border-opacity", 0.5 / card.data("_stack_depth")));
     });
 
     // The people, computers and GitHub already have their columns; put them on the request path's line.
