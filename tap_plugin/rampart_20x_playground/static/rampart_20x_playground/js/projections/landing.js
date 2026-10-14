@@ -37,6 +37,9 @@ const T = {
     igw: "aws_core__aws_internet_gateway",
     alb: "aws_core__aws_alb",
     rds: "aws_core__aws_rds_instance",
+    lambda: "aws_core__aws_lambda",
+    bucket: "aws_core__aws_s3_bucket",
+    secret: "aws_core__aws_secrets_manager_secret",
     cluster: "aws_core__aws_ecs_cluster",
     human: "identity_core__human",
     host: "computing_core__host",
@@ -67,7 +70,7 @@ const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster, T.hos
 //: customer, the product account's machinery, GitHub, developer.
 const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 3};
 //: Shown as icon nodes: the type icon is the card, the name is below it.
-const ICON_TYPES = [T.igw, T.alb, T.rds, T.human, T.host, T.platform];
+const ICON_TYPES = [T.igw, T.alb, T.rds, T.lambda, T.bucket, T.secret, T.human, T.host, T.platform];
 const ICON = {width: 84, height: 84};
 //: Place in the column: the person, then their computer.
 const KIND_ORDER = {[T.human]: 1, [T.host]: 2};

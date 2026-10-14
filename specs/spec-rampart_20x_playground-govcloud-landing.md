@@ -169,6 +169,8 @@ a FedRAMP-shaped environment mirrors images into its own registry, which is why 
 | req-rampart-20x-playground-govcloud-deploy-1 | Path Is Complete | Proposed | Every hop from developer to ECS service is shown as a node, in order by placement. | Connected only where an official edge exists. |
 | req-rampart-20x-playground-govcloud-deploy-2 | ECR Is On The Path | Proposed | ECR sits between GHCR and the service. | |
 | req-rampart-20x-playground-govcloud-deploy-3 | Deploy Lives In The Product Account | Proposed | The deploy step is inside the product account. | Ruled 2026-10-13. |
+| req-rampart-20x-playground-govcloud-deploy-4 | Release Pull And Apply | Proposed | In the product account, outside the VPC: a Lambda function that holds a GitHub App token in Secrets Manager copies the Terraform source from GitHub into an S3 bucket; a CodePipeline pipeline with a human approval stage plans and applies it with CodeBuild, and Terraform state sits in a second S3 bucket. | Ruled 2026-10-14. Only the Lambda function, the secret and the two buckets can be drawn today; the pipeline and the build projects wait for `aws_core` types (aws-core-tap#96). |
+| req-rampart-20x-playground-govcloud-deploy-5 | Names Are Plain | Proposed | Resource names carry no product prefix, and the product VPC is named Production. | Ruled 2026-10-14. The account, the Route 53 zone and the GitHub names keep theirs. |
 
 ### Support Accounts
 ----

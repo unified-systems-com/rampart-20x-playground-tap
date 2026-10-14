@@ -21,7 +21,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d215cb853325",
             "entity_type": "aws_core__aws_organization",
-            "name": "git-serious organization",
+            "name": "organization",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design"
@@ -31,7 +31,7 @@
             "organization_id": "o-mockgitserious",
             "management_account_id": "100000000000",
             "partition": "aws-us-gov",
-            "name": "git-serious organization",
+            "name": "organization",
             "tags": {
               "layout:column": "1",
               "layout:order": "0"
@@ -186,7 +186,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2234249a873",
             "entity_type": "aws_core__aws_acm_certificate",
-            "name": "git-serious tls certificate",
+            "name": "tls certificate",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -197,14 +197,14 @@
           "node": {
             "certificate_arn": "arn:aws-us-gov:acm:us-gov-west-1:100000000001:certificate/mock-git-serious",
             "domain_name": "git-serious.example.invalid",
-            "name": "git-serious tls certificate"
+            "name": "tls certificate"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d224cf8fcc78",
             "entity_type": "aws_core__aws_vpc",
-            "name": "git-serious vpc",
+            "name": "Production",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -216,14 +216,14 @@
             "vpc_id": "vpc-mockgitserious",
             "cidr_block": "10.20.0.0/16",
             "state": "available",
-            "name": "git-serious vpc"
+            "name": "Production"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d225cae1116b",
             "entity_type": "aws_core__aws_internet_gateway",
-            "name": "git-serious internet gateway",
+            "name": "internet gateway",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -233,7 +233,7 @@
           },
           "node": {
             "igw_id": "igw-mockgitserious",
-            "name": "git-serious internet gateway"
+            "name": "internet gateway"
           }
         },
         {
@@ -384,7 +384,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2338817f78c",
             "entity_type": "aws_core__aws_alb",
-            "name": "git-serious load balancer",
+            "name": "load balancer",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -397,14 +397,14 @@
             "scheme": "internet-facing",
             "state": "active",
             "dns_name": "git-serious-mock.elb.example.invalid",
-            "name": "git-serious load balancer"
+            "name": "load balancer"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d23521f9e4a4",
             "entity_type": "aws_core__aws_ecs_cluster",
-            "name": "git-serious cluster",
+            "name": "cluster",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -414,14 +414,14 @@
           },
           "node": {
             "cluster_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:cluster/git-serious",
-            "name": "git-serious cluster"
+            "name": "cluster"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2361d087d38",
             "entity_type": "aws_core__aws_ecs_service",
-            "name": "git-serious web",
+            "name": "web",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -435,14 +435,14 @@
             "desired_count": 2,
             "running_count": 2,
             "launch_type": "FARGATE",
-            "name": "git-serious web"
+            "name": "web"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d238818190f7",
             "entity_type": "aws_core__aws_ecs_task",
-            "name": "git-serious web task a",
+            "name": "web task a",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -454,14 +454,14 @@
             "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/web-a",
             "status": "RUNNING",
             "launch_type": "FARGATE",
-            "name": "git-serious web task a"
+            "name": "web task a"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d23ae734451d",
             "entity_type": "aws_core__aws_ecs_task",
-            "name": "git-serious web task b",
+            "name": "web task b",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -473,14 +473,14 @@
             "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/web-b",
             "status": "RUNNING",
             "launch_type": "FARGATE",
-            "name": "git-serious web task b"
+            "name": "web task b"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d23c3f9cc2ee",
             "entity_type": "aws_core__aws_ecs_service",
-            "name": "git-serious worker",
+            "name": "worker",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -494,14 +494,14 @@
             "desired_count": 2,
             "running_count": 2,
             "launch_type": "FARGATE",
-            "name": "git-serious worker"
+            "name": "worker"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d23e597d4226",
             "entity_type": "aws_core__aws_ecs_task",
-            "name": "git-serious worker task a",
+            "name": "worker task a",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -513,14 +513,14 @@
             "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/worker-a",
             "status": "RUNNING",
             "launch_type": "FARGATE",
-            "name": "git-serious worker task a"
+            "name": "worker task a"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2405ad1e83a",
             "entity_type": "aws_core__aws_ecs_task",
-            "name": "git-serious worker task b",
+            "name": "worker task b",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -532,14 +532,14 @@
             "task_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:task/git-serious/worker-b",
             "status": "RUNNING",
             "launch_type": "FARGATE",
-            "name": "git-serious worker task b"
+            "name": "worker task b"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d24211bfdd43",
             "entity_type": "aws_core__aws_rds_instance",
-            "name": "git-serious database",
+            "name": "database",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -553,14 +553,14 @@
             "db_instance_id": "git-serious",
             "multi_az": true,
             "encrypted": true,
-            "name": "git-serious database"
+            "name": "database"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2440e5bbb39",
             "entity_type": "aws_core__aws_secrets_manager_secret",
-            "name": "git-serious runtime secrets",
+            "name": "runtime secrets",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -570,14 +570,14 @@
           },
           "node": {
             "secret_arn": "arn:aws-us-gov:secretsmanager:us-gov-west-1:100000000001:secret:git-serious-mock",
-            "name": "git-serious runtime secrets"
+            "name": "runtime secrets"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d24524456585",
             "entity_type": "aws_core__aws_kms_key",
-            "name": "git-serious key",
+            "name": "key",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -587,14 +587,14 @@
           },
           "node": {
             "key_arn": "arn:aws-us-gov:kms:us-gov-west-1:100000000001:key/mock-git-serious",
-            "name": "git-serious key"
+            "name": "key"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d24608d641e1",
             "entity_type": "aws_core__aws_ecr_repository",
-            "name": "git-serious images",
+            "name": "images",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -604,7 +604,7 @@
           },
           "node": {
             "repository_arn": "arn:aws-us-gov:ecr:us-gov-west-1:100000000001:repository/git-serious",
-            "name": "git-serious images"
+            "name": "images"
           }
         },
         {
@@ -901,7 +901,7 @@
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d0a42b4d80c9",
             "entity_type": "github_core__github_package_version",
-            "name": "git-serious image version",
+            "name": "image version",
             "dimensions": {
               "dcom": "design"
             }
@@ -915,6 +915,74 @@
             "container_tags": [
               "latest"
             ]
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f58f-7545-b863-ec8bea41581f",
+            "entity_type": "aws_core__aws_lambda",
+            "name": "terraform source puller",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "function_arn": "arn:aws-us-gov:lambda:us-gov-west-1:100000000001:function:terraform-source-puller",
+            "name": "terraform source puller"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f590-7b75-80b0-1187a0821a52",
+            "entity_type": "aws_core__aws_secrets_manager_secret",
+            "name": "github app token",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "secret_arn": "arn:aws-us-gov:secretsmanager:us-gov-west-1:100000000001:secret:github-app-token-mock",
+            "name": "github app token"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f591-7187-bb84-b1dc7240fc94",
+            "entity_type": "aws_core__aws_s3_bucket",
+            "name": "terraform bundle",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "bucket_arn": "arn:aws-us-gov:s3:::terraform-bundle-mock",
+            "name": "terraform bundle"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f592-7307-8849-dda4a219624a",
+            "entity_type": "aws_core__aws_s3_bucket",
+            "name": "terraform state",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "bucket_arn": "arn:aws-us-gov:s3:::terraform-state-mock",
+            "name": "terraform state"
           }
         }
       ],
@@ -1684,6 +1752,70 @@
             "from_entity_id": "01a13b55-8896-76ca-9f21-d09fd10a258e",
             "to_entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
             "edge_type": "HELD_BY_HUMAN__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f5f3-7639-991d-7335c5b094e2",
+            "entity_type": "edge",
+            "name": "01a13baa-f58f-7545-b863-ec8bea41581f --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13baa-f58f-7545-b863-ec8bea41581f",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f5f4-7b4a-b506-9980c06ad7e2",
+            "entity_type": "edge",
+            "name": "01a13baa-f590-7b75-80b0-1187a0821a52 --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13baa-f590-7b75-80b0-1187a0821a52",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f5f5-7ab0-bc42-34d941bb6681",
+            "entity_type": "edge",
+            "name": "01a13baa-f591-7187-bb84-b1dc7240fc94 --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13baa-f591-7187-bb84-b1dc7240fc94",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13baa-f5f6-7566-a8bf-13f7a413dea3",
+            "entity_type": "edge",
+            "name": "01a13baa-f592-7307-8849-dda4a219624a --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13baa-f592-7307-8849-dda4a219624a",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
             "properties": {}
           }
         }
