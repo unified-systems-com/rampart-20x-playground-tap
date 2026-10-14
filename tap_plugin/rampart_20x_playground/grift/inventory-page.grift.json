@@ -80,13 +80,13 @@
                   "field": "data.version",
                   "title": "Version",
                   "width": 100,
-                  "header_tooltip": "The program's version. Blank where the mock does not claim one."
+                  "header_tooltip": "The program's version."
                 },
                 {
                   "field": "data.path",
                   "title": "Runs from",
                   "widthGrow": 1,
-                  "header_tooltip": "The path the program runs from. Blank where the mock does not claim one."
+                  "header_tooltip": "The path the program runs from."
                 }
               ]
             }
@@ -346,27 +346,9 @@
                   "field": "entity_type",
                   "title": "Kind",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "tailSegment",
                   "formatter_params": {
-                    "labels": {
-                      "aws_core__aws_alb": "Application Load Balancer",
-                      "aws_core__aws_ecs_cluster": "ECS cluster",
-                      "aws_core__aws_ecs_service": "ECS service",
-                      "aws_core__aws_rds_instance": "RDS database",
-                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
-                      "aws_core__aws_kms_key": "KMS key",
-                      "aws_core__aws_ecr_repository": "ECR repository",
-                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
-                      "aws_core__aws_internet_gateway": "Internet gateway",
-                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
-                      "aws_core__aws_acm_certificate": "ACM certificate",
-                      "computing_core__file": "File",
-                      "computing_core__public_key": "Public key",
-                      "computing_core__private_key": "Private key",
-                      "github_core__github_platform": "GitHub platform",
-                      "github_core__github_package": "GHCR package",
-                      "aws_core__aws_organization": "AWS organization"
-                    }
+                    "sep": "__"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -468,27 +450,9 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "tailSegment",
                   "formatter_params": {
-                    "labels": {
-                      "aws_core__aws_alb": "Application Load Balancer",
-                      "aws_core__aws_ecs_cluster": "ECS cluster",
-                      "aws_core__aws_ecs_service": "ECS service",
-                      "aws_core__aws_rds_instance": "RDS database",
-                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
-                      "aws_core__aws_kms_key": "KMS key",
-                      "aws_core__aws_ecr_repository": "ECR repository",
-                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
-                      "aws_core__aws_internet_gateway": "Internet gateway",
-                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
-                      "aws_core__aws_acm_certificate": "ACM certificate",
-                      "computing_core__file": "File",
-                      "computing_core__public_key": "Public key",
-                      "computing_core__private_key": "Private key",
-                      "github_core__github_platform": "GitHub platform",
-                      "github_core__github_package": "GHCR package",
-                      "aws_core__aws_organization": "AWS organization"
-                    }
+                    "sep": "__"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -587,27 +551,9 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "tailSegment",
                   "formatter_params": {
-                    "labels": {
-                      "aws_core__aws_alb": "Application Load Balancer",
-                      "aws_core__aws_ecs_cluster": "ECS cluster",
-                      "aws_core__aws_ecs_service": "ECS service",
-                      "aws_core__aws_rds_instance": "RDS database",
-                      "aws_core__aws_secrets_manager_secret": "Secrets Manager secret",
-                      "aws_core__aws_kms_key": "KMS key",
-                      "aws_core__aws_ecr_repository": "ECR repository",
-                      "aws_core__aws_route53_zone": "Route 53 hosted zone",
-                      "aws_core__aws_internet_gateway": "Internet gateway",
-                      "aws_core__aws_iam_oidc_provider": "IAM OIDC provider",
-                      "aws_core__aws_acm_certificate": "ACM certificate",
-                      "computing_core__file": "File",
-                      "computing_core__public_key": "Public key",
-                      "computing_core__private_key": "Private key",
-                      "github_core__github_platform": "GitHub platform",
-                      "github_core__github_package": "GHCR package",
-                      "aws_core__aws_organization": "AWS organization"
-                    }
+                    "sep": "__"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },

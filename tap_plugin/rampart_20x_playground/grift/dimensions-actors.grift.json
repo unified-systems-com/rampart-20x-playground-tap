@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a13b55-1c43-77a5-91b5-9de2c786b0fa",
         "entity_type": "batch",
-        "name": "rampart-20x-playground Actor Dimensions v0.1.0",
+        "name": "rampart-20x-playground Placement Dimensions v0.2.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.dimensions-actors",
-        "name": "rampart-20x-playground Actor Dimensions v0.1.0",
-        "description": "Two dimension axes as eight dimension nodes: `actor` (customer, developer, administrator) and `device` (the same three, for end-computing devices). Placement hints for the landing view; no edges, the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` and no `dcom` value."
+        "name": "rampart-20x-playground Placement Dimensions v0.2.0",
+        "description": "Four dimension axes as twenty dimension nodes: `actor` and `device` (customer, developer, administrator) and `column` and `row` (where a person or a computer stands on the Overview board). Placement hints for the landing view; no edges, the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` and no `dcom` value."
       },
       "nodes": [
         {
@@ -127,6 +127,160 @@
           "node": {
             "name": "device.administrator",
             "description": "The `administrator` value on the device axis: the end-computing device of an infrastructure administrator who operates the system."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e1c6598ce80",
+            "entity_type": "dimension",
+            "name": "column",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column",
+            "description": "Which column of the Overview board a person or a computer stands in, from the left: `0` to `5`. The six values are the nodes named `column.<value>`. An entity carries one value or none. A type with its own tagging system carries its column as a tag instead (`layout:column`). The layout reads it to place people and computers; it carries no access meaning."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e1d1528b5f0",
+            "entity_type": "dimension",
+            "name": "column.0",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.0",
+            "description": "The `0` value on the column axis: column 0 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e1e7cc4e6b8",
+            "entity_type": "dimension",
+            "name": "column.1",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.1",
+            "description": "The `1` value on the column axis: column 1 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e1fe3c8e442",
+            "entity_type": "dimension",
+            "name": "column.2",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.2",
+            "description": "The `2` value on the column axis: column 2 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e20128382be",
+            "entity_type": "dimension",
+            "name": "column.3",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.3",
+            "description": "The `3` value on the column axis: column 3 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e21abcab128",
+            "entity_type": "dimension",
+            "name": "column.4",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.4",
+            "description": "The `4` value on the column axis: column 4 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e22bfd62d36",
+            "entity_type": "dimension",
+            "name": "column.5",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "column.5",
+            "description": "The `5` value on the column axis: column 5 from the left of the Overview board."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e235036a4a2",
+            "entity_type": "dimension",
+            "name": "row",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "row",
+            "description": "Where a person or a computer stands within its column of the Overview board, from the top: `0` to `2`. The three values are the nodes named `row.<value>`. An entity carries one value or none. The layout reads it with `column`; it carries no access meaning."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e246f00808c",
+            "entity_type": "dimension",
+            "name": "row.0",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "row.0",
+            "description": "The `0` value on the row axis: row 0 from the top of its column."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e255c9f5f6c",
+            "entity_type": "dimension",
+            "name": "row.1",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "row.1",
+            "description": "The `1` value on the row axis: row 1 from the top of its column."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d4a-762b-89b6-2e2629957948",
+            "entity_type": "dimension",
+            "name": "row.2",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "row.2",
+            "description": "The `2` value on the row axis: row 2 from the top of its column."
           }
         }
       ],

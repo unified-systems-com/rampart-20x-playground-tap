@@ -254,6 +254,34 @@
             "name": "dataclass.infra.logs",
             "description": "The `logs` value on the `dataclass.infra` sub-axis: infrastructure logs."
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d91-73fc-87ce-033c70bb1ab1",
+            "entity_type": "dimension",
+            "name": "overview",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "overview",
+            "description": "Whether an entity is drawn on the Overview page. An entity on the Overview carries the value `shown`; the Overview's Searches select on it, so the list of what the page shows is data on the entities and not a list of types in each Search. The value is the node named `overview.shown`. An entity carries one value or none."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c0f-3d91-73fc-87ce-033d71f0549d",
+            "entity_type": "dimension",
+            "name": "overview.shown",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "overview.shown",
+            "description": "The `shown` value on the overview axis: the entity is drawn on the Overview page."
+          }
         }
       ],
       "edges": []

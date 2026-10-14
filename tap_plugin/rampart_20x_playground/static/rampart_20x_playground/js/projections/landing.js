@@ -72,29 +72,12 @@ const E = {
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
 };
 const CONTAINERS = [T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
-//: Top-level columns, left to right: customer, their computer, the product account (the organization
-//: tags itself column 2), GitHub (column 3), the developer's computer, the developer. A person or a
-//: computer takes its place from its `actor` / `device` dimension; the administrator and their computer
-//: stand beneath the organization, the computer above the person.
-const ACTOR_PLACE = {
-    customer: {[T.human]: {stage: 0, order: 0}, [T.host]: {stage: 1, order: 0}},
-    administrator: {[T.host]: {stage: 2, order: 30}, [T.human]: {stage: 2, order: 31}},
-    developer: {[T.host]: {stage: 4, order: 0}, [T.human]: {stage: 5, order: 0}},
-};
-//: The product account stands in its own column, after the customer's computer.
-const COLUMN_BY_TYPE = {[T.account]: 0};
-const PRODUCT_STAGE = 2;
 //: Shown as icon nodes: the type icon is the card, the name is below it.
 const ICON_TYPES = [T.human, T.host, T.platform];
 const ICON = {width: 84, height: 84};
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
 const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
-//: Top-level nodes that stand on the same horizontal line as the request path (anchored on the load balancer):
-//: the customer and their computer, GitHub, the developer's computer and the developer. The administrator
-//: and their computer stay beneath the organization.
-const ROW_TYPES = [T.human, T.host, T.platform];
-const ROW_APART = "administrator";
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -163,15 +146,17 @@ export async function execute(context) {
         applyStack(cy, pile);
     });
 
-    // The people, computers and GitHub already have their columns; put them on the request path's line.
+    // Everything that stands outside the product's column already has its column; put it on the request
+    // path's line. What stands in the product's column besides the account (the administrator's computer
+    // and the administrator) goes under the account instead.
     if (cy.scratch("landing_row")) cy.scratch("landing_row").destroy();
     const anchor = shown([T.alb]).first();
+    const account = shown([T.account]).first();
+    const roots = cy.nodes().filter((n) => Number.isInteger(n.data("_stage")) && n.data("_viewport_parent") === undefined
+        && !n.hasClass(ELEVATION_HIDDEN_CLASS));
+    const productStage = account.nonempty() ? account.data("_stage") : undefined;
     if (anchor.nonempty()) {
-        const row = cy.nodes().filter((n) => {
-            const dims = n.data("dimensions") || {};
-            return ROW_TYPES.includes(n.data("entity_type")) && (dims.actor || dims.device) !== ROW_APART
-                && n.data("_viewport_parent") === undefined && !n.hasClass(ELEVATION_HIDDEN_CLASS);
-        });
+        const row = roots.filter((n) => n.data("_stage") !== productStage);
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
 
@@ -183,14 +168,11 @@ export async function execute(context) {
         }
     });
 
-    // The administrator stands at the foot of the product's column, the computer above the person.
-    const admin = cy.nodes().filter((n) => {
-        const dims = n.data("dimensions") || {};
-        return (dims.actor || dims.device) === ROW_APART && [T.host, T.human].includes(n.data("entity_type"));
-    });
-    if (admin.length === 2) {
-        const pair = [admin.filter(`[entity_type = "${T.host}"]`)[0], admin.filter(`[entity_type = "${T.human}"]`)[0]];
-        alignDistributeVertical(cy, {members: pair, sort: false, gap: 56});
+    // Under the account, top to bottom in their own order (the computer, then the person).
+    const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
+        .sort((a, b) => a.data("_order") - b.data("_order"));
+    if (beneath.length > 1) {
+        alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
     }
 
     // An empty container is still a box, not a leaf.
@@ -211,7 +193,8 @@ function _edgeType(e) {
 }
 
 /**
- * The subnets of one VPC that share a tier (the same `layout:order` tag) are zone copies of each other.
+ * The subnets of one VPC that share a tier (the same `tier` tag) are zone copies of each other; their typed
+ * availability zones are what tell the copies apart.
  * Collapse all but the first (by label) and what resides in them before nesting, so the box is sized for
  * one; return the stack options to apply once the scene is positioned.
  */
@@ -220,7 +203,7 @@ function _collapseZoneCopies(cy) {
     cy.edges().forEach((e) => {
         if (_edgeType(e) !== E.partitioned) return;
         const subnet = e.target();
-        const key = e.source().id() + "|" + ((subnet.data("tags") || {})["layout:order"] ?? "");
+        const key = e.source().id() + "|" + ((subnet.data("tags") || {}).tier ?? "");
         if (!byTier.has(key)) byTier.set(key, []);
         byTier.get(key).push(subnet);
     });
@@ -267,17 +250,16 @@ function _stampVpcColumns(cy) {
 }
 
 /**
- * Stamp the top-level `ranked` columns (see ACTOR_PLACE); a node with a `layout:column` tag takes the tag.
+ * Stamp the top-level `ranked` columns, left to right. A person or a computer carries its place in the `column`
+ * and `row` dimensions (their types have no tagging system); a type that has one (the account, GitHub) carries
+ * `layout:column` and `layout:order` tags.
  */
 function _stampRootColumns(cy) {
     cy.nodes().forEach((n) => {
         const dims = n.data("dimensions") || {};
         const tags = n.data("tags") || {};
-        const place = (ACTOR_PLACE[dims.actor || dims.device] || {})[n.data("entity_type")];
-        if (place) {
-            n.data({_stage: place.stage, _order: place.order});
-        } else if (COLUMN_BY_TYPE[n.data("entity_type")] !== undefined) {
-            n.data({_stage: PRODUCT_STAGE, _order: COLUMN_BY_TYPE[n.data("entity_type")]});
+        if (dims.column !== undefined) {
+            n.data({_stage: Number(dims.column), _order: Number(dims.row || 0)});
         } else if (tags["layout:column"] !== undefined) {
             n.data({_stage: Number(tags["layout:column"]), _order: Number(tags["layout:order"] || 0)});
         }

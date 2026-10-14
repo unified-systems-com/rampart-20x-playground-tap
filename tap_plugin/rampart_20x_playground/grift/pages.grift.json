@@ -26,13 +26,13 @@
           },
           "node": {
             "name": "playground \u2014 landing nodes",
-            "description": "Every designed (dcom design) node of the mock deployment, so observed nodes of the same types stay off the page: the organization, its accounts and what the product account holds, the people and their computers, and the GitHub side of the deploy path.",
+            "description": "Every entity marked `overview: shown`: the running parts of the deployment, its people and their computers, and the GitHub side of the deploy path.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n)",
-                "WHERE n.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_codepipeline_pipeline\", \"aws_core__aws_codebuild_project\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"] AND n.dimensions.dcom = \"design\"",
+                "WHERE n.dimensions[\"overview\"] = \"shown\"",
                 "RETURN n"
               ]
             }
@@ -93,7 +93,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:RESIDES_IN_SUBNET__aws_core]->(b:aws_core__aws_subnet)",
-                "WHERE a.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_codepipeline_pipeline\", \"aws_core__aws_codebuild_project\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -114,7 +114,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:ENCRYPTED_WITH_KEY__aws_core]->(b:aws_core__aws_kms_key)",
-                "WHERE a.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_codepipeline_pipeline\", \"aws_core__aws_codebuild_project\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -155,7 +155,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:HELD_BY_HUMAN__identity_core]->(b:identity_core__human)",
-                "WHERE a.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_codepipeline_pipeline\", \"aws_core__aws_codebuild_project\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -424,7 +424,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
-                "WHERE a.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_codepipeline_pipeline\", \"aws_core__aws_codebuild_project\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }

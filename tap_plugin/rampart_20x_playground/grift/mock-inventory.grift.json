@@ -46,7 +46,8 @@
             "name": "git-serious",
             "dimensions": {
               "tap.cloud": "aws",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -55,7 +56,7 @@
             "status": "ACTIVE",
             "name": "git-serious",
             "tags": {
-              "role": "product",
+              "layout:column": "2",
               "layout:order": "0"
             }
           }
@@ -175,7 +176,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -194,7 +196,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "secrets"
+              "inventory": "secrets",
+              "overview": "shown"
             }
           },
           "node": {
@@ -212,7 +215,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -232,7 +236,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -249,7 +254,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -273,7 +279,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -297,7 +304,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -321,7 +329,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -345,7 +354,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -369,7 +379,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -394,7 +405,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -454,7 +466,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -473,7 +486,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -493,7 +507,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -515,7 +530,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -533,7 +549,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -551,7 +568,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -585,7 +603,10 @@
             "name": "customer a",
             "dimensions": {
               "actor": "customer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "0",
+              "row": "0"
             }
           },
           "node": {
@@ -600,7 +621,10 @@
             "name": "customer a computer",
             "dimensions": {
               "device": "customer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "1",
+              "row": "0"
             }
           },
           "node": {
@@ -618,7 +642,8 @@
             "name": "customer-a",
             "dimensions": {
               "device": "customer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -636,7 +661,10 @@
             "name": "developer a",
             "dimensions": {
               "actor": "developer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "5",
+              "row": "0"
             }
           },
           "node": {
@@ -651,7 +679,10 @@
             "name": "developer a laptop",
             "dimensions": {
               "device": "developer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "4",
+              "row": "0"
             }
           },
           "node": {
@@ -669,7 +700,8 @@
             "name": "developer-a",
             "dimensions": {
               "device": "developer",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -687,7 +719,10 @@
             "name": "administrator a",
             "dimensions": {
               "actor": "administrator",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "2",
+              "row": "2"
             }
           },
           "node": {
@@ -702,7 +737,10 @@
             "name": "administrator a workstation",
             "dimensions": {
               "device": "administrator",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown",
+              "column": "2",
+              "row": "1"
             }
           },
           "node": {
@@ -720,7 +758,8 @@
             "name": "admin-a",
             "dimensions": {
               "device": "administrator",
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -738,7 +777,8 @@
             "name": "github.com",
             "dimensions": {
               "dcom": "design",
-              "inventory": "saas"
+              "inventory": "saas",
+              "overview": "shown"
             }
           },
           "node": {
@@ -756,7 +796,8 @@
             "entity_type": "github_core__github_account",
             "name": "git-serious-dev",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -771,7 +812,8 @@
             "entity_type": "github_core__github_account",
             "name": "dev-a",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -786,7 +828,8 @@
             "entity_type": "github_core__github_repository",
             "name": "git-serious-dev/git-serious",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -804,7 +847,8 @@
             "entity_type": "github_core__github_workflow",
             "name": "build and deploy",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -821,7 +865,8 @@
             "entity_type": "github_core__github_actions_run",
             "name": "build and deploy run 1",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "overview": "shown"
             }
           },
           "node": {
@@ -841,7 +886,8 @@
             "name": "ghcr.io git-serious image",
             "dimensions": {
               "dcom": "design",
-              "inventory": "saas"
+              "inventory": "saas",
+              "overview": "shown"
             }
           },
           "node": {
@@ -859,7 +905,8 @@
             "name": "image version",
             "dimensions": {
               "dcom": "design",
-              "inventory": "containers"
+              "inventory": "containers",
+              "overview": "shown"
             }
           },
           "node": {
@@ -882,7 +929,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -899,7 +947,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -916,7 +965,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -933,7 +983,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
             }
           },
           "node": {
@@ -951,7 +1002,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -978,7 +1030,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
@@ -1001,7 +1054,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud"
+              "inventory": "cloud",
+              "overview": "shown"
             }
           },
           "node": {
