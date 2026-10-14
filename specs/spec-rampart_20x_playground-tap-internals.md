@@ -247,29 +247,40 @@ The view shows that TAP holds secret material, where it lives, and what consumes
 
 #### Implementation
 
+A secret is separate from where it is stored (George, 2026-10-14). A certificate is not its own kind of thing:
+it is a file that holds a key when written to disk. So the view shows secret material in two places, a file
+on disk and a running program, and models the material apart from both.
+
+- `secret`: a general secret value, which may hold any number of secret values; subdivided later.
+- `asymmetric_key`: a key pair as one node. It relates to its `public_key` and its `private_key`, which already
+  exist in `computing_core` (v0.5.0: name, algorithm, key size, fingerprint, read from the source, not run).
+- A `file` on disk holds a secret or a key; a `program` holds one in memory. Same material, different place,
+  so the edge says where it is held and the node says what it is.
+
 Secrets live off-grid in a mounted secrets directory (`/run/tap-secrets` in the container; `TAP_SECRETS_ROOT`),
 as `<key>.secret.json` files whose directory layout carries no meaning
-(`req-tap-cares-secrets-files-2`). The secrets themselves are modelled inside that directory on disk: the
-directory is a node, each secret file is a `file` node inside it with a role of secret, and the secret
-registry (one of the thirteen) is linked to the program that loads from it. Two observed scopes,
-`aws_core` (`boto_collector`) and `auth` (a Google login), are named by file; the file contents are not read
-by this spec and not drawn.
+(`req-tap-cares-secrets-files-2`). The secrets are modelled inside that directory on disk: the directory is a
+node, each secret file is a `file` node inside it, and each file holds a `secret` node. The secret registry
+(one of the thirteen) links to the program that loads from it. Two observed scopes, `aws_core`
+(`boto_collector`) and `auth` (a Google login), are named by file; file contents are not read by this spec and
+not drawn.
 
-Certificates are shown at this level, in two places (George, 2026-10-14). The load balancer has a certificate
-pulled from the certificate manager: in the account view that is the `aws_acm_certificate` node `aws_core`
-already has. The TAP instance has a certificate on the filesystem of its container, held as a `file` node with a
-role of certificate, with its key as a separate `private_key` node, presented by gunicorn. Today gunicorn
-serves plain HTTP and TLS terminates outside it (`docker/gunicorn.conf.py`, `certfile` and `keyfile` unset), so
-the in-container certificate is the design the view shows for gunicorn taking over TLS; the current code does
-not use one. `computing_core` has `public_key` and `private_key` but no `certificate` type
-(`req-rampart-20x-playground-internals-gaps`).
+Certificates appear in two places. The load balancer's comes from the certificate manager: in the account view
+that is the `aws_acm_certificate` node `aws_core` already has. The TAP instance's is a `file` in the
+container's filesystem holding an `asymmetric_key`, its public half and private half as separate nodes,
+presented by gunicorn; while gunicorn holds the private key in a worker's memory, that same `private_key`
+node is shown held by the worker `program`. Today gunicorn serves plain HTTP and TLS terminates outside it
+(`docker/gunicorn.conf.py`, `certfile` and `keyfile` unset), so the in-container certificate is the design the
+view shows for gunicorn taking over TLS; the current code does not use one.
 
 #### Acceptance Criteria
 
-- No secret value, fingerprint of a private key, or file content appears anywhere in the batch or the page.
-- Every secret file node is inside the secrets directory node.
+- No secret value, private-key fingerprint or file content appears anywhere in the batch or the page.
+- Every secret file node is inside the secrets directory node, and every `secret` is held by a file or a
+  program.
 - Two certificates appear: the load balancer's, tied to the certificate-manager node, and the container's,
-  tied to gunicorn. Each shows subject, issuer and validity dates, and its key is a separate node.
+  tied to gunicorn. The container's shows its public and private halves as separate nodes under one
+  `asymmetric_key`.
 
 ### Node And Edge Types
 ----
@@ -292,7 +303,9 @@ In `computing_core` (generic):
   `process` type is added.
 - `code_module`: a Python package or module. `code_symbol`: a class, function or variable (populated later).
 - `library` (and `package`), already proposed in `computing-core-tap#33`.
-- `file`, `public_key`, `private_key` exist. `certificate` is a gap for the on-disk certificate.
+- `file`, `public_key`, `private_key` exist. New: `asymmetric_key` (a pair, relating to its two halves) and
+  `secret` (a general secret value, subdivided later). There is no `certificate` type: a certificate is a file
+  holding a key.
 
 In TAP core (specific to TAP): `tap_plugin` (owned by `tap_plugins`), `tap_registry` (owned by `tap_grid`),
 `tap_scheduler` (owned by `tap_cares`). Slugs are proposals; the plugin-naming rule does not apply to core
@@ -303,7 +316,8 @@ are plain edges until a compound edge is wanted: a program hosts a program; a pr
 module; a module contains a module; a module imports a module; a module defines a symbol; a module or
 program uses a library; a program loads a plugin; a plugin contributes a collector; a plugin
 populates a registry; a module defines a registry; a program runs a scheduler; a scheduler evaluates a
-schedule; a program reads a file; a program presents a certificate. Exact names are settled when
+schedule; a program reads a file; a program holds a secret or a key; a file holds a secret or a key; an asymmetric
+key comprises its public and private keys; a program presents a key. Exact names are settled when
 the issue is filed.
 
 #### Acceptance Criteria
@@ -359,7 +373,7 @@ Status: `Proposed`
 | No module, class, function, variable node | See `...-types`. |
 | No installed-plugin, registry or scheduler node | Core types to add. |
 | No process node | Not needed here: workers are `program` nodes nested in gunicorn. `computing_core` plans a `process` type. |
-| No certificate node | `public_key` and `private_key` exist; the load balancer's certificate is `aws_acm_certificate`. |
+| No `asymmetric_key` or `secret` node | `public_key` and `private_key` exist; the load balancer's certificate is `aws_acm_certificate`. |
 | No containment, dependency, "uses" or "loads" edges | `computing_core` has four edges. |
 | Library/package types | `computing-core-tap#33`. |
 | Compound edges | Not implemented; `PR 1021` proposes the shape. |
@@ -381,8 +395,8 @@ runtime-activity overlay; the `double-tap` plugin; a deterministic extractor; gu
 
 | # | Question |
 | :---: | --- |
-| Q1 | Should the in-container certificate be a new `certificate` type in `computing_core`, or a `file` with a role until one is needed? |
-| Q2 | Does the gunicorn `program` carry the worker count as a property as well as nesting the worker nodes, or is nesting alone enough for the stack chip? |
+| Q1 | Does a `secret` hold its values as properties of one node, or as child nodes, and what is the line between a `secret` and a key (a private key is also secret material)? |
+| Q2 | Is a loaded key tied back to the file it was read from (so the page can show that the private key in a worker's memory came from the file on disk), or are the two simply shown as separate holdings? |
 
 ## Sources
 
