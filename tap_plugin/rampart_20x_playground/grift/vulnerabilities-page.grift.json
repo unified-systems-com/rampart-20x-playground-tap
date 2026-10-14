@@ -26,12 +26,13 @@
           },
           "node": {
             "name": "playground \u2014 vulnerabilities dependabot",
-            "description": "Every Dependabot alert on the grid, newest first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every open Dependabot alert on the grid, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n:github_core__dependabot_alert)",
+                "WHERE n.data.state = \"open\"",
                 "RETURN n",
                 "ORDER BY n.data.created_at DESC"
               ]
@@ -50,7 +51,7 @@
           "node": {
             "name": "Dependabot",
             "slug": "playground-vulnerabilities-dependabot",
-            "description": "The Dependabot alerts of unified-systems-com/tap, newest first. Click the Severity or State heading to sort by it.",
+            "description": "The Dependabot open alerts of unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 200,
@@ -82,7 +83,8 @@
                     },
                     "capitalize": true
                   },
-                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low."
+                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low.",
+                  "sorter": "severityRank"
                 },
                 {
                   "field": "data.state",
@@ -145,6 +147,12 @@
                   "formatter": "datetime",
                   "header_tooltip": "When the alert was fixed. Blank until it is."
                 }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.severity",
+                  "dir": "desc"
+                }
               ]
             }
           }
@@ -158,13 +166,13 @@
           },
           "node": {
             "name": "playground \u2014 vulnerabilities codeql",
-            "description": "Every code scanning alert whose tool is CodeQL, newest first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every open code scanning alert whose tool is CodeQL, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"CodeQL\"",
+                "WHERE n.data.tool_name = \"CodeQL\" AND n.data.state = \"open\"",
                 "RETURN n",
                 "ORDER BY n.data.created_at DESC"
               ]
@@ -183,7 +191,7 @@
           "node": {
             "name": "CodeQL",
             "slug": "playground-vulnerabilities-codeql",
-            "description": "The code scanning alerts that CodeQL raised on unified-systems-com/tap, newest first. Click the Severity or State heading to sort by it.",
+            "description": "The code scanning open alerts that CodeQL raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 200,
@@ -215,7 +223,8 @@
                     },
                     "capitalize": true
                   },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low."
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
                 },
                 {
                   "field": "data.state",
@@ -279,6 +288,12 @@
                   "formatter": "datetime",
                   "header_tooltip": "When the alert was dismissed. Blank until it is."
                 }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
               ]
             }
           }
@@ -292,13 +307,13 @@
           },
           "node": {
             "name": "playground \u2014 vulnerabilities grype",
-            "description": "Every code scanning alert whose tool is Grype, newest first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every open code scanning alert whose tool is Grype, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"Grype\"",
+                "WHERE n.data.tool_name = \"Grype\" AND n.data.state = \"open\"",
                 "RETURN n",
                 "ORDER BY n.data.created_at DESC"
               ]
@@ -317,7 +332,7 @@
           "node": {
             "name": "Grype",
             "slug": "playground-vulnerabilities-grype",
-            "description": "The code scanning alerts that Grype raised on unified-systems-com/tap, newest first. Click the Severity or State heading to sort by it.",
+            "description": "The code scanning open alerts that Grype raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 200,
@@ -349,7 +364,8 @@
                     },
                     "capitalize": true
                   },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low."
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
                 },
                 {
                   "field": "data.state",
@@ -413,6 +429,12 @@
                   "formatter": "datetime",
                   "header_tooltip": "When the alert was dismissed. Blank until it is."
                 }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
               ]
             }
           }
@@ -426,13 +448,13 @@
           },
           "node": {
             "name": "playground \u2014 vulnerabilities sonarcloud",
-            "description": "Every code scanning alert whose tool is SonarCloud, newest first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every open code scanning alert whose tool is SonarCloud, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"SonarCloud\"",
+                "WHERE n.data.tool_name = \"SonarCloud\" AND n.data.state = \"open\"",
                 "RETURN n",
                 "ORDER BY n.data.created_at DESC"
               ]
@@ -451,7 +473,7 @@
           "node": {
             "name": "SonarCloud",
             "slug": "playground-vulnerabilities-sonarcloud",
-            "description": "The code scanning alerts that SonarCloud raised on unified-systems-com/tap, newest first. Click the Severity or State heading to sort by it.",
+            "description": "The code scanning open alerts that SonarCloud raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 200,
@@ -483,7 +505,8 @@
                     },
                     "capitalize": true
                   },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low."
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
                 },
                 {
                   "field": "data.state",
@@ -547,6 +570,12 @@
                   "formatter": "datetime",
                   "header_tooltip": "When the alert was dismissed. Blank until it is."
                 }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
               ]
             }
           }
@@ -560,13 +589,13 @@
           },
           "node": {
             "name": "playground \u2014 vulnerabilities trivy",
-            "description": "Every code scanning alert whose tool is Trivy, newest first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every open code scanning alert whose tool is Trivy, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"Trivy\"",
+                "WHERE n.data.tool_name = \"Trivy\" AND n.data.state = \"open\"",
                 "RETURN n",
                 "ORDER BY n.data.created_at DESC"
               ]
@@ -585,7 +614,7 @@
           "node": {
             "name": "Trivy",
             "slug": "playground-vulnerabilities-trivy",
-            "description": "The code scanning alerts that Trivy raised on unified-systems-com/tap, newest first. Click the Severity or State heading to sort by it.",
+            "description": "The code scanning open alerts that Trivy raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 200,
@@ -617,7 +646,8 @@
                     },
                     "capitalize": true
                   },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low."
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
                 },
                 {
                   "field": "data.state",
@@ -681,6 +711,12 @@
                   "formatter": "datetime",
                   "header_tooltip": "When the alert was dismissed. Blank until it is."
                 }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
               ]
             }
           }
@@ -697,7 +733,7 @@
           "node": {
             "name": "Vulnerabilities",
             "slug": "/playground/vulnerabilities",
-            "description": "The vulnerabilities on the grid, one table per source: the Dependabot alerts first, then each code scanning tool's alerts.",
+            "description": "The open vulnerabilities on the grid, one table per source: the Dependabot alerts first, then each code scanning tool's alerts, most severe first.",
             "layout": {
               "columns": {
                 "col-1": {

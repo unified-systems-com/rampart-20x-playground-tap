@@ -90,6 +90,17 @@ class TestVulnerabilitiesPage:
             seen.append(tool)
         assert len(seen) == len(set(seen))
 
+    def test_every_search_selects_open_alerts_only(self) -> None:
+        for search in self._of("search"):
+            assert 'n.data.state = "open"' in " ".join(search["node"]["definition"]["query"]), search["entity"]["name"]
+
+    def test_every_panel_opens_sorted_by_severity_rank(self) -> None:
+        for panel in self._of("panel"):
+            config = panel["node"]["config"]
+            severity = [c for c in config["columns"] if c["title"] == "Severity"]
+            assert len(severity) == 1 and severity[0]["sorter"] == "severityRank", panel["entity"]["name"]
+            assert config["initial_sort"] == [{"field": severity[0]["field"], "dir": "desc"}], panel["entity"]["name"]
+
     def test_every_search_orders_newest_first(self) -> None:
         for search in self._of("search"):
             assert search["node"]["definition"]["query"][-1] == "ORDER BY n.data.created_at DESC"
