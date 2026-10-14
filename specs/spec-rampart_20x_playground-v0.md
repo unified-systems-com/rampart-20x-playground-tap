@@ -42,7 +42,7 @@ authorization boundary. The presenter says so; the pages and panels are not adju
 **Provenance markers.**
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
 carries `pain`, `internet_reachable`, `likely_exploitable`, `is_kev`, `remediation_sla_days` and
-`remediation_due_at`; `github_core` (`main`, plugin_version 0.12.2; latest tag v0.12.2) declares `code_scanning_alert` and no Dependabot model;
+`remediation_due_at`; `github_core` declared `code_scanning_alert` and no Dependabot model (v0.12.2); *Observed* again 2026-10-14: v0.13.0 declares `dependabot_alert` (released from `github-core-tap#68`);
 `rampart-20x-tap` and `highbar-tap` carry no release tags; `tap` had 48 Dependabot alerts (2 open) and 71 open code scanning alerts (43 Trivy, 26 Grype, 2 SonarCloud).
 *Documented* (a spec says so): `dcom` stamps through default dimensions on types a plugin owns
 (`req-dcom-inheritance`); an instance plugin composes by edge and ships no vocabulary
@@ -65,7 +65,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock is not a boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Sixteen dimension nodes: the six `inventory` categories and the six `dataclass` classes, with their axes |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Sixteen dimension nodes: seven `inventory` (the axis and six categories) and nine `dataclass` (the axis, two branches and six classes) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -206,7 +206,7 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 By `req-dcom-naming` the label a value node defines is everything before its last dot as the key, and the last
 segment as the value, so an entity can carry one `dataclass.customer` value and one `dataclass.infra` value.
 That rule says names deeper than axis-and-value "carry no defined meaning"; `dataclass` is two levels deep, so
-it leans on that undefined territory (see the review ask). In v0 nothing is stamped with a `dataclass` value:
+it leans on that undefined territory. That is flagged for the `dcom` owner's review and is not decided here. In v0 nothing is stamped with a `dataclass` value:
 the nodes exist so classification can start without a vocabulary change.
 
 #### Implementation
@@ -241,6 +241,10 @@ against the owning plugin, not a type created here.
 
 `grift/mock-inventory.grift.json`. The nodes sit on the `dcom` `design` position (convention below).
 `aws_core` v0.5.0 and its handling of the `aws-us-gov` partition were not exercised in drafting.
+
+A mock node must not share a natural key with an observed node. The grid holds the real
+`unified-systems-com/tap` repository (the Dependabot findings hang off it), so a mock git-serious repository takes a
+different `full_name`.
 
 **Convention (ruled by George, 2026-10-13).** Every entity seeded through one of this plugin's two data
 bundles (`mock-inventory`, `mock-findings`) carries `dcom: design` in its `dimensions`, written per entity in
@@ -295,8 +299,11 @@ same system; those are not v0 and are not yet requirements (ruled 2026-10-13).
 
 #### Implementation
 
-Route `/playground`. One `page` node mounting existing panel types by `USES_PANEL` edge, one Search over
-the mock inventory, and a projection through `create-layout` if the arrangement needs one. Graph chrome is
+Route `/playground`. What the projection shows and where is elaborated in
+`spec-rampart_20x_playground-govcloud-landing.md`. One `page` node mounting existing panel types by `USES_PANEL`
+edge, one Search over the mock inventory, and a projection through `create-layout` if the arrangement needs one.
+Lines and nesting in the projection come only from official edges the grid holds; no edge is minted to draw a
+flow (ruled 2026-10-14). Graph chrome is
 `node_style: icon-badge`. Links to the three pages below. The page does not mount the keystone.
 
 #### Acceptance Criteria
@@ -304,6 +311,7 @@ the mock inventory, and a projection through `create-layout` if the arrangement 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-landing-1 | Route Serves | Proposed | `GET /playground` returns 200 on a booted `demo` stack and renders the design graph. | |
+| req-rampart-20x-playground-page-landing-2 | Official Edges Only | Proposed | Every line and every nesting in the projection is rendered from an edge type declared by an installed plugin; none is invented for the picture. | Ruled 2026-10-14. Explicit data flows are later work. |
 
 ### Inventory Page
 ----
@@ -445,7 +453,7 @@ organizations are later. The playground adds no collector and no model: the aler
 `github-core-tap` (`#68`), by a reviewed PR that is a prerequisite of this requirement, in the shape of its
 `code_scanning_alert`. The pull is then run from `github_core`'s own collector with its existing credential.
 
-**Observed 2026-10-13** (read-only sample through the GitHub API; nothing loaded onto the grid): 48 alerts,
+**Observed 2026-10-13** (read-only sample through the GitHub API; the first run loaded the grid): 48 alerts,
 all in `tap`, 46 fixed and 2 open, all Python (`pip`) packages, every alert with a CVE. Each alert carries the
 GHSA and CVE ids, a summary, `severity` and a CVSS vector and score, CWEs, the package and its ecosystem, the
 manifest path, runtime or development scope, direct or transitive, the vulnerable range and first patched
@@ -468,15 +476,29 @@ evaluation fields on `vdr_finding`. Ruled 2026-10-13: the placement edge is `CAR
 `compliance_core` already use; `#89`'s body says `HAS_COMPLIANCE_FINDING` and is the one to correct. Here: the
 collector run is by hand, against `tap`, and its output is the data the finding-entry decision is made from.
 
+**Decided from the pulled data (2026-10-14).** `github_core` v0.13.0 mints one `compliance_core__compliance_finding`
+per alert with `source` `github_core`, `source_key` `<owner/repo>#dependabot#<n>` and status open exactly when the
+alert is open; the `dependabot_alert` detail node (keyed on `full_name` and `number`, every state kept) hangs off it
+by `DETAILS_FINDING`; the repository carries it by `CARRIES_COMPLIANCE_FINDING`, and the workflow whose manifest
+holds the dependency, or the action the package is, carries it too. Severity, CVSS, CWEs, versions and dates stay on
+the detail node. EPSS is not a column; it survives only inside the stored raw alert (`configuration`).
+
+**How the pull ran (2026-10-13).** The collector's configuration is one shared envelope that names the owner and no
+repositories, so the run covered the whole organization (34 repositories, about 14,000 nodes, 12 minutes) and was then
+purged down to the examples. Until partial collections exist (`github-core-tap#216`), every refresh is organization-wide.
+The code scanning alerts of `tap` are part of what the demo keeps from such a run (ruled 2026-10-14); they were purged
+in the first cleanup by mistake and are pulled again.
+
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dependabot-pull-1 | Model Exists First | Proposed | The Dependabot alert model of `github-core-tap#68` is released before any pull is run. | Prerequisite, other repository. |
-| req-rampart-20x-playground-dependabot-pull-2 | Tap Only | Proposed | After the pull, the grid holds Dependabot alerts for `unified-systems-com/tap` and no other repository. | |
+| req-rampart-20x-playground-dependabot-pull-1 | Model Exists First | Proposed | The Dependabot alert model of `github-core-tap#68` is released before any pull is run. | Prerequisite, other repository. Met: released as `github_core` v0.13.0. |
+| req-rampart-20x-playground-dependabot-pull-2 | Tap Only | Proposed | After the pull and its cleanup, the grid holds Dependabot and code scanning alerts for `unified-systems-com/tap` and no other repository's alerts or data. | A pull is organization-wide until `github-core-tap#216`; the cleanup is what makes this true. |
 | req-rampart-20x-playground-dependabot-pull-3 | Entry Decided From Data | Proposed | The fields a finding entry carries are recorded in this spec, from the pulled alerts, before `mock-findings` is built. | The mapping of alert fields to `vdr_finding` is the open decision. |
 | req-rampart-20x-playground-dependabot-pull-4 | No Code Here | Proposed | The playground package contains no collector and no script that loads alerts. | |
 | req-rampart-20x-playground-dependabot-pull-5 | One Generic Finding | Proposed | Each pulled alert is one `compliance_core__compliance_finding` with its `dependabot_alert` detail node behind it, not a Dependabot-specific finding type. | Follows `github-core-tap#89`; placement edge is `CARRIES_COMPLIANCE_FINDING`. |
+| req-rampart-20x-playground-dependabot-pull-6 | Code Scanning Kept | Proposed | The grid holds the code scanning alerts of `unified-systems-com/tap` (Trivy, Grype, SonarCloud) alongside the Dependabot alerts, and any cleanup of a wider pull keeps them. | Ruled 2026-10-14: the vulnerabilities page reads them. |
 
 ## Reference data
 

@@ -15,13 +15,16 @@ authorization boundary.
 
 The deployment drawn here is a stand-in for a hosted git-serious service inside a multi-account,
 FedRAMP-shaped hosting environment. The hosting environment is built in the `highbar-hosting` project
-(criticalsecllc repository); the product is git-serious (unified-systems-tap organization).
+(criticalsecllc repository); the product is git-serious (unified-systems-com organization).
 
 The view has to be *true to the grid*. Every box is a node the grid holds and every line is an edge the
 grid holds. Where the story wants an arrow the grid cannot yet carry, the arrow is **left out and recorded
 as a gap** below. It is not drawn from an edge minted for the picture. That rule is the point of the
 exercise: the gaps found here are the work list for the plugins that own them, in the same way the v0 spec
 turns gaps into findings against the owning plugin and not into code here.
+
+Ruled 2026-10-14: the same applies to nesting. Both the lines and the containment on the page come from official edges
+only; explicit data flows are later work, and nothing is drawn or nested to make the picture feel complete.
 
 The view is also the first elevation. A later spec covers zooming into each component (high availability,
 subnets and security groups, VPC endpoints and egress). This one fixes only what is on the top view and
@@ -41,7 +44,7 @@ plugins loaded. The implementer verifies each claimed edge with the plugins load
 
 | # | Name | Description |
 | :---: | --- | --- |
-| 1 | Three Human Flows | Customers' traffic comes in from the left, code and containers come in from the right, and administration comes in from below. All three are visible and meet at the product account. |
+| 1 | Three Directions | Customers sit to the left, code and containers come in from the right, and administration from below. All three meet at the product account by position. Lines appear only where an official edge exists (ruled 2026-10-14). |
 | 2 | Production-Shaped | The product account looks like a production deployment: DNS, edge protection, a load balancer, containers across availability zones, a highly available database with backups, secrets and keys. |
 | 3 | Account Separation | The support accounts are visibly separate from the product account and visibly receive its evidence (logs, findings, backups). |
 | 4 | Grid-True | Everything drawn is backed by existing nodes and edges; everything else is a recorded gap. |
@@ -99,7 +102,7 @@ The layout expresses the three flows as three directions meeting at the centre.
 | Customers and their computers | Far left, centred vertically. |
 | Product account | Centre of the screen. |
 | Route53 | **Upper-left corner of the product account**, so the customer's DNS lookup runs diagonally up and to the right while the main traffic runs horizontally. |
-| Main request path | Left to right on one horizontal line: customer computer, internet gateway, VPC, WAF, load balancer, containers. |
+| Main request path | Customer computer, internet gateway, VPC, WAF, load balancer and containers placed left to right on one horizontal line. Position only: no line between them unless an official edge exists. |
 | git-serious containers | At the centre of the whole visualization. |
 | Deployment path | To the right of the containers, reading right to left toward them. |
 | Support accounts | A horizontal row aligned along the bottom edge of the product account. |
@@ -110,7 +113,7 @@ The layout expresses the three flows as three directions meeting at the centre.
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious web and worker containers sit at the centre of the view. | |
-| req-rampart-20x-playground-govcloud-layout-2 | Customer Flow Is Horizontal | Proposed | The request path from the customer computer to the containers runs on a single horizontal line. | |
+| req-rampart-20x-playground-govcloud-layout-2 | Request Nodes Are Horizontal | Proposed | The nodes of the request path, from the customer computer to the containers, sit on a single horizontal line. | Placement only; lines follow `grid-true`. |
 | req-rampart-20x-playground-govcloud-layout-3 | Route53 Upper-Left | Proposed | Route53 is placed in the upper-left of the product account. | |
 | req-rampart-20x-playground-govcloud-layout-4 | Deployment Enters From The Right | Proposed | The deployment path enters the product account from the right. | |
 | req-rampart-20x-playground-govcloud-layout-5 | Support Row Along The Bottom | Proposed | The support accounts form one horizontal row along the bottom of the product account. | |
@@ -137,10 +140,10 @@ The account where git-serious runs. It holds, from the customer side inward:
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-govcloud-product-1 | Request Path Present | Proposed | The nodes of the request path (internet gateway, VPC, load balancer, ECS service) are shown in order. | |
+| req-rampart-20x-playground-govcloud-product-1 | Request Path Present | Proposed | The nodes of the request path (internet gateway, VPC, load balancer, ECS service) are shown in order by placement. | Connected only where an official edge exists. |
 | req-rampart-20x-playground-govcloud-product-2 | Database Shows HA | Proposed | The RDS instance is shown as Multi-AZ at this elevation, without drawing the standby. | The standby is a zoom-level detail. |
 | req-rampart-20x-playground-govcloud-product-3 | Secrets And Keys Shown | Proposed | Secrets Manager and KMS appear in the product account. | |
-| req-rampart-20x-playground-govcloud-product-4 | Subnet Tiers Shown | Proposed | The public, private and isolated tiers are visible as containers of their members. | |
+| req-rampart-20x-playground-govcloud-product-4 | Subnet Tiers Shown | Proposed | The public, private and isolated tiers are visible as containers of their members, nested only through official edges (`HOSTS_SUBNET`, `RESIDES_IN_SUBNET`). | A member without the edge is not nested. |
 | req-rampart-20x-playground-govcloud-product-5 | WAF And Certificate Shown | Proposed | A WAF and an ACM certificate appear on the load balancer. | The WAF has no node type yet; see Recorded Gaps. |
 
 #### Future
@@ -162,7 +165,7 @@ a FedRAMP-shaped environment mirrors images into its own registry, which is why 
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-govcloud-deploy-1 | Path Is Complete | Proposed | Every hop from developer to ECS service is shown as a node. | |
+| req-rampart-20x-playground-govcloud-deploy-1 | Path Is Complete | Proposed | Every hop from developer to ECS service is shown as a node, in order by placement. | Connected only where an official edge exists. |
 | req-rampart-20x-playground-govcloud-deploy-2 | ECR Is On The Path | Proposed | ECR sits between GHCR and the service. | |
 | req-rampart-20x-playground-govcloud-deploy-3 | Deploy Lives In The Product Account | Proposed | The deploy step is inside the product account. | Ruled 2026-10-13. |
 
@@ -188,7 +191,7 @@ built; the first set is:
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-govcloud-support-1 | Five Accounts In A Row | Proposed | The org/management, security, log archive, backup and remote-access accounts appear as one horizontal row. | |
-| req-rampart-20x-playground-govcloud-support-2 | Evidence Reaches The Support Accounts | Proposed | The product account is connected downward to the security, log archive and backup accounts, so logs, findings and backups visibly leave it. | Only where the edge exists; see Recorded Gaps. |
+| req-rampart-20x-playground-govcloud-support-2 | Evidence Reaches The Support Accounts | Proposed | The product account sits above the security, log archive and backup accounts, and is connected to them only where an official edge exists. | No flow is drawn for logs, findings or backups; see Recorded Gaps. |
 | req-rampart-20x-playground-govcloud-support-3 | Remote-Access Is Named | Proposed | The remote-access account is present and named `remote-access`. | |
 
 ### Administrator
@@ -252,6 +255,7 @@ to it or to a commit, is open with the maintainer (the pin is the `demo` record'
 | req-rampart-20x-playground-govcloud-grid-true-1 | Every Line Has An Edge | Proposed | Each line in the projection is rendered from an edge in the grid; the projection has no hand-drawn connectors. | |
 | req-rampart-20x-playground-govcloud-grid-true-2 | Gaps Are Not Faked | Proposed | A relationship with no edge is absent from the page, not approximated with a different edge type. | |
 | req-rampart-20x-playground-govcloud-grid-true-3 | Mapping Is Verified | Proposed | Before population, each row of the table above is confirmed against the loaded plugins, and any row that does not hold is moved to Recorded Gaps. | |
+| req-rampart-20x-playground-govcloud-grid-true-5 | Nesting Uses Official Edges | Proposed | Containment on the page (subnet tiers in a VPC, resources in an account) is derived only from official edges; none is nested by position or by a minted edge. | Ruled 2026-10-14. |
 | req-rampart-20x-playground-govcloud-grid-true-4 | Pinned Release Has The Edges | Proposed | The `demo` record pins an `aws_core` release that declares every edge in the table marked "No" above; until one does, the lines that need them are not drawn. | Depends on an `aws_core` release that does not exist yet. |
 
 ### Recorded Gaps
@@ -318,6 +322,7 @@ is the natural target for real collection.
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-govcloud-population-1 | Data Only | Proposed | Populating the view adds data and configuration, with no new Python in the plugin. | Follows `req-rampart-20x-playground-nongoals`. |
 | req-rampart-20x-playground-govcloud-population-2 | Same Convention As The Mock Inventory | Proposed | Every node and edge for the view is in the mock inventory bundle, and every node carries `dcom: design`. | `req-rampart-20x-playground-mock-inventory-2`. |
+| req-rampart-20x-playground-govcloud-population-4 | No Collision With Observed Nodes | Proposed | No mock node shares a natural key with an observed node; the mock git-serious repository does not use `unified-systems-com/tap`. | Observed nodes hang findings off that key. |
 | req-rampart-20x-playground-govcloud-population-3 | Idempotent | Proposed | Re-running the population produces the same grid, with no duplicate nodes or edges. | |
 
 ### Deferred To The Zoom View
