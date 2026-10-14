@@ -30,7 +30,7 @@ pages = "grift/pages.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "ee1deb8f2a63535c697ca2276bf89776b3ef11b5b315e0570073e8a282dcf5c9"
+sha256 = "719746e99792602557ede3a564deed743f067901f72adb89e3b887b8def2bd80"
 
 [[boot.records]]
 name = "ci"

@@ -130,6 +130,19 @@ class TestBootRecords:
                 assert order.index(dep) < order.index(slug), f"{dep} must be installed before {slug}"
         assert order[-2:] == ["rampart_20x", SLUG]
 
+    def test_demo_lands_on_the_playground_page(self) -> None:
+        """The demo record pins the site root to `/playground` (`req-web-page-landing`): the entity id must
+        name the page this plugin seeds, and the slug must be that page's slug."""
+        web = _record("demo")["web"]
+        bundle = json.loads((PACKAGE_ROOT / "grift" / "pages.grift.json").read_text(encoding="utf-8"))
+        pages = {
+            node["entity"]["entity_id"]: node["node"]["slug"]
+            for batch in bundle["batches"]
+            for node in batch["nodes"]
+            if node["entity"]["entity_type"] == "page"
+        }
+        assert pages[web["landing_entity_id"]] == web["landing_slug"] == "/playground"
+
     def test_excluded_plugins_absent(self) -> None:
         """`req-rampart-20x-playground-boot-4`."""
         for name in ("ci", "demo"):
