@@ -17,11 +17,17 @@
  * The subnets of one tier in several zones are copies of each other: they are drawn as one stacked
  * subnet carrying the count, with what runs in the first zone inside it (stack.js).
  * Every other edge in the scene is a line.
+ *
+ * The internet gateway, the load balancer, the database, the people and their computers, and GitHub are shown
+ * as icon nodes (icon-node.js): the type icon is the card and the name sits below it, so each says "this
+ * thing is here" without drawing what is inside it. Icon nodes are terminal, so a computer's local account
+ * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
  */
 
 import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
+import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
 
 const T = {
     organization: "aws_core__aws_organization",
@@ -29,6 +35,8 @@ const T = {
     vpc: "aws_core__aws_vpc",
     subnet: "aws_core__aws_subnet",
     igw: "aws_core__aws_internet_gateway",
+    alb: "aws_core__aws_alb",
+    rds: "aws_core__aws_rds_instance",
     cluster: "aws_core__aws_ecs_cluster",
     human: "identity_core__human",
     host: "computing_core__host",
@@ -55,8 +63,12 @@ const E = {
 };
 const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Top-level columns, left to right, by the `actor` and `device` dimension values on a person or a computer.
-//: Everything else with a `layout:column` tag (the organization, GitHub) takes the tag.
-const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 2};
+//: Everything else with a `layout:column` tag (the organization, GitHub) takes the tag. The row reads
+//: customer, the product account's machinery, GitHub, developer.
+const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 3};
+//: Shown as icon nodes: the type icon is the card, the name is below it.
+const ICON_TYPES = [T.igw, T.alb, T.rds, T.human, T.host, T.platform];
+const ICON = {width: 84, height: 84};
 //: Place in the column: the person, then their computer.
 const KIND_ORDER = {[T.human]: 1, [T.host]: 2};
 
@@ -68,11 +80,16 @@ export async function execute(context) {
     const {cy, trigger_reason} = context;
     const chrome = applyStandardChrome(cy);
     const labelInset = parentLabelInset({...chrome, inset: 16});
-    const pad = {top: 14 + labelInset, right: 24, bottom: 24, left: 24};
+    //: The bottom edge leaves room for the name under an icon node, which is drawn outside its card.
+    const pad = {top: 14 + labelInset, right: 24, bottom: 40, left: 24};
 
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
     const piles = _collapseZoneCopies(cy);
+    applyIconNodes(cy, {
+        members: cy.nodes().filter((n) => ICON_TYPES.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS)),
+        ...ICON, iconNodeId: "landing",
+    });
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
 
@@ -121,6 +138,7 @@ export async function execute(context) {
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
+        if (n.data("_is_icon_node")) return;
         if (!cy.nodes().some((c) => c.data("_viewport_parent") === n.id())) n.addClass("tap-viewport-parent");
     });
     placeParentLabels(cy, {
@@ -193,7 +211,7 @@ function _stampVpcColumns(cy) {
 
 /**
  * Stamp the top-level `ranked` columns, left to right: customers, then the organization with the
- * administrator beneath it, then the developer with GitHub beneath. A person or computer takes its column
+ * administrator beneath it, then GitHub, then the developer. A person or computer takes its column
  * from its `actor` / `device` dimension; a node with a `layout:column` tag takes the tag.
  */
 function _stampRootColumns(cy) {

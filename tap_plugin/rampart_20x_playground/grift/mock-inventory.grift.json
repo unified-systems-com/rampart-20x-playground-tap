@@ -678,57 +678,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13b55-8896-76ca-9f21-d08e43c0ca33",
-            "entity_type": "identity_core__human",
-            "name": "customer b",
-            "dimensions": {
-              "actor": "customer",
-              "dcom": "design"
-            }
-          },
-          "node": {
-            "handle": "customer-b",
-            "name": "customer b"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b55-8896-76ca-9f21-d08f46ba82c2",
-            "entity_type": "computing_core__host",
-            "name": "customer b computer",
-            "dimensions": {
-              "device": "customer",
-              "dcom": "design"
-            }
-          },
-          "node": {
-            "realm": "mock",
-            "stable_id": "customer-b-computer",
-            "kind": "workstation",
-            "os": "macOS",
-            "name": "customer b computer"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
-            "entity_type": "computing_core__os_user",
-            "name": "customer-b",
-            "dimensions": {
-              "device": "customer",
-              "dcom": "design"
-            }
-          },
-          "node": {
-            "host_realm": "mock",
-            "host_stable_id": "customer-b-computer",
-            "local_id": "1000",
-            "uid": 1000,
-            "name": "customer-b"
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
             "entity_type": "identity_core__human",
             "name": "developer a",
@@ -1510,38 +1459,6 @@
           "edge": {
             "from_entity_id": "01a13b55-8896-76ca-9f21-d08bbc6f13d9",
             "to_entity_id": "01a13b55-8896-76ca-9f21-d089f8463a23",
-            "edge_type": "HELD_BY_HUMAN__identity_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b55-8896-76ca-9f21-d09166059f39",
-            "entity_type": "edge",
-            "name": "01a13b55-8896-76ca-9f21-d08f46ba82c2 --[DEFINES_OS_USER__computing_core]--> 01a13b55-8896-76ca-9f21-d0904e3f5c25",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a13b55-8896-76ca-9f21-d08f46ba82c2",
-            "to_entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
-            "edge_type": "DEFINES_OS_USER__computing_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b55-8896-76ca-9f21-d092bfb8072d",
-            "entity_type": "edge",
-            "name": "01a13b55-8896-76ca-9f21-d0904e3f5c25 --[HELD_BY_HUMAN__identity_core]--> 01a13b55-8896-76ca-9f21-d08e43c0ca33",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a13b55-8896-76ca-9f21-d0904e3f5c25",
-            "to_entity_id": "01a13b55-8896-76ca-9f21-d08e43c0ca33",
             "edge_type": "HELD_BY_HUMAN__identity_core",
             "properties": {}
           }
