@@ -41,6 +41,12 @@ const T = {
     igw: "aws_core__aws_internet_gateway",
     alb: "aws_core__aws_alb",
     rds: "aws_core__aws_rds_instance",
+    zone: "aws_core__aws_route53_zone",
+    cert: "aws_core__aws_acm_certificate",
+    key: "aws_core__aws_kms_key",
+    ecr: "aws_core__aws_ecr_repository",
+    pipeline: "aws_core__aws_codepipeline_pipeline",
+    codebuild: "aws_core__aws_codebuild_project",
     lambda: "aws_core__aws_lambda",
     bucket: "aws_core__aws_s3_bucket",
     secret: "aws_core__aws_secrets_manager_secret",
@@ -82,7 +88,7 @@ const PRODUCT_STAGE = 2;
 const ICON_TYPES = [T.human, T.host, T.platform];
 const ICON = {width: 84, height: 84};
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.lambda, T.bucket, T.secret];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
 //: Top-level nodes that stand on the same horizontal line as the request path (anchored on the load balancer):
 //: the customer and their computer, GitHub, the developer's computer and the developer. The administrator
@@ -135,7 +141,19 @@ export async function execute(context) {
             [T.repo]: {name: "flow", gap: 12, sort: "label"},
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
-            [T.account]: {name: "flow", gap: 28, sort: "area-desc", aspect: 1.6},
+            //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
+            //: key (placed under the load balancer and the database), then the rest.
+            [T.account]: {
+                name: "tiered-rows", rowGap: 44, itemGap: 40,
+                tiers: [
+                    {name: "dns", entityTypes: [T.zone], align: "start"},
+                    {name: "vpc", entityTypes: [T.vpc]},
+                    {name: "protection", entityTypes: [T.cert, T.key]},
+                    {name: "secrets", entityTypes: [T.secret, T.ecr]},
+                    {name: "release", entityTypes: [T.bucket, T.pipeline, T.lambda]},
+                    {name: "builds", entityTypes: [T.codebuild]},
+                ],
+            },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
         },
@@ -143,10 +161,6 @@ export async function execute(context) {
 
     piles.forEach((pile) => {
         applyStack(cy, pile);
-        // The runtime draws a pile's cards below every nesting layer; lift them to just under their own box
-        // so they show inside the VPC.
-        const z = Number(pile.representative.style("z-index")) || 0;
-        cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("z-index", z - card.data("_stack_depth")));
     });
 
     // The people, computers and GitHub already have their columns; put them on the request path's line.
@@ -160,6 +174,14 @@ export async function execute(context) {
         });
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
+
+    // The certificate stands directly under the load balancer, and the key directly under the database.
+    [[T.cert, T.alb], [T.key, T.rds]].forEach(([type, above]) => {
+        const member = shown([type]), anchorNode = shown([above]).first();
+        if (member.nonempty() && anchorNode.nonempty()) {
+            alignDistributeVertical(cy, {members: member, anchorNode, distribute: false, reactive: false});
+        }
+    });
 
     // The administrator stands at the foot of the product's column, the computer above the person.
     const admin = cy.nodes().filter((n) => {

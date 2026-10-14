@@ -185,7 +185,8 @@ class TestInventoryPage:
         for panel in self._of("panel"):
             fields = [c["field"] for c in panel["node"]["config"]["columns"]]
             assert fields[:2] == ["entity_id", "name"], panel["entity"]["name"]
-            assert "data.description" in fields, panel["entity"]["name"]
+            # No description column: the entity types hold no description field (a recorded gap in the spec).
+            assert "data.description" not in fields, panel["entity"]["name"]
 
     def test_no_free_text_comments_column_and_no_secret_columns(self) -> None:
         for panel in self._of("panel"):
