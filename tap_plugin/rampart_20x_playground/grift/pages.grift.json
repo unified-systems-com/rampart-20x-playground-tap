@@ -408,6 +408,27 @@
               }
             }
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "entity_type": "search",
+            "name": "playground \u2014 landing belongs",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing belongs",
+            "description": "Each resource and the account that owns it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
+                "WHERE a.entity_type IN [\"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_lambda\", \"aws_core__aws_s3_bucket\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "RETURN a, b"
+              ]
+            }
+          }
         }
       ],
       "edges": [
@@ -699,6 +720,20 @@
                 "value": "landing"
               }
             }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1745e8dd19a6",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-belongs",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
           }
         }
       ]
