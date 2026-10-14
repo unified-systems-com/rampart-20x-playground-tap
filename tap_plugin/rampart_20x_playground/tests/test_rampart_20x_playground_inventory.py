@@ -231,11 +231,12 @@ class TestInventorySoftware:
         assert installed == {p["entity"]["entity_id"] for p in self._of("computing_core__package")}
         assert host["node"]["kind"] == "container"
 
-    def test_the_two_libraries_are_the_ones_built_outside_a_package_manager(self) -> None:
+    def test_the_libraries_are_what_is_built_or_copied_outside_a_package_manager(self) -> None:
         libraries = {lib["node"]["name"]: lib["node"] for lib in self._of("computing_core__library")}
-        assert set(libraries) == {"openssl-fips-provider", "cryptography"}
+        assert set(libraries) == {"openssl-fips-provider", "cryptography", "uv", "uvx"}
         assert libraries["openssl-fips-provider"]["source_kind"] == "self-built"
         assert libraries["cryptography"]["source_kind"] == "source-built"
+        assert libraries["uv"]["source_kind"] == libraries["uvx"]["source_kind"] == "copied-image"
 
     def test_wolfi_is_identified_by_its_pinned_base_image_digest(self) -> None:
         (wolfi,) = self._of("computing_core__operating_system")
@@ -263,13 +264,13 @@ class TestInventorySoftware:
                 target = edge["edge"]["to_entity_id"]
                 carriers[target] = carriers.get(target, 0) + 1
         assert set(carriers.values()) == {1}
-        # The only provider no package, library or program owns is the uv binary.
+        # The uv binary's provider is carried by the uv library; every provider has an owner.
         unowned = [
             p["node"]["artifact"]
             for p in self._of("computing_core__crypto_provider")
             if p["entity"]["entity_id"] not in carriers
         ]
-        assert unowned == ["/usr/bin/uv"]
+        assert unowned == []
 
 
 class TestInventoryPage:

@@ -79,14 +79,14 @@ class TestVulnerabilitiesPage:
     def test_dependabot_search_reads_the_dependabot_alerts(self) -> None:
         query = self._search_of(self._panel_in_slot("dependabot"))["node"]["definition"]["query"]
         assert query[0] == "MATCH (n:github_core__dependabot_alert)"
-        assert not [line for line in query if line.startswith("WHERE")]
+        assert [line for line in query if line.startswith("WHERE")] == ['WHERE n.data.state = "open"']
 
     def test_each_tool_search_selects_its_tool_so_no_alert_is_in_two_sections(self) -> None:
         seen = []
         for slot, tool in TOOLS.items():
             query = self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"]
             assert query[0] == "MATCH (n:github_core__code_scanning_alert)"
-            assert f'WHERE n.data.tool_name = "{tool}"' in query
+            assert f'WHERE n.data.tool_name = "{tool}" AND n.data.state = "open"' in query
             seen.append(tool)
         assert len(seen) == len(set(seen))
 

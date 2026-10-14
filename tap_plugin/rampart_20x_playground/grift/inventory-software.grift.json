@@ -68,8 +68,8 @@
             "ecosystem": "apk",
             "name": "apk-tools",
             "version": "2.14.10-r16",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/apk-tools@2.14.10-r16?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/apk-tools@2.14.10-r16",
             "license": "GPL-2.0-only",
             "source_document": "apk database"
           }
@@ -88,8 +88,8 @@
             "ecosystem": "apk",
             "name": "bash",
             "version": "5.3-r13",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/bash@5.3-r13?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/bash@5.3-r13",
             "license": "GPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -108,8 +108,8 @@
             "ecosystem": "apk",
             "name": "binutils",
             "version": "2.47-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/binutils@2.47-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/binutils@2.47-r1",
             "license": "GPL-2.0",
             "source_document": "apk database"
           }
@@ -128,8 +128,8 @@
             "ecosystem": "apk",
             "name": "build-base",
             "version": "1-r9",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/build-base@1-r9?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/build-base@1-r9",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -148,8 +148,8 @@
             "ecosystem": "apk",
             "name": "busybox",
             "version": "1.38.0-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/busybox@1.38.0-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/busybox@1.38.0-r2",
             "license": "GPL-2.0-only",
             "source_document": "apk database"
           }
@@ -168,8 +168,8 @@
             "ecosystem": "apk",
             "name": "ca-certificates-bundle",
             "version": "20260909-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ca-certificates-bundle@20260909-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ca-certificates-bundle@20260909-r1",
             "license": "MPL-2.0 AND MIT",
             "source_document": "apk database"
           }
@@ -188,8 +188,8 @@
             "ecosystem": "apk",
             "name": "curl",
             "version": "8.22.0-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/curl@8.22.0-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/curl@8.22.0-r4",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -208,8 +208,8 @@
             "ecosystem": "apk",
             "name": "cyrus-sasl-heimdal-libs",
             "version": "2.1.28-r58",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/cyrus-sasl-heimdal-libs@2.1.28-r58?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/cyrus-sasl-heimdal-libs@2.1.28-r58",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -228,8 +228,8 @@
             "ecosystem": "apk",
             "name": "ecpg-18",
             "version": "18.6-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ecpg-18@18.6-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ecpg-18@18.6-r5",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -248,8 +248,8 @@
             "ecosystem": "apk",
             "name": "gcc",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/gcc@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/gcc@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -268,8 +268,8 @@
             "ecosystem": "apk",
             "name": "gdbm",
             "version": "1.26-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/gdbm@1.26-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/gdbm@1.26-r6",
             "license": "GPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -288,8 +288,8 @@
             "ecosystem": "apk",
             "name": "git",
             "version": "2.56.0-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/git@2.56.0-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/git@2.56.0-r0",
             "license": "GPL-2.0-or-later AND ( Artistic-1.0-Perl OR GPL-1.0-or-later )",
             "source_document": "apk database"
           }
@@ -308,8 +308,8 @@
             "ecosystem": "apk",
             "name": "glibc-2.44",
             "version": "2.44-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/glibc-2.44@2.44-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/glibc-2.44@2.44-r6",
             "license": "LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -328,8 +328,8 @@
             "ecosystem": "apk",
             "name": "glibc-2.44-dev",
             "version": "2.44-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/glibc-2.44-dev@2.44-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/glibc-2.44-dev@2.44-r6",
             "license": "LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -348,8 +348,8 @@
             "ecosystem": "apk",
             "name": "glibc-2.44-locale-posix",
             "version": "2.44-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/glibc-2.44-locale-posix@2.44-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/glibc-2.44-locale-posix@2.44-r6",
             "license": "LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -368,8 +368,8 @@
             "ecosystem": "apk",
             "name": "gmp",
             "version": "6.3.0-r10",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/gmp@6.3.0-r10?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/gmp@6.3.0-r10",
             "license": "LGPL-3.0-or-later OR GPL-2.0-or-later",
             "source_document": "apk database"
           }
@@ -388,8 +388,8 @@
             "ecosystem": "apk",
             "name": "heimdal-libs",
             "version": "7.8.0-r52",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/heimdal-libs@7.8.0-r52?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/heimdal-libs@7.8.0-r52",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -408,8 +408,8 @@
             "ecosystem": "apk",
             "name": "icu78-data-full",
             "version": "78.3-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/icu78-data-full@78.3-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/icu78-data-full@78.3-r4",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -428,8 +428,8 @@
             "ecosystem": "apk",
             "name": "isl",
             "version": "0.28-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/isl@0.28-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/isl@0.28-r3",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -448,8 +448,8 @@
             "ecosystem": "apk",
             "name": "keyutils-libs",
             "version": "1.6.3-r40",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/keyutils-libs@1.6.3-r40?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/keyutils-libs@1.6.3-r40",
             "license": "GPL-2.0-or-later OR LGPL-2.0-or-later",
             "source_document": "apk database"
           }
@@ -468,8 +468,8 @@
             "ecosystem": "apk",
             "name": "krb5-conf",
             "version": "1.0-r10",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/krb5-conf@1.0-r10?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/krb5-conf@1.0-r10",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -488,8 +488,8 @@
             "ecosystem": "apk",
             "name": "krb5-libs",
             "version": "1.22.2-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/krb5-libs@1.22.2-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/krb5-libs@1.22.2-r4",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -508,8 +508,8 @@
             "ecosystem": "apk",
             "name": "ld-linux-2.44",
             "version": "2.44-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ld-linux-2.44@2.44-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ld-linux-2.44@2.44-r6",
             "license": "LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -528,8 +528,8 @@
             "ecosystem": "apk",
             "name": "libatomic",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libatomic@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libatomic@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -548,8 +548,8 @@
             "ecosystem": "apk",
             "name": "libbrotlicommon1",
             "version": "1.2.0-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libbrotlicommon1@1.2.0-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libbrotlicommon1@1.2.0-r5",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -568,8 +568,8 @@
             "ecosystem": "apk",
             "name": "libbrotlidec1",
             "version": "1.2.0-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libbrotlidec1@1.2.0-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libbrotlidec1@1.2.0-r5",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -588,8 +588,8 @@
             "ecosystem": "apk",
             "name": "libbrotlienc1",
             "version": "1.2.0-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libbrotlienc1@1.2.0-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libbrotlienc1@1.2.0-r5",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -608,8 +608,8 @@
             "ecosystem": "apk",
             "name": "libbz2-1",
             "version": "1.0.8-r24",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libbz2-1@1.0.8-r24?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libbz2-1@1.0.8-r24",
             "license": "MPL-2.0 AND MIT",
             "source_document": "apk database"
           }
@@ -628,8 +628,8 @@
             "ecosystem": "apk",
             "name": "libcom_err",
             "version": "1.47.4-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libcom_err@1.47.4-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libcom_err@1.47.4-r2",
             "license": "GPL-2.0-or-later AND LGPL-2.0-or-later AND BSD-3-Clause AND MIT",
             "source_document": "apk database"
           }
@@ -648,8 +648,8 @@
             "ecosystem": "apk",
             "name": "libcrypt1-2.44",
             "version": "2.44-r6",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libcrypt1-2.44@2.44-r6?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libcrypt1-2.44@2.44-r6",
             "license": "LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -668,8 +668,8 @@
             "ecosystem": "apk",
             "name": "libcrypto3",
             "version": "3.6.4-r8",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libcrypto3@3.6.4-r8?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libcrypto3@3.6.4-r8",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -688,8 +688,8 @@
             "ecosystem": "apk",
             "name": "libcurl-openssl4",
             "version": "8.22.0-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libcurl-openssl4@8.22.0-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libcurl-openssl4@8.22.0-r4",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -708,8 +708,8 @@
             "ecosystem": "apk",
             "name": "libecpg-18",
             "version": "18.6-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libecpg-18@18.6-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libecpg-18@18.6-r5",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -728,8 +728,8 @@
             "ecosystem": "apk",
             "name": "libecpg-18-dev",
             "version": "18.6-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libecpg-18-dev@18.6-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libecpg-18-dev@18.6-r5",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -748,8 +748,8 @@
             "ecosystem": "apk",
             "name": "libedit",
             "version": "3.1-r19",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libedit@3.1-r19?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libedit@3.1-r19",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -768,8 +768,8 @@
             "ecosystem": "apk",
             "name": "libexpat1",
             "version": "2.9.0-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libexpat1@2.9.0-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libexpat1@2.9.0-r0",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -788,8 +788,8 @@
             "ecosystem": "apk",
             "name": "libffi",
             "version": "3.8.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libffi@3.8.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libffi@3.8.0-r1",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -808,8 +808,8 @@
             "ecosystem": "apk",
             "name": "libgcc",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libgcc@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libgcc@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -828,8 +828,8 @@
             "ecosystem": "apk",
             "name": "libgomp",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libgomp@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libgomp@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -848,8 +848,8 @@
             "ecosystem": "apk",
             "name": "libicu78",
             "version": "78.3-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libicu78@78.3-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libicu78@78.3-r4",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -868,8 +868,8 @@
             "ecosystem": "apk",
             "name": "libidn2",
             "version": "2.3.8-r9",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libidn2@2.3.8-r9?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libidn2@2.3.8-r9",
             "license": "GPL-2.0-or-later AND LGPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -908,8 +908,8 @@
             "ecosystem": "apk",
             "name": "libLLVM",
             "version": "19.1.7-r8",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libLLVM@19.1.7-r8?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libLLVM@19.1.7-r8",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -928,8 +928,8 @@
             "ecosystem": "apk",
             "name": "libLLVM-22",
             "version": "22.1.8-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libLLVM-22@22.1.8-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libLLVM-22@22.1.8-r4",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -948,8 +948,8 @@
             "ecosystem": "apk",
             "name": "liblz4-1",
             "version": "1.10.0-r10",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/liblz4-1@1.10.0-r10?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/liblz4-1@1.10.0-r10",
             "license": "BSD-2-Clause AND GPL-2.0-only",
             "source_document": "apk database"
           }
@@ -968,8 +968,8 @@
             "ecosystem": "apk",
             "name": "libnghttp2-14",
             "version": "1.70.0-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libnghttp2-14@1.70.0-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libnghttp2-14@1.70.0-r5",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -988,8 +988,8 @@
             "ecosystem": "apk",
             "name": "libpcre2-8-0",
             "version": "10.49-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libpcre2-8-0@10.49-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libpcre2-8-0@10.49-r1",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1008,8 +1008,8 @@
             "ecosystem": "apk",
             "name": "libpq-18",
             "version": "18.6-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libpq-18@18.6-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libpq-18@18.6-r4",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1028,8 +1028,8 @@
             "ecosystem": "apk",
             "name": "libpsl",
             "version": "0.23.3-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libpsl@0.23.3-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libpsl@0.23.3-r1",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1048,8 +1048,8 @@
             "ecosystem": "apk",
             "name": "libquadmath",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libquadmath@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libquadmath@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -1068,8 +1068,8 @@
             "ecosystem": "apk",
             "name": "libselinux",
             "version": "3.11-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libselinux@3.11-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libselinux@3.11-r2",
             "license": "libselinux-1.0",
             "source_document": "apk database"
           }
@@ -1088,8 +1088,8 @@
             "ecosystem": "apk",
             "name": "libsepol",
             "version": "3.11-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libsepol@3.11-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libsepol@3.11-r3",
             "license": "LGPL-2.1",
             "source_document": "apk database"
           }
@@ -1108,8 +1108,8 @@
             "ecosystem": "apk",
             "name": "libssl3",
             "version": "3.6.4-r8",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libssl3@3.6.4-r8?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libssl3@3.6.4-r8",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1128,8 +1128,8 @@
             "ecosystem": "apk",
             "name": "libstdc++",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libstdc++@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libstdc++@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -1148,8 +1148,8 @@
             "ecosystem": "apk",
             "name": "libstdc++-dev",
             "version": "16.2.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libstdc++-dev@16.2.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libstdc++-dev@16.2.0-r1",
             "license": "GPL-3.0-or-later WITH GCC-exception-3.1",
             "source_document": "apk database"
           }
@@ -1168,8 +1168,8 @@
             "ecosystem": "apk",
             "name": "libunistring",
             "version": "1.4.2-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libunistring@1.4.2-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libunistring@1.4.2-r3",
             "license": "GPL-2.0-or-later OR LGPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -1188,8 +1188,8 @@
             "ecosystem": "apk",
             "name": "libuuid",
             "version": "2.42.4-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libuuid@2.42.4-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libuuid@2.42.4-r0",
             "license": "GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-2-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND CC-PDDC",
             "source_document": "apk database"
           }
@@ -1208,8 +1208,8 @@
             "ecosystem": "apk",
             "name": "libverto",
             "version": "0.3.2-r8",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libverto@0.3.2-r8?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libverto@0.3.2-r8",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1228,8 +1228,8 @@
             "ecosystem": "apk",
             "name": "libxcrypt",
             "version": "4.5.2-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libxcrypt@4.5.2-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libxcrypt@4.5.2-r5",
             "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -1248,8 +1248,8 @@
             "ecosystem": "apk",
             "name": "libxcrypt-dev",
             "version": "4.5.2-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libxcrypt-dev@4.5.2-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libxcrypt-dev@4.5.2-r5",
             "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
             "source_document": "apk database"
           }
@@ -1268,8 +1268,8 @@
             "ecosystem": "apk",
             "name": "libxml2",
             "version": "2.15.0-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libxml2@2.15.0-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libxml2@2.15.0-r0",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1288,8 +1288,8 @@
             "ecosystem": "apk",
             "name": "libxml2-2.13-2",
             "version": "2.13.9-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libxml2-2.13-2@2.13.9-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libxml2-2.13-2@2.13.9-r0",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1308,8 +1308,8 @@
             "ecosystem": "apk",
             "name": "libzstd1",
             "version": "1.5.7-r10",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/libzstd1@1.5.7-r10?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/libzstd1@1.5.7-r10",
             "license": "BSD-2-Clause AND GPL-2.0-only",
             "source_document": "apk database"
           }
@@ -1328,8 +1328,8 @@
             "ecosystem": "apk",
             "name": "linux-headers",
             "version": "7.2.9-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/linux-headers@7.2.9-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/linux-headers@7.2.9-r0",
             "license": "GPL-2.0-only WITH Linux-syscall-note",
             "source_document": "apk database"
           }
@@ -1348,8 +1348,8 @@
             "ecosystem": "apk",
             "name": "linux-pam",
             "version": "1.7.3-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/linux-pam@1.7.3-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/linux-pam@1.7.3-r0",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1368,8 +1368,8 @@
             "ecosystem": "apk",
             "name": "make",
             "version": "4.4.1-r15",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/make@4.4.1-r15?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/make@4.4.1-r15",
             "license": "GPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -1388,8 +1388,8 @@
             "ecosystem": "apk",
             "name": "mpc",
             "version": "1.4.1-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/mpc@1.4.1-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/mpc@1.4.1-r1",
             "license": "LGPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -1408,8 +1408,8 @@
             "ecosystem": "apk",
             "name": "mpdecimal",
             "version": "4.0.1-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/mpdecimal@4.0.1-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/mpdecimal@4.0.1-r4",
             "license": "BSD-2-Clause",
             "source_document": "apk database"
           }
@@ -1428,8 +1428,8 @@
             "ecosystem": "apk",
             "name": "mpfr",
             "version": "4.2.2-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/mpfr@4.2.2-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/mpfr@4.2.2-r3",
             "license": "LGPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -1448,8 +1448,8 @@
             "ecosystem": "apk",
             "name": "ncurses",
             "version": "6.6.20260926-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ncurses@6.6.20260926-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ncurses@6.6.20260926-r0",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1468,8 +1468,8 @@
             "ecosystem": "apk",
             "name": "ncurses-terminfo-base",
             "version": "6.6.20260926-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ncurses-terminfo-base@6.6.20260926-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ncurses-terminfo-base@6.6.20260926-r0",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1488,8 +1488,8 @@
             "ecosystem": "apk",
             "name": "nghttp3",
             "version": "1.18.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/nghttp3@1.18.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/nghttp3@1.18.0-r1",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1508,8 +1508,8 @@
             "ecosystem": "apk",
             "name": "ngtcp2",
             "version": "1.25.0-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/ngtcp2@1.25.0-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/ngtcp2@1.25.0-r5",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1528,8 +1528,8 @@
             "ecosystem": "apk",
             "name": "openssf-compiler-options",
             "version": "20250904-r11",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssf-compiler-options@20250904-r11?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssf-compiler-options@20250904-r11",
             "license": "CC-BY-4.0",
             "source_document": "apk database"
           }
@@ -1548,8 +1548,8 @@
             "ecosystem": "apk",
             "name": "openssl",
             "version": "3.6.5-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl@3.6.5-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl@3.6.5-r1",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1568,8 +1568,8 @@
             "ecosystem": "apk",
             "name": "openssl-3.6",
             "version": "3.6.5-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-3.6@3.6.5-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-3.6@3.6.5-r1",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1588,8 +1588,8 @@
             "ecosystem": "apk",
             "name": "openssl-3.6-dev",
             "version": "3.6.5-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-3.6-dev@3.6.5-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-3.6-dev@3.6.5-r1",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1608,8 +1608,8 @@
             "ecosystem": "apk",
             "name": "openssl-4.0-libcrypto",
             "version": "4.0.2-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-4.0-libcrypto@4.0.2-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-4.0-libcrypto@4.0.2-r2",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1628,8 +1628,8 @@
             "ecosystem": "apk",
             "name": "openssl-4.0-libssl",
             "version": "4.0.2-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-4.0-libssl@4.0.2-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-4.0-libssl@4.0.2-r2",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1648,8 +1648,8 @@
             "ecosystem": "apk",
             "name": "openssl-dev",
             "version": "3.6.5-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-dev@3.6.5-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-dev@3.6.5-r1",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1668,8 +1668,8 @@
             "ecosystem": "apk",
             "name": "openssl-provider-legacy-allowed",
             "version": "4.0.2-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/openssl-provider-legacy-allowed@4.0.2-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/openssl-provider-legacy-allowed@4.0.2-r3",
             "license": "Apache-2.0",
             "source_document": "apk database"
           }
@@ -1688,8 +1688,8 @@
             "ecosystem": "apk",
             "name": "pkgconf",
             "version": "3.0.7-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/pkgconf@3.0.7-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/pkgconf@3.0.7-r0",
             "license": "ISC",
             "source_document": "apk database"
           }
@@ -1708,8 +1708,8 @@
             "ecosystem": "apk",
             "name": "posix-cc-wrappers",
             "version": "2-r10",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/posix-cc-wrappers@2-r10?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/posix-cc-wrappers@2-r10",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1728,8 +1728,8 @@
             "ecosystem": "apk",
             "name": "postgresql-18",
             "version": "18.6-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/postgresql-18@18.6-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/postgresql-18@18.6-r5",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1748,8 +1748,8 @@
             "ecosystem": "apk",
             "name": "postgresql-18-base",
             "version": "18.6-r5",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/postgresql-18-base@18.6-r5?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/postgresql-18-base@18.6-r5",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1768,8 +1768,8 @@
             "ecosystem": "apk",
             "name": "postgresql-18-client",
             "version": "18.6-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/postgresql-18-client@18.6-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/postgresql-18-client@18.6-r4",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1788,8 +1788,8 @@
             "ecosystem": "apk",
             "name": "postgresql-18-client-base",
             "version": "18.6-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/postgresql-18-client-base@18.6-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/postgresql-18-client-base@18.6-r4",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1808,8 +1808,8 @@
             "ecosystem": "apk",
             "name": "postgresql-18-dev",
             "version": "18.6-r4",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/postgresql-18-dev@18.6-r4?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/postgresql-18-dev@18.6-r4",
             "license": "BSD-3-Clause",
             "source_document": "apk database"
           }
@@ -1828,8 +1828,8 @@
             "ecosystem": "apk",
             "name": "py3-pip-wheel",
             "version": "26.2.1-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/py3-pip-wheel@26.2.1-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/py3-pip-wheel@26.2.1-r2",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -1848,8 +1848,8 @@
             "ecosystem": "apk",
             "name": "python-3.14",
             "version": "3.14.8_git20261001-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/python-3.14@3.14.8_git20261001-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/python-3.14@3.14.8_git20261001-r0",
             "license": "PSF-2.0",
             "source_document": "apk database"
           }
@@ -1868,8 +1868,8 @@
             "ecosystem": "apk",
             "name": "python-3.14-base",
             "version": "3.14.8_git20261001-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/python-3.14-base@3.14.8_git20261001-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/python-3.14-base@3.14.8_git20261001-r0",
             "license": "PSF-2.0",
             "source_document": "apk database"
           }
@@ -1888,8 +1888,8 @@
             "ecosystem": "apk",
             "name": "python-3.14-base-dev",
             "version": "3.14.8_git20261001-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/python-3.14-base-dev@3.14.8_git20261001-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/python-3.14-base-dev@3.14.8_git20261001-r0",
             "license": "PSF-2.0",
             "source_document": "apk database"
           }
@@ -1908,8 +1908,8 @@
             "ecosystem": "apk",
             "name": "python-3.14-dev",
             "version": "3.14.8_git20261001-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/python-3.14-dev@3.14.8_git20261001-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/python-3.14-dev@3.14.8_git20261001-r0",
             "license": "PSF-2.0",
             "source_document": "apk database"
           }
@@ -1928,8 +1928,8 @@
             "ecosystem": "apk",
             "name": "readline",
             "version": "8.3-r3",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/readline@8.3-r3?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/readline@8.3-r3",
             "license": "GPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -1948,8 +1948,8 @@
             "ecosystem": "apk",
             "name": "rust-1.99",
             "version": "1.99.0-r1",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/rust-1.99@1.99.0-r1?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/rust-1.99@1.99.0-r1",
             "license": "Apache-2.0 AND MIT",
             "source_document": "apk database"
           }
@@ -1968,8 +1968,8 @@
             "ecosystem": "apk",
             "name": "sqlite-libs",
             "version": "3.53.4-r2",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/sqlite-libs@3.53.4-r2?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/sqlite-libs@3.53.4-r2",
             "license": "blessing",
             "source_document": "apk database"
           }
@@ -1988,8 +1988,8 @@
             "ecosystem": "apk",
             "name": "tzdata",
             "version": "2026e-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/tzdata@2026e-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/tzdata@2026e-r0",
             "license": "CC-PDDC",
             "source_document": "apk database"
           }
@@ -2008,8 +2008,8 @@
             "ecosystem": "apk",
             "name": "wolfi-base",
             "version": "1-r7",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/wolfi-base@1-r7?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/wolfi-base@1-r7",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -2028,8 +2028,8 @@
             "ecosystem": "apk",
             "name": "wolfi-baselayout",
             "version": "20230201-r30",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/wolfi-baselayout@20230201-r30?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/wolfi-baselayout@20230201-r30",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -2048,8 +2048,8 @@
             "ecosystem": "apk",
             "name": "wolfi-keys",
             "version": "1-r13",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/wolfi-keys@1-r13?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/wolfi-keys@1-r13",
             "license": "MIT",
             "source_document": "apk database"
           }
@@ -2068,8 +2068,8 @@
             "ecosystem": "apk",
             "name": "xz",
             "version": "5.8.4-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/xz@5.8.4-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/xz@5.8.4-r0",
             "license": "GPL-3.0-or-later",
             "source_document": "apk database"
           }
@@ -2088,8 +2088,8 @@
             "ecosystem": "apk",
             "name": "zlib",
             "version": "1.3.2.1_rc20260601-r0",
-            "architecture": "aarch64",
-            "purl": "pkg:apk/wolfi/zlib@1.3.2.1_rc20260601-r0?arch=aarch64",
+            "architecture": "aarch64, x86_64",
+            "purl": "pkg:apk/wolfi/zlib@1.3.2.1_rc20260601-r0",
             "license": "MPL-2.0 AND MIT",
             "source_document": "apk database"
           }
@@ -2109,7 +2109,8 @@
             "name": "annotated-types",
             "version": "0.8.0",
             "purl": "pkg:pypi/annotated-types@0.8.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2127,7 +2128,8 @@
             "name": "asgiref",
             "version": "3.12.1",
             "purl": "pkg:pypi/asgiref@3.12.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2145,7 +2147,8 @@
             "name": "ast-serialize",
             "version": "0.8.0",
             "purl": "pkg:pypi/ast-serialize@0.8.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2163,7 +2166,8 @@
             "name": "attrs",
             "version": "26.1.0",
             "purl": "pkg:pypi/attrs@26.1.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2181,7 +2185,8 @@
             "name": "black",
             "version": "26.5.1",
             "purl": "pkg:pypi/black@26.5.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2199,7 +2204,8 @@
             "name": "cbor2",
             "version": "6.1.4",
             "purl": "pkg:pypi/cbor2@6.1.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2217,7 +2223,8 @@
             "name": "certifi",
             "version": "2026.7.22",
             "purl": "pkg:pypi/certifi@2026.7.22",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2235,7 +2242,8 @@
             "name": "cffi",
             "version": "2.1.1",
             "purl": "pkg:pypi/cffi@2.1.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2253,7 +2261,8 @@
             "name": "charset-normalizer",
             "version": "3.4.9",
             "purl": "pkg:pypi/charset-normalizer@3.4.9",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2271,7 +2280,8 @@
             "name": "click",
             "version": "8.4.2",
             "purl": "pkg:pypi/click@8.4.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2289,7 +2299,8 @@
             "name": "colorama",
             "version": "0.4.6",
             "purl": "pkg:pypi/colorama@0.4.6",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2307,7 +2318,8 @@
             "name": "coverage",
             "version": "7.15.4",
             "purl": "pkg:pypi/coverage@7.15.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2325,7 +2337,8 @@
             "name": "croniter",
             "version": "6.2.4",
             "purl": "pkg:pypi/croniter@6.2.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2343,7 +2356,8 @@
             "name": "crontab",
             "version": "1.0.5",
             "purl": "pkg:pypi/crontab@1.0.5",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2361,7 +2375,8 @@
             "name": "dj-database-url",
             "version": "3.1.2",
             "purl": "pkg:pypi/dj-database-url@3.1.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2379,7 +2394,8 @@
             "name": "django",
             "version": "6.0.8",
             "purl": "pkg:pypi/django@6.0.8",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2397,7 +2413,8 @@
             "name": "django-allauth",
             "version": "65.19.0",
             "purl": "pkg:pypi/django-allauth@65.19.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2415,7 +2432,8 @@
             "name": "django-ninja",
             "version": "1.6.2",
             "purl": "pkg:pypi/django-ninja@1.6.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2433,7 +2451,8 @@
             "name": "django-simple-history",
             "version": "3.13.0",
             "purl": "pkg:pypi/django-simple-history@3.13.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2451,7 +2470,8 @@
             "name": "django-stubs",
             "version": "6.0.9",
             "purl": "pkg:pypi/django-stubs@6.0.9",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2469,7 +2489,8 @@
             "name": "django-stubs-ext",
             "version": "6.0.9",
             "purl": "pkg:pypi/django-stubs-ext@6.0.9",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2487,7 +2508,8 @@
             "name": "execnet",
             "version": "2.1.2",
             "purl": "pkg:pypi/execnet@2.1.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2505,7 +2527,8 @@
             "name": "factory-boy",
             "version": "3.3.3",
             "purl": "pkg:pypi/factory-boy@3.3.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2523,7 +2546,8 @@
             "name": "faker",
             "version": "40.36.0",
             "purl": "pkg:pypi/faker@40.36.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2541,7 +2565,8 @@
             "name": "gunicorn",
             "version": "26.2.0",
             "purl": "pkg:pypi/gunicorn@26.2.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2559,7 +2584,8 @@
             "name": "idna",
             "version": "3.18",
             "purl": "pkg:pypi/idna@3.18",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2577,7 +2603,8 @@
             "name": "iniconfig",
             "version": "2.3.0",
             "purl": "pkg:pypi/iniconfig@2.3.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2595,7 +2622,8 @@
             "name": "jsonschema",
             "version": "4.26.0",
             "purl": "pkg:pypi/jsonschema@4.26.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2613,7 +2641,8 @@
             "name": "jsonschema-specifications",
             "version": "2025.9.1",
             "purl": "pkg:pypi/jsonschema-specifications@2025.9.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2631,7 +2660,8 @@
             "name": "lark",
             "version": "1.3.1",
             "purl": "pkg:pypi/lark@1.3.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2649,7 +2679,8 @@
             "name": "librt",
             "version": "0.15.0",
             "purl": "pkg:pypi/librt@0.15.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2667,7 +2698,8 @@
             "name": "mypy",
             "version": "2.3.0",
             "purl": "pkg:pypi/mypy@2.3.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2685,7 +2717,8 @@
             "name": "mypy-extensions",
             "version": "1.1.0",
             "purl": "pkg:pypi/mypy-extensions@1.1.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2703,7 +2736,8 @@
             "name": "oauthlib",
             "version": "3.3.1",
             "purl": "pkg:pypi/oauthlib@3.3.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2721,7 +2755,8 @@
             "name": "packaging",
             "version": "26.3",
             "purl": "pkg:pypi/packaging@26.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2739,7 +2774,8 @@
             "name": "pathspec",
             "version": "1.1.1",
             "purl": "pkg:pypi/pathspec@1.1.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2757,7 +2793,8 @@
             "name": "platformdirs",
             "version": "4.11.2",
             "purl": "pkg:pypi/platformdirs@4.11.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2775,7 +2812,8 @@
             "name": "pluggy",
             "version": "1.6.0",
             "purl": "pkg:pypi/pluggy@1.6.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2793,7 +2831,8 @@
             "name": "psycopg",
             "version": "3.3.4",
             "purl": "pkg:pypi/psycopg@3.3.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2811,7 +2850,8 @@
             "name": "psycopg-c",
             "version": "3.3.4",
             "purl": "pkg:pypi/psycopg-c@3.3.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2829,7 +2869,8 @@
             "name": "pyasn1",
             "version": "0.6.4",
             "purl": "pkg:pypi/pyasn1@0.6.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2847,7 +2888,8 @@
             "name": "pyasn1-modules",
             "version": "0.4.2",
             "purl": "pkg:pypi/pyasn1-modules@0.4.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2865,7 +2907,8 @@
             "name": "pycparser",
             "version": "3.0",
             "purl": "pkg:pypi/pycparser@3.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2883,7 +2926,8 @@
             "name": "pydantic",
             "version": "2.13.4",
             "purl": "pkg:pypi/pydantic@2.13.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2901,7 +2945,8 @@
             "name": "pydantic-core",
             "version": "2.46.4",
             "purl": "pkg:pypi/pydantic-core@2.46.4",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -2919,7 +2964,8 @@
             "name": "pygments",
             "version": "2.20.0",
             "purl": "pkg:pypi/pygments@2.20.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2937,7 +2983,8 @@
             "name": "pyjwt",
             "version": "2.15.0",
             "purl": "pkg:pypi/pyjwt@2.15.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2955,7 +3002,8 @@
             "name": "pyopenssl",
             "version": "26.4.0",
             "purl": "pkg:pypi/pyopenssl@26.4.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2973,7 +3021,8 @@
             "name": "pytest",
             "version": "9.1.1",
             "purl": "pkg:pypi/pytest@9.1.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -2991,7 +3040,8 @@
             "name": "pytest-django",
             "version": "4.14.0",
             "purl": "pkg:pypi/pytest-django@4.14.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3009,7 +3059,8 @@
             "name": "pytest-split",
             "version": "0.11.0",
             "purl": "pkg:pypi/pytest-split@0.11.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3027,7 +3078,8 @@
             "name": "pytest-xdist",
             "version": "3.8.0",
             "purl": "pkg:pypi/pytest-xdist@3.8.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3045,7 +3097,8 @@
             "name": "python-dateutil",
             "version": "2.9.0.post0",
             "purl": "pkg:pypi/python-dateutil@2.9.0.post0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3063,7 +3116,8 @@
             "name": "pytokens",
             "version": "0.4.1",
             "purl": "pkg:pypi/pytokens@0.4.1",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3081,7 +3135,8 @@
             "name": "pyyaml",
             "version": "6.0.3",
             "purl": "pkg:pypi/pyyaml@6.0.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -3099,7 +3154,8 @@
             "name": "referencing",
             "version": "0.37.0",
             "purl": "pkg:pypi/referencing@0.37.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3117,7 +3173,8 @@
             "name": "requests",
             "version": "2.34.2",
             "purl": "pkg:pypi/requests@2.34.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3135,7 +3192,8 @@
             "name": "rpds-py",
             "version": "2026.6.3",
             "purl": "pkg:pypi/rpds-py@2026.6.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -3153,7 +3211,8 @@
             "name": "ruff",
             "version": "0.16.2",
             "purl": "pkg:pypi/ruff@0.16.2",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -3171,7 +3230,8 @@
             "name": "six",
             "version": "1.17.0",
             "purl": "pkg:pypi/six@1.17.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3189,7 +3249,8 @@
             "name": "sqlparse",
             "version": "0.6.0",
             "purl": "pkg:pypi/sqlparse@0.6.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3207,7 +3268,8 @@
             "name": "steady-queue",
             "version": "0.2.0",
             "purl": "pkg:pypi/steady-queue@0.2.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3225,7 +3287,8 @@
             "name": "tap",
             "version": "0.3.0",
             "purl": "pkg:pypi/tap@0.3.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "aarch64, x86_64"
           }
         },
         {
@@ -3243,7 +3306,8 @@
             "name": "types-pyyaml",
             "version": "6.0.12.20260724",
             "purl": "pkg:pypi/types-pyyaml@6.0.12.20260724",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3261,7 +3325,8 @@
             "name": "typing-extensions",
             "version": "4.16.0",
             "purl": "pkg:pypi/typing-extensions@4.16.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3279,7 +3344,8 @@
             "name": "typing-inspection",
             "version": "0.4.3",
             "purl": "pkg:pypi/typing-inspection@0.4.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3297,7 +3363,8 @@
             "name": "tzdata",
             "version": "2026.3",
             "purl": "pkg:pypi/tzdata@2026.3",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3315,7 +3382,8 @@
             "name": "urllib3",
             "version": "2.8.0",
             "purl": "pkg:pypi/urllib3@2.8.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3333,7 +3401,8 @@
             "name": "webauthn",
             "version": "3.0.0",
             "purl": "pkg:pypi/webauthn@3.0.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3351,7 +3420,8 @@
             "name": "whitenoise",
             "version": "6.12.0",
             "purl": "pkg:pypi/whitenoise@6.12.0",
-            "source_document": "uv.lock"
+            "source_document": "uv.lock",
+            "architecture": "noarch"
           }
         },
         {
@@ -3370,7 +3440,8 @@
             "version": "3.34.3",
             "purl": "pkg:npm/cytoscape@3.34.3",
             "license": "MIT",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -3389,7 +3460,8 @@
             "version": "6.1.0",
             "purl": "pkg:npm/echarts@6.1.0",
             "license": "Apache-2.0",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -3408,7 +3480,8 @@
             "version": "2.0.11",
             "purl": "pkg:npm/htmx.org@2.0.11",
             "license": "0BSD",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -3427,7 +3500,8 @@
             "version": "6.5.3",
             "purl": "pkg:npm/tabulator-tables@6.5.3",
             "license": "MIT",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -3446,7 +3520,8 @@
             "version": "2.3.0",
             "purl": "pkg:npm/tslib@2.3.0",
             "license": "0BSD",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -3465,7 +3540,8 @@
             "version": "6.1.0",
             "purl": "pkg:npm/zrender@6.1.0",
             "license": "BSD-3-Clause",
-            "source_document": "package-lock.json"
+            "source_document": "package-lock.json",
+            "architecture": "noarch"
           }
         },
         {
@@ -4127,6 +4203,48 @@
             "boundary": "fips-mode-unvalidated-build",
             "rationale": "active provider 3.5.8 matches the pin \u2014 OpenSSL 3.5.8 FIPS provider, not CMVP-validated as shipped (security-driven build of the FIPS code line, decision D17; validated versions: 3.0.8/#4282, 3.0.9/#4282, 3.1.2/#4985)",
             "fips_validation": "OpenSSL 3.5.8 FIPS provider: not CMVP-validated as shipped"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c51-6745-7375-9c20-26810e085cca",
+            "entity_type": "computing_core__library",
+            "name": "uv",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "libraries"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "uv",
+            "version": "0.12.20",
+            "purl": "pkg:github/astral-sh/uv@0.12.20",
+            "license": "MIT OR Apache-2.0",
+            "source_kind": "copied-image",
+            "source_url": "ghcr.io/astral-sh/uv:0.12.20@sha256:100047e74f30778ab704942321a09750d6158739573ff58bf3924085cc6cd2d8",
+            "path": "/usr/bin/uv"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c51-6745-7375-9c20-2682fea83992",
+            "entity_type": "computing_core__library",
+            "name": "uvx",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "libraries"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "uvx",
+            "version": "0.12.20",
+            "purl": "pkg:github/astral-sh/uv@0.12.20",
+            "license": "MIT OR Apache-2.0",
+            "source_kind": "copied-image",
+            "source_url": "ghcr.io/astral-sh/uv:0.12.20@sha256:100047e74f30778ab704942321a09750d6158739573ff58bf3924085cc6cd2d8",
+            "path": "/usr/bin/uvx"
           }
         }
       ],
@@ -7503,6 +7621,22 @@
           "edge": {
             "from_entity_id": "01a13c38-4f77-76da-a965-3c6ed63426de",
             "to_entity_id": "01a13c38-4f78-7159-8af3-1cd558b5a3c1",
+            "edge_type": "CARRIES_CRYPTO_PROVIDER__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c51-6745-7375-9c20-2683f0d263cd",
+            "entity_type": "edge",
+            "name": "01a13c51-6745-7375-9c20-26810e085cca --[CARRIES_CRYPTO_PROVIDER__computing_core]--> 01a13c38-4f78-7159-8af3-1ca0570a4c1f",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13c51-6745-7375-9c20-26810e085cca",
+            "to_entity_id": "01a13c38-4f78-7159-8af3-1ca0570a4c1f",
             "edge_type": "CARRIES_CRYPTO_PROVIDER__computing_core",
             "properties": {}
           }
