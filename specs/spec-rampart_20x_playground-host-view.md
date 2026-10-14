@@ -297,8 +297,9 @@ RID: `req-rampart-20x-playground-host-population`
 Status: `Proposed`
 
 The nodes and edges of the host view are fabricated for the demo, from existing types, in the mock inventory
-bundle. The findings dataset is derived from the real scanner rows for `tap`, with the 30 database-image
-alerts dropped, and held as data. No code is added to the plugin.
+bundle. The findings are expected to become a static batch in this repository, derived from the real scanner rows
+for `tap` with the 30 database-image alerts dropped; that batch is not built yet, and the requirements below
+hold when it is. No code is added to the plugin.
 
 #### Acceptance Criteria
 
