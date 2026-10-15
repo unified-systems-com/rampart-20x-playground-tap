@@ -12,18 +12,21 @@ from pathlib import Path
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
 FILE = "vulnerabilities-page.grift.json"
-# The panel slot of each table, in page order: Dependabot first, then one per code scanning tool.
-SLOTS = ["dependabot", "codeql", "grype", "sonarcloud", "trivy"]
-TOOLS = {"codeql": "CodeQL", "grype": "Grype", "sonarcloud": "SonarCloud", "trivy": "Trivy"}
+# The panel slot of each table, in page order: the open alerts by source, Dependabot first, then the closed alerts.
+OPEN_SLOTS = ["dependabot", "trivy", "grype", "sonarcloud", "codeql"]
+CLOSED_SLOTS = ["closed-dependabot", "closed-code-scanning"]
+SLOTS = OPEN_SLOTS + CLOSED_SLOTS
+TOOLS = {"trivy": "Trivy", "grype": "Grype", "sonarcloud": "SonarCloud", "codeql": "CodeQL"}
 # Fields the alert models hold (github_core__dependabot_alert, github_core__code_scanning_alert).
 DEPENDABOT_FIELDS = {
     "data.package_name", "data.ecosystem", "data.severity", "data.state", "data.advisory_summary", "data.ghsa_id",
     "data.first_patched_version", "data.manifest_path", "data.created_at", "data.fixed_at", "data.html_url",
+    "data.dismissed_reason", "data.dismissed_comment", "data.dismissed_at",
 }
 CODE_SCANNING_FIELDS = {
     "data.tool_name", "data.rule_id", "data.security_severity_level", "data.state", "data.location.path",
     "data.location.start_line", "data.number", "data.created_at", "data.fixed_at", "data.dismissed_at",
-    "data.html_url",
+    "data.html_url", "data.dismissed_reason", "data.dismissed_comment",
 }
 
 
@@ -62,7 +65,7 @@ class TestVulnerabilitiesPage:
         assert page["node"]["slug"] == "/playground/vulnerabilities"
         assert page["node"]["name"] == "Vulnerabilities"
 
-    def test_dependabot_is_first_then_one_section_per_tool(self) -> None:
+    def test_open_sections_by_source_then_the_closed_pair(self) -> None:
         (page,) = self._of("page")
         rows = page["node"]["layout"]["columns"]["col-1"]["rows"]
         assert [rows[k]["panel-id"] for k in sorted(rows, key=lambda r: int(r.split("-")[1]))] == SLOTS
@@ -90,16 +93,41 @@ class TestVulnerabilitiesPage:
             seen.append(tool)
         assert len(seen) == len(set(seen))
 
-    def test_every_search_selects_open_alerts_only(self) -> None:
-        for search in self._of("search"):
-            assert 'n.data.state = "open"' in " ".join(search["node"]["definition"]["query"]), search["entity"]["name"]
+    def test_the_open_searches_select_open_alerts_only(self) -> None:
+        for slot in OPEN_SLOTS:
+            query = " ".join(self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"])
+            assert 'n.data.state = "open"' in query, slot
 
-    def test_every_panel_opens_sorted_by_severity_rank(self) -> None:
-        for panel in self._of("panel"):
+    def test_the_closed_searches_select_every_alert_that_is_not_open_and_name_no_tool(self) -> None:
+        for slot, model in (("closed-dependabot", "dependabot_alert"), ("closed-code-scanning", "code_scanning_alert")):
+            query = self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"]
+            assert query[0] == f"MATCH (n:github_core__{model})"
+            assert 'WHERE n.data.state != "open"' in query
+            assert "tool_name" not in " ".join(query), slot
+
+    def test_the_closed_tables_show_the_dismissal_reason_and_comment_as_recorded(self) -> None:
+        for slot in CLOSED_SLOTS:
+            fields = {c["field"] for c in self._panel_in_slot(slot)["node"]["config"]["columns"]}
+            assert {"data.dismissed_reason", "data.dismissed_comment"} <= fields, slot
+
+    def test_the_closed_code_scanning_table_shows_the_tool_as_a_column(self) -> None:
+        fields = {c["field"] for c in self._panel_in_slot("closed-code-scanning")["node"]["config"]["columns"]}
+        assert "data.tool_name" in fields
+
+    def test_every_open_panel_opens_sorted_by_severity_rank(self) -> None:
+        for slot in OPEN_SLOTS:
+            panel = self._panel_in_slot(slot)
             config = panel["node"]["config"]
             severity = [c for c in config["columns"] if c["title"] == "Severity"]
             assert len(severity) == 1 and severity[0]["sorter"] == "severityRank", panel["entity"]["name"]
             assert config["initial_sort"] == [{"field": severity[0]["field"], "dir": "desc"}], panel["entity"]["name"]
+
+    def test_every_closed_panel_has_a_severity_column_that_sorts_by_rank_and_opens_newest_first(self) -> None:
+        for slot in CLOSED_SLOTS:
+            config = self._panel_in_slot(slot)["node"]["config"]
+            severity = [c for c in config["columns"] if c["title"] == "Severity"]
+            assert len(severity) == 1 and severity[0]["sorter"] == "severityRank", slot
+            assert config["initial_sort"] == [{"field": "data.created_at", "dir": "desc"}], slot
 
     def test_every_search_orders_newest_first(self) -> None:
         for search in self._of("search"):
@@ -113,7 +141,7 @@ class TestVulnerabilitiesPage:
                 for c in self._panel_in_slot(slot)["node"]["config"]["columns"]
                 if c.get("formatter") == "link"
             }
-            allowed = DEPENDABOT_FIELDS if slot == "dependabot" else CODE_SCANNING_FIELDS
+            allowed = DEPENDABOT_FIELDS if slot in ("dependabot", "closed-dependabot") else CODE_SCANNING_FIELDS
             assert fields | href <= allowed, (slot, sorted((fields | href) - allowed))
 
     def test_every_column_explains_itself(self) -> None:
