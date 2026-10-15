@@ -14,7 +14,7 @@ KEYSTONE = PACKAGE_ROOT / "grift" / "keystone.grift.json"
 
 pytestmark = pytest.mark.django_db(databases=["default", "search_readonly"])
 
-INVENTORY = ("applications", "libraries", "os", "secrets", "cloud", "saas")
+INVENTORY = ("applications", "libraries", "packages", "os", "containers", "crypto", "secrets", "cloud", "saas")
 DATACLASS = (
     "customer.data", "customer.creds", "customer.logs", "infra.code", "infra.secrets", "infra.logs",
 )
@@ -34,7 +34,7 @@ def _import(path: Path) -> None:
 class TestDimensions:
     """`req-rampart-20x-playground-dimensions-1`."""
 
-    def test_sixteen_dimension_nodes(self) -> None:
+    def test_nineteen_dimension_nodes(self) -> None:
         from tap_grid.models import Dimension
 
         _import(DIMENSIONS)
@@ -42,7 +42,7 @@ class TestDimensions:
         expected = ["inventory", *(f"inventory.{v}" for v in INVENTORY), "dataclass", "dataclass.customer",
                     "dataclass.infra", *(f"dataclass.{v}" for v in DATACLASS)]
         assert names == sorted(expected)
-        assert len(names) == 16
+        assert len(names) == 19
 
     def test_dictionary_nodes_carry_no_dcom_value(self) -> None:
         """Dictionary entries are not entries (`req-dcom-stamping`)."""
@@ -65,3 +65,28 @@ class TestKeystone:
     def test_keystone_carries_no_dcom_value(self) -> None:
         for node in _load(KEYSTONE)["batches"][0]["nodes"]:
             assert "dcom" not in node["entity"]["dimensions"]
+
+
+class TestOverviewMembership:
+    """`req-rampart-20x-playground-govcloud-actors-8`: what the Overview shows is data on the entities."""
+
+    def test_the_overview_dimension_exists(self) -> None:
+        names = {n["entity"]["name"] for n in _load(DIMENSIONS)["batches"][0]["nodes"]}
+        assert {"overview", "overview.shown"} <= names
+
+    def test_the_overview_searches_hand_list_no_entity_types(self) -> None:
+        pages = _load(PACKAGE_ROOT / "grift" / "pages.grift.json")["batches"][0]["nodes"]
+        for node in pages:
+            if node["entity"]["entity_type"] != "search":
+                continue
+            query = " ".join(node["node"]["definition"]["query"])
+            assert "entity_type IN" not in query, node["entity"]["name"]
+
+    def test_shown_entities_are_stamped_and_the_organization_and_other_accounts_are_not(self) -> None:
+        nodes = _load(PACKAGE_ROOT / "grift" / "mock-inventory.grift.json")["batches"][0]["nodes"]
+        by_name = {n["entity"]["name"]: n["entity"] for n in nodes}
+        assert by_name["organization"]["dimensions"].get("overview") is None
+        assert by_name["git-serious"]["dimensions"].get("overview") == "shown"
+        for node in nodes:
+            if node["entity"]["entity_type"] == "aws_core__aws_account" and node["entity"]["name"] != "git-serious":
+                assert node["entity"]["dimensions"].get("overview") is None, node["entity"]["name"]

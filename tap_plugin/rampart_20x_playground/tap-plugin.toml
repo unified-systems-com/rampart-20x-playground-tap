@@ -8,8 +8,8 @@ description = "A data-only instance plugin: the keystone, mocked GovCloud invent
 # Vocabulary dependencies (new-plugin Tier 1b): the bundles reference other plugins' entity types by string.
 depends_on = [
     { slug = "github_core", note = "The security-alerts bundle seeds github_core__code_scanning_alert, github_core__dependabot_alert and github_core__github_repository, plus the DETAILS_FINDING edge between an alert and its finding." },
-    { slug = "aws_core", note = "The mock inventory seeds aws_core nodes (account, VPC, subnet, load balancer, ECS, RDS, secrets, keys) and the official edges between them (ENROLLS_ACCOUNT, BELONGS_TO_ACCOUNT, PARTITIONED_INTO_SUBNET, ATTACHED_TO_VPC, RESIDES_IN_SUBNET, RUNS_SERVICE, ENCRYPTED_WITH_KEY); the landing layout nests on them." },
-    { slug = "computing_core", note = "The mock inventory seeds computing_core__host and computing_core__os_user for the computers of customers, the developer and the administrator, joined by DEFINES_OS_USER." },
+    { slug = "aws_core", note = "The mock inventory seeds aws_core nodes (account, VPC, subnet, load balancer, ECS, RDS, secrets, keys, Lambda, buckets, and from v0.7.0 the CodePipeline pipeline and CodeBuild projects) and the official edges between them (ENROLLS_ACCOUNT, BELONGS_TO_ACCOUNT, PARTITIONED_INTO_SUBNET, ATTACHED_TO_VPC, RESIDES_IN_SUBNET, RUNS_SERVICE, ENCRYPTED_WITH_KEY, RETRIEVES_SOURCE_FROM, RUNS_BUILD, WRITES_OBJECT, RETRIEVES_SECRET_FROM); the landing layout nests on them." },
+    { slug = "computing_core", note = "The mock inventory seeds computing_core__host and computing_core__os_user for the computers of customers, the developer and the administrator, joined by DEFINES_OS_USER; the inventory entities bundle seeds computing_core__program, computing_core__file, computing_core__public_key and computing_core__private_key, with no edges. The inventory software bundle seeds computing_core__operating_system (Wolfi), a computing_core__host of kind container for the web image, computing_core__package (apk, pypi and npm), computing_core__library (the self-built OpenSSL FIPS provider and the source-built cryptography) and computing_core__crypto_provider (the crypto-BOM scan, scope tap-web), joined by RUNS_OPERATING_SYSTEM, INSTALLS_PACKAGE, LOADS_LIBRARY (from the TAP web program) and CARRIES_CRYPTO_PROVIDER." },
     { slug = "identity_core", note = "The mock inventory seeds identity_core__human and the HELD_BY_HUMAN edge from a local account or GitHub account to the person who holds it." },
     { slug = "dcom", note = "Every mock inventory entity carries the dcom dimension value design; the dimension nodes come from the dcom plugin." },
     { slug = "compliance_core", note = "The security-alerts bundle seeds compliance_core__compliance_finding (one per alert) and the CARRIES_COMPLIANCE_FINDING edge that places each finding on its repository." },
@@ -25,16 +25,20 @@ dimensions = "grift/dimensions.grift.json"
 security_alerts = "grift/security-alerts.grift.json"
 actor_dimensions = "grift/dimensions-actors.grift.json"
 mock_inventory = "grift/mock-inventory.grift.json"
+inventory_entities = "grift/inventory-entities.grift.json"
+inventory_software = "grift/inventory-software.grift.json"
 pages = "grift/pages.grift.json"
+inventory_page = "grift/inventory-page.grift.json"
+vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "719746e99792602557ede3a564deed743f067901f72adb89e3b887b8def2bd80"
+sha256 = "c2e115b7d4629f872f709692bca6b0972678d7157c9bcdd69c108401f19f83f5"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "b5cf3a3b8eae7913cf58501b9f5d658b317713104112f60a2889febfa9619edb"
+sha256 = "8dd32d038ac72f7584b9e0495ab50cfae18682a46a4474c015bf296cf2c9dd02"

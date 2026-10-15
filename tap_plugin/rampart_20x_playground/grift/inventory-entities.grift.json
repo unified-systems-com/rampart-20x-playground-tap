@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a13be3-0373-76cb-831d-bfb681ca650a",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground inventory entities v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.inventory-entities",
+        "name": "rampart-20x-playground inventory entities v0.1.0",
+        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges: computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
+            "entity_type": "computing_core__program",
+            "name": "TAP web program",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications"
+            }
+          },
+          "node": {
+            "program_name": "tap-web",
+            "version": "0.2.1",
+            "path": "/app",
+            "name": "TAP web program"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "entity_type": "computing_core__program",
+            "name": "gunicorn",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications"
+            }
+          },
+          "node": {
+            "program_name": "gunicorn",
+            "name": "gunicorn"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-79fe-a7fb-258622812532",
+            "entity_type": "computing_core__program",
+            "name": "PostgreSQL database instance",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications"
+            }
+          },
+          "node": {
+            "program_name": "postgres",
+            "name": "PostgreSQL database instance"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7940-9fa5-a9ce49eccd49",
+            "entity_type": "computing_core__file",
+            "name": "container tls certificate",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "secrets"
+            }
+          },
+          "node": {
+            "file_path": "/etc/ssl/certs/git-serious.pem",
+            "file_type": "certificate",
+            "name": "container tls certificate"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-7aa9-bbc4-d43332f2fd5b",
+            "entity_type": "computing_core__public_key",
+            "name": "container tls public key",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "secrets"
+            }
+          },
+          "node": {
+            "algorithm": "RSA",
+            "key_size": 2048,
+            "name": "container tls public key"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-781b-a533-104d8726769b",
+            "entity_type": "computing_core__private_key",
+            "name": "container tls private key",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "secrets"
+            }
+          },
+          "node": {
+            "algorithm": "RSA",
+            "key_size": 2048,
+            "name": "container tls private key"
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}

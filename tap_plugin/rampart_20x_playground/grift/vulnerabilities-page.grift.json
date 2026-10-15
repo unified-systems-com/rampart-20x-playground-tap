@@ -1,0 +1,1307 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground vulnerabilities page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
+        "name": "rampart-20x-playground vulnerabilities page v0.1.0",
+        "description": "The /playground/vulnerabilities page: a standard table panel per source (Dependabot, then each code scanning tool) and two for the closed alerts, each bound by USES_SEARCH to a Search over the observed alerts of unified-systems-com/tap (req-rampart-20x-playground-page-vulnerabilities). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7c03-b3ca-9cb73e3d4183",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities dependabot",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities dependabot",
+            "description": "Every open Dependabot alert on the grid, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__dependabot_alert)",
+                "WHERE n.data.state = \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
+            "entity_type": "panel",
+            "name": "Dependabot",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Dependabot",
+            "slug": "playground-vulnerabilities-dependabot",
+            "description": "The Dependabot open alerts of unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.package_name",
+                  "title": "Package",
+                  "widthGrow": 2,
+                  "header_tooltip": "The package the manifest names."
+                },
+                {
+                  "field": "data.ecosystem",
+                  "title": "Ecosystem",
+                  "width": 100,
+                  "header_tooltip": "The package ecosystem GitHub reported, such as pip."
+                },
+                {
+                  "field": "data.severity",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.advisory_summary",
+                  "title": "Advisory",
+                  "widthGrow": 3,
+                  "header_tooltip": "The advisory's one-line summary."
+                },
+                {
+                  "field": "data.ghsa_id",
+                  "title": "Alert",
+                  "width": 170,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The GitHub advisory id. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.first_patched_version",
+                  "title": "Fixed in",
+                  "width": 100,
+                  "header_tooltip": "The first version that fixes the advisory. Blank when no patched version exists."
+                },
+                {
+                  "field": "data.manifest_path",
+                  "title": "Manifest",
+                  "widthGrow": 1,
+                  "header_tooltip": "The file the dependency was found in."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub raised the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Blank until it is."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.severity",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7a2b-9bad-50d845974438",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities codeql",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities codeql",
+            "description": "Every open code scanning alert whose tool is CodeQL, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__code_scanning_alert)",
+                "WHERE n.data.tool_name = \"CodeQL\" AND n.data.state = \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
+            "entity_type": "panel",
+            "name": "CodeQL",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "CodeQL",
+            "slug": "playground-vulnerabilities-codeql",
+            "description": "The code scanning open alerts that CodeQL raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.tool_name",
+                  "title": "Tool",
+                  "width": 110,
+                  "header_tooltip": "The scanner that raised the alert."
+                },
+                {
+                  "field": "data.rule_id",
+                  "title": "Rule",
+                  "widthGrow": 3,
+                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
+                },
+                {
+                  "field": "data.security_severity_level",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.location.path",
+                  "title": "Location",
+                  "widthGrow": 3,
+                  "header_tooltip": "The file the alert points at."
+                },
+                {
+                  "field": "data.location.start_line",
+                  "title": "Line",
+                  "width": 70,
+                  "header_tooltip": "The first line the alert points at."
+                },
+                {
+                  "field": "data.number",
+                  "title": "Alert",
+                  "width": 80,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub first received the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Blank until it is."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Blank until it is."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-72b9-8988-f87cdf67a36d",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities grype",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities grype",
+            "description": "Every open code scanning alert whose tool is Grype, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__code_scanning_alert)",
+                "WHERE n.data.tool_name = \"Grype\" AND n.data.state = \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
+            "entity_type": "panel",
+            "name": "Grype",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Grype",
+            "slug": "playground-vulnerabilities-grype",
+            "description": "The code scanning open alerts that Grype raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.tool_name",
+                  "title": "Tool",
+                  "width": 110,
+                  "header_tooltip": "The scanner that raised the alert."
+                },
+                {
+                  "field": "data.rule_id",
+                  "title": "Rule",
+                  "widthGrow": 3,
+                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
+                },
+                {
+                  "field": "data.security_severity_level",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.location.path",
+                  "title": "Location",
+                  "widthGrow": 3,
+                  "header_tooltip": "The file the alert points at."
+                },
+                {
+                  "field": "data.location.start_line",
+                  "title": "Line",
+                  "width": 70,
+                  "header_tooltip": "The first line the alert points at."
+                },
+                {
+                  "field": "data.number",
+                  "title": "Alert",
+                  "width": 80,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub first received the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Blank until it is."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Blank until it is."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7a8d-b95b-25a74fef786a",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities sonarcloud",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities sonarcloud",
+            "description": "Every open code scanning alert whose tool is SonarCloud, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__code_scanning_alert)",
+                "WHERE n.data.tool_name = \"SonarCloud\" AND n.data.state = \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
+            "entity_type": "panel",
+            "name": "SonarCloud",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "SonarCloud",
+            "slug": "playground-vulnerabilities-sonarcloud",
+            "description": "The code scanning open alerts that SonarCloud raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.tool_name",
+                  "title": "Tool",
+                  "width": 110,
+                  "header_tooltip": "The scanner that raised the alert."
+                },
+                {
+                  "field": "data.rule_id",
+                  "title": "Rule",
+                  "widthGrow": 3,
+                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
+                },
+                {
+                  "field": "data.security_severity_level",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.location.path",
+                  "title": "Location",
+                  "widthGrow": 3,
+                  "header_tooltip": "The file the alert points at."
+                },
+                {
+                  "field": "data.location.start_line",
+                  "title": "Line",
+                  "width": 70,
+                  "header_tooltip": "The first line the alert points at."
+                },
+                {
+                  "field": "data.number",
+                  "title": "Alert",
+                  "width": 80,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub first received the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Blank until it is."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Blank until it is."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7ed1-ab32-2800343665a5",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities trivy",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities trivy",
+            "description": "Every open code scanning alert whose tool is Trivy, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__code_scanning_alert)",
+                "WHERE n.data.tool_name = \"Trivy\" AND n.data.state = \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
+            "entity_type": "panel",
+            "name": "Trivy",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Trivy",
+            "slug": "playground-vulnerabilities-trivy",
+            "description": "The code scanning open alerts that Trivy raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.tool_name",
+                  "title": "Tool",
+                  "width": 110,
+                  "header_tooltip": "The scanner that raised the alert."
+                },
+                {
+                  "field": "data.rule_id",
+                  "title": "Rule",
+                  "widthGrow": 3,
+                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
+                },
+                {
+                  "field": "data.security_severity_level",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.location.path",
+                  "title": "Location",
+                  "widthGrow": 3,
+                  "header_tooltip": "The file the alert points at."
+                },
+                {
+                  "field": "data.location.start_line",
+                  "title": "Line",
+                  "width": 70,
+                  "header_tooltip": "The first line the alert points at."
+                },
+                {
+                  "field": "data.number",
+                  "title": "Alert",
+                  "width": 80,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub first received the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Blank until it is."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Blank until it is."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.security_severity_level",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "entity_type": "page",
+            "name": "Vulnerabilities",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Vulnerabilities",
+            "slug": "/playground/vulnerabilities",
+            "description": "The vulnerabilities on the grid as the scanners reported them: the open alerts one table per source, Dependabot first and then each code scanning tool, most severe first; then the closed alerts, fixed and dismissed, with the dismissal reason as recorded.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "1fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "dependabot",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "trivy",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "grype",
+                      "height": "auto"
+                    },
+                    "row-4": {
+                      "panel-id": "sonarcloud",
+                      "height": "auto"
+                    },
+                    "row-5": {
+                      "panel-id": "codeql",
+                      "height": "auto"
+                    },
+                    "row-6": {
+                      "panel-id": "closed-dependabot",
+                      "height": "auto"
+                    },
+                    "row-7": {
+                      "panel-id": "closed-code-scanning",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-7caa-8124-a7e3ad4797b4",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities closed-dependabot",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities closed-dependabot",
+            "description": "Every Dependabot alert on the grid that is no longer open, newest first, with the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__dependabot_alert)",
+                "WHERE n.data.state != \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
+            "entity_type": "panel",
+            "name": "Closed Dependabot",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Closed Dependabot",
+            "slug": "playground-vulnerabilities-closed-dependabot",
+            "description": "The Dependabot alerts that are no longer open: fixed, dismissed or auto-dismissed, with the dismissal reason exactly as GitHub recorded it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.package_name",
+                  "title": "Package",
+                  "widthGrow": 2,
+                  "header_tooltip": "The package the manifest names."
+                },
+                {
+                  "field": "data.severity",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 110,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Fixed, dismissed or auto-dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.dismissed_reason",
+                  "title": "Dismissal reason",
+                  "header_tooltip": "The reason recorded when the alert was dismissed, exactly as recorded. Empty for an alert that was fixed.",
+                  "width": 150
+                },
+                {
+                  "field": "data.dismissed_comment",
+                  "title": "Dismissal comment",
+                  "widthGrow": 3,
+                  "header_tooltip": "The comment recorded with the dismissal, exactly as recorded."
+                },
+                {
+                  "field": "data.advisory_summary",
+                  "title": "Advisory",
+                  "widthGrow": 3,
+                  "header_tooltip": "The advisory's one-line summary."
+                },
+                {
+                  "field": "data.ghsa_id",
+                  "title": "Alert",
+                  "width": 170,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The GitHub advisory id. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.first_patched_version",
+                  "title": "Fixed in",
+                  "width": 100,
+                  "header_tooltip": "The first version that fixes the advisory."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub raised the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Empty unless it was."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Empty unless it was."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.created_at",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-79df-b282-66b133564037",
+            "entity_type": "search",
+            "name": "playground \u2014 vulnerabilities closed-code-scanning",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 vulnerabilities closed-code-scanning",
+            "description": "Every code scanning alert on the grid that is no longer open, newest first, with the tool and the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (n:github_core__code_scanning_alert)",
+                "WHERE n.data.state != \"open\"",
+                "RETURN n",
+                "ORDER BY n.data.created_at DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
+            "entity_type": "panel",
+            "name": "Closed code scanning",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Closed code scanning",
+            "slug": "playground-vulnerabilities-closed-code-scanning",
+            "description": "The code scanning alerts, from every tool, that are no longer open: fixed, dismissed or auto-dismissed, with the dismissal reason exactly as GitHub recorded it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "default_page_size": 200,
+              "quick_filter": true,
+              "columns": [
+                {
+                  "field": "data.tool_name",
+                  "title": "Tool",
+                  "width": 110,
+                  "header_tooltip": "The code scanning tool that raised the alert, as recorded on the alert."
+                },
+                {
+                  "field": "data.rule_id",
+                  "title": "Rule",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_field": "data.html_url"
+                  },
+                  "header_tooltip": "The tool's rule id. Click to open the alert on GitHub."
+                },
+                {
+                  "field": "data.security_severity_level",
+                  "title": "Severity",
+                  "width": 100,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "critical": "bad",
+                      "high": "bad",
+                      "medium": "warn",
+                      "low": "muted"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "The tool's security severity grade: critical, high, medium or low.",
+                  "sorter": "severityRank"
+                },
+                {
+                  "field": "data.state",
+                  "title": "State",
+                  "width": 110,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "fixed": "good",
+                      "dismissed": "muted",
+                      "auto_dismissed": "muted"
+                    },
+                    "labels": {
+                      "auto_dismissed": "Auto-dismissed"
+                    },
+                    "capitalize": true
+                  },
+                  "header_tooltip": "Fixed, dismissed or auto-dismissed, as GitHub reports it."
+                },
+                {
+                  "field": "data.dismissed_reason",
+                  "title": "Dismissal reason",
+                  "header_tooltip": "The reason recorded when the alert was dismissed, exactly as recorded. Empty for an alert that was fixed.",
+                  "width": 150
+                },
+                {
+                  "field": "data.dismissed_comment",
+                  "title": "Dismissal comment",
+                  "widthGrow": 3,
+                  "header_tooltip": "The comment recorded with the dismissal, exactly as recorded."
+                },
+                {
+                  "field": "data.location.path",
+                  "title": "Path",
+                  "widthGrow": 2,
+                  "header_tooltip": "The file the alert was raised against."
+                },
+                {
+                  "field": "data.created_at",
+                  "title": "Opened",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When GitHub raised the alert."
+                },
+                {
+                  "field": "data.fixed_at",
+                  "title": "Fixed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was fixed. Empty unless it was."
+                },
+                {
+                  "field": "data.dismissed_at",
+                  "title": "Dismissed",
+                  "width": 160,
+                  "formatter": "datetime",
+                  "header_tooltip": "When the alert was dismissed. Empty unless it was."
+                }
+              ],
+              "initial_sort": [
+                {
+                  "field": "data.created_at",
+                  "dir": "desc"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7853-9659-eff92ea65db1",
+            "entity_type": "edge",
+            "name": "Dependabot USES_SEARCH playground \u2014 vulnerabilities dependabot",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
+            "to_entity_id": "01a13c36-8c0d-7c03-b3ca-9cb73e3d4183",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7e1c-b864-4aacf4a9d3ae",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL Dependabot",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "dependabot"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-711c-8c89-644002f12e30",
+            "entity_type": "edge",
+            "name": "CodeQL USES_SEARCH playground \u2014 vulnerabilities codeql",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
+            "to_entity_id": "01a13c36-8c0d-7a2b-9bad-50d845974438",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-752e-b20d-69684a9d0c96",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL CodeQL",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "codeql"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-79aa-ad6c-5012e57e2e98",
+            "entity_type": "edge",
+            "name": "Grype USES_SEARCH playground \u2014 vulnerabilities grype",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
+            "to_entity_id": "01a13c36-8c0d-72b9-8988-f87cdf67a36d",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-72a8-b4a4-3b4addf8f2c6",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL Grype",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "grype"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7ba4-94b5-e2d39f7975c8",
+            "entity_type": "edge",
+            "name": "SonarCloud USES_SEARCH playground \u2014 vulnerabilities sonarcloud",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
+            "to_entity_id": "01a13c36-8c0d-7a8d-b95b-25a74fef786a",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7c8d-b1bf-e71e037b639c",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL SonarCloud",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "sonarcloud"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-70fa-9723-4c6dd528a268",
+            "entity_type": "edge",
+            "name": "Trivy USES_SEARCH playground \u2014 vulnerabilities trivy",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
+            "to_entity_id": "01a13c36-8c0d-7ed1-ab32-2800343665a5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7bc0-9972-7a23f46c3c4c",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL Trivy",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "trivy"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-713d-bce9-656cad41b354",
+            "entity_type": "edge",
+            "name": "Closed Dependabot USES_SEARCH playground \u2014 vulnerabilities closed-dependabot",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
+            "to_entity_id": "01a13fb1-faaf-7caa-8124-a7e3ad4797b4",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-746b-95c0-fa131c34437b",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL Closed Dependabot",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "closed-dependabot"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-7ef1-8b36-39a1a62e4487",
+            "entity_type": "edge",
+            "name": "Closed code scanning USES_SEARCH playground \u2014 vulnerabilities closed-code-scanning",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
+            "to_entity_id": "01a13fb1-faaf-79df-b282-66b133564037",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fb1-faaf-7cbd-ab6c-b0193de80f5b",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities USES_PANEL Closed code scanning",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "closed-code-scanning"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

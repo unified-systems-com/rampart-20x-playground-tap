@@ -63,7 +63,7 @@ plugins loaded. The implementer verifies each claimed edge with the plugins load
 | req-rampart-20x-playground-govcloud-grid-true | [Grid-True Edges](#grid-true-edges) | Proposed | Every drawn relationship maps to an existing edge; the rest are recorded gaps; the mapping needs an `aws_core` release newer than the pinned `v0.5.0` |
 | req-rampart-20x-playground-govcloud-gaps | [Recorded Gaps](#recorded-gaps) | Proposed | The arrows, nodes and edge splits this view needs and the grid does not yet have |
 | req-rampart-20x-playground-govcloud-population | [Population](#population) | Proposed | Drawn from the mock inventory bundle, as data, with no code |
-| req-rampart-20x-playground-govcloud-actors | [People, Computers And Placement Hints](#people-computers-and-placement-hints) | Proposed | Customers, a developer and an administrator with their computers, placed by two small dimension axes, `actor` and `device` |
+| req-rampart-20x-playground-govcloud-actors | [People, Computers And Placement Hints](#people-computers-and-placement-hints) | Proposed | A customer, a developer and an administrator with their computers, placed by two small dimension axes, `actor` and `device` |
 | req-rampart-20x-playground-govcloud-deferred | [Deferred To The Zoom View](#deferred-to-the-zoom-view) | Proposed | High availability, egress and endpoints, agents, cross-region backup |
 
 ### Landing View
@@ -113,7 +113,7 @@ The layout expresses the three flows as three directions meeting at the centre.
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious web and worker containers sit at the centre of the view. | |
+| req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious containers sit at the centre of the view. | |
 | req-rampart-20x-playground-govcloud-layout-2 | Request Nodes Are Horizontal | Proposed | The nodes of the request path, from the customer computer to the containers, sit on a single horizontal line. | Placement only; lines follow `grid-true`. |
 | req-rampart-20x-playground-govcloud-layout-3 | Route53 Upper-Left | Proposed | Route53 is placed in the upper-left of the product account. | |
 | req-rampart-20x-playground-govcloud-layout-4 | Deployment Enters From The Right | Proposed | The deployment path enters the product account from the right. | |
@@ -132,7 +132,7 @@ The account where git-serious runs. It holds, from the customer side inward:
 - **DNS:** a Route53 public hosted zone (public zones are supported in GovCloud as of April 2025, per the AWS announcement linked below).
 - **Edge:** an internet gateway on the VPC, AWS WAF in front of the load balancer, an ACM certificate for TLS.
 - **Network:** one VPC with public, private and isolated subnet tiers across two availability zones. The load balancer sits in the public tier, the containers in the private tier, the database in the isolated tier.
-- **Containers:** an ECS cluster running the git-serious web service and the worker service (the task queue, split from the web container; see Recorded Gaps).
+- **Containers:** an ECS cluster running the one git-serious service, whose container runs the web server and the task queue together, as the product does today (ruled 2026-10-14: realism for what is deployed; a separate worker service is planned, see Recorded Gaps).
 - **Data:** an RDS Postgres instance, Multi-AZ, replacing the database container of a development stack.
 - **Secrets and keys:** Secrets Manager secrets the containers read, and KMS keys encrypting the database, the secrets and the logs.
 - **Delivery:** an ECR repository and the deploy step (GitHub Actions through an OIDC trust), both inside the account.
@@ -169,6 +169,8 @@ a FedRAMP-shaped environment mirrors images into its own registry, which is why 
 | req-rampart-20x-playground-govcloud-deploy-1 | Path Is Complete | Proposed | Every hop from developer to ECS service is shown as a node, in order by placement. | Connected only where an official edge exists. |
 | req-rampart-20x-playground-govcloud-deploy-2 | ECR Is On The Path | Proposed | ECR sits between GHCR and the service. | |
 | req-rampart-20x-playground-govcloud-deploy-3 | Deploy Lives In The Product Account | Proposed | The deploy step is inside the product account. | Ruled 2026-10-13. |
+| req-rampart-20x-playground-govcloud-deploy-4 | Release Pull And Apply | Proposed | In the product account, outside the VPC: a Lambda function that holds a GitHub App token in Secrets Manager copies the Terraform source from GitHub into an S3 bucket; a CodePipeline pipeline with a human approval stage plans and applies it with CodeBuild, and Terraform state sits in a second S3 bucket. | Ruled 2026-10-14. Only the Lambda function, the secret and the two buckets can be drawn today; the pipeline and the build projects wait for `aws_core` types (aws-core-tap#96). |
+| req-rampart-20x-playground-govcloud-deploy-5 | Names Are Plain | Proposed | Resource names carry no product prefix, and the product VPC is named Production. | Ruled 2026-10-14. The account, the Route 53 zone and the GitHub names keep theirs. |
 
 ### Support Accounts
 ----
@@ -292,7 +294,7 @@ Until those land the view can use the existing types where they apply.
 **Elsewhere:**
 
 - Web-tier high availability: `unified-systems-com/tap#1020` (epic).
-- A worker service split from the web container is part of that epic (`unified-systems-com/tap#1016`).
+- A worker service split from the web container is part of that epic (`unified-systems-com/tap#1016`). It is not drawn until it ships.
 
 #### Acceptance Criteria
 
@@ -332,7 +334,7 @@ RID: `req-rampart-20x-playground-govcloud-actors`
 
 Status: `Proposed`
 
-The view shows the people around the system and their computers: two customers, a developer and an
+The view shows the people around the system and their computers: one customer, a developer and an
 infrastructure administrator, each with an end-computing device. A computer is a `computing_core` host that
 defines a local account (`DEFINES_OS_USER`); the account is held by the person (`HELD_BY_HUMAN`, an
 `identity_core` human). The developer's GitHub account is held by the same person. All of it uses edges that
@@ -341,25 +343,35 @@ exist; nothing is joined by name.
 A human and a host carry no tags, so the layout reads where they go from two small dimension axes this
 plugin ships in `grift/dimensions-actors.grift.json`: `actor` on the person and `device` on the computer, each
 with the values `customer`, `developer` and `administrator`. They are kept as two axes because a person and
-their computer are different things. They carry no access meaning. Customers stand at the left, the
-administrator beneath the organization, and the developer with GitHub at the right.
+their computer are different things. They carry no access meaning. The row reads left to right: the
+customer, the product account's machinery, GitHub, the developer, with the administrator beneath the
+organization.
 
-The GitHub side of the deploy path is drawn from `github_core` nodes: the platform, an organization account
+The GitHub side of the deploy path is in the data as `github_core` nodes: the platform, an organization account
 and the developer's account, the repository, its workflow and a run, and the container package with a version.
 The run builds the version (`BUILDS_PACKAGE_VERSION`); the repository federates into the product account's
 GitHub Actions identity provider (`FEDERATES_VIA_PROVIDER`), which stands for the deploy step's trust. There is
 no edge from the package version to the ECR repository or from the deploy step to the service, so those hops
 are recorded gaps, not lines.
 
+At this view the internet gateway, the load balancer, the database, the people, their computers and GitHub are
+drawn as icon nodes (`spec-viz-icon-node.md` in `tap_viz`): the type icon is the card and the name is below
+it. An icon node is terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs
+and packages are not drawn, and neither are the edges that end in them. They come back when the node is opened
+up, which is not built yet.
+
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-govcloud-actors-1 | People Have Computers | Proposed | Each of two customers, the developer and the administrator appears with a computer, a local account on it and the human who holds it. | Official edges only. |
+| req-rampart-20x-playground-govcloud-actors-1 | People Have Computers | Proposed | The customer, the developer and the administrator each appear with a computer, a local account on it and the human who holds it. | Official edges only. |
 | req-rampart-20x-playground-govcloud-actors-2 | Two Axes | Proposed | `actor` is stamped on people and `device` on computers, with the values `customer`, `developer`, `administrator`, as dimension nodes shipped by this plugin. | Ruled 2026-10-14. |
-| req-rampart-20x-playground-govcloud-actors-3 | Placement From Facts | Proposed | Customers stand left, the administrator beneath the organization, the developer and GitHub right; the layout reads only those dimensions and tags. | No placement by label or id. |
-| req-rampart-20x-playground-govcloud-actors-4 | Deploy Path Is On The Board | Proposed | GitHub, the repository, workflow, run and package version appear, and the repository is joined to the product account's identity provider. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-3 | Placement From Facts | Proposed | The row reads customer, the product account, GitHub, developer, with the administrator beneath the account. A person or a computer carries its place in the `column` and `row` dimensions (their types have no tagging system); a type that has tags (the account, GitHub) carries `layout:column` and `layout:order`. The layout holds no map from role or type to place. | No placement by label, id or type constant. |
+| req-rampart-20x-playground-govcloud-actors-4 | Deploy Path Is In The Data | Proposed | The repository, workflow, run and package version are in the mock inventory, and the repository is joined to the product account's identity provider; the page shows GitHub as one icon node. | Ruled 2026-10-14; the internals are hidden by the icon node, ruled 2026-10-14. |
 | req-rampart-20x-playground-govcloud-actors-5 | Mock Repository Is Not Observed | Proposed | The mock repository and accounts use names that no observed node uses, and the page selects only `dcom: design` nodes. | The observed `unified-systems-com/tap` repository stays off the page. |
+| req-rampart-20x-playground-govcloud-actors-6 | Top-Most Pieces Are Icon Nodes | Proposed | The internet gateway, the load balancer, the database instance, the people, their computers and GitHub are drawn as icon nodes, selected by entity type; nothing inside them is drawn. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-7 | Running Parts Only | Proposed | The page is named Overview and shows the running parts of the system inside the product account, which stays as their parent: the organization, the other accounts, the ECS cluster and service and the identity provider are not selected by its Searches and stay on the grid. | Ruled 2026-10-14. The URL stays `/playground`. |
+| req-rampart-20x-playground-govcloud-actors-8 | What The Page Shows Is Data | Proposed | The Overview's node and edge Searches select on the `overview` dimension value `shown`, stamped on each entity the page draws, and hand-list no entity types. | Ruled 2026-10-14; the Searches that match typed relations keep their types. |
 
 ### Deferred To The Zoom View
 ----

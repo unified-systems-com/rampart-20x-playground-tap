@@ -1,35 +1,55 @@
 /**
- * landing — the nested layout behind /playground (req-rampart-20x-playground-govcloud-view).
+ * landing: the nested layout behind the Overview page (req-rampart-20x-playground-govcloud-view).
  *
  * Configuration of the tap_viz runtime and data reads only; no geometry of its own
- * (req-rampart-20x-playground-nongoals). Containment comes only from edges aws_core declares:
+ * (req-rampart-20x-playground-nongoals). The overview shows the running parts of the system inside the product
+ * account: the organization, the other accounts, the ECS cluster and service and the identity provider stay on
+ * the grid and are not selected by the page's Searches. Containment comes only from edges aws_core declares:
  *
- *   - organization ⊃ account      ENROLLS_ACCOUNT (organization → account)
  *   - account ⊃ its members       BELONGS_TO_ACCOUNT (resource → account)
  *   - VPC ⊃ its subnets           PARTITIONED_INTO_SUBNET (VPC → subnet)
  *   - VPC ⊃ its internet gateway  ATTACHED_TO_VPC (gateway → VPC)
  *   - subnet ⊃ what runs in it    RESIDES_IN_SUBNET (resource → subnet)
- *   - cluster ⊃ its services      RUNS_SERVICE (cluster → service)
  *
  * Order comes from tags on the nodes: a subnet's `layout:order` tag (public 0, private 1, isolated 2) is
  * its column in the VPC, after the internet gateway, so the request path reads left to right: gateway,
- * public tier (load balancer), private tier (web task, worker), isolated tier (database).
+ * public tier (load balancer), private tier (web task), isolated tier (database).
  * The subnets of one tier in several zones are copies of each other: they are drawn as one stacked
  * subnet carrying the count, with what runs in the first zone inside it (stack.js).
  * Every other edge in the scene is a line.
+ *
+ * Top level, left to right: the customer and their computer, the product account, GitHub, the developer's computer and the developer. The administrator and their computer
+ * stand beneath the product account, the computer above the person. The people, computers and GitHub are
+ * put on the load balancer's horizontal line (align-only).
+ *
+ * The gateway, load balancer, database, Lambda, buckets and secrets are icon-centric-solo nodes (icon-node.js):
+ * the icon and its name, no card. The people, their computers and GitHub are icon nodes with a card. Icon nodes
+ * are terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs and packages
+ * are not drawn.
  */
 
 import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
+import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
+import {alignDistributeHorizontal, alignDistributeVertical} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
-    organization: "aws_core__aws_organization",
-    account: "aws_core__aws_account",
     vpc: "aws_core__aws_vpc",
     subnet: "aws_core__aws_subnet",
+    account: "aws_core__aws_account",
     igw: "aws_core__aws_internet_gateway",
-    cluster: "aws_core__aws_ecs_cluster",
+    alb: "aws_core__aws_alb",
+    rds: "aws_core__aws_rds_instance",
+    zone: "aws_core__aws_route53_zone",
+    cert: "aws_core__aws_acm_certificate",
+    key: "aws_core__aws_kms_key",
+    ecr: "aws_core__aws_ecr_repository",
+    pipeline: "aws_core__aws_codepipeline_pipeline",
+    codebuild: "aws_core__aws_codebuild_project",
+    lambda: "aws_core__aws_lambda",
+    bucket: "aws_core__aws_s3_bucket",
+    secret: "aws_core__aws_secrets_manager_secret",
     human: "identity_core__human",
     host: "computing_core__host",
     platform: "github_core__github_platform",
@@ -39,12 +59,10 @@ const T = {
     package: "github_core__github_package",
 };
 const E = {
-    enrolls: "ENROLLS_ACCOUNT__aws_core",
     belongs: "BELONGS_TO_ACCOUNT__aws_core",
     partitioned: "PARTITIONED_INTO_SUBNET__aws_core",
     attachedToVpc: "ATTACHED_TO_VPC__aws_core",
     residesInSubnet: "RESIDES_IN_SUBNET__aws_core",
-    runsService: "RUNS_SERVICE__aws_core",
     definesOsUser: "DEFINES_OS_USER__computing_core",
     hostsAccount: "HOSTS_ACCOUNT__github_core",
     ownsRepo: "OWNS_REPO__github_core",
@@ -53,12 +71,13 @@ const E = {
     publishesPackage: "PUBLISHES_PACKAGE__github_core",
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
 };
-const CONTAINERS = [T.organization, T.account, T.vpc, T.subnet, T.cluster, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
-//: Top-level columns, left to right, by the `actor` and `device` dimension values on a person or a computer.
-//: Everything else with a `layout:column` tag (the organization, GitHub) takes the tag.
-const ACTOR_COLUMN = {customer: 0, administrator: 1, developer: 2};
-//: Place in the column: the person, then their computer.
-const KIND_ORDER = {[T.human]: 1, [T.host]: 2};
+const CONTAINERS = [T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
+//: Shown as icon nodes: the type icon is the card, the name is below it.
+const ICON_TYPES = [T.human, T.host, T.platform];
+const ICON = {width: 84, height: 84};
+//: Shown as icon-centric-solo nodes: the icon and the name, no card.
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO = {width: 72, height: 72};
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -68,22 +87,24 @@ export async function execute(context) {
     const {cy, trigger_reason} = context;
     const chrome = applyStandardChrome(cy);
     const labelInset = parentLabelInset({...chrome, inset: 16});
-    const pad = {top: 14 + labelInset, right: 24, bottom: 24, left: 24};
+    //: The bottom edge leaves room for the name under an icon node, which is drawn outside its card.
+    const pad = {top: 14 + labelInset, right: 24, bottom: 40, left: 24};
 
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
     const piles = _collapseZoneCopies(cy);
+    const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
+    applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
 
     const result = await projectNested(cy, {
         relationships: [
-            {name: "org-enrolls", gryphon: `(parent:${T.organization})-[:${E.enrolls}]->(child)`},
             {name: "account-holds", gryphon: `(parent:${T.account})<-[:${E.belongs}]-(child)`},
             {name: "vpc-holds-subnets", gryphon: `(parent:${T.vpc})-[:${E.partitioned}]->(child)`},
             {name: "vpc-holds-gateway", gryphon: `(parent:${T.vpc})<-[:${E.attachedToVpc}]-(child)`},
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
-            {name: "cluster-holds", gryphon: `(parent:${T.cluster})-[:${E.runsService}]->(child)`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
             {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
@@ -95,17 +116,27 @@ export async function execute(context) {
         baseSizes,
         padding: 24,
         paddings: Object.fromEntries(CONTAINERS.map((t) => [t, pad])),
-        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 28},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
-            [T.cluster]: {name: "flow", gap: 28, sort: "label"},
             [T.host]: {name: "flow", gap: 12, sort: "label"},
             [T.platform]: {name: "flow", gap: 20, sort: "label"},
             [T.ghAccount]: {name: "flow", gap: 20, sort: "label"},
             [T.repo]: {name: "flow", gap: 12, sort: "label"},
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
-            [T.organization]: {name: "flow", gap: 24, sort: "area-desc", aspect: 0.6},
-            [T.account]: {name: "flow", gap: 28, sort: "area-desc", aspect: 1.6},
+            //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
+            //: key (placed under the load balancer and the database), then the rest.
+            [T.account]: {
+                name: "tiered-rows", rowGap: 44, itemGap: 40,
+                tiers: [
+                    {name: "dns", entityTypes: [T.zone], align: "start"},
+                    {name: "vpc", entityTypes: [T.vpc]},
+                    {name: "protection", entityTypes: [T.cert, T.key]},
+                    {name: "secrets", entityTypes: [T.secret, T.ecr]},
+                    {name: "release", entityTypes: [T.bucket, T.pipeline, T.lambda]},
+                    {name: "builds", entityTypes: [T.codebuild]},
+                ],
+            },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
         },
@@ -113,14 +144,40 @@ export async function execute(context) {
 
     piles.forEach((pile) => {
         applyStack(cy, pile);
-        // The runtime draws a pile's cards below every nesting layer; lift them to just under their own box
-        // so they show inside the VPC.
-        const z = Number(pile.representative.style("z-index")) || 0;
-        cy.nodes(`[_stack_id = "${pile.stackId}"][_is_stack_card]`).forEach((card) => card.style("z-index", z - card.data("_stack_depth")));
     });
+
+    // Everything that stands outside the product's column already has its column; put it on the request
+    // path's line. What stands in the product's column besides the account (the administrator's computer
+    // and the administrator) goes under the account instead.
+    if (cy.scratch("landing_row")) cy.scratch("landing_row").destroy();
+    const anchor = shown([T.alb]).first();
+    const account = shown([T.account]).first();
+    const roots = cy.nodes().filter((n) => Number.isInteger(n.data("_stage")) && n.data("_viewport_parent") === undefined
+        && !n.hasClass(ELEVATION_HIDDEN_CLASS));
+    const productStage = account.nonempty() ? account.data("_stage") : undefined;
+    if (anchor.nonempty()) {
+        const row = roots.filter((n) => n.data("_stage") !== productStage);
+        cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
+    }
+
+    // The certificate stands directly under the load balancer, and the key directly under the database.
+    [[T.cert, T.alb], [T.key, T.rds]].forEach(([type, above]) => {
+        const member = shown([type]), anchorNode = shown([above]).first();
+        if (member.nonempty() && anchorNode.nonempty()) {
+            alignDistributeVertical(cy, {members: member, anchorNode, distribute: false, reactive: false});
+        }
+    });
+
+    // Under the account, top to bottom in their own order (the computer, then the person).
+    const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
+        .sort((a, b) => a.data("_order") - b.data("_order"));
+    if (beneath.length > 1) {
+        alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
+    }
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
+        if (n.data("_is_icon_node")) return;
         if (!cy.nodes().some((c) => c.data("_viewport_parent") === n.id())) n.addClass("tap-viewport-parent");
     });
     placeParentLabels(cy, {
@@ -136,7 +193,8 @@ function _edgeType(e) {
 }
 
 /**
- * The subnets of one VPC that share a tier (the same `layout:order` tag) are zone copies of each other.
+ * The subnets of one VPC that share a tier (the same `tier` tag) are zone copies of each other; their typed
+ * availability zones are what tell the copies apart.
  * Collapse all but the first (by label) and what resides in them before nesting, so the box is sized for
  * one; return the stack options to apply once the scene is positioned.
  */
@@ -145,7 +203,7 @@ function _collapseZoneCopies(cy) {
     cy.edges().forEach((e) => {
         if (_edgeType(e) !== E.partitioned) return;
         const subnet = e.target();
-        const key = e.source().id() + "|" + ((subnet.data("tags") || {})["layout:order"] ?? "");
+        const key = e.source().id() + "|" + ((subnet.data("tags") || {}).tier ?? "");
         if (!byTier.has(key)) byTier.set(key, []);
         byTier.get(key).push(subnet);
     });
@@ -192,21 +250,16 @@ function _stampVpcColumns(cy) {
 }
 
 /**
- * Stamp the top-level `ranked` columns, left to right: customers, then the organization with the
- * administrator beneath it, then the developer with GitHub beneath. A person or computer takes its column
- * from its `actor` / `device` dimension; a node with a `layout:column` tag takes the tag.
+ * Stamp the top-level `ranked` columns, left to right. A person or a computer carries its place in the `column`
+ * and `row` dimensions (their types have no tagging system); a type that has one (the account, GitHub) carries
+ * `layout:column` and `layout:order` tags.
  */
 function _stampRootColumns(cy) {
     cy.nodes().forEach((n) => {
-        const type = n.data("entity_type");
         const dims = n.data("dimensions") || {};
         const tags = n.data("tags") || {};
-        const actor = dims.actor || dims.device;
-        if (actor in ACTOR_COLUMN && KIND_ORDER[type]) {
-            const column = ACTOR_COLUMN[actor];
-            //: The administrator goes beneath the organization, which is first in column 1.
-            const below = column === 1 ? 1 : 0;
-            n.data({_stage: column, _order: below + KIND_ORDER[type]});
+        if (dims.column !== undefined) {
+            n.data({_stage: Number(dims.column), _order: Number(dims.row || 0)});
         } else if (tags["layout:column"] !== undefined) {
             n.data({_stage: Number(tags["layout:column"]), _order: Number(tags["layout:order"] || 0)});
         }

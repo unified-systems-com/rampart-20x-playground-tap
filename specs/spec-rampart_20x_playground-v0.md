@@ -65,7 +65,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock is not a boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Sixteen dimension nodes: seven `inventory` (the axis and six categories) and nine `dataclass` (the axis, two branches and six classes) |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Nineteen dimension nodes: ten `inventory` (the axis and nine categories) and nine `dataclass` (the axis, two branches and six classes) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -172,7 +172,7 @@ RID: `req-rampart-20x-playground-dimensions`
 Status: `Proposed`
 
 Two axes of dimension nodes, created up front: `inventory`, which sorts what the inventory page lists into
-six categories, and `dataclass`, which classifies kinds of data. Both follow `dcom`'s pack shape
+seven categories, and `dataclass`, which classifies kinds of data. Both follow `dcom`'s pack shape
 (`req-dcom-naming`): flat `dimension` nodes, no edges, the hierarchy carried by the dotted name. They live in
 this plugin for now, as the "build it all here, break it out later" phase allows; `inventory` and `dataclass`
 are neutral keys that more than one plugin could use, so extraction into a vocabulary plugin is expected
@@ -185,9 +185,12 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `inventory` | axis | The category an inventory item belongs to. |
 | `inventory.applications` | `inventory: applications` | Applications: running applications inside the environment. |
 | `inventory.libraries` | `inventory: libraries` | Libraries: software libraries. |
-| `inventory.os` | `inventory: os` | Operating systems and containers. |
+| `inventory.packages` | `inventory: packages` | Packages: packages a package manager installed, one row per ecosystem, name and version. |
+| `inventory.os` | `inventory: os` | Operating systems. |
+| `inventory.containers` | `inventory: containers` | Containers: container images, one row per class of identical image. |
+| `inventory.crypto` | `inventory: crypto` | Crypto: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each. |
 | `inventory.secrets` | `inventory: secrets` | Secrets: secret material, keys, certificates, secrets. |
-| `inventory.cloud` | `inventory: cloud` | Cloud services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library or OS/container. |
+| `inventory.cloud` | `inventory: cloud` | Cloud services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library, OS or container. |
 | `inventory.saas` | `inventory: saas` | Third-party SaaS: interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from. |
 
 **The `dataclass` axis.** Names as given by the owner; the meanings are this spec's proposal and are for review.
@@ -212,7 +215,7 @@ the nodes exist so classification can start without a vocabulary change.
 
 #### Implementation
 
-`grift/dimensions.grift.json`, one batch of sixteen `dimension` nodes (seven `inventory`, nine `dataclass`),
+`grift/dimensions.grift.json`, one batch of nineteen `inventory` and `dataclass` `dimension` nodes (ten `inventory`, nine `dataclass`),
 no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
 `req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
 the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
@@ -221,10 +224,10 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dimensions-1 | Sixteen Nodes | Proposed | Importing the bundle yields exactly sixteen `dimension` nodes, with the names in the two tables above. | |
-| req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the six category nodes. | |
+| req-rampart-20x-playground-dimensions-1 | Nineteen Nodes | Proposed | Importing the bundle yields exactly nineteen `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | |
+| req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the nine category nodes. | |
 | req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
-| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the sixteen nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the nineteen nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 
 ### Mock Inventory
@@ -261,7 +264,7 @@ default that says otherwise, and whether `fedramp_20x_ksi` stamps `dcom` on its 
 | req-rampart-20x-playground-mock-inventory-1 | Existing Types Only | Proposed | Every mock node's `entity_type` is declared by an installed plugin's manifest; the bundle imports with no unknown-type warning. | |
 | req-rampart-20x-playground-mock-inventory-2 | On The Design Axis | Proposed | Every mock inventory node carries `dcom: design` and none carries another `dcom` value. | Per-entity convention above; `aws_core` stamps nothing, so no merge is in play. |
 | req-rampart-20x-playground-mock-inventory-3 | GovCloud Region | Proposed | At least one mock region is a GovCloud region (`us-gov-east-1` or `us-gov-west-1`). | |
-| req-rampart-20x-playground-mock-inventory-4 | One Category Or None | Proposed | Every mock inventory item carries exactly one `inventory` value from the six categories; a node that fits none (for example pure topology) carries no `inventory` key. | The mapping of existing `aws_core`, `computing_core` and `github_core` types to categories was not checked. A category with no existing type (libraries is the likeliest) is a finding for the owning plugin. |
+| req-rampart-20x-playground-mock-inventory-4 | One Category Or None | Proposed | Every mock inventory item carries exactly one `inventory` value from the seven categories; a node that fits none (for example pure topology) carries no `inventory` key. | The mapping of existing `aws_core`, `computing_core` and `github_core` types to categories was not checked. A category with no existing type (libraries is the likeliest) is a finding for the owning plugin. |
 
 ### Mock Findings
 ----
@@ -320,20 +323,21 @@ RID: `req-rampart-20x-playground-page-inventory`
 
 Status: `Proposed`
 
-The system inventory, in six categories: applications, libraries, operating systems and containers, secrets,
+The system inventory, in seven categories: applications, libraries, operating systems, containers, secrets,
 cloud services and third-party SaaS. Each category is a section listing the items stamped with that
-`inventory` value, each row linking to its entity page.
+`inventory` value, each row linking to its entity page. The columns and row rules of each table are in
+`spec-rampart_20x_playground-inventory.md`.
 
 #### Implementation
 
-Route `/playground/inventory`; six Searches, one per `inventory` value, each filtering on
+Route `/playground/inventory`; seven Searches, one per `inventory` value, each filtering on
 `n.dimensions["inventory"]`; an existing table panel per section.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders six sections, one per `inventory` category. | |
+| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders seven sections, one per `inventory` category. | |
 | req-rampart-20x-playground-page-inventory-2 | Section Matches Dimension | Proposed | Each section lists exactly the entities whose `inventory` value is that section's category. | |
 
 ### Vulnerabilities Page
@@ -345,7 +349,8 @@ Status: `Proposed`
 The vulnerabilities, organized by source. Dependabot is the first source and the first section. The other
 sources are the code scanning tools that report on `tap`; on 2026-10-13 these were Trivy (container and OS
 packages such as glibc), Grype (every one of its 26 open alerts was for `openssl-fips-provider`) and SonarCloud
-(code findings), each shown as its own section. Which findings appear as `vdr_finding` entries, and how a source's
+(code findings), each shown as its own section. Read from the grid on 2026-10-14, the kept alerts carry a fourth
+tool, CodeQL (22 alerts, Python source findings), which has its own section as well. Which findings appear as `vdr_finding` entries, and how a source's
 alerts map onto one, is the open decision of `req-rampart-20x-playground-dependabot-pull-3`.
 
 #### Implementation
@@ -363,6 +368,9 @@ is left to the finding-entry decision.
 | req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and renders one section per source. | |
 | req-rampart-20x-playground-page-vulnerabilities-2 | Dependabot First | Proposed | The first section on the page is Dependabot. | |
 | req-rampart-20x-playground-page-vulnerabilities-3 | One Section Per Source | Proposed | Each code scanning tool that has alerts for `tap` has its own section, and no alert appears in two sections. | |
+| req-rampart-20x-playground-page-vulnerabilities-4 | Sections Are Searches | Proposed | Each section is a standard table panel bound by `USES_SEARCH` to one Search and mounted by one `USES_PANEL` edge; a code scanning Search selects by `tool_name`, so the sections partition the code scanning alerts. | Data only: no JavaScript, no model, no edge of its own. |
+| req-rampart-20x-playground-page-vulnerabilities-5 | Open Only, Most Severe First, Real Data | Proposed | Each Search selects the open alerts only (`state` is `open`). Each panel opens sorted by its Severity column through the table panel's `initial_sort` and the `severityRank` sorter (critical first), with the Search's newest-first order as the tie-break. The page and its panels carry no `dcom` value and no text calling the data mock: the alerts are observed. | Ruled 2026-10-14 (open only, severity first); needs tap's table `initial_sort` and `severityRank` (`req-web-stdpanel-table-config-10`, `-11`). |
+| req-rampart-20x-playground-page-vulnerabilities-6 | Columns Are Fields | Proposed | Every column reads a field the alert model holds: Dependabot shows package, ecosystem, severity, state, advisory, alert link, fixed version, manifest and dates; code scanning shows tool, rule, severity, state, location, alert link and dates. | The finding's status is not a column: a table row is one node and the finding is one hop away, where Gryphon cannot order. |
 
 ### VDR Reports Page
 ----
@@ -511,3 +519,5 @@ in the first cleanup by mistake and are pulled again.
 | `grift/mock-findings.grift.json` | Mocked `vdr_finding` and `vdr_report` rows | `req-rampart-20x-playground-mock-findings` |
 | `grift/security-alerts.grift.json` | Captured batch: the `tap` code scanning and Dependabot alerts (all states), their generic findings and the `tap` repository, from a live `github_core` run of 2026-10-14. Not yet registered in `[grift]`: it needs `github_core` and `compliance_core` in `depends_on` first | `req-rampart-20x-playground-dependabot-pull` |
 | `grift/pages.grift.json` | The four pages, their Searches and panel edges | the four `page` requirements |
+| `grift/inventory-entities.grift.json` | The programs and the container's certificate and key halves the inventory tables need beyond the mock inventory | `req-rampart-20x-playground-inventory-tables` |
+| `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |

@@ -26,55 +26,14 @@
           },
           "node": {
             "name": "playground \u2014 landing nodes",
-            "description": "Every designed (dcom design) node of the mock deployment, so observed nodes of the same types stay off the page: the organization, its accounts and what the product account holds, the people and their computers, and the GitHub side of the deploy path.",
+            "description": "Every entity marked `overview: shown`: the running parts of the deployment, its people and their computers, and the GitHub side of the deploy path.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (n)",
-                "WHERE n.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"] AND n.dimensions.dcom = \"design\"",
+                "WHERE n.dimensions[\"overview\"] = \"shown\"",
                 "RETURN n"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-17366a8674bc",
-            "entity_type": "search",
-            "name": "playground \u2014 landing enrolls",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground \u2014 landing enrolls",
-            "description": "Each account the organization enrolls.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (a:aws_core__aws_organization)-[:ENROLLS_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
-                "RETURN a, b"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
-            "entity_type": "search",
-            "name": "playground \u2014 landing belongs",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground \u2014 landing belongs",
-            "description": "Each resource and the account that owns it.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
-                "RETURN a, b"
               ]
             }
           }
@@ -134,27 +93,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:RESIDES_IN_SUBNET__aws_core]->(b:aws_core__aws_subnet)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
-                "RETURN a, b"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-173bdba98cfa",
-            "entity_type": "search",
-            "name": "playground \u2014 landing runs",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground \u2014 landing runs",
-            "description": "Each ECS cluster and the services it runs.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (a:aws_core__aws_ecs_cluster)-[:RUNS_SERVICE__aws_core]->(b:aws_core__aws_ecs_service)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -175,7 +114,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:ENCRYPTED_WITH_KEY__aws_core]->(b:aws_core__aws_kms_key)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -216,7 +155,7 @@
             "definition": {
               "query": [
                 "MATCH (a)-[:HELD_BY_HUMAN__identity_core]->(b:identity_core__human)",
-                "WHERE a.entity_type IN [\"aws_core__aws_organization\", \"aws_core__aws_account\", \"aws_core__aws_vpc\", \"aws_core__aws_subnet\", \"aws_core__aws_internet_gateway\", \"aws_core__aws_alb\", \"aws_core__aws_ecs_cluster\", \"aws_core__aws_ecs_service\", \"aws_core__aws_ecs_task\", \"aws_core__aws_rds_instance\", \"aws_core__aws_secrets_manager_secret\", \"aws_core__aws_kms_key\", \"aws_core__aws_ecr_repository\", \"aws_core__aws_route53_zone\", \"aws_core__aws_acm_certificate\", \"aws_core__aws_iam_oidc_provider\", \"identity_core__human\", \"computing_core__host\", \"computing_core__os_user\", \"github_core__github_platform\", \"github_core__github_account\", \"github_core__github_repository\", \"github_core__github_workflow\", \"github_core__github_actions_run\", \"github_core__github_package\", \"github_core__github_package_version\"]",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -364,26 +303,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13b55-c458-724a-b213-e62fc4c75dcc",
-            "entity_type": "search",
-            "name": "playground \u2014 landing federates",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground \u2014 landing federates",
-            "description": "Each repository and the AWS identity provider it federates through.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (a:github_core__github_repository)-[:FEDERATES_VIA_PROVIDER__github_core]->(b:aws_core__aws_iam_oidc_provider)",
-                "RETURN a, b"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
             "entity_type": "layout",
             "name": "Playground landing layout",
@@ -464,13 +383,13 @@
           "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
             "entity_type": "page",
-            "name": "Playground",
+            "name": "Overview",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Playground",
+            "name": "Overview",
             "slug": "/playground",
             "nav_weight": 100,
             "description": "The mock GovCloud deployment of git-serious at account elevation.",
@@ -487,6 +406,107 @@
                   }
                 }
               }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "entity_type": "search",
+            "name": "playground \u2014 landing belongs",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing belongs",
+            "description": "Each resource and the account that owns it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:BELONGS_TO_ACCOUNT__aws_core]->(b:aws_core__aws_account)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-592ec2e1b3bb",
+            "entity_type": "search",
+            "name": "playground \u2014 landing pipeline-source",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing pipeline-source",
+            "description": "Each pipeline and the bucket it retrieves its source from.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_codepipeline_pipeline)-[:RETRIEVES_SOURCE_FROM__aws_core]->(b:aws_core__aws_s3_bucket)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-5930c58832a8",
+            "entity_type": "search",
+            "name": "playground \u2014 landing pipeline-builds",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing pipeline-builds",
+            "description": "Each pipeline and the build projects it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_codepipeline_pipeline)-[:RUNS_BUILD__aws_core]->(b:aws_core__aws_codebuild_project)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-593236fb6e20",
+            "entity_type": "search",
+            "name": "playground \u2014 landing writes-object",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing writes-object",
+            "description": "Each Lambda function and the bucket it writes to.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_lambda)-[:WRITES_OBJECT__aws_core]->(b:aws_core__aws_s3_bucket)",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-5934e93e983b",
+            "entity_type": "search",
+            "name": "playground \u2014 landing retrieves-secret",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing retrieves-secret",
+            "description": "Each Lambda function and the secret it reads.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_lambda)-[:RETRIEVES_SECRET_FROM__aws_core]->(b:aws_core__aws_secrets_manager_secret)",
+                "RETURN a, b"
+              ]
             }
           }
         }
@@ -516,34 +536,6 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a13b2c-82d6-73d2-baa8-17353bda4c2c",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-1744ac51ee1c",
-            "entity_type": "edge",
-            "name": "panel USES_SEARCH search-enrolls",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
-            "to_entity_id": "01a13b2c-82d6-73d2-baa8-17366a8674bc",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-1745e8dd19a6",
-            "entity_type": "edge",
-            "name": "panel USES_SEARCH search-belongs",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
-            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
@@ -586,20 +578,6 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a13b2c-82d6-73d2-baa8-173ab1161fec",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13b2c-82d6-73d2-baa8-1749195e2362",
-            "entity_type": "edge",
-            "name": "panel USES_SEARCH search-runs",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
-            "to_entity_id": "01a13b2c-82d6-73d2-baa8-173bdba98cfa",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
@@ -746,20 +724,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13b55-c458-724a-b213-e63927189bac",
-            "entity_type": "edge",
-            "name": "panel USES_SEARCH search-federates",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
-            "to_entity_id": "01a13b55-c458-724a-b213-e62fc4c75dcc",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-174bd3444df3",
             "entity_type": "edge",
             "name": "projection USES_ELEVATION elevation",
@@ -836,6 +800,76 @@
                 "value": "landing"
               }
             }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13b2c-82d6-73d2-baa8-1745e8dd19a6",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-belongs",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13b2c-82d6-73d2-baa8-1737091bbce5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-592f82f76215",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-pipeline-source",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13c04-5129-712f-bc05-592ec2e1b3bb",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-5931c0c03318",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-pipeline-builds",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13c04-5129-712f-bc05-5930c58832a8",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-59330c655c10",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-writes-object",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13c04-5129-712f-bc05-593236fb6e20",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c04-5129-712f-bc05-5935968d1e92",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-retrieves-secret",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a13c04-5129-712f-bc05-5934e93e983b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
           }
         }
       ]
