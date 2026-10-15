@@ -36,9 +36,9 @@ vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "4b765ffe977af4b315ed465e88a62b74c987bcda44a7465d97fa8a870558ab97"
+sha256 = "360fdd249c2fa2f745522a1fa3bae3763377f7e588a9e3cc1db8799317b000ef"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "fcc53d9ac1f996f6812715740bf1fc63754391c6fa07e00497f00b57a695771d"
+sha256 = "828c8f069dae796e3d7ef8f1fdc644fa6fc588beebecc191572f45ccff7d44ab"
