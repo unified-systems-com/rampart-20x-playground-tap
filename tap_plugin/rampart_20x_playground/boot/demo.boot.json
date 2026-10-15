@@ -50,8 +50,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/computing-core-tap",
-          "rev": "v0.6.0",
-          "commit": "4e9f88f4fab84025cb026785311a2378a1e76ba8"
+          "rev": "v0.7.0",
+          "commit": "31dcbdc97aab29d16fb901673506c8291114c51e"
         }
       },
       {
@@ -70,8 +70,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.4.0",
-          "commit": "e5464e4dd87758d41552d45df42c0303b0de48e3"
+          "rev": "v0.5.0",
+          "commit": "3ef25716169977edad56a555cdfd893c891f85ef"
         }
       },
       {
