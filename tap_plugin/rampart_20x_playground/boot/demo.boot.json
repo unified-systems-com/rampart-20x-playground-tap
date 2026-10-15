@@ -70,8 +70,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.5.0",
-          "commit": "3ef25716169977edad56a555cdfd893c891f85ef"
+          "rev": "v0.6.0",
+          "commit": "71d63ccc3222f885410c5d31640d209c8986f234"
         }
       },
       {
