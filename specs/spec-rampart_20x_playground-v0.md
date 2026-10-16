@@ -71,7 +71,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
-| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Vulnerabilities, organized by source, Dependabot first |
+| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | A three-lane story of cards and charts; the table per source on a detail page |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -346,31 +346,37 @@ RID: `req-rampart-20x-playground-page-vulnerabilities`
 
 Status: `Proposed`
 
-The vulnerabilities, organized by source. Dependabot is the first source and the first section. The other
-sources are the code scanning tools that report on `tap`; on 2026-10-13 these were Trivy (container and OS
-packages such as glibc), Grype (every one of its 26 open alerts was for `openssl-fips-provider`) and SonarCloud
-(code findings), each shown as its own section. Read from the grid on 2026-10-14, the kept alerts carry a fourth
-tool, CodeQL (22 alerts, Python source findings), which has its own section as well. Which findings appear as `vdr_finding` entries, and how a source's
-alerts map onto one, is the open decision of `req-rampart-20x-playground-dependabot-pull-3`.
+The vulnerabilities page tells a story to someone who has just arrived: what is open, whether anyone is
+exploiting it, and where it lives and how much is already done. It is three lanes of cards and charts over the
+`compliance_core` vulnerability, scanner and finding nodes and the `computing_core` components they concern,
+not one table per tool. Every alert the scanners reported stays one click away on the detail page, which keeps
+the table per source: Dependabot first, then each code scanning tool, then the closed alerts with the dismissal
+reason as recorded.
 
 #### Implementation
 
-Route `/playground/vulnerabilities`; one Search and one existing table panel per source section. The Dependabot
-section reads the alert model of `req-rampart-20x-playground-dependabot-pull`; the code scanning sections read
-`github_core__code_scanning_alert` as `github_core` already collects it, one section per detecting tool. The
-mock findings of `req-rampart-20x-playground-mock-findings` are not assigned a section here; where they appear
-is left to the finding-entry decision.
+Route `/playground/vulnerabilities`, three lanes. Each opens with a text panel that asks the lane's question
+and a Stat Cards card, then charts: the first lane shows the open findings, their CVSS spread and which scanner
+found them; the second shows CISA's KEV count, CISA's SSVC exploitation assessment and a scatter of severity
+against publication time; the third shows the components with most open findings, an ecosystem treemap, what is
+already closed, and open against closed by scanner. The charts are Chart panels (`spec-web-panels-chart.md`) and
+the cards are Stat Cards panels, each bound by `USES_SEARCH` to one Search. The Searches reach scanners, findings,
+vulnerabilities and components by edge; none names a tool, a node id or a value. The detail page,
+`/playground/vulnerabilities/detail`, is the earlier page unchanged: one standard table panel and one Search per
+source. The enrichment bundle that supplies vulnerabilities and scanners is demo data until the CI SBOM
+delivers enriched vulnerabilities.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` returns 200 and renders one section per source. | |
-| req-rampart-20x-playground-page-vulnerabilities-2 | Dependabot First | Proposed | The first section on the page is Dependabot. | |
-| req-rampart-20x-playground-page-vulnerabilities-3 | One Section Per Source | Proposed | Each code scanning tool that has alerts for `tap` has its own section, and no alert appears in two sections. | |
-| req-rampart-20x-playground-page-vulnerabilities-4 | Sections Are Searches | Proposed | Each section is a standard table panel bound by `USES_SEARCH` to one Search and mounted by one `USES_PANEL` edge; a code scanning Search selects by `tool_name`, so the sections partition the code scanning alerts. | Data only: no JavaScript, no model, no edge of its own. |
-| req-rampart-20x-playground-page-vulnerabilities-5 | Open Only, Most Severe First, Real Data | Proposed | Each Search selects the open alerts only (`state` is `open`). Each panel opens sorted by its Severity column through the table panel's `initial_sort` and the `severityRank` sorter (critical first), with the Search's newest-first order as the tie-break. The page and its panels carry no `dcom` value and no text calling the data mock: the alerts are observed. | Ruled 2026-10-14 (open only, severity first); needs tap's table `initial_sort` and `severityRank` (`req-web-stdpanel-table-config-10`, `-11`). |
-| req-rampart-20x-playground-page-vulnerabilities-6 | Columns Are Fields | Proposed | Every column reads a field the alert model holds: Dependabot shows package, ecosystem, severity, state, advisory, alert link, fixed version, manifest and dates; code scanning shows tool, rule, severity, state, location, alert link and dates. | The finding's status is not a column: a table row is one node and the finding is one hop away, where Gryphon cannot order. |
+| req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` and `/playground/vulnerabilities/detail` return 200. | |
+| req-rampart-20x-playground-page-vulnerabilities-2 | Three Lanes | Proposed | The page has three lanes; each opens with a text panel and a Stat Cards card and then shows charts. | |
+| req-rampart-20x-playground-page-vulnerabilities-3 | No Tool In A Search | Proposed | No Search of the story page names a scanner or a node id. | The scanner is reached by edge. |
+| req-rampart-20x-playground-page-vulnerabilities-4 | Standard Vocabulary Only | Proposed | The story Searches read only `compliance_core` and `computing_core` types. | |
+| req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a card or chart config names is a RETURN alias of its Search. | |
+| req-rampart-20x-playground-page-vulnerabilities-6 | Charts Describe Themselves | Proposed | Every chart carries an accessible label and says what an empty result means. | |
+| req-rampart-20x-playground-page-vulnerabilities-7 | Detail Keeps The Tables | Proposed | The detail page shows one table per source, Dependabot first, open alerts most severe first, then the closed alerts with the dismissal reason and comment as recorded. | The earlier ACIDs 2 to 6. |
 
 ### VDR Reports Page
 ----
