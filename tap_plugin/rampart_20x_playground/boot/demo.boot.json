@@ -80,8 +80,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.13.0",
-          "commit": "dddae9baf958ce09a08be79b96a63b3c7ca86364"
+          "rev": "v0.13.1",
+          "commit": "32252db4c59e8a10a118d476435f1cb324f800f9"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
@@ -91,8 +91,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
-          "rev": "v0.3.1",
-          "commit": "3480c74dc8e95d410e8b05fc426157a5574f1874"
+          "rev": "v0.4.0",
+          "commit": "a29f112bb4a5feeb53f6783830e69716ac4c231d"
         }
       },
       {
