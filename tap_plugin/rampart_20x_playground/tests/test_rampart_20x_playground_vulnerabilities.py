@@ -45,6 +45,10 @@ class TestVulnerabilitiesPage:
     def _of(self, entity_type: str) -> list[dict]:
         return [n for n in self.nodes if n["entity"]["entity_type"] == entity_type]
 
+    def _tables(self) -> list[dict]:
+        """The seven raw alert tables of the detail page; the story page's cards and charts are not tables."""
+        return [p for p in self._of("panel") if p["node"]["view"] == "tap_web/panels/table_panel.html"]
+
     def _search_of(self, panel: dict) -> dict:
         links = [
             e for e in self.edges
@@ -61,22 +65,27 @@ class TestVulnerabilitiesPage:
         return self.by_id[edge["edge"]["to_entity_id"]]
 
     def test_route_and_title(self) -> None:
-        (page,) = self._of("page")
-        assert page["node"]["slug"] == "/playground/vulnerabilities"
-        assert page["node"]["name"] == "Vulnerabilities"
+        pages = {p["node"]["slug"]: p["node"]["name"] for p in self._of("page")}
+        assert pages == {
+            "/playground/vulnerabilities": "Vulnerabilities",
+            "/playground/vulnerabilities/detail": "Vulnerability detail",
+        }
 
     def test_open_sections_by_source_then_the_closed_pair(self) -> None:
-        (page,) = self._of("page")
+        (page,) = [p for p in self._of("page") if p["node"]["slug"].endswith("/detail")]
         rows = page["node"]["layout"]["columns"]["col-1"]["rows"]
         assert [rows[k]["panel-id"] for k in sorted(rows, key=lambda r: int(r.split("-")[1]))] == SLOTS
-        hotlinks = [e["edge"]["properties"]["hotlink"]["value"] for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"]
+        hotlinks = [
+            e["edge"]["properties"]["hotlink"]["value"]
+            for e in self.edges
+            if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["from_entity_id"] == page["entity"]["entity_id"]
+        ]
         assert sorted(hotlinks) == sorted(SLOTS)
 
     def test_each_panel_is_a_standard_table_with_one_search(self) -> None:
-        panels = self._of("panel")
-        assert len(panels) == len(self._of("search")) == len(SLOTS)
+        panels = self._tables()
+        assert len(panels) == len(SLOTS)
         for panel in panels:
-            assert panel["node"]["view"] == "tap_web/panels/table_panel.html"
             assert self._search_of(panel)["entity"]["entity_type"] == "search"
 
     def test_dependabot_search_reads_the_dependabot_alerts(self) -> None:
@@ -130,8 +139,8 @@ class TestVulnerabilitiesPage:
             assert config["initial_sort"] == [{"field": "data.created_at", "dir": "desc"}], slot
 
     def test_every_search_orders_newest_first(self) -> None:
-        for search in self._of("search"):
-            assert search["node"]["definition"]["query"][-1] == "ORDER BY n.data.created_at DESC"
+        for panel in self._tables():
+            assert self._search_of(panel)["node"]["definition"]["query"][-1] == "ORDER BY n.data.created_at DESC"
 
     def test_columns_read_fields_the_alert_models_hold(self) -> None:
         for slot in SLOTS:
@@ -145,7 +154,7 @@ class TestVulnerabilitiesPage:
             assert fields | href <= allowed, (slot, sorted((fields | href) - allowed))
 
     def test_every_column_explains_itself(self) -> None:
-        for panel in self._of("panel"):
+        for panel in self._tables():
             for column in panel["node"]["config"]["columns"]:
                 assert column["header_tooltip"], (panel["entity"]["name"], column["field"])
 
@@ -176,3 +185,104 @@ class TestVulnerabilitiesPage:
                 other |= {n["entity"]["entity_id"] for n in batch["nodes"] if "entity_id" in n["entity"]}
                 other |= {e["entity"]["entity_id"] for e in batch["edges"] if "entity_id" in e["entity"]}
         assert not other & set(ids)
+
+
+STORY_VIEWS = {
+    "tap_web/panels/chart.html", "tap_web/panels/stat_card_panel.html", "tap_web/panels/text_panel.html",
+}
+
+
+class TestVulnerabilityStory:
+    """The story page: lanes of cards and charts over the compliance_core nodes, and nothing hardcoded."""
+
+    def setup_method(self) -> None:
+        batch = _bundle()["batches"][0]
+        self.nodes = batch["nodes"]
+        self.edges = batch["edges"]
+        self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
+        (self.page,) = [n for n in self.nodes if n["entity"]["entity_type"] == "page"
+                        and n["node"]["slug"] == "/playground/vulnerabilities"]
+        self.panels = [n for n in self.nodes if n["entity"]["entity_type"] == "panel" and n["node"]["view"] in STORY_VIEWS]
+
+    def _search_of(self, panel: dict) -> dict | None:
+        links = [e for e in self.edges if e["edge"]["edge_type"] == "USES_SEARCH"
+                 and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]]
+        return self.by_id[links[0]["edge"]["to_entity_id"]] if links else None
+
+    def test_three_lanes_each_slot_wired_to_one_panel(self) -> None:
+        columns = self.page["node"]["layout"]["columns"]
+        assert sorted(columns) == ["col-1", "col-2", "col-3"]
+        slots = [row["panel-id"] for col in columns.values() for row in col["rows"].values()]
+        assert len(slots) == len(set(slots))
+        hotlinks = [e["edge"]["properties"]["hotlink"]["value"] for e in self.edges
+                    if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["from_entity_id"] == self.page["entity"]["entity_id"]]
+        assert sorted(hotlinks) == sorted(slots)
+        assert {p["node"]["slug"] for p in self.panels} == set(slots)
+
+    def test_every_lane_opens_with_a_text_panel_then_a_card(self) -> None:
+        by_slug = {p["node"]["slug"]: p for p in self.panels}
+        for col in self.page["node"]["layout"]["columns"].values():
+            first, second = (col["rows"][k]["panel-id"] for k in ("row-1", "row-2"))
+            assert by_slug[first]["node"]["view"] == "tap_web/panels/text_panel.html"
+            assert by_slug[second]["node"]["view"] == "tap_web/panels/stat_card_panel.html"
+
+    def test_cards_and_charts_read_a_search_and_text_panels_do_not(self) -> None:
+        for panel in self.panels:
+            search = self._search_of(panel)
+            assert (search is None) == (panel["node"]["view"] == "tap_web/panels/text_panel.html"), panel["entity"]["name"]
+
+    def test_no_search_names_a_scanner_or_a_node_id(self) -> None:
+        """Tools are nodes: the Searches reach scanners by edge, and the page never says which tool."""
+        for panel in self.panels:
+            search = self._search_of(panel)
+            if search is None:
+                continue
+            text = " ".join(search["node"]["definition"]["query"])
+            for tool in ("Trivy", "Grype", "SonarCloud", "CodeQL", "Dependabot"):
+                assert tool not in text, (panel["entity"]["name"], tool)
+            assert "entity_id =" not in text, panel["entity"]["name"]
+
+    def test_searches_use_the_standard_vocabulary_only(self) -> None:
+        allowed = {"compliance_core__", "computing_core__"}
+        for panel in self.panels:
+            search = self._search_of(panel)
+            if search is None:
+                continue
+            types = {t for line in search["node"]["definition"]["query"] for t in
+                     __import__("re").findall(r"[:\[]([a-z_]+__[A-Za-z_]+)", line)}
+            assert types and all(any(t.startswith(a) for a in allowed) for t in types), (panel["entity"]["name"], types)
+
+    def test_config_fields_are_row_aliases_the_search_returns(self) -> None:
+        import re
+
+        for panel in self.panels:
+            search = self._search_of(panel)
+            if search is None:
+                continue
+            returned = set(re.findall(r" AS (\w+)", " ".join(search["node"]["definition"]["query"])))
+            config = panel["node"]["config"]
+            used: set[str] = set()
+            if panel["node"]["view"].endswith("stat_card_panel.html"):
+                used |= {config["value_field"]} | {line["field"] for line in config.get("lines", [])}
+            else:
+                series = config["option"]["series"][0]
+                used |= {v for k, v in series.get("encode", {}).items() if isinstance(v, str)}
+                for v in series.get("encode", {}).values():
+                    if isinstance(v, list):
+                        used |= set(v)
+                if "series_by" in config:
+                    used |= {config["series_by"][k] for k in ("category", "series", "value")}
+                if "hierarchy" in config:
+                    used |= set(config["hierarchy"]["path"]) | {config["hierarchy"]["value"]}
+            assert used <= returned, (panel["entity"]["name"], sorted(used - returned))
+
+    def test_every_chart_describes_itself_and_says_what_an_empty_result_means(self) -> None:
+        for panel in self.panels:
+            if panel["node"]["view"] != "tap_web/panels/chart.html":
+                continue
+            config = panel["node"]["config"]
+            assert config.get("aria_label") and config.get("empty_text"), panel["entity"]["name"]
+
+    def test_the_story_is_observed_data_not_framed_as_mock(self) -> None:
+        for node in self.nodes:
+            assert "dcom" not in node["entity"]["dimensions"], node["entity"]["name"]

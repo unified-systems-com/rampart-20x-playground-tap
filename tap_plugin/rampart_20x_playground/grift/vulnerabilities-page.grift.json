@@ -8,24 +8,24 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.1.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.2.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.1.0",
-        "description": "The /playground/vulnerabilities page: a standard table panel per source (Dependabot, then each code scanning tool) and two for the closed alerts, each bound by USES_SEARCH to a Search over the observed alerts of unified-systems-com/tap (req-rampart-20x-playground-page-vulnerabilities). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
+        "name": "rampart-20x-playground vulnerabilities page v0.2.0",
+        "description": "The /playground/vulnerabilities story page: three lanes of cards and charts over the compliance_core vulnerability, scanner and finding nodes (what is open, whether it is being exploited, where it lives and what is done), and the /playground/vulnerabilities/detail page that keeps the seven raw alert tables. Charts and cards read Searches; nothing names a scanner, a node id or a value."
       },
       "nodes": [
         {
           "entity": {
             "entity_id": "01a13c36-8c0d-7c03-b3ca-9cb73e3d4183",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities dependabot",
+            "name": "playground — vulnerabilities dependabot",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities dependabot",
+            "name": "playground — vulnerabilities dependabot",
             "description": "Every open Dependabot alert on the grid, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
@@ -161,11 +161,11 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7a2b-9bad-50d845974438",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities codeql",
+            "name": "playground — vulnerabilities codeql",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities codeql",
+            "name": "playground — vulnerabilities codeql",
             "description": "Every open code scanning alert whose tool is CodeQL, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
@@ -302,11 +302,11 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-72b9-8988-f87cdf67a36d",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities grype",
+            "name": "playground — vulnerabilities grype",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities grype",
+            "name": "playground — vulnerabilities grype",
             "description": "Every open code scanning alert whose tool is Grype, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
@@ -443,11 +443,11 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7a8d-b95b-25a74fef786a",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities sonarcloud",
+            "name": "playground — vulnerabilities sonarcloud",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities sonarcloud",
+            "name": "playground — vulnerabilities sonarcloud",
             "description": "Every open code scanning alert whose tool is SonarCloud, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
@@ -584,11 +584,11 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7ed1-ab32-2800343665a5",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities trivy",
+            "name": "playground — vulnerabilities trivy",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities trivy",
+            "name": "playground — vulnerabilities trivy",
             "description": "Every open code scanning alert whose tool is Trivy, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
             "search_type": "gryphon",
             "root": "node",
@@ -725,15 +725,15 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "entity_type": "page",
-            "name": "Vulnerabilities",
+            "name": "Vulnerability detail",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Vulnerabilities",
-            "slug": "/playground/vulnerabilities",
-            "description": "The vulnerabilities on the grid as the scanners reported them: the open alerts one table per source, Dependabot first and then each code scanning tool, most severe first; then the closed alerts, fixed and dismissed, with the dismissal reason as recorded.",
+            "name": "Vulnerability detail",
+            "slug": "/playground/vulnerabilities/detail",
+            "description": "Every alert the scanners reported: the open ones one table per source, most severe first, then the closed ones with the dismissal reason as recorded. The overview is at /playground/vulnerabilities.",
             "layout": {
               "columns": {
                 "col-1": {
@@ -777,11 +777,11 @@
           "entity": {
             "entity_id": "01a13fb1-faaf-7caa-8124-a7e3ad4797b4",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities closed-dependabot",
+            "name": "playground — vulnerabilities closed-dependabot",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities closed-dependabot",
+            "name": "playground — vulnerabilities closed-dependabot",
             "description": "Every Dependabot alert on the grid that is no longer open, newest first, with the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
             "search_type": "gryphon",
             "root": "node",
@@ -924,11 +924,11 @@
           "entity": {
             "entity_id": "01a13fb1-faaf-79df-b282-66b133564037",
             "entity_type": "search",
-            "name": "playground \u2014 vulnerabilities closed-code-scanning",
+            "name": "playground — vulnerabilities closed-code-scanning",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 vulnerabilities closed-code-scanning",
+            "name": "playground — vulnerabilities closed-code-scanning",
             "description": "Every code scanning alert on the grid that is no longer open, newest first, with the tool and the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
             "search_type": "gryphon",
             "root": "node",
@@ -1060,6 +1060,937 @@
               ]
             }
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-83e2-7b4a-aa77-96a06de66ff9",
+            "entity_type": "panel",
+            "name": "What is open",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "What is open",
+            "slug": "playground-vulnerabilities-l1-lede",
+            "description": "Every open finding that concerns a published vulnerability, as the scanners report it today. How many, how severe, and w",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "text": "Every open finding that concerns a published vulnerability, as the scanners report it today. How many, how severe, and who found them."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
+            "entity_type": "panel",
+            "name": "Open findings",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open findings",
+            "slug": "playground-vulnerabilities-open",
+            "description": "The open findings that concern a vulnerability, and the highest CVSS score among them.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "findings",
+              "value_formatter": "integer",
+              "unit": "to work through",
+              "tone": "warn",
+              "lines": [
+                {
+                  "label": "Highest CVSS score",
+                  "field": "top",
+                  "formatter": "number"
+                }
+              ],
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-208e-7bf0-83a2-33cf971e14f9",
+            "entity_type": "search",
+            "name": "playground — story card-open",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story card-open",
+            "description": "Open findings that concern a vulnerability, and the highest CVSS score among them.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN COUNT(f) AS findings, MAX(v.data.cvss_score) AS top"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
+            "entity_type": "panel",
+            "name": "How severe: CVSS score",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "How severe: CVSS score",
+            "slug": "playground-vulnerabilities-cvss",
+            "description": "Open findings by the CVSS base score of their vulnerability. Colours follow the usual bands: low, medium, high, critical.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "axis",
+                  "formatter": "CVSS {b}: {@n} findings"
+                },
+                "grid": {
+                  "left": 48,
+                  "right": 16,
+                  "top": 24,
+                  "bottom": 40
+                },
+                "xAxis": {
+                  "type": "category",
+                  "name": "CVSS base score",
+                  "nameLocation": "middle",
+                  "nameGap": 28
+                },
+                "yAxis": {
+                  "type": "value",
+                  "minInterval": 1,
+                  "name": "findings",
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "visualMap": {
+                  "show": false,
+                  "type": "piecewise",
+                  "dimension": "cvss",
+                  "pieces": [
+                    {
+                      "lt": 4,
+                      "color": "#2f9e6b"
+                    },
+                    {
+                      "gte": 4,
+                      "lt": 7,
+                      "color": "#d9a400"
+                    },
+                    {
+                      "gte": 7,
+                      "lt": 9,
+                      "color": "#e0662d"
+                    },
+                    {
+                      "gte": 9,
+                      "color": "#c0392b"
+                    }
+                  ]
+                },
+                "series": [
+                  {
+                    "type": "bar",
+                    "encode": {
+                      "x": "cvss",
+                      "y": "n"
+                    },
+                    "barMaxWidth": 28
+                  }
+                ]
+              },
+              "types": {
+                "cvss": "number",
+                "n": "number"
+              },
+              "sort": {
+                "field": "cvss",
+                "order": "asc"
+              },
+              "height": 280,
+              "aria_label": "Open findings by CVSS base score",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-a281-7bab-af01-e8168adb7c1b",
+            "entity_type": "search",
+            "name": "playground — story cvss-spread",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story cvss-spread",
+            "description": "Open findings by the CVSS base score of their vulnerability.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN v.data.cvss_score AS cvss, COUNT(f) AS n",
+                "ORDER BY cvss ASC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
+            "entity_type": "panel",
+            "name": "Who found them",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Who found them",
+            "slug": "playground-vulnerabilities-found-by",
+            "description": "Open findings by the scanner that reported them.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "item",
+                  "formatter": "{b}: {@c} open ({d}%)"
+                },
+                "legend": {
+                  "bottom": 0
+                },
+                "series": [
+                  {
+                    "type": "pie",
+                    "radius": [
+                      "48%",
+                      "72%"
+                    ],
+                    "center": [
+                      "50%",
+                      "46%"
+                    ],
+                    "encode": {
+                      "itemName": "scanner",
+                      "value": "c"
+                    },
+                    "label": {
+                      "formatter": "{b}\n{@c}"
+                    },
+                    "avoidLabelOverlap": true
+                  }
+                ]
+              },
+              "types": {
+                "c": "number"
+              },
+              "height": 300,
+              "aria_label": "Open findings by scanner",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-d39f-74dd-a4dd-0c2308bb990b",
+            "entity_type": "search",
+            "name": "playground — story found-by",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story found-by",
+            "description": "Open findings by the scanner that reported them.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (s:compliance_core__compliance_scanner)-[:DETECTS_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
+                "RETURN s.data.name AS scanner, COUNT(f) AS c"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-3be2-7f67-a75e-2ddd2534c2c7",
+            "entity_type": "panel",
+            "name": "Is anyone exploiting it?",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Is anyone exploiting it?",
+            "slug": "playground-vulnerabilities-l2-lede",
+            "description": "Whether the vulnerabilities behind the open findings are known to be used in attacks, by CISA's own catalog and its expl",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "text": "Whether the vulnerabilities behind the open findings are known to be used in attacks, by CISA's own catalog and its exploitation assessment, and where each one sits by severity and age."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
+            "entity_type": "panel",
+            "name": "On the CISA exploited list",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "On the CISA exploited list",
+            "slug": "playground-vulnerabilities-kev",
+            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "kev",
+              "value_formatter": "integer",
+              "unit": "open findings",
+              "tone": {
+                "field": "kev",
+                "map": {
+                  "0": "good"
+                },
+                "default": "bad"
+              },
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
+            "entity_type": "search",
+            "name": "playground — story card-kev",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story card-kev",
+            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND v.data.kev = true",
+                "RETURN COUNT(f) AS kev"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
+            "entity_type": "panel",
+            "name": "CISA exploitation assessment",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "CISA exploitation assessment",
+            "slug": "playground-vulnerabilities-exploitation",
+            "description": "Open findings by the exploitation value in CISA's SSVC assessment of their vulnerability. Not observed means CISA has no assessment on record.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "item",
+                  "formatter": "{b}: {@c} findings"
+                },
+                "grid": {
+                  "left": 110,
+                  "right": 24,
+                  "top": 16,
+                  "bottom": 32
+                },
+                "xAxis": {
+                  "type": "value",
+                  "minInterval": 1,
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "yAxis": {
+                  "type": "category",
+                  "inverse": true
+                },
+                "series": [
+                  {
+                    "type": "bar",
+                    "encode": {
+                      "x": "c",
+                      "y": "exploitation"
+                    },
+                    "barMaxWidth": 30,
+                    "label": {
+                      "show": true,
+                      "position": "right",
+                      "formatter": "{@c}"
+                    }
+                  }
+                ]
+              },
+              "color_map": {
+                "field": "exploitation",
+                "map": {
+                  "none": "good",
+                  "poc": "warn",
+                  "active": "bad"
+                },
+                "default": "muted"
+              },
+              "types": {
+                "c": "number"
+              },
+              "height": 200,
+              "aria_label": "Open findings by CISA SSVC exploitation assessment",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-ab55-73b7-8597-123256f01197",
+            "entity_type": "search",
+            "name": "playground — story exploitation",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story exploitation",
+            "description": "Open findings by CISA's SSVC exploitation assessment of their vulnerability.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN v.data.ssvc_exploitation AS exploitation, COUNT(f) AS c"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
+            "entity_type": "panel",
+            "name": "Severity against age",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Severity against age",
+            "slug": "playground-vulnerabilities-risk-map",
+            "description": "Each dot is one vulnerability with an open finding: when it was published against its CVSS score. Bigger dots have more findings.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "item"
+                },
+                "grid": {
+                  "left": 48,
+                  "right": 24,
+                  "top": 24,
+                  "bottom": 44
+                },
+                "xAxis": {
+                  "type": "time",
+                  "name": "published",
+                  "nameLocation": "middle",
+                  "nameGap": 30,
+                  "splitLine": {
+                    "show": false
+                  }
+                },
+                "yAxis": {
+                  "type": "value",
+                  "min": 0,
+                  "max": 10,
+                  "name": "CVSS",
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "visualMap": {
+                  "show": false,
+                  "type": "continuous",
+                  "dimension": "n",
+                  "min": 1,
+                  "max": 6,
+                  "inRange": {
+                    "symbolSize": [
+                      10,
+                      30
+                    ]
+                  }
+                },
+                "series": [
+                  {
+                    "type": "scatter",
+                    "encode": {
+                      "x": "published",
+                      "y": "cvss",
+                      "tooltip": [
+                        "id",
+                        "cvss",
+                        "published",
+                        "n"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "types": {
+                "published": "time",
+                "cvss": "number",
+                "n": "number"
+              },
+              "height": 320,
+              "aria_label": "Vulnerabilities with an open finding, by publication time and CVSS score",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
+            "entity_type": "search",
+            "name": "playground — story risk-map",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story risk-map",
+            "description": "One row per vulnerability with an open finding: its score, publication time and how many findings it has.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN v.data.vuln_id AS id, v.data.cvss_score AS cvss, v.data.published_at AS published, COUNT(f) AS n"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-62e8-78bd-abde-19899dc12a2e",
+            "entity_type": "panel",
+            "name": "Where it lives, and what is done",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Where it lives, and what is done",
+            "slug": "playground-vulnerabilities-l3-lede",
+            "description": "Which components carry the open findings, and how much has already been fixed or dismissed. The full list of alerts is o",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "text": "Which components carry the open findings, and how much has already been fixed or dismissed. The full list of alerts is on the detail page at /playground/vulnerabilities/detail."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
+            "entity_type": "panel",
+            "name": "Already closed",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Already closed",
+            "slug": "playground-vulnerabilities-closed",
+            "description": "Findings that are no longer open: fixed or dismissed at the source.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "closed",
+              "value_formatter": "integer",
+              "unit": "closed",
+              "tone": "good",
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-f99c-7ae4-8da0-cec0dadc43bd",
+            "entity_type": "search",
+            "name": "playground — story card-closed",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story card-closed",
+            "description": "Findings that are no longer open: fixed or dismissed at the source.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding) WHERE f.data.status = \"resolved\"",
+                "RETURN COUNT(f) AS closed"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9697-7b28-9a51-cce547e62b96",
+            "entity_type": "panel",
+            "name": "Components with the most open findings",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Components with the most open findings",
+            "slug": "playground-vulnerabilities-top-components",
+            "description": "The ten components carrying the most open findings.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "item",
+                  "formatter": "{b}: {@c} open"
+                },
+                "grid": {
+                  "left": 140,
+                  "right": 32,
+                  "top": 8,
+                  "bottom": 24
+                },
+                "xAxis": {
+                  "type": "value",
+                  "minInterval": 1,
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "yAxis": {
+                  "type": "category",
+                  "inverse": true
+                },
+                "series": [
+                  {
+                    "type": "bar",
+                    "encode": {
+                      "x": "c",
+                      "y": "component"
+                    },
+                    "barMaxWidth": 22,
+                    "label": {
+                      "show": true,
+                      "position": "right",
+                      "formatter": "{@c}"
+                    }
+                  }
+                ]
+              },
+              "types": {
+                "c": "number"
+              },
+              "height": 320,
+              "aria_label": "Open findings by component, top ten",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-c53e-711c-b13f-38b9c6f403b9",
+            "entity_type": "search",
+            "name": "playground — story top-components",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story top-components",
+            "description": "The components with the most open findings.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
+                "RETURN c.data.name AS component, COUNT(f) AS c",
+                "ORDER BY c DESC LIMIT 10"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
+            "entity_type": "panel",
+            "name": "Open findings by ecosystem",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open findings by ecosystem",
+            "slug": "playground-vulnerabilities-tree",
+            "description": "Open findings per component, grouped by the package ecosystem; the area is the number of findings.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "item",
+                  "formatter": "{b}: {c}"
+                },
+                "series": [
+                  {
+                    "type": "treemap",
+                    "roam": false,
+                    "nodeClick": false,
+                    "breadcrumb": {
+                      "show": false
+                    },
+                    "label": {
+                      "formatter": "{b}"
+                    },
+                    "upperLabel": {
+                      "show": true,
+                      "height": 22
+                    }
+                  }
+                ]
+              },
+              "hierarchy": {
+                "path": [
+                  "ecosystem",
+                  "component"
+                ],
+                "value": "c"
+              },
+              "types": {
+                "c": "number"
+              },
+              "height": 300,
+              "aria_label": "Open findings by ecosystem and component",
+              "empty_text": "No open findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-8cb0-7aac-95e3-62e6ff76573c",
+            "entity_type": "search",
+            "name": "playground — story component-tree",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story component-tree",
+            "description": "Open findings per component, grouped by ecosystem.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
+                "RETURN c.data.ecosystem AS ecosystem, c.data.name AS component, COUNT(f) AS c"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
+            "entity_type": "panel",
+            "name": "Open and closed, by scanner",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open and closed, by scanner",
+            "slug": "playground-vulnerabilities-remediation",
+            "description": "Every finding each scanner has reported, split into still open and already closed.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "axis",
+                  "axisPointer": {
+                    "type": "shadow"
+                  }
+                },
+                "legend": {
+                  "bottom": 0
+                },
+                "grid": {
+                  "left": 48,
+                  "right": 16,
+                  "top": 16,
+                  "bottom": 52
+                },
+                "xAxis": {
+                  "type": "category",
+                  "axisLabel": {
+                    "interval": 0
+                  }
+                },
+                "yAxis": {
+                  "type": "value",
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "series": [
+                  {
+                    "type": "bar",
+                    "stack": "total",
+                    "barMaxWidth": 40
+                  }
+                ]
+              },
+              "series_by": {
+                "category": "scanner",
+                "series": "status",
+                "value": "c",
+                "order": [
+                  "open",
+                  "resolved"
+                ]
+              },
+              "color_map": {
+                "map": {
+                  "open": "bad",
+                  "resolved": "good"
+                }
+              },
+              "types": {
+                "c": "number"
+              },
+              "height": 300,
+              "aria_label": "Findings by scanner, open and resolved",
+              "empty_text": "No findings.",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-e7a9-710e-a2ed-620c2d685815",
+            "entity_type": "search",
+            "name": "playground — story remediation",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — story remediation",
+            "description": "Every finding by scanner and whether it is still open.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (s:compliance_core__compliance_scanner)-[:DETECTS_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)",
+                "RETURN s.data.name AS scanner, f.data.status AS status, COUNT(f) AS c"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "entity_type": "page",
+            "name": "Vulnerabilities",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Vulnerabilities",
+            "slug": "/playground/vulnerabilities",
+            "description": "What the scanners found, whether it is being used against anyone, where it lives and how much is already fixed. Charts first; every alert is on the detail page.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "4fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-l1-lede",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-open",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "playground-vulnerabilities-cvss",
+                      "height": "auto"
+                    },
+                    "row-4": {
+                      "panel-id": "playground-vulnerabilities-found-by",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "4fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-l2-lede",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-kev",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "playground-vulnerabilities-exploitation",
+                      "height": "auto"
+                    },
+                    "row-4": {
+                      "panel-id": "playground-vulnerabilities-risk-map",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "4fr",
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-l3-lede",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-closed",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "playground-vulnerabilities-top-components",
+                      "height": "auto"
+                    },
+                    "row-4": {
+                      "panel-id": "playground-vulnerabilities-tree",
+                      "height": "auto"
+                    },
+                    "row-5": {
+                      "panel-id": "playground-vulnerabilities-remediation",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       ],
       "edges": [
@@ -1067,7 +1998,7 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7853-9659-eff92ea65db1",
             "entity_type": "edge",
-            "name": "Dependabot USES_SEARCH playground \u2014 vulnerabilities dependabot",
+            "name": "Dependabot USES_SEARCH playground — vulnerabilities dependabot",
             "dimensions": {}
           },
           "edge": {
@@ -1101,7 +2032,7 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-711c-8c89-644002f12e30",
             "entity_type": "edge",
-            "name": "CodeQL USES_SEARCH playground \u2014 vulnerabilities codeql",
+            "name": "CodeQL USES_SEARCH playground — vulnerabilities codeql",
             "dimensions": {}
           },
           "edge": {
@@ -1135,7 +2066,7 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-79aa-ad6c-5012e57e2e98",
             "entity_type": "edge",
-            "name": "Grype USES_SEARCH playground \u2014 vulnerabilities grype",
+            "name": "Grype USES_SEARCH playground — vulnerabilities grype",
             "dimensions": {}
           },
           "edge": {
@@ -1169,7 +2100,7 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-7ba4-94b5-e2d39f7975c8",
             "entity_type": "edge",
-            "name": "SonarCloud USES_SEARCH playground \u2014 vulnerabilities sonarcloud",
+            "name": "SonarCloud USES_SEARCH playground — vulnerabilities sonarcloud",
             "dimensions": {}
           },
           "edge": {
@@ -1203,7 +2134,7 @@
           "entity": {
             "entity_id": "01a13c36-8c0d-70fa-9723-4c6dd528a268",
             "entity_type": "edge",
-            "name": "Trivy USES_SEARCH playground \u2014 vulnerabilities trivy",
+            "name": "Trivy USES_SEARCH playground — vulnerabilities trivy",
             "dimensions": {}
           },
           "edge": {
@@ -1237,7 +2168,7 @@
           "entity": {
             "entity_id": "01a13fb1-faaf-713d-bce9-656cad41b354",
             "entity_type": "edge",
-            "name": "Closed Dependabot USES_SEARCH playground \u2014 vulnerabilities closed-dependabot",
+            "name": "Closed Dependabot USES_SEARCH playground — vulnerabilities closed-dependabot",
             "dimensions": {}
           },
           "edge": {
@@ -1271,7 +2202,7 @@
           "entity": {
             "entity_id": "01a13fb1-faaf-7ef1-8b36-39a1a62e4487",
             "entity_type": "edge",
-            "name": "Closed code scanning USES_SEARCH playground \u2014 vulnerabilities closed-code-scanning",
+            "name": "Closed code scanning USES_SEARCH playground — vulnerabilities closed-code-scanning",
             "dimensions": {}
           },
           "edge": {
@@ -1297,6 +2228,406 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "closed-code-scanning"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-add3-74a9-98ab-ba7e8f9aa8d9",
+            "entity_type": "edge",
+            "name": "Open findings USES_SEARCH story card-open",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
+            "to_entity_id": "01a13fc0-208e-7bf0-83a2-33cf971e14f9",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-6067-7520-b05c-0ad85a5f025b",
+            "entity_type": "edge",
+            "name": "How severe: CVSS score USES_SEARCH story cvss-spread",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
+            "to_entity_id": "01a13fc0-a281-7bab-af01-e8168adb7c1b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9545-7479-a95a-a0b74267d020",
+            "entity_type": "edge",
+            "name": "Who found them USES_SEARCH story found-by",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
+            "to_entity_id": "01a13fc0-d39f-74dd-a4dd-0c2308bb990b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-a687-79d0-b79b-551cf475e9fb",
+            "entity_type": "edge",
+            "name": "On the CISA exploited list USES_SEARCH story card-kev",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
+            "to_entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-2440-7645-9261-c1cf7f8e9c87",
+            "entity_type": "edge",
+            "name": "CISA exploitation assessment USES_SEARCH story exploitation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
+            "to_entity_id": "01a13fc0-ab55-73b7-8597-123256f01197",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-2b31-7eaa-ab1b-8e33542c4af1",
+            "entity_type": "edge",
+            "name": "Severity against age USES_SEARCH story risk-map",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
+            "to_entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-4d55-795e-87bd-aa49fec83230",
+            "entity_type": "edge",
+            "name": "Already closed USES_SEARCH story card-closed",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
+            "to_entity_id": "01a13fc0-f99c-7ae4-8da0-cec0dadc43bd",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0124-75b5-9089-8b2a7acd1a92",
+            "entity_type": "edge",
+            "name": "Components with the most open findings USES_SEARCH story top-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-9697-7b28-9a51-cce547e62b96",
+            "to_entity_id": "01a13fc0-c53e-711c-b13f-38b9c6f403b9",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0ef9-768f-82dc-39f20830c495",
+            "entity_type": "edge",
+            "name": "Open findings by ecosystem USES_SEARCH story component-tree",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
+            "to_entity_id": "01a13fc0-8cb0-7aac-95e3-62e6ff76573c",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-5986-7b38-b39e-5b6d2e14c512",
+            "entity_type": "edge",
+            "name": "Open and closed, by scanner USES_SEARCH story remediation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
+            "to_entity_id": "01a13fc0-e7a9-710e-a2ed-620c2d685815",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0490-76e1-b090-7c402bc9451c",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL l1-lede",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-83e2-7b4a-aa77-96a06de66ff9",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-l1-lede"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-131a-7a64-b430-e4e458c7438c",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL open",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-open"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-45eb-7eea-afc7-686f3c93f367",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL cvss",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-cvss"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-294a-759f-8743-b2b2f3ed158e",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL found-by",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-found-by"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-29b4-7231-8893-5a47655acbd5",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL l2-lede",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-3be2-7f67-a75e-2ddd2534c2c7",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-l2-lede"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-d769-7111-ab6f-0079197fde5f",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL kev",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-kev"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-b780-7f7d-938a-d8703cd0d655",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL exploitation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-exploitation"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-c0c0-739f-af76-77d018717655",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL risk-map",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-risk-map"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-39f0-7590-a50b-f3c4d835dcde",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL l3-lede",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-62e8-78bd-abde-19899dc12a2e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-l3-lede"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-796a-70d8-897b-005be69ad14f",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL closed",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-closed"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-69ab-7c6a-9ffb-289808521bde",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL top-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-9697-7b28-9a51-cce547e62b96",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-top-components"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-a438-7481-8a1b-61cf4ae640a3",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL tree",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-tree"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-1310-74be-a68c-f271e8c1f2f9",
+            "entity_type": "edge",
+            "name": "Playground vulnerabilities story USES_PANEL remediation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-remediation"
               }
             }
           }
