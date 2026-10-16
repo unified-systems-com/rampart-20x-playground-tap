@@ -199,10 +199,16 @@ class BundleTests(unittest.TestCase):
         alerts = enrich.load_batch(GRIFT / "security-alerts.grift.json")
         inventory = enrich.load_batch(GRIFT / "inventory-software.grift.json")
         batch, report = enrich.build(alerts, inventory, enrich.load_cache(), enrich.load_kev())
-        known = {n["entity"]["entity_id"] for b in (alerts, inventory, batch) for n in b["nodes"]}
+        # A row the SBOM parser wrote is named by a batch-local ref; an edge end is an id or a ref of a row in `batch`.
+        ids = {n["entity"]["entity_id"] for b in (alerts, inventory, batch) for n in b["nodes"] if "entity_id" in n["entity"]}
+        refs = {n["entity"]["ref"] for n in batch["nodes"] if "ref" in n["entity"]}
         for e in batch["edges"]:
-            self.assertIn(e["edge"]["from_entity_id"], known)
-            self.assertIn(e["edge"]["to_entity_id"], known)
+            for side in ("from", "to"):
+                body = e["edge"]
+                if f"{side}_ref" in body:
+                    self.assertIn(body[f"{side}_ref"], refs)
+                else:
+                    self.assertIn(body[f"{side}_entity_id"], ids)
         self.assertEqual(report["failures"], [])
 
 

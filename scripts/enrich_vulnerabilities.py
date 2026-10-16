@@ -297,6 +297,16 @@ def node(entity_id: str, entity_type: str, name: str, dims: dict, body: dict) ->
             "node": body}
 
 
+# Inventory rows the SBOM parser wrote carry a batch-local ref, not an entity id, and a ref cannot name a row in
+# another batch. A component linked from here is therefore written into this batch again, as the same row with the
+# same natural key, so the import merges it into the inventory's node. `REFS` holds those tokens.
+REFS: set[str] = set()
+
+
+def end(side: str, token: str) -> dict:
+    return {f"{side}_ref" if token in REFS else f"{side}_entity_id": token}
+
+
 def edge(from_id: str, to_id: str, edge_type: str, dims: dict, props: dict | None = None) -> dict:
     return {
         "entity": {
@@ -305,7 +315,7 @@ def edge(from_id: str, to_id: str, edge_type: str, dims: dict, props: dict | Non
             "name": f"{from_id} --[{edge_type}]--> {to_id}",
             "dimensions": dims,
         },
-        "edge": {"from_entity_id": from_id, "to_entity_id": to_id, "edge_type": edge_type, "properties": props or {}},
+        "edge": {**end("from", from_id), **end("to", to_id), "edge_type": edge_type, "properties": props or {}},
     }
 
 
@@ -355,10 +365,16 @@ def build(alerts_batch: dict, inventory_batch: dict, cache: dict, kev: dict | No
 
     # Inventory components by (ecosystem, normalised name, version), both packages and libraries.
     inventory = {}
+    inventory_rows = {}
+    REFS.clear()
     for n in inventory_batch["nodes"]:
         if n["entity"]["entity_type"] in ("computing_core__package", "computing_core__library"):
             b = n["node"]
-            inventory[(b["ecosystem"], norm_name(b["ecosystem"], b["name"]), b["version"])] = n["entity"]["entity_id"]
+            token = n["entity"].get("entity_id") or n["entity"]["ref"]
+            if "ref" in n["entity"] and "entity_id" not in n["entity"]:
+                REFS.add(token)
+            inventory[(b["ecosystem"], norm_name(b["ecosystem"], b["name"]), b["version"])] = token
+            inventory_rows[token] = n
 
     stats = defaultdict(Counter)
     parsed = []  # one per alert that has a vulnerability
@@ -443,12 +459,16 @@ def build(alerts_batch: dict, inventory_batch: dict, cache: dict, kev: dict | No
         nodes.append(node(nid("scanner", key), "compliance_core__compliance_scanner", name,
                           {"compliance": "scanner"}, {"scanner_key": key, "name": name}))
 
+    linked = {cid for p in parsed for cid in p["components"]}
+    for token in sorted(linked & REFS):
+        nodes.append(inventory_rows[token])  # the inventory's own row, so the import merges on its natural key
     for c, cid in sorted(minted.items()):
         eco, name, version = c
         etype = "computing_core__library" if eco == "generic" else "computing_core__package"
-        nodes.append(node(cid, etype, name, {"tap.computing": "runtime"},
-                          {"ecosystem": eco, "name": name, "version": version,
-                           "source_document": "code scanning alert"}))
+        body = {"ecosystem": eco, "name": name, "version": version}
+        if etype == "computing_core__package":  # a library row has no source_document field
+            body["source_document"] = "code scanning alert"
+        nodes.append(node(cid, etype, name, {"tap.computing": "runtime"}, body))
 
     for p in sorted(parsed, key=lambda q: (q["vuln"], q["finding"])):
         edges.append(edge(p["finding"], vuln_ids[p["vuln"]], "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
@@ -528,7 +548,7 @@ def reconcile(report: dict, batch: dict) -> bool:
     print(f"findings with a vulnerability: {len(report['parsed'])}  of those with a component: {with_comp}  "
           f"Dependabot with none: {report['dependabot_unlinked']}")
     print(f"components: reused from the inventory {len(report['reused'])}, minted {len(report['minted'])}")
-    ids = [n["entity"]["entity_id"] for n in batch["nodes"]]
+    ids = [n["entity"].get("entity_id") or n["entity"]["ref"] for n in batch["nodes"]]
     ok &= len(ids) == len(set(ids))
     inbound = Counter(e["edge"]["to_entity_id"] for e in batch["edges"]
                       if e["edge"]["edge_type"].startswith("DETECTS"))
