@@ -173,6 +173,6 @@ class TestVulnerabilitiesPage:
                 continue
             for batch in json.loads(path.read_text(encoding="utf-8"))["batches"]:
                 other.add(batch["batch_entity"]["entity_id"])
-                other |= {n["entity"]["entity_id"] for n in batch["nodes"]}
-                other |= {e["entity"]["entity_id"] for e in batch["edges"]}
+                other |= {n["entity"]["entity_id"] for n in batch["nodes"] if "entity_id" in n["entity"]}
+                other |= {e["entity"]["entity_id"] for e in batch["edges"] if "entity_id" in e["entity"]}
         assert not other & set(ids)

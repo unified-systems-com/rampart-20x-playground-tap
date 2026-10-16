@@ -42,6 +42,13 @@ SOFTWARE_EDGES = {
         {"computing_core__library", "computing_core__package", "computing_core__program"},
         {"computing_core__crypto_provider"},
     ),
+    # The three the parser emits from the SBOM (`parse_cyclonedx`).
+    "REQUIRES_PACKAGE__computing_core": ({"computing_core__package"}, {"computing_core__package"}),
+    "DERIVES_FROM_SOURCE_PACKAGE__computing_core": (
+        {"computing_core__package"},
+        {"computing_core__source_package"},
+    ),
+    "DESCRIBES_HOST__computing_core": ({"computing_core__sbom_document"}, {"computing_core__host"}),
 }
 # The `inventory` value of each software node type.
 SOFTWARE_CATEGORY = {
@@ -51,6 +58,8 @@ SOFTWARE_CATEGORY = {
     "computing_core__crypto_provider": "crypto",
     "computing_core__host": "containers",
 }
+# The types the SBOM adds: no table shows them, so they carry no `inventory` value.
+SBOM_ONLY_TYPES = {"computing_core__source_package", "computing_core__sbom_document"}
 UNLISTED_TYPES = (
     "aws_core__aws_vpc",
     "aws_core__aws_subnet",
@@ -69,6 +78,16 @@ def _nodes(name: str) -> list[dict]:
 
 def _edges(name: str) -> list[dict]:
     return [edge for batch in _load(name)["batches"] for edge in batch["edges"]]
+
+
+def _id(entity: dict) -> str:
+    """A row's identity inside its bundle: the entity id, or the batch-local ref a parser row carries."""
+    return entity.get("entity_id") or entity["ref"]
+
+
+def _end(body: dict, side: str) -> str:
+    """One end of an edge: an entity id, or the ref of a row in the same batch."""
+    return body.get(f"{side}_entity_id") or body[f"{side}_ref"]
 
 
 def _stamped() -> list[dict]:
@@ -154,7 +173,7 @@ class TestInventorySoftware:
     def setup_method(self) -> None:
         self.nodes = _nodes(SOFTWARE)
         self.edges = _edges(SOFTWARE)
-        self.types = {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in self.nodes}
+        self.types = {_id(n["entity"]): n["entity"]["entity_type"] for n in self.nodes}
         # The edge from the TAP web program starts at a node in the inventory entities bundle.
         self.types.update(
             {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in _nodes("inventory-entities.grift.json")}
@@ -163,13 +182,14 @@ class TestInventorySoftware:
     def _of(self, entity_type: str) -> list[dict]:
         return [n for n in self.nodes if n["entity"]["entity_type"] == entity_type]
 
-    def test_only_the_five_computing_core_types(self) -> None:
-        assert {n["entity"]["entity_type"] for n in self.nodes} == set(SOFTWARE_CATEGORY)
+    def test_only_the_computing_core_types(self) -> None:
+        assert {n["entity"]["entity_type"] for n in self.nodes} == set(SOFTWARE_CATEGORY) | SBOM_ONLY_TYPES
 
     def test_every_node_is_stamped_with_its_category_and_the_design_position(self) -> None:
         for node in self.nodes:
             dims = node["entity"]["dimensions"]
-            assert dims["inventory"] == SOFTWARE_CATEGORY[node["entity"]["entity_type"]], node["entity"]["name"]
+            category = SOFTWARE_CATEGORY.get(node["entity"]["entity_type"])
+            assert dims.get("inventory") == category, node["entity"]["name"]
             assert dims["dcom"] == "design", node["entity"]["name"]
 
     def test_nothing_is_on_the_overview(self) -> None:
@@ -181,8 +201,8 @@ class TestInventorySoftware:
         for edge in self.edges:
             body = edge["edge"]
             sources, targets = SOFTWARE_EDGES[body["edge_type"]]
-            assert self.types[body["from_entity_id"]] in sources, body
-            assert self.types[body["to_entity_id"]] in targets, body
+            assert self.types[_end(body, "from")] in sources, body
+            assert self.types[_end(body, "to")] in targets, body
             assert body["properties"] == {}
 
     def test_natural_keys_are_unique(self) -> None:
@@ -192,6 +212,8 @@ class TestInventorySoftware:
             "computing_core__operating_system": ("os_id", "version_id", "build_id"),
             "computing_core__host": ("realm", "stable_id"),
             "computing_core__crypto_provider": ("scope", "artifact", "provider"),
+            "computing_core__source_package": ("ecosystem", "name", "version"),
+            "computing_core__sbom_document": ("content_digest",),
         }
         seen = set()
         for node in self.nodes:
@@ -207,28 +229,43 @@ class TestInventorySoftware:
             "computing_core__operating_system": ("os_id", "version_id", "build_id"),
             "computing_core__host": ("realm", "stable_id"),
             "computing_core__crypto_provider": ("scope", "artifact", "provider", "provider_kind"),
+            "computing_core__source_package": ("ecosystem", "name", "version"),
+            "computing_core__sbom_document": ("content_digest", "verified", "signer", "subject_digest"),
         }
         for node in self.nodes:
             for field in required[node["entity"]["entity_type"]]:
                 assert field in node["node"], (node["entity"]["name"], field)
 
-    def test_packages_name_a_real_source_and_the_three_ecosystems(self) -> None:
+    def test_packages_come_from_one_verified_sbom_in_the_three_ecosystems(self) -> None:
         packages = self._of("computing_core__package")
         assert {p["node"]["ecosystem"] for p in packages} == {"apk", "pypi", "npm"}
-        sources = {p["node"]["ecosystem"]: p["node"]["source_document"] for p in packages}
-        assert sources == {"apk": "apk database", "pypi": "uv.lock", "npm": "package-lock.json"}
-        # No generated SBOM exists yet, so no row may claim to come from one.
-        assert all(p["node"]["source_document"] != "sbom" for p in packages)
+        assert {p["node"]["source_document"] for p in packages} == {"sbom"}
+        (document,) = self._of("computing_core__sbom_document")
+        body = document["node"]
+        # The parser only reads a document whose attestation was verified, and records who signed it.
+        assert body["verified"] is True and body["signer"].endswith("publish-images.yml@refs/heads/main")
+        assert body["subject_digest"].startswith("sha256:") and len(body["subject_digest"]) == len("sha256:") + 64
+
+    def test_every_package_names_the_source_package_it_was_built_from_or_is_a_python_or_js_package(self) -> None:
+        sources = {_id(s["entity"]) for s in self._of("computing_core__source_package")}
+        derived = {
+            _end(e["edge"], "from")
+            for e in self.edges
+            if e["edge"]["edge_type"] == "DERIVES_FROM_SOURCE_PACKAGE__computing_core"
+        }
+        apk = {_id(p["entity"]) for p in self._of("computing_core__package") if p["node"]["ecosystem"] == "apk"}
+        assert derived == apk
+        assert sources
 
     def test_every_package_is_installed_by_the_web_image_host(self) -> None:
         (host,) = self._of("computing_core__host")
         installed = {
-            e["edge"]["to_entity_id"]
+            _end(e["edge"], "to")
             for e in self.edges
             if e["edge"]["edge_type"] == "INSTALLS_PACKAGE__computing_core"
-            and e["edge"]["from_entity_id"] == host["entity"]["entity_id"]
+            and _end(e["edge"], "from") == host["entity"]["entity_id"]
         }
-        assert installed == {p["entity"]["entity_id"] for p in self._of("computing_core__package")}
+        assert installed == {_id(p["entity"]) for p in self._of("computing_core__package")}
         assert host["node"]["kind"] == "container"
 
     def test_the_libraries_are_what_is_built_or_copied_outside_a_package_manager(self) -> None:
@@ -261,14 +298,14 @@ class TestInventorySoftware:
         carriers: dict[str, int] = {}
         for edge in self.edges:
             if edge["edge"]["edge_type"] == "CARRIES_CRYPTO_PROVIDER__computing_core":
-                target = edge["edge"]["to_entity_id"]
+                target = _end(edge["edge"], "to")
                 carriers[target] = carriers.get(target, 0) + 1
         assert set(carriers.values()) == {1}
         # The uv binary's provider is carried by the uv library; every provider has an owner.
         unowned = [
             p["node"]["artifact"]
             for p in self._of("computing_core__crypto_provider")
-            if p["entity"]["entity_id"] not in carriers
+            if _id(p["entity"]) not in carriers
         ]
         assert unowned == []
 
@@ -387,8 +424,9 @@ class TestNewIds:
         for name in ("inventory-entities.grift.json", SOFTWARE, "inventory-page.grift.json"):
             for batch in _load(name)["batches"]:
                 ids.append(batch["batch_entity"]["entity_id"])
-                ids += [n["entity"]["entity_id"] for n in batch["nodes"]]
-                ids += [e["entity"]["entity_id"] for e in batch["edges"]]
+                # A row the parser wrote names itself by a batch-local ref, not an id: the grid assigns its id.
+                ids += [n["entity"]["entity_id"] for n in batch["nodes"] if "entity_id" in n["entity"]]
+                ids += [e["entity"]["entity_id"] for e in batch["edges"] if "entity_id" in e["entity"]]
         assert len(ids) == len(set(ids))
         assert all(uuid.UUID(i).version == 7 for i in ids)
         existing = {
