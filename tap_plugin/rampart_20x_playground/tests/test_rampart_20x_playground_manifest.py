@@ -85,6 +85,7 @@ class TestSurfaces:
     def test_grift_bundles(self) -> None:
         grift = load_manifest(PACKAGE_ROOT).grift
         assert sorted(entry.path for entry in grift) == [
+            "grift/application-flow.grift.json",
             "grift/dimensions-actors.grift.json",
             "grift/dimensions.grift.json",
             "grift/inventory-entities.grift.json",

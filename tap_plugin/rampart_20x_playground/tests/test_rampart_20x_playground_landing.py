@@ -211,8 +211,15 @@ class TestAuthorizationBoundary:
 
     def test_a_search_brings_the_scoped_to_edge_and_collides_with_no_other(self) -> None:
         pages = json.loads((PACKAGE_ROOT / "grift" / "pages.grift.json").read_text(encoding="utf-8"))["batches"][0]
+        all_searches = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "search"]
+        # Module Searches (the badge counts) carry a runner_key, not a query; every other Search is a Gryphon query.
+        for n in all_searches:
+            if n["node"]["search_type"] == "module":
+                assert n["node"]["definition"]["runner_key"] and "query" not in n["node"]["definition"], n["entity"]["name"]
+            else:
+                assert n["node"]["search_type"] == "gryphon", n["entity"]["name"]
         searches = {n["entity"]["name"]: " ".join(n["node"]["definition"]["query"])
-                    for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
+                    for n in all_searches if n["node"]["search_type"] == "gryphon"}
         scoped = [q for q in searches.values() if "SCOPED_TO_COMPLIANCE_BOUNDARY" in q]
         assert len(scoped) == 1 and 'b.dimensions["overview"] = "shown"' in scoped[0]
         assert "playground \u2014 landing scoped" in searches
@@ -276,6 +283,7 @@ class TestPlaygroundException:
 
 APPLICATION_FLOW = PACKAGE_ROOT / "grift" / "application-flow.grift.json"
 ENTITIES = PACKAGE_ROOT / "grift" / "inventory-entities.grift.json"
+SOFTWARE = PACKAGE_ROOT / "grift" / "inventory-software.grift.json"  # holds the container image hosts
 PAGES = PACKAGE_ROOT / "grift" / "pages.grift.json"
 
 
@@ -288,9 +296,9 @@ def _batch_edges(path: Path) -> list[dict]:
 
 
 def _name(entity_id: str) -> str:
-    for path in (MOCK, ENTITIES, APPLICATION_FLOW):
+    for path in (MOCK, ENTITIES, APPLICATION_FLOW, SOFTWARE):
         for node in _batch_nodes(path):
-            if node["entity"]["entity_id"] == entity_id:
+            if node["entity"].get("entity_id") == entity_id:
                 return node["entity"]["name"]
     return entity_id
 
@@ -347,8 +355,15 @@ class TestRunningParts:
 
     def test_searches_bring_the_containment_edges_and_the_flow_edges(self) -> None:
         pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        all_searches = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "search"]
+        # Module Searches (the badge counts) carry a runner_key, not a query; every other Search is a Gryphon query.
+        for n in all_searches:
+            if n["node"]["search_type"] == "module":
+                assert n["node"]["definition"]["runner_key"] and "query" not in n["node"]["definition"], n["entity"]["name"]
+            else:
+                assert n["node"]["search_type"] == "gryphon", n["entity"]["name"]
         searches = {n["entity"]["name"]: " ".join(n["node"]["definition"]["query"])
-                    for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
+                    for n in all_searches if n["node"]["search_type"] == "gryphon"}
         for slug, edge in (("runs-container", "RUNS_CONTAINER__aws_core"), ("runs-program", "RUNS_PROGRAM__computing_core"),
                            ("flow-source", "APPLICATION_FLOW_SOURCE__computing_core"),
                            ("flow-destination", "APPLICATION_FLOW_DESTINATION__computing_core")):
