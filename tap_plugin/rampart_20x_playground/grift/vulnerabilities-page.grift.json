@@ -8,1078 +8,15 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.2.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.3.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.2.0",
-        "description": "The /playground/vulnerabilities story page: three lanes of cards and charts over the compliance_core vulnerability, scanner and finding nodes (what is open, whether it is being exploited, where it lives and what is done), and the /playground/vulnerabilities/detail page that keeps the seven raw alert tables. Charts and cards read Searches; nothing names a scanner, a node id or a value."
+        "name": "rampart-20x-playground vulnerabilities page v0.3.0",
+        "description": "The /playground/vulnerabilities page (three cards, three charts, a table of open vulnerabilities and a table of affected components) with a drill-in page per vulnerability and per component. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
       },
       "nodes": [
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7c03-b3ca-9cb73e3d4183",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities dependabot",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities dependabot",
-            "description": "Every open Dependabot alert on the grid, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__dependabot_alert)",
-                "WHERE n.data.state = \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
-            "entity_type": "panel",
-            "name": "Dependabot",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Dependabot",
-            "slug": "playground-vulnerabilities-dependabot",
-            "description": "The Dependabot open alerts of unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.package_name",
-                  "title": "Package",
-                  "widthGrow": 2,
-                  "header_tooltip": "The package the manifest names."
-                },
-                {
-                  "field": "data.ecosystem",
-                  "title": "Ecosystem",
-                  "width": 100,
-                  "header_tooltip": "The package ecosystem GitHub reported, such as pip."
-                },
-                {
-                  "field": "data.severity",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.advisory_summary",
-                  "title": "Advisory",
-                  "widthGrow": 3,
-                  "header_tooltip": "The advisory's one-line summary."
-                },
-                {
-                  "field": "data.ghsa_id",
-                  "title": "Alert",
-                  "width": 170,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The GitHub advisory id. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.first_patched_version",
-                  "title": "Fixed in",
-                  "width": 100,
-                  "header_tooltip": "The first version that fixes the advisory. Blank when no patched version exists."
-                },
-                {
-                  "field": "data.manifest_path",
-                  "title": "Manifest",
-                  "widthGrow": 1,
-                  "header_tooltip": "The file the dependency was found in."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub raised the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Blank until it is."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.severity",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7a2b-9bad-50d845974438",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities codeql",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities codeql",
-            "description": "Every open code scanning alert whose tool is CodeQL, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"CodeQL\" AND n.data.state = \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
-            "entity_type": "panel",
-            "name": "CodeQL",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "CodeQL",
-            "slug": "playground-vulnerabilities-codeql",
-            "description": "The code scanning open alerts that CodeQL raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.tool_name",
-                  "title": "Tool",
-                  "width": 110,
-                  "header_tooltip": "The scanner that raised the alert."
-                },
-                {
-                  "field": "data.rule_id",
-                  "title": "Rule",
-                  "widthGrow": 3,
-                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
-                },
-                {
-                  "field": "data.security_severity_level",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.location.path",
-                  "title": "Location",
-                  "widthGrow": 3,
-                  "header_tooltip": "The file the alert points at."
-                },
-                {
-                  "field": "data.location.start_line",
-                  "title": "Line",
-                  "width": 70,
-                  "header_tooltip": "The first line the alert points at."
-                },
-                {
-                  "field": "data.number",
-                  "title": "Alert",
-                  "width": 80,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub first received the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Blank until it is."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Blank until it is."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.security_severity_level",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-72b9-8988-f87cdf67a36d",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities grype",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities grype",
-            "description": "Every open code scanning alert whose tool is Grype, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"Grype\" AND n.data.state = \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
-            "entity_type": "panel",
-            "name": "Grype",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Grype",
-            "slug": "playground-vulnerabilities-grype",
-            "description": "The code scanning open alerts that Grype raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.tool_name",
-                  "title": "Tool",
-                  "width": 110,
-                  "header_tooltip": "The scanner that raised the alert."
-                },
-                {
-                  "field": "data.rule_id",
-                  "title": "Rule",
-                  "widthGrow": 3,
-                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
-                },
-                {
-                  "field": "data.security_severity_level",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.location.path",
-                  "title": "Location",
-                  "widthGrow": 3,
-                  "header_tooltip": "The file the alert points at."
-                },
-                {
-                  "field": "data.location.start_line",
-                  "title": "Line",
-                  "width": 70,
-                  "header_tooltip": "The first line the alert points at."
-                },
-                {
-                  "field": "data.number",
-                  "title": "Alert",
-                  "width": 80,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub first received the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Blank until it is."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Blank until it is."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.security_severity_level",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7a8d-b95b-25a74fef786a",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities sonarcloud",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities sonarcloud",
-            "description": "Every open code scanning alert whose tool is SonarCloud, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"SonarCloud\" AND n.data.state = \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
-            "entity_type": "panel",
-            "name": "SonarCloud",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "SonarCloud",
-            "slug": "playground-vulnerabilities-sonarcloud",
-            "description": "The code scanning open alerts that SonarCloud raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.tool_name",
-                  "title": "Tool",
-                  "width": 110,
-                  "header_tooltip": "The scanner that raised the alert."
-                },
-                {
-                  "field": "data.rule_id",
-                  "title": "Rule",
-                  "widthGrow": 3,
-                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
-                },
-                {
-                  "field": "data.security_severity_level",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.location.path",
-                  "title": "Location",
-                  "widthGrow": 3,
-                  "header_tooltip": "The file the alert points at."
-                },
-                {
-                  "field": "data.location.start_line",
-                  "title": "Line",
-                  "width": 70,
-                  "header_tooltip": "The first line the alert points at."
-                },
-                {
-                  "field": "data.number",
-                  "title": "Alert",
-                  "width": 80,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub first received the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Blank until it is."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Blank until it is."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.security_severity_level",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7ed1-ab32-2800343665a5",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities trivy",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities trivy",
-            "description": "Every open code scanning alert whose tool is Trivy, most severe first (req-rampart-20x-playground-page-vulnerabilities). Envelope mode, so the table receives each node with its typed fields.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.tool_name = \"Trivy\" AND n.data.state = \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
-            "entity_type": "panel",
-            "name": "Trivy",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Trivy",
-            "slug": "playground-vulnerabilities-trivy",
-            "description": "The code scanning open alerts that Trivy raised on unified-systems-com/tap, most severe first. Click the Severity or State heading to sort by it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.tool_name",
-                  "title": "Tool",
-                  "width": 110,
-                  "header_tooltip": "The scanner that raised the alert."
-                },
-                {
-                  "field": "data.rule_id",
-                  "title": "Rule",
-                  "widthGrow": 3,
-                  "header_tooltip": "The scanner's rule id; for a package scanner this is the advisory and the package."
-                },
-                {
-                  "field": "data.security_severity_level",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the alert: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Open, fixed or dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.location.path",
-                  "title": "Location",
-                  "widthGrow": 3,
-                  "header_tooltip": "The file the alert points at."
-                },
-                {
-                  "field": "data.location.start_line",
-                  "title": "Line",
-                  "width": 70,
-                  "header_tooltip": "The first line the alert points at."
-                },
-                {
-                  "field": "data.number",
-                  "title": "Alert",
-                  "width": 80,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The alert number. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub first received the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Blank until it is."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Blank until it is."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.security_severity_level",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "entity_type": "page",
-            "name": "Vulnerability detail",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Vulnerability detail",
-            "slug": "/playground/vulnerabilities/detail",
-            "description": "Every alert the scanners reported: the open ones one table per source, most severe first, then the closed ones with the dismissal reason as recorded. The overview is at /playground/vulnerabilities.",
-            "layout": {
-              "columns": {
-                "col-1": {
-                  "width": "1fr",
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "dependabot",
-                      "height": "auto"
-                    },
-                    "row-2": {
-                      "panel-id": "trivy",
-                      "height": "auto"
-                    },
-                    "row-3": {
-                      "panel-id": "grype",
-                      "height": "auto"
-                    },
-                    "row-4": {
-                      "panel-id": "sonarcloud",
-                      "height": "auto"
-                    },
-                    "row-5": {
-                      "panel-id": "codeql",
-                      "height": "auto"
-                    },
-                    "row-6": {
-                      "panel-id": "closed-dependabot",
-                      "height": "auto"
-                    },
-                    "row-7": {
-                      "panel-id": "closed-code-scanning",
-                      "height": "auto"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-7caa-8124-a7e3ad4797b4",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities closed-dependabot",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities closed-dependabot",
-            "description": "Every Dependabot alert on the grid that is no longer open, newest first, with the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__dependabot_alert)",
-                "WHERE n.data.state != \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
-            "entity_type": "panel",
-            "name": "Closed Dependabot",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Closed Dependabot",
-            "slug": "playground-vulnerabilities-closed-dependabot",
-            "description": "The Dependabot alerts that are no longer open: fixed, dismissed or auto-dismissed, with the dismissal reason exactly as GitHub recorded it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.package_name",
-                  "title": "Package",
-                  "widthGrow": 2,
-                  "header_tooltip": "The package the manifest names."
-                },
-                {
-                  "field": "data.severity",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "GitHub's grading of the advisory: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 110,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Fixed, dismissed or auto-dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.dismissed_reason",
-                  "title": "Dismissal reason",
-                  "header_tooltip": "The reason recorded when the alert was dismissed, exactly as recorded. Empty for an alert that was fixed.",
-                  "width": 150
-                },
-                {
-                  "field": "data.dismissed_comment",
-                  "title": "Dismissal comment",
-                  "widthGrow": 3,
-                  "header_tooltip": "The comment recorded with the dismissal, exactly as recorded."
-                },
-                {
-                  "field": "data.advisory_summary",
-                  "title": "Advisory",
-                  "widthGrow": 3,
-                  "header_tooltip": "The advisory's one-line summary."
-                },
-                {
-                  "field": "data.ghsa_id",
-                  "title": "Alert",
-                  "width": 170,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The GitHub advisory id. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.first_patched_version",
-                  "title": "Fixed in",
-                  "width": 100,
-                  "header_tooltip": "The first version that fixes the advisory."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub raised the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Empty unless it was."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Empty unless it was."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.created_at",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-79df-b282-66b133564037",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities closed-code-scanning",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities closed-code-scanning",
-            "description": "Every code scanning alert on the grid that is no longer open, newest first, with the tool and the dismissal reason and comment as recorded (req-rampart-20x-playground-page-vulnerabilities).",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (n:github_core__code_scanning_alert)",
-                "WHERE n.data.state != \"open\"",
-                "RETURN n",
-                "ORDER BY n.data.created_at DESC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
-            "entity_type": "panel",
-            "name": "Closed code scanning",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Closed code scanning",
-            "slug": "playground-vulnerabilities-closed-code-scanning",
-            "description": "The code scanning alerts, from every tool, that are no longer open: fixed, dismissed or auto-dismissed, with the dismissal reason exactly as GitHub recorded it.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "default_page_size": 200,
-              "quick_filter": true,
-              "columns": [
-                {
-                  "field": "data.tool_name",
-                  "title": "Tool",
-                  "width": 110,
-                  "header_tooltip": "The code scanning tool that raised the alert, as recorded on the alert."
-                },
-                {
-                  "field": "data.rule_id",
-                  "title": "Rule",
-                  "widthGrow": 3,
-                  "formatter": "link",
-                  "formatter_params": {
-                    "href_field": "data.html_url"
-                  },
-                  "header_tooltip": "The tool's rule id. Click to open the alert on GitHub."
-                },
-                {
-                  "field": "data.security_severity_level",
-                  "title": "Severity",
-                  "width": 100,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "critical": "bad",
-                      "high": "bad",
-                      "medium": "warn",
-                      "low": "muted"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "The tool's security severity grade: critical, high, medium or low.",
-                  "sorter": "severityRank"
-                },
-                {
-                  "field": "data.state",
-                  "title": "State",
-                  "width": 110,
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "fixed": "good",
-                      "dismissed": "muted",
-                      "auto_dismissed": "muted"
-                    },
-                    "labels": {
-                      "auto_dismissed": "Auto-dismissed"
-                    },
-                    "capitalize": true
-                  },
-                  "header_tooltip": "Fixed, dismissed or auto-dismissed, as GitHub reports it."
-                },
-                {
-                  "field": "data.dismissed_reason",
-                  "title": "Dismissal reason",
-                  "header_tooltip": "The reason recorded when the alert was dismissed, exactly as recorded. Empty for an alert that was fixed.",
-                  "width": 150
-                },
-                {
-                  "field": "data.dismissed_comment",
-                  "title": "Dismissal comment",
-                  "widthGrow": 3,
-                  "header_tooltip": "The comment recorded with the dismissal, exactly as recorded."
-                },
-                {
-                  "field": "data.location.path",
-                  "title": "Path",
-                  "widthGrow": 2,
-                  "header_tooltip": "The file the alert was raised against."
-                },
-                {
-                  "field": "data.created_at",
-                  "title": "Opened",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When GitHub raised the alert."
-                },
-                {
-                  "field": "data.fixed_at",
-                  "title": "Fixed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was fixed. Empty unless it was."
-                },
-                {
-                  "field": "data.dismissed_at",
-                  "title": "Dismissed",
-                  "width": 160,
-                  "formatter": "datetime",
-                  "header_tooltip": "When the alert was dismissed. Empty unless it was."
-                }
-              ],
-              "initial_sort": [
-                {
-                  "field": "data.created_at",
-                  "dir": "desc"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-83e2-7b4a-aa77-96a06de66ff9",
-            "entity_type": "panel",
-            "name": "What is open",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "What is open",
-            "slug": "playground-vulnerabilities-l1-lede",
-            "description": "Every open finding that concerns a published vulnerability, as the scanners report it today. How many, how severe, and w",
-            "view": "tap_web/panels/text_panel.html",
-            "config": {
-              "text": "Every open finding that concerns a published vulnerability, as the scanners report it today. How many, how severe, and who found them."
-            }
-          }
-        },
         {
           "entity": {
             "entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
@@ -1092,20 +29,19 @@
           "node": {
             "name": "Open findings",
             "slug": "playground-vulnerabilities-open",
-            "description": "The open findings that concern a vulnerability, and the highest CVSS score among them.",
+            "description": "Open findings that concern a vulnerability.",
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
               "value_field": "findings",
               "value_formatter": "integer",
-              "unit": "to work through",
               "tone": "warn",
-              "lines": [
-                {
-                  "label": "Highest CVSS score",
-                  "field": "top",
-                  "formatter": "number"
-                }
-              ],
+              "hide_header": true,
+              "title": "Open findings",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
               "null_text": "not observed"
             }
           }
@@ -1114,18 +50,122 @@
           "entity": {
             "entity_id": "01a13fc0-208e-7bf0-83a2-33cf971e14f9",
             "entity_type": "search",
-            "name": "playground — story card-open",
+            "name": "playground — vulnerabilities card-open",
             "dimensions": {}
           },
           "node": {
-            "name": "playground — story card-open",
-            "description": "Open findings that concern a vulnerability, and the highest CVSS score among them.",
+            "name": "playground — vulnerabilities card-open",
+            "description": "Open findings that concern a vulnerability.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
-                "RETURN COUNT(f) AS findings, MAX(v.data.cvss_score) AS top"
+                "RETURN COUNT(f) AS findings"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
+            "entity_type": "panel",
+            "name": "On the CISA exploited list",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "On the CISA exploited list",
+            "slug": "playground-vulnerabilities-kev",
+            "description": "Open findings whose vulnerability is on the CISA KEV catalog.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "kev",
+              "value_formatter": "integer",
+              "tone": {
+                "field": "kev",
+                "map": {
+                  "0": "good"
+                },
+                "default": "bad"
+              },
+              "hide_header": true,
+              "title": "On the CISA exploited list",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities card-kev",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities card-kev",
+            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND v.data.kev = true",
+                "RETURN COUNT(f) AS kev"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
+            "entity_type": "panel",
+            "name": "Closed",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Closed",
+            "slug": "playground-vulnerabilities-closed",
+            "description": "Findings that are no longer open.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "closed",
+              "value_formatter": "integer",
+              "tone": "good",
+              "hide_header": true,
+              "title": "Closed",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-f99c-7ae4-8da0-cec0dadc43bd",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities card-closed",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities card-closed",
+            "description": "Findings that are no longer open: fixed or dismissed at the source.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding) WHERE f.data.status = \"resolved\"",
+                "RETURN COUNT(f) AS closed"
               ]
             }
           }
@@ -1134,15 +174,15 @@
           "entity": {
             "entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
             "entity_type": "panel",
-            "name": "How severe: CVSS score",
+            "name": "CVSS score",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "How severe: CVSS score",
+            "name": "CVSS score",
             "slug": "playground-vulnerabilities-cvss",
-            "description": "Open findings by the CVSS base score of their vulnerability. Colours follow the usual bands: low, medium, high, critical.",
+            "description": "Open findings by the CVSS base score of their vulnerability.",
             "view": "tap_web/panels/chart.html",
             "config": {
               "option": {
@@ -1153,14 +193,14 @@
                 "grid": {
                   "left": 48,
                   "right": 16,
-                  "top": 24,
-                  "bottom": 40
+                  "top": 28,
+                  "bottom": 44
                 },
                 "xAxis": {
                   "type": "category",
                   "name": "CVSS base score",
                   "nameLocation": "middle",
-                  "nameGap": 28
+                  "nameGap": 30
                 },
                 "yAxis": {
                   "type": "value",
@@ -1204,7 +244,12 @@
                       "x": "cvss",
                       "y": "n"
                     },
-                    "barMaxWidth": 28
+                    "barMaxWidth": 32,
+                    "label": {
+                      "show": true,
+                      "position": "top",
+                      "formatter": "{@n}"
+                    }
                   }
                 ]
               },
@@ -1216,9 +261,9 @@
                 "field": "cvss",
                 "order": "asc"
               },
-              "height": 280,
               "aria_label": "Open findings by CVSS base score",
               "empty_text": "No open findings.",
+              "height": 320,
               "hide_header": false
             }
           }
@@ -1227,11 +272,11 @@
           "entity": {
             "entity_id": "01a13fc0-a281-7bab-af01-e8168adb7c1b",
             "entity_type": "search",
-            "name": "playground — story cvss-spread",
+            "name": "playground — vulnerabilities cvss-spread",
             "dimensions": {}
           },
           "node": {
-            "name": "playground — story cvss-spread",
+            "name": "playground — vulnerabilities cvss-spread",
             "description": "Open findings by the CVSS base score of their vulnerability.",
             "search_type": "gryphon",
             "root": "node",
@@ -1240,411 +285,6 @@
                 "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
                 "RETURN v.data.cvss_score AS cvss, COUNT(f) AS n",
                 "ORDER BY cvss ASC"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
-            "entity_type": "panel",
-            "name": "Who found them",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Who found them",
-            "slug": "playground-vulnerabilities-found-by",
-            "description": "Open findings by the scanner that reported them.",
-            "view": "tap_web/panels/chart.html",
-            "config": {
-              "option": {
-                "tooltip": {
-                  "trigger": "item",
-                  "formatter": "{b}: {@c} open ({d}%)"
-                },
-                "legend": {
-                  "bottom": 0
-                },
-                "series": [
-                  {
-                    "type": "pie",
-                    "radius": [
-                      "48%",
-                      "72%"
-                    ],
-                    "center": [
-                      "50%",
-                      "46%"
-                    ],
-                    "encode": {
-                      "itemName": "scanner",
-                      "value": "c"
-                    },
-                    "label": {
-                      "formatter": "{b}\n{@c}"
-                    },
-                    "avoidLabelOverlap": true
-                  }
-                ]
-              },
-              "types": {
-                "c": "number"
-              },
-              "height": 300,
-              "aria_label": "Open findings by scanner",
-              "empty_text": "No open findings.",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-d39f-74dd-a4dd-0c2308bb990b",
-            "entity_type": "search",
-            "name": "playground — story found-by",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story found-by",
-            "description": "Open findings by the scanner that reported them.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (s:compliance_core__compliance_scanner)-[:DETECTS_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
-                "RETURN s.data.name AS scanner, COUNT(f) AS c"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-3be2-7f67-a75e-2ddd2534c2c7",
-            "entity_type": "panel",
-            "name": "Is anyone exploiting it?",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Is anyone exploiting it?",
-            "slug": "playground-vulnerabilities-l2-lede",
-            "description": "Whether the vulnerabilities behind the open findings are known to be used in attacks, by CISA's own catalog and its expl",
-            "view": "tap_web/panels/text_panel.html",
-            "config": {
-              "text": "Whether the vulnerabilities behind the open findings are known to be used in attacks, by CISA's own catalog and its exploitation assessment, and where each one sits by severity and age."
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
-            "entity_type": "panel",
-            "name": "On the CISA exploited list",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "On the CISA exploited list",
-            "slug": "playground-vulnerabilities-kev",
-            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog.",
-            "view": "tap_web/panels/stat_card_panel.html",
-            "config": {
-              "value_field": "kev",
-              "value_formatter": "integer",
-              "unit": "open findings",
-              "tone": {
-                "field": "kev",
-                "map": {
-                  "0": "good"
-                },
-                "default": "bad"
-              },
-              "null_text": "not observed"
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
-            "entity_type": "search",
-            "name": "playground — story card-kev",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story card-kev",
-            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND v.data.kev = true",
-                "RETURN COUNT(f) AS kev"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
-            "entity_type": "panel",
-            "name": "CISA exploitation assessment",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "CISA exploitation assessment",
-            "slug": "playground-vulnerabilities-exploitation",
-            "description": "Open findings by the exploitation value in CISA's SSVC assessment of their vulnerability. Not observed means CISA has no assessment on record.",
-            "view": "tap_web/panels/chart.html",
-            "config": {
-              "option": {
-                "tooltip": {
-                  "trigger": "item",
-                  "formatter": "{b}: {@c} findings"
-                },
-                "grid": {
-                  "left": 110,
-                  "right": 24,
-                  "top": 16,
-                  "bottom": 32
-                },
-                "xAxis": {
-                  "type": "value",
-                  "minInterval": 1,
-                  "splitLine": {
-                    "lineStyle": {
-                      "opacity": 0.35
-                    }
-                  }
-                },
-                "yAxis": {
-                  "type": "category",
-                  "inverse": true
-                },
-                "series": [
-                  {
-                    "type": "bar",
-                    "encode": {
-                      "x": "c",
-                      "y": "exploitation"
-                    },
-                    "barMaxWidth": 30,
-                    "label": {
-                      "show": true,
-                      "position": "right",
-                      "formatter": "{@c}"
-                    }
-                  }
-                ]
-              },
-              "color_map": {
-                "field": "exploitation",
-                "map": {
-                  "none": "good",
-                  "poc": "warn",
-                  "active": "bad"
-                },
-                "default": "muted"
-              },
-              "types": {
-                "c": "number"
-              },
-              "height": 200,
-              "aria_label": "Open findings by CISA SSVC exploitation assessment",
-              "empty_text": "No open findings.",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-ab55-73b7-8597-123256f01197",
-            "entity_type": "search",
-            "name": "playground — story exploitation",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story exploitation",
-            "description": "Open findings by CISA's SSVC exploitation assessment of their vulnerability.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
-                "RETURN v.data.ssvc_exploitation AS exploitation, COUNT(f) AS c"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
-            "entity_type": "panel",
-            "name": "Severity against age",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Severity against age",
-            "slug": "playground-vulnerabilities-risk-map",
-            "description": "Each dot is one vulnerability with an open finding: when it was published against its CVSS score. Bigger dots have more findings.",
-            "view": "tap_web/panels/chart.html",
-            "config": {
-              "option": {
-                "tooltip": {
-                  "trigger": "item"
-                },
-                "grid": {
-                  "left": 48,
-                  "right": 24,
-                  "top": 24,
-                  "bottom": 44
-                },
-                "xAxis": {
-                  "type": "time",
-                  "name": "published",
-                  "nameLocation": "middle",
-                  "nameGap": 30,
-                  "splitLine": {
-                    "show": false
-                  }
-                },
-                "yAxis": {
-                  "type": "value",
-                  "min": 0,
-                  "max": 10,
-                  "name": "CVSS",
-                  "splitLine": {
-                    "lineStyle": {
-                      "opacity": 0.35
-                    }
-                  }
-                },
-                "visualMap": {
-                  "show": false,
-                  "type": "continuous",
-                  "dimension": "n",
-                  "min": 1,
-                  "max": 6,
-                  "inRange": {
-                    "symbolSize": [
-                      10,
-                      30
-                    ]
-                  }
-                },
-                "series": [
-                  {
-                    "type": "scatter",
-                    "encode": {
-                      "x": "published",
-                      "y": "cvss",
-                      "tooltip": [
-                        "id",
-                        "cvss",
-                        "published",
-                        "n"
-                      ]
-                    }
-                  }
-                ]
-              },
-              "types": {
-                "published": "time",
-                "cvss": "number",
-                "n": "number"
-              },
-              "height": 320,
-              "aria_label": "Vulnerabilities with an open finding, by publication time and CVSS score",
-              "empty_text": "No open findings.",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
-            "entity_type": "search",
-            "name": "playground — story risk-map",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story risk-map",
-            "description": "One row per vulnerability with an open finding: its score, publication time and how many findings it has.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
-                "RETURN v.data.vuln_id AS id, v.data.cvss_score AS cvss, v.data.published_at AS published, COUNT(f) AS n"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-62e8-78bd-abde-19899dc12a2e",
-            "entity_type": "panel",
-            "name": "Where it lives, and what is done",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Where it lives, and what is done",
-            "slug": "playground-vulnerabilities-l3-lede",
-            "description": "Which components carry the open findings, and how much has already been fixed or dismissed. The full list of alerts is o",
-            "view": "tap_web/panels/text_panel.html",
-            "config": {
-              "text": "Which components carry the open findings, and how much has already been fixed or dismissed. The full list of alerts is on the detail page at /playground/vulnerabilities/detail."
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
-            "entity_type": "panel",
-            "name": "Already closed",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Already closed",
-            "slug": "playground-vulnerabilities-closed",
-            "description": "Findings that are no longer open: fixed or dismissed at the source.",
-            "view": "tap_web/panels/stat_card_panel.html",
-            "config": {
-              "value_field": "closed",
-              "value_formatter": "integer",
-              "unit": "closed",
-              "tone": "good",
-              "null_text": "not observed"
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-f99c-7ae4-8da0-cec0dadc43bd",
-            "entity_type": "search",
-            "name": "playground — story card-closed",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story card-closed",
-            "description": "Findings that are no longer open: fixed or dismissed at the source.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (f:compliance_core__compliance_finding) WHERE f.data.status = \"resolved\"",
-                "RETURN COUNT(f) AS closed"
               ]
             }
           }
@@ -1670,8 +310,8 @@
                   "formatter": "{b}: {@c} open"
                 },
                 "grid": {
-                  "left": 140,
-                  "right": 32,
+                  "left": 150,
+                  "right": 36,
                   "top": 8,
                   "bottom": 24
                 },
@@ -1707,9 +347,9 @@
               "types": {
                 "c": "number"
               },
-              "height": 320,
               "aria_label": "Open findings by component, top ten",
               "empty_text": "No open findings.",
+              "height": 320,
               "hide_header": false
             }
           }
@@ -1718,18 +358,18 @@
           "entity": {
             "entity_id": "01a13fc0-c53e-711c-b13f-38b9c6f403b9",
             "entity_type": "search",
-            "name": "playground — story top-components",
+            "name": "playground — vulnerabilities top-components",
             "dimensions": {}
           },
           "node": {
-            "name": "playground — story top-components",
+            "name": "playground — vulnerabilities top-components",
             "description": "The components with the most open findings.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
-                "MATCH (c:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
-                "RETURN c.data.name AS component, COUNT(f) AS c",
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND c.entity_type != \"github_core__github_repository\"",
+                "RETURN c.name AS component, COUNT(f) AS c",
                 "ORDER BY c DESC LIMIT 10"
               ]
             }
@@ -1737,253 +377,1263 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
+            "entity_id": "01a13fc0-0202-7906-984e-26dc228c8de8",
             "entity_type": "panel",
-            "name": "Open findings by ecosystem",
+            "name": "Severity by age",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Open findings by ecosystem",
-            "slug": "playground-vulnerabilities-tree",
-            "description": "Open findings per component, grouped by the package ecosystem; the area is the number of findings.",
+            "name": "Severity by age",
+            "slug": "playground-vulnerabilities-severity-age",
+            "description": "Each dot is a vulnerability with an open finding: when it was published, against its CVSS score; a bigger dot has more findings.",
             "view": "tap_web/panels/chart.html",
             "config": {
               "option": {
                 "tooltip": {
-                  "trigger": "item",
-                  "formatter": "{b}: {c}"
-                },
-                "series": [
-                  {
-                    "type": "treemap",
-                    "roam": false,
-                    "nodeClick": false,
-                    "breadcrumb": {
-                      "show": false
-                    },
-                    "label": {
-                      "formatter": "{b}"
-                    },
-                    "upperLabel": {
-                      "show": true,
-                      "height": 22
-                    }
-                  }
-                ]
-              },
-              "hierarchy": {
-                "path": [
-                  "ecosystem",
-                  "component"
-                ],
-                "value": "c"
-              },
-              "types": {
-                "c": "number"
-              },
-              "height": 300,
-              "aria_label": "Open findings by ecosystem and component",
-              "empty_text": "No open findings.",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-8cb0-7aac-95e3-62e6ff76573c",
-            "entity_type": "search",
-            "name": "playground — story component-tree",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — story component-tree",
-            "description": "Open findings per component, grouped by ecosystem.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (c:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding) WHERE f.data.status = \"open\"",
-                "RETURN c.data.ecosystem AS ecosystem, c.data.name AS component, COUNT(f) AS c"
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
-            "entity_type": "panel",
-            "name": "Open and closed, by scanner",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Open and closed, by scanner",
-            "slug": "playground-vulnerabilities-remediation",
-            "description": "Every finding each scanner has reported, split into still open and already closed.",
-            "view": "tap_web/panels/chart.html",
-            "config": {
-              "option": {
-                "tooltip": {
-                  "trigger": "axis",
-                  "axisPointer": {
-                    "type": "shadow"
-                  }
-                },
-                "legend": {
-                  "bottom": 0
+                  "trigger": "item"
                 },
                 "grid": {
                   "left": 48,
-                  "right": 16,
-                  "top": 16,
-                  "bottom": 52
+                  "right": 24,
+                  "top": 24,
+                  "bottom": 48
                 },
                 "xAxis": {
-                  "type": "category",
-                  "axisLabel": {
-                    "interval": 0
+                  "type": "time",
+                  "name": "published",
+                  "nameLocation": "middle",
+                  "nameGap": 32,
+                  "splitLine": {
+                    "show": false
                   }
                 },
                 "yAxis": {
                   "type": "value",
+                  "min": 0,
+                  "max": 10,
+                  "name": "CVSS",
                   "splitLine": {
                     "lineStyle": {
                       "opacity": 0.35
                     }
                   }
                 },
+                "visualMap": [
+                  {
+                    "show": false,
+                    "type": "piecewise",
+                    "dimension": "cvss",
+                    "seriesIndex": 0,
+                    "pieces": [
+                      {
+                        "lt": 4,
+                        "color": "#2f9e6b"
+                      },
+                      {
+                        "gte": 4,
+                        "lt": 7,
+                        "color": "#d9a400"
+                      },
+                      {
+                        "gte": 7,
+                        "lt": 9,
+                        "color": "#e0662d"
+                      },
+                      {
+                        "gte": 9,
+                        "color": "#c0392b"
+                      }
+                    ]
+                  },
+                  {
+                    "show": false,
+                    "type": "continuous",
+                    "dimension": "n",
+                    "min": 1,
+                    "max": 6,
+                    "seriesIndex": 0,
+                    "inRange": {
+                      "symbolSize": [
+                        10,
+                        30
+                      ]
+                    }
+                  }
+                ],
                 "series": [
                   {
-                    "type": "bar",
-                    "stack": "total",
-                    "barMaxWidth": 40
+                    "type": "scatter",
+                    "encode": {
+                      "x": "published",
+                      "y": "cvss",
+                      "tooltip": [
+                        "id",
+                        "cvss",
+                        "published",
+                        "n"
+                      ]
+                    }
                   }
                 ]
               },
-              "series_by": {
-                "category": "scanner",
-                "series": "status",
-                "value": "c",
-                "order": [
-                  "open",
-                  "resolved"
-                ]
-              },
-              "color_map": {
-                "map": {
-                  "open": "bad",
-                  "resolved": "good"
-                }
-              },
               "types": {
-                "c": "number"
+                "published": "time",
+                "cvss": "number",
+                "n": "number"
               },
-              "height": 300,
-              "aria_label": "Findings by scanner, open and resolved",
-              "empty_text": "No findings.",
+              "aria_label": "Vulnerabilities with an open finding, by publication time and CVSS score",
+              "empty_text": "No open findings.",
+              "height": 320,
               "hide_header": false
             }
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-e7a9-710e-a2ed-620c2d685815",
+            "entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
             "entity_type": "search",
-            "name": "playground — story remediation",
+            "name": "playground — vulnerabilities risk-map",
             "dimensions": {}
           },
           "node": {
-            "name": "playground — story remediation",
-            "description": "Every finding by scanner and whether it is still open.",
+            "name": "playground — vulnerabilities risk-map",
+            "description": "One row per vulnerability with an open finding: its score, publication time and how many findings it has.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
-                "MATCH (s:compliance_core__compliance_scanner)-[:DETECTS_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)",
-                "RETURN s.data.name AS scanner, f.data.status AS status, COUNT(f) AS c"
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN v.data.vuln_id AS id, v.data.cvss_score AS cvss, v.data.published_at AS published, COUNT(f) AS n"
               ]
             }
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "entity_id": "01a13fc0-8f6c-7e81-87d1-a5ae5ac246f7",
+            "entity_type": "panel",
+            "name": "Open vulnerabilities",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open vulnerabilities",
+            "slug": "playground-vulnerabilities-open-vulnerabilities",
+            "description": "Every vulnerability with an open finding, most severe first. Click a row for its detail.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "id",
+                  "title": "Vulnerability",
+                  "width": 170,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "title",
+                  "title": "Title",
+                  "widthGrow": 4
+                },
+                {
+                  "field": "cvss",
+                  "title": "CVSS",
+                  "width": 90,
+                  "align": "right",
+                  "sorter": "number",
+                  "header_tooltip": "CVSS base score, 0 to 10."
+                },
+                {
+                  "field": "kev",
+                  "title": "CISA KEV",
+                  "header_tooltip": "Whether CISA's Known Exploited Vulnerabilities catalog lists it.",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "true": "bad"
+                    },
+                    "labels": {
+                      "true": "KEV",
+                      "false": "—"
+                    }
+                  },
+                  "width": 90,
+                  "align": "center"
+                },
+                {
+                  "field": "published",
+                  "title": "Published",
+                  "width": 150,
+                  "formatter": "datetime"
+                },
+                {
+                  "field": "components",
+                  "title": "Components",
+                  "width": 120,
+                  "align": "right",
+                  "sorter": "number",
+                  "header_tooltip": "How many components carry an open finding for it."
+                }
+              ],
+              "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-c987-7ab2-95f1-41876461fbb6",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities open-vulns",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities open-vulns",
+            "description": "Every vulnerability with an open finding, most severe first, and how many components carry it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND c.entity_type != \"github_core__github_repository\"",
+                "RETURN v.data.vuln_id AS id, v.data.title AS title, v.data.cvss_score AS cvss, v.data.kev AS kev, v.data.published_at AS published, COUNT(c) AS components",
+                "ORDER BY cvss DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-3282-7884-abd9-b3dadb88733d",
+            "entity_type": "panel",
+            "name": "Open vulnerabilities per component",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open vulnerabilities per component",
+            "slug": "playground-vulnerabilities-open-components",
+            "description": "Every component with an open vulnerability. Click a row for its detail.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "component",
+                  "title": "Component",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/component?component_id={cid}",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "type",
+                  "title": "Type",
+                  "header_tooltip": "What kind of component it is.",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "computing_core__package": "muted",
+                      "computing_core__library": "muted",
+                      "computing_core__operating_system": "muted",
+                      "computing_core__crypto_provider": "muted"
+                    },
+                    "labels": {
+                      "computing_core__package": "Package",
+                      "computing_core__library": "Library",
+                      "computing_core__operating_system": "Operating system",
+                      "computing_core__crypto_provider": "Crypto provider"
+                    }
+                  },
+                  "width": 140
+                },
+                {
+                  "field": "vulnerabilities",
+                  "title": "Open findings",
+                  "width": 130,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "worst",
+                  "title": "Highest CVSS",
+                  "width": 130,
+                  "align": "right",
+                  "sorter": "number",
+                  "header_tooltip": "The highest CVSS score among its open findings."
+                }
+              ],
+              "row_url_template": "/playground/vulnerabilities/component?component_id={cid}"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-cd2d-75cd-be70-3088efef6518",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities open-components",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities open-components",
+            "description": "Every component with an open vulnerability, its type, how many open findings it carries and the highest CVSS score among them.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND c.entity_type != \"github_core__github_repository\"",
+                "RETURN c.entity_id AS cid, c.name AS component, c.entity_type AS type, COUNT(f) AS vulnerabilities, MAX(v.data.cvss_score) AS worst",
+                "ORDER BY vulnerabilities DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-5a58-7c89-9ca0-104e462eac38",
+            "entity_type": "panel",
+            "name": "Vulnerability",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Vulnerability",
+            "slug": "playground-vulnerabilities-vuln-identity",
+            "description": "The selected vulnerability.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": false,
+              "default_page_size": 1,
+              "columns": [
+                {
+                  "field": "id",
+                  "title": "Vulnerability",
+                  "width": 160
+                },
+                {
+                  "field": "title",
+                  "title": "Title",
+                  "widthGrow": 4
+                },
+                {
+                  "field": "cvss",
+                  "title": "CVSS",
+                  "width": 90,
+                  "align": "right",
+                  "sorter": "number",
+                  "header_tooltip": "CVSS base score, 0 to 10."
+                },
+                {
+                  "field": "vector",
+                  "title": "Vector",
+                  "widthGrow": 3,
+                  "header_tooltip": "The CVSS vector string."
+                },
+                {
+                  "field": "kev",
+                  "title": "CISA KEV",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "true": "bad"
+                    },
+                    "labels": {
+                      "true": "KEV",
+                      "false": "—"
+                    }
+                  },
+                  "width": 90,
+                  "align": "center"
+                },
+                {
+                  "field": "due",
+                  "title": "KEV due date",
+                  "width": 120,
+                  "header_tooltip": "When CISA requires federal agencies to have remediated it."
+                },
+                {
+                  "field": "exploitation",
+                  "title": "Exploitation",
+                  "width": 120,
+                  "header_tooltip": "CISA's SSVC exploitation assessment: none, poc or active.",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "none": "good",
+                      "poc": "warn",
+                      "active": "bad"
+                    },
+                    "capitalize": true
+                  }
+                },
+                {
+                  "field": "epss",
+                  "title": "EPSS",
+                  "width": 90,
+                  "align": "right",
+                  "header_tooltip": "Probability of exploitation in the next 30 days, from FIRST."
+                },
+                {
+                  "field": "published",
+                  "title": "Published",
+                  "width": 150,
+                  "formatter": "datetime"
+                },
+                {
+                  "field": "cwes",
+                  "title": "Weakness",
+                  "width": 120,
+                  "formatter": "json",
+                  "header_tooltip": "CWE identifiers."
+                },
+                {
+                  "field": "record",
+                  "title": "CVE record",
+                  "width": 140,
+                  "formatter": "externalLink"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-3c00-765e-8b15-41c40e1fb1d5",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities vuln-identity",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities vuln-identity",
+            "description": "The selected vulnerability: score, vector, exploitation signals, publication time and CWE.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id",
+                "RETURN v.data.vuln_id AS id, v.data.title AS title, v.data.cvss_score AS cvss, v.data.cvss_vector AS vector, v.data.kev AS kev, v.data.kev_due_date AS due, v.data.ssvc_exploitation AS exploitation, v.data.epss_score AS epss, v.data.published_at AS published, v.data.cwes AS cwes, v.data.record_url AS record"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "vuln_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vulnerability id, such as CVE-2026-86805."
+                }
+              },
+              "required": [
+                "vuln_id"
+              ],
+              "description": "Selects one vulnerability."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-bff9-7ad2-a2ef-c9716509bb34",
+            "entity_type": "panel",
+            "name": "Description",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Description",
+            "slug": "playground-vulnerabilities-vuln-description",
+            "description": "What the CVE record says.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": false,
+              "default_page_size": 1,
+              "columns": [
+                {
+                  "field": "description",
+                  "title": "Description",
+                  "widthGrow": 6,
+                  "variableHeight": true
+                },
+                {
+                  "field": "action",
+                  "title": "Required action",
+                  "widthGrow": 2,
+                  "header_tooltip": "The action CISA requires, for a KEV entry."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-d52a-75e6-9ff8-bd8812cb74c1",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities vuln-description",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities vuln-description",
+            "description": "The selected vulnerability: the CVE description and, for a KEV entry, the action CISA requires.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id",
+                "RETURN v.data.description AS description, v.data.kev_required_action AS action"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "vuln_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vulnerability id, such as CVE-2026-86805."
+                }
+              },
+              "required": [
+                "vuln_id"
+              ],
+              "description": "Selects one vulnerability."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-2da9-7021-be54-e336e583f2dd",
+            "entity_type": "panel",
+            "name": "Components with this vulnerability",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Components with this vulnerability",
+            "slug": "playground-vulnerabilities-vuln-components",
+            "description": "Components that carry a finding for it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "component",
+                  "title": "Component",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/component?component_id={cid}",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "type",
+                  "title": "Type",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "computing_core__package": "muted",
+                      "computing_core__library": "muted",
+                      "computing_core__operating_system": "muted",
+                      "computing_core__crypto_provider": "muted"
+                    },
+                    "labels": {
+                      "computing_core__package": "Package",
+                      "computing_core__library": "Library",
+                      "computing_core__operating_system": "Operating system",
+                      "computing_core__crypto_provider": "Crypto provider"
+                    }
+                  },
+                  "width": 140
+                },
+                {
+                  "field": "status",
+                  "title": "State",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "resolved": "good"
+                    },
+                    "labels": {
+                      "resolved": "Closed"
+                    },
+                    "capitalize": true
+                  },
+                  "width": 100
+                },
+                {
+                  "field": "findings",
+                  "title": "Findings",
+                  "width": 100,
+                  "align": "right",
+                  "sorter": "number"
+                }
+              ],
+              "row_url_template": "/playground/vulnerabilities/component?component_id={cid}"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-784e-74bf-a83d-84415ed993c3",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities vuln-components",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities vuln-components",
+            "description": "Components that carry a finding for the selected vulnerability, with the finding state.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id AND c.entity_type != \"github_core__github_repository\"",
+                "RETURN c.entity_id AS cid, c.name AS component, c.entity_type AS type, f.data.status AS status, COUNT(f) AS findings",
+                "ORDER BY component ASC"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "vuln_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vulnerability id, such as CVE-2026-86805."
+                }
+              },
+              "required": [
+                "vuln_id"
+              ],
+              "description": "Selects one vulnerability."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0d6f-7717-a87e-e5f285678c2d",
+            "entity_type": "panel",
+            "name": "Systems where it was found",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Systems where it was found",
+            "slug": "playground-vulnerabilities-vuln-systems",
+            "description": "Hosts that install an affected package.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "system",
+                  "title": "System",
+                  "widthGrow": 3
+                },
+                {
+                  "field": "packages",
+                  "title": "Affected packages",
+                  "width": 160,
+                  "align": "right",
+                  "sorter": "number"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-56b8-793d-81d9-2456097b9952",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities vuln-hosts",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities vuln-hosts",
+            "description": "Hosts that install a package carrying an open finding for the selected vulnerability.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:computing_core__host)-[:INSTALLS_PACKAGE__computing_core]->(p:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id AND f.data.status = \"open\"",
+                "RETURN h.name AS system, COUNT(p) AS packages",
+                "ORDER BY packages DESC"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "vuln_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vulnerability id, such as CVE-2026-86805."
+                }
+              },
+              "required": [
+                "vuln_id"
+              ],
+              "description": "Selects one vulnerability."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
+            "entity_type": "panel",
+            "name": "Scanner alerts",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Scanner alerts",
+            "slug": "playground-vulnerabilities-vuln-alerts",
+            "description": "The alerts that raised it, in their repository.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "repository",
+                  "title": "Repository",
+                  "width": 240
+                },
+                {
+                  "field": "alert",
+                  "title": "Alert",
+                  "width": 300
+                },
+                {
+                  "field": "status",
+                  "title": "State",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "resolved": "good"
+                    },
+                    "labels": {
+                      "resolved": "Closed"
+                    },
+                    "capitalize": true
+                  },
+                  "width": 100
+                },
+                {
+                  "field": "finding",
+                  "title": "Finding",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "summary",
+                  "title": "Summary",
+                  "widthGrow": 4
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-a5b2-7ddd-9799-116ebba05cb5",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities vuln-alerts",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities vuln-alerts",
+            "description": "The scanner alerts, in their repository, that raised the selected vulnerability.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (r:github_core__github_repository)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id",
+                "RETURN r.name AS repository, f.data.source_key AS alert, f.data.status AS status, f.name AS finding, f.data.summary AS summary",
+                "ORDER BY alert ASC"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "vuln_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The vulnerability id, such as CVE-2026-86805."
+                }
+              },
+              "required": [
+                "vuln_id"
+              ],
+              "description": "Selects one vulnerability."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9dc2-7340-9dfc-6e175fc034d4",
+            "entity_type": "panel",
+            "name": "Component",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Component",
+            "slug": "playground-vulnerabilities-component-identity",
+            "description": "The selected component.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": false,
+              "default_page_size": 1,
+              "columns": [
+                {
+                  "field": "component",
+                  "title": "Component",
+                  "widthGrow": 3
+                },
+                {
+                  "field": "type",
+                  "title": "Type",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "computing_core__package": "muted",
+                      "computing_core__library": "muted",
+                      "computing_core__operating_system": "muted",
+                      "computing_core__crypto_provider": "muted"
+                    },
+                    "labels": {
+                      "computing_core__package": "Package",
+                      "computing_core__library": "Library",
+                      "computing_core__operating_system": "Operating system",
+                      "computing_core__crypto_provider": "Crypto provider"
+                    }
+                  },
+                  "width": 140
+                },
+                {
+                  "field": "vulnerabilities",
+                  "title": "Open findings",
+                  "width": 130,
+                  "align": "right"
+                },
+                {
+                  "field": "worst",
+                  "title": "Highest CVSS",
+                  "width": 130,
+                  "align": "right"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-439c-75c9-bb47-109e7a04a25b",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities comp-identity",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities comp-identity",
+            "description": "The selected component: its type, open findings and the highest CVSS score among them.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE c.entity_id = $component_id AND f.data.status = \"open\"",
+                "RETURN c.name AS component, c.entity_type AS type, COUNT(f) AS vulnerabilities, MAX(v.data.cvss_score) AS worst"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "component_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The entity id of the component."
+                }
+              },
+              "required": [
+                "component_id"
+              ],
+              "description": "Selects one component."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-b213-70a7-bb9e-be20f75b9a53",
+            "entity_type": "panel",
+            "name": "Vulnerabilities",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Vulnerabilities",
+            "slug": "playground-vulnerabilities-component-vulnerabilities",
+            "description": "Every vulnerability the component has a finding for.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "id",
+                  "title": "Vulnerability",
+                  "width": 170,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "title",
+                  "title": "Title",
+                  "widthGrow": 4
+                },
+                {
+                  "field": "cvss",
+                  "title": "CVSS",
+                  "width": 90,
+                  "align": "right",
+                  "sorter": "number",
+                  "header_tooltip": "CVSS base score, 0 to 10."
+                },
+                {
+                  "field": "kev",
+                  "title": "CISA KEV",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "true": "bad"
+                    },
+                    "labels": {
+                      "true": "KEV",
+                      "false": "—"
+                    }
+                  },
+                  "width": 90,
+                  "align": "center"
+                },
+                {
+                  "field": "published",
+                  "title": "Published",
+                  "width": 150,
+                  "formatter": "datetime"
+                },
+                {
+                  "field": "status",
+                  "title": "State",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "resolved": "good"
+                    },
+                    "labels": {
+                      "resolved": "Closed"
+                    },
+                    "capitalize": true
+                  },
+                  "width": 100
+                }
+              ],
+              "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-71a4-7a35-91c7-5f557ebad493",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities comp-vulns",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities comp-vulns",
+            "description": "Every vulnerability the selected component has a finding for, open or closed.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE c.entity_id = $component_id",
+                "RETURN v.data.vuln_id AS id, v.data.title AS title, v.data.cvss_score AS cvss, v.data.kev AS kev, v.data.published_at AS published, f.data.status AS status",
+                "ORDER BY cvss DESC"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "component_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The entity id of the component."
+                }
+              },
+              "required": [
+                "component_id"
+              ],
+              "description": "Selects one component."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-3053-79fe-871f-588b0b74a04c",
+            "entity_type": "panel",
+            "name": "Systems where it runs",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Systems where it runs",
+            "slug": "playground-vulnerabilities-component-systems",
+            "description": "Hosts that install the component.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "system",
+                  "title": "System",
+                  "widthGrow": 3
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9d92-70d6-9bb2-1f34e25b3cba",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities comp-hosts",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities comp-hosts",
+            "description": "Hosts that install the selected component, when it is a package.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:computing_core__host)-[:INSTALLS_PACKAGE__computing_core]->(p:computing_core__package) WHERE p.entity_id = $component_id",
+                "RETURN h.name AS system"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "component_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The entity id of the component."
+                }
+              },
+              "required": [
+                "component_id"
+              ],
+              "description": "Selects one component."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "entity_type": "page",
             "name": "Vulnerabilities",
-            "dimensions": {}
+            "dimensions": {
+              "tap.graph": "web"
+            }
           },
           "node": {
             "name": "Vulnerabilities",
             "slug": "/playground/vulnerabilities",
-            "description": "What the scanners found, whether it is being used against anyone, where it lives and how much is already fixed. Charts first; every alert is on the detail page.",
+            "description": "What is open, how severe, and what carries it: three cards, three charts, then every open vulnerability and every affected component. Click a row to drill in.",
             "layout": {
               "columns": {
                 "col-1": {
                   "width": "4fr",
+                  "band": 1,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vulnerabilities-l1-lede",
-                      "height": "auto"
-                    },
-                    "row-2": {
                       "panel-id": "playground-vulnerabilities-open",
                       "height": "auto"
                     },
-                    "row-3": {
+                    "row-2": {
                       "panel-id": "playground-vulnerabilities-cvss",
-                      "height": "auto"
-                    },
-                    "row-4": {
-                      "panel-id": "playground-vulnerabilities-found-by",
                       "height": "auto"
                     }
                   }
                 },
                 "col-2": {
                   "width": "4fr",
+                  "band": 1,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vulnerabilities-l2-lede",
-                      "height": "auto"
-                    },
-                    "row-2": {
                       "panel-id": "playground-vulnerabilities-kev",
                       "height": "auto"
                     },
-                    "row-3": {
-                      "panel-id": "playground-vulnerabilities-exploitation",
-                      "height": "auto"
-                    },
-                    "row-4": {
-                      "panel-id": "playground-vulnerabilities-risk-map",
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-top-components",
                       "height": "auto"
                     }
                   }
                 },
                 "col-3": {
                   "width": "4fr",
+                  "band": 1,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vulnerabilities-l3-lede",
-                      "height": "auto"
-                    },
-                    "row-2": {
                       "panel-id": "playground-vulnerabilities-closed",
                       "height": "auto"
                     },
-                    "row-3": {
-                      "panel-id": "playground-vulnerabilities-top-components",
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-severity-age",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-open-vulnerabilities",
                       "height": "auto"
                     },
-                    "row-4": {
-                      "panel-id": "playground-vulnerabilities-tree",
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-open-components",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "entity_type": "page",
+            "name": "Vulnerability",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Vulnerability",
+            "slug": "/playground/vulnerabilities/vulnerability",
+            "description": "One vulnerability: what it is, how it scores, whether it is being exploited, the components that carry it and the systems where it was found. Open it from a row on the Vulnerabilities page.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-vuln-identity",
                       "height": "auto"
                     },
-                    "row-5": {
-                      "panel-id": "playground-vulnerabilities-remediation",
+                    "row-2": {
+                      "panel-id": "playground-vulnerabilities-vuln-description",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-vuln-components",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-vuln-systems",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-vuln-alerts",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0467-7eca-9096-27dcb3cc6c94",
+            "entity_type": "page",
+            "name": "Component",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Component",
+            "slug": "/playground/vulnerabilities/component",
+            "description": "One component: its type and open findings, every vulnerability it carries and the systems where it runs. Open it from a row on the Vulnerabilities page.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-component-identity",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "8fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-component-vulnerabilities",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "4fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-component-systems",
                       "height": "auto"
                     }
                   }
@@ -1996,247 +1646,9 @@
       "edges": [
         {
           "entity": {
-            "entity_id": "01a13c36-8c0d-7853-9659-eff92ea65db1",
-            "entity_type": "edge",
-            "name": "Dependabot USES_SEARCH playground — vulnerabilities dependabot",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
-            "to_entity_id": "01a13c36-8c0d-7c03-b3ca-9cb73e3d4183",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7e1c-b864-4aacf4a9d3ae",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL Dependabot",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13c36-8c0d-7c1c-8620-f89602229036",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "dependabot"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-711c-8c89-644002f12e30",
-            "entity_type": "edge",
-            "name": "CodeQL USES_SEARCH playground — vulnerabilities codeql",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
-            "to_entity_id": "01a13c36-8c0d-7a2b-9bad-50d845974438",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-752e-b20d-69684a9d0c96",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL CodeQL",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13c36-8c0d-7e2b-941e-28d15afa75d7",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "codeql"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-79aa-ad6c-5012e57e2e98",
-            "entity_type": "edge",
-            "name": "Grype USES_SEARCH playground — vulnerabilities grype",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
-            "to_entity_id": "01a13c36-8c0d-72b9-8988-f87cdf67a36d",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-72a8-b4a4-3b4addf8f2c6",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL Grype",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13c36-8c0d-763b-be2e-a2531c082c37",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "grype"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7ba4-94b5-e2d39f7975c8",
-            "entity_type": "edge",
-            "name": "SonarCloud USES_SEARCH playground — vulnerabilities sonarcloud",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
-            "to_entity_id": "01a13c36-8c0d-7a8d-b95b-25a74fef786a",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7c8d-b1bf-e71e037b639c",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL SonarCloud",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13c36-8c0d-777b-9b2a-2604ec2eec9e",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "sonarcloud"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-70fa-9723-4c6dd528a268",
-            "entity_type": "edge",
-            "name": "Trivy USES_SEARCH playground — vulnerabilities trivy",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
-            "to_entity_id": "01a13c36-8c0d-7ed1-ab32-2800343665a5",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13c36-8c0d-7bc0-9972-7a23f46c3c4c",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL Trivy",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13c36-8c0d-745f-b4de-49d17458911b",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "trivy"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-713d-bce9-656cad41b354",
-            "entity_type": "edge",
-            "name": "Closed Dependabot USES_SEARCH playground — vulnerabilities closed-dependabot",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
-            "to_entity_id": "01a13fb1-faaf-7caa-8124-a7e3ad4797b4",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-746b-95c0-fa131c34437b",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL Closed Dependabot",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13fb1-faaf-7f09-beea-95da1f17ead6",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "closed-dependabot"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-7ef1-8b36-39a1a62e4487",
-            "entity_type": "edge",
-            "name": "Closed code scanning USES_SEARCH playground — vulnerabilities closed-code-scanning",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
-            "to_entity_id": "01a13fb1-faaf-79df-b282-66b133564037",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fb1-faaf-7cbd-ab6c-b0193de80f5b",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities USES_PANEL Closed code scanning",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13fb1-faaf-74b3-9ad4-2289650ab418",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "closed-code-scanning"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13fc0-add3-74a9-98ab-ba7e8f9aa8d9",
             "entity_type": "edge",
-            "name": "Open findings USES_SEARCH story card-open",
+            "name": "Open findings USES_SEARCH card-open",
             "dimensions": {}
           },
           "edge": {
@@ -2248,37 +1660,9 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-6067-7520-b05c-0ad85a5f025b",
-            "entity_type": "edge",
-            "name": "How severe: CVSS score USES_SEARCH story cvss-spread",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
-            "to_entity_id": "01a13fc0-a281-7bab-af01-e8168adb7c1b",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-9545-7479-a95a-a0b74267d020",
-            "entity_type": "edge",
-            "name": "Who found them USES_SEARCH story found-by",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
-            "to_entity_id": "01a13fc0-d39f-74dd-a4dd-0c2308bb990b",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13fc0-a687-79d0-b79b-551cf475e9fb",
             "entity_type": "edge",
-            "name": "On the CISA exploited list USES_SEARCH story card-kev",
+            "name": "On the CISA exploited list USES_SEARCH card-kev",
             "dimensions": {}
           },
           "edge": {
@@ -2290,37 +1674,9 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-2440-7645-9261-c1cf7f8e9c87",
-            "entity_type": "edge",
-            "name": "CISA exploitation assessment USES_SEARCH story exploitation",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
-            "to_entity_id": "01a13fc0-ab55-73b7-8597-123256f01197",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-2b31-7eaa-ab1b-8e33542c4af1",
-            "entity_type": "edge",
-            "name": "Severity against age USES_SEARCH story risk-map",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
-            "to_entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13fc0-4d55-795e-87bd-aa49fec83230",
             "entity_type": "edge",
-            "name": "Already closed USES_SEARCH story card-closed",
+            "name": "Closed USES_SEARCH card-closed",
             "dimensions": {}
           },
           "edge": {
@@ -2332,9 +1688,23 @@
         },
         {
           "entity": {
+            "entity_id": "01a13fc0-6067-7520-b05c-0ad85a5f025b",
+            "entity_type": "edge",
+            "name": "CVSS score USES_SEARCH cvss-spread",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
+            "to_entity_id": "01a13fc0-a281-7bab-af01-e8168adb7c1b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13fc0-0124-75b5-9089-8b2a7acd1a92",
             "entity_type": "edge",
-            "name": "Components with the most open findings USES_SEARCH story top-components",
+            "name": "Components with the most open findings USES_SEARCH top-components",
             "dimensions": {}
           },
           "edge": {
@@ -2346,61 +1716,167 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-0ef9-768f-82dc-39f20830c495",
+            "entity_id": "01a13fc0-0920-7f8b-90c1-e8dc87cbf3be",
             "entity_type": "edge",
-            "name": "Open findings by ecosystem USES_SEARCH story component-tree",
+            "name": "Severity by age USES_SEARCH risk-map",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
-            "to_entity_id": "01a13fc0-8cb0-7aac-95e3-62e6ff76573c",
+            "from_entity_id": "01a13fc0-0202-7906-984e-26dc228c8de8",
+            "to_entity_id": "01a13fc0-111e-7481-9b51-8d6d253760fb",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-5986-7b38-b39e-5b6d2e14c512",
+            "entity_id": "01a13fc0-1e1c-77e7-9279-e6e7fe04b4e9",
             "entity_type": "edge",
-            "name": "Open and closed, by scanner USES_SEARCH story remediation",
+            "name": "Open vulnerabilities USES_SEARCH open-vulns",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
-            "to_entity_id": "01a13fc0-e7a9-710e-a2ed-620c2d685815",
+            "from_entity_id": "01a13fc0-8f6c-7e81-87d1-a5ae5ac246f7",
+            "to_entity_id": "01a13fc0-c987-7ab2-95f1-41876461fbb6",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-0490-76e1-b090-7c402bc9451c",
+            "entity_id": "01a13fc0-46ab-7470-88ff-3aad7ac6f37f",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL l1-lede",
+            "name": "Open vulnerabilities per component USES_SEARCH open-components",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-83e2-7b4a-aa77-96a06de66ff9",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-l1-lede"
-              }
-            }
+            "from_entity_id": "01a13fc0-3282-7884-abd9-b3dadb88733d",
+            "to_entity_id": "01a13fc0-cd2d-75cd-be70-3088efef6518",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-131a-7a64-b430-e4e458c7438c",
+            "entity_id": "01a13fc0-ea86-72e5-a7d8-b5fd504d5dbe",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL open",
+            "name": "Vulnerability USES_SEARCH vuln-identity",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "from_entity_id": "01a13fc0-5a58-7c89-9ca0-104e462eac38",
+            "to_entity_id": "01a13fc0-3c00-765e-8b15-41c40e1fb1d5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-e1f6-7a3d-ae66-18f62ae8b538",
+            "entity_type": "edge",
+            "name": "Description USES_SEARCH vuln-description",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-bff9-7ad2-a2ef-c9716509bb34",
+            "to_entity_id": "01a13fc0-d52a-75e6-9ff8-bd8812cb74c1",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-91a3-7567-8f46-30dddd3d7143",
+            "entity_type": "edge",
+            "name": "Components with this vulnerability USES_SEARCH vuln-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-2da9-7021-be54-e336e583f2dd",
+            "to_entity_id": "01a13fc0-784e-74bf-a83d-84415ed993c3",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0b71-76b6-8454-b2f705b0d770",
+            "entity_type": "edge",
+            "name": "Systems where it was found USES_SEARCH vuln-hosts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-0d6f-7717-a87e-e5f285678c2d",
+            "to_entity_id": "01a13fc0-56b8-793d-81d9-2456097b9952",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-b59e-7255-8a3e-af4a377dfb18",
+            "entity_type": "edge",
+            "name": "Scanner alerts USES_SEARCH vuln-alerts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
+            "to_entity_id": "01a13fc0-a5b2-7ddd-9799-116ebba05cb5",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-7f88-7a2e-82ce-a912a6d37343",
+            "entity_type": "edge",
+            "name": "Component USES_SEARCH comp-identity",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-9dc2-7340-9dfc-6e175fc034d4",
+            "to_entity_id": "01a13fc0-439c-75c9-bb47-109e7a04a25b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-8956-7ba2-9912-dfd5b03a0d9d",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_SEARCH comp-vulns",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b213-70a7-bb9e-be20f75b9a53",
+            "to_entity_id": "01a13fc0-71a4-7a35-91c7-5f557ebad493",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-e830-7932-bcc2-e02f3d20e708",
+            "entity_type": "edge",
+            "name": "Systems where it runs USES_SEARCH comp-hosts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-3053-79fe-871f-588b0b74a04c",
+            "to_entity_id": "01a13fc0-9d92-70d6-9bb2-1f34e25b3cba",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-5f48-708c-a412-56bbcec5614a",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_PANEL open",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "to_entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
             "edge_type": "USES_PANEL",
             "properties": {
@@ -2414,13 +1890,13 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-45eb-7eea-afc7-686f3c93f367",
+            "entity_id": "01a13fc0-0cba-77a0-b776-8b4b65f22baf",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL cvss",
+            "name": "Vulnerabilities USES_PANEL cvss",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "to_entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
             "edge_type": "USES_PANEL",
             "properties": {
@@ -2434,53 +1910,13 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-294a-759f-8743-b2b2f3ed158e",
+            "entity_id": "01a13fc0-ff52-75ec-b222-308bba144999",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL found-by",
+            "name": "Vulnerabilities USES_PANEL kev",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-9ac6-7514-a8c3-f872e110944b",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-found-by"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-29b4-7231-8893-5a47655acbd5",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL l2-lede",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-3be2-7f67-a75e-2ddd2534c2c7",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-l2-lede"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-d769-7111-ab6f-0079197fde5f",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL kev",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "to_entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
             "edge_type": "USES_PANEL",
             "properties": {
@@ -2494,93 +1930,13 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-b780-7f7d-938a-d8703cd0d655",
+            "entity_id": "01a13fc0-1333-7e18-b255-2c318cb100a4",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL exploitation",
+            "name": "Vulnerabilities USES_PANEL top-components",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-3285-7370-bef7-b78126a7e04b",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-exploitation"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-c0c0-739f-af76-77d018717655",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL risk-map",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-2f9f-7ad8-8e90-c325f3062583",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-risk-map"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-39f0-7590-a50b-f3c4d835dcde",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL l3-lede",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-62e8-78bd-abde-19899dc12a2e",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-l3-lede"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-796a-70d8-897b-005be69ad14f",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL closed",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-closed"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-69ab-7c6a-9ffb-289808521bde",
-            "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL top-components",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
             "to_entity_id": "01a13fc0-9697-7b28-9a51-cce547e62b96",
             "edge_type": "USES_PANEL",
             "properties": {
@@ -2594,40 +1950,240 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-a438-7481-8a1b-61cf4ae640a3",
+            "entity_id": "01a13fc0-4a20-7bd3-b0c1-141a3d4f9de0",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL tree",
+            "name": "Vulnerabilities USES_PANEL closed",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-1748-7c34-939d-10821f90c888",
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fc0-320d-7da7-9ee1-c23ba87b4f1a",
             "edge_type": "USES_PANEL",
             "properties": {
               "hotlink": {
                 "model": "page",
                 "spec": "page-panels",
-                "value": "playground-vulnerabilities-tree"
+                "value": "playground-vulnerabilities-closed"
               }
             }
           }
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-1310-74be-a68c-f271e8c1f2f9",
+            "entity_id": "01a13fc0-91f1-7263-bfd9-3e6da6fce811",
             "entity_type": "edge",
-            "name": "Playground vulnerabilities story USES_PANEL remediation",
+            "name": "Vulnerabilities USES_PANEL severity-age",
             "dimensions": {}
           },
           "edge": {
-            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
-            "to_entity_id": "01a13fc0-6e1d-7fb8-b979-8f12686d2ece",
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fc0-0202-7906-984e-26dc228c8de8",
             "edge_type": "USES_PANEL",
             "properties": {
               "hotlink": {
                 "model": "page",
                 "spec": "page-panels",
-                "value": "playground-vulnerabilities-remediation"
+                "value": "playground-vulnerabilities-severity-age"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-d6d2-75bc-8fa7-7c9431638bab",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_PANEL t-vulns",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fc0-8f6c-7e81-87d1-a5ae5ac246f7",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-open-vulnerabilities"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-c2f9-7f6e-9981-0b064f636014",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_PANEL t-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
+            "to_entity_id": "01a13fc0-3282-7884-abd9-b3dadb88733d",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-open-components"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-771e-7f44-9bc6-e9b7de4ec9dd",
+            "entity_type": "edge",
+            "name": "Vulnerability USES_PANEL v-id",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "to_entity_id": "01a13fc0-5a58-7c89-9ca0-104e462eac38",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-vuln-identity"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-2c29-7105-996f-46d427d177a3",
+            "entity_type": "edge",
+            "name": "Vulnerability USES_PANEL v-desc",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "to_entity_id": "01a13fc0-bff9-7ad2-a2ef-c9716509bb34",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-vuln-description"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-23e2-75cd-ac40-e92805eb0ce8",
+            "entity_type": "edge",
+            "name": "Vulnerability USES_PANEL v-comps",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "to_entity_id": "01a13fc0-2da9-7021-be54-e336e583f2dd",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-vuln-components"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-ffc2-735c-989a-41fb53995142",
+            "entity_type": "edge",
+            "name": "Vulnerability USES_PANEL v-hosts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "to_entity_id": "01a13fc0-0d6f-7717-a87e-e5f285678c2d",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-vuln-systems"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-aece-732f-b8d6-e73e89b587f2",
+            "entity_type": "edge",
+            "name": "Vulnerability USES_PANEL v-alerts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-6fc2-791d-acb0-817884fb1af9",
+            "to_entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-vuln-alerts"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-cb67-7e33-89ff-668a56bac077",
+            "entity_type": "edge",
+            "name": "Component USES_PANEL c-id",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-0467-7eca-9096-27dcb3cc6c94",
+            "to_entity_id": "01a13fc0-9dc2-7340-9dfc-6e175fc034d4",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-component-identity"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-0620-7a1d-84fc-2b9170593c55",
+            "entity_type": "edge",
+            "name": "Component USES_PANEL c-vulns",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-0467-7eca-9096-27dcb3cc6c94",
+            "to_entity_id": "01a13fc0-b213-70a7-bb9e-be20f75b9a53",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-component-vulnerabilities"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-8605-76ff-8121-17719c876663",
+            "entity_type": "edge",
+            "name": "Component USES_PANEL c-hosts",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-0467-7eca-9096-27dcb3cc6c94",
+            "to_entity_id": "01a13fc0-3053-79fe-871f-588b0b74a04c",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-component-systems"
               }
             }
           }

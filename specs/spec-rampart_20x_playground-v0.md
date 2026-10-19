@@ -71,7 +71,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
-| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | A three-lane story of cards and charts; the table per source on a detail page |
+| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a vulnerability or component page |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -346,37 +346,43 @@ RID: `req-rampart-20x-playground-page-vulnerabilities`
 
 Status: `Proposed`
 
-The vulnerabilities page tells a story to someone who has just arrived: what is open, whether anyone is
-exploiting it, and where it lives and how much is already done. It is three lanes of cards and charts over the
-`compliance_core` vulnerability, scanner and finding nodes and the `computing_core` components they concern,
-not one table per tool. Every alert the scanners reported stays one click away on the detail page, which keeps
-the table per source: Dependabot first, then each code scanning tool, then the closed alerts with the dismissal
-reason as recorded.
+The vulnerabilities page tells a story to someone who has just arrived: how much is open, how severe it is,
+what carries it, and what is already done. It is three cards, three charts, a table of the open vulnerabilities
+and a table of the components that carry them, over the `compliance_core` vulnerability and finding nodes and
+the `computing_core` components they concern. Each row drills in: a vulnerability page shows as much context as
+the grid holds, the components that carry it and the systems where it was found; a component page shows its
+type and every vulnerability it carries.
 
 #### Implementation
 
-Route `/playground/vulnerabilities`, three lanes. Each opens with a text panel that asks the lane's question
-and a Stat Cards card, then charts: the first lane shows the open findings, their CVSS spread and which scanner
-found them; the second shows CISA's KEV count, CISA's SSVC exploitation assessment and a scatter of severity
-against publication time; the third shows the components with most open findings, an ecosystem treemap, what is
-already closed, and open against closed by scanner. The charts are Chart panels (`spec-web-panels-chart.md`) and
-the cards are Stat Cards panels, each bound by `USES_SEARCH` to one Search. The Searches reach scanners, findings,
-vulnerabilities and components by edge; none names a tool, a node id or a value. The detail page,
-`/playground/vulnerabilities/detail`, is the earlier page unchanged: one standard table panel and one Search per
-source. The enrichment bundle that supplies vulnerabilities and scanners is demo data until the CI SBOM
+Route `/playground/vulnerabilities`, two bands. The first band is three equal columns, each a Stat Cards card
+over a Chart panel, so a card is as wide as its column: open findings, findings on CISA's KEV catalog and closed
+findings; then the CVSS score of the open findings (the count printed in each bar), the components carrying most
+open findings, and severity by age, a scatter of publication time against CVSS score. A card shows its figure
+and the tone's left edge, with no unit, no secondary line and no tone word. The three charts share one height.
+The second band is full width: a table of the open vulnerabilities (id, title, CVSS, KEV, publication time and
+the number of components that carry it) and a table of the components with an open vulnerability (name, type,
+open findings and highest CVSS). Both search and page. A row opens `/playground/vulnerabilities/vulnerability`
+or `/playground/vulnerabilities/component`; the id is a query parameter that the page forwards to its Searches
+as a declared input. Every panel is bound by `USES_SEARCH` to one Search; the Searches reach vulnerabilities,
+findings and components by edge and none names a tool, a vulnerability or a node id. The component type is the
+node's own type, so a library, a package or anything else that carries a finding appears in the same table. The
+vulnerability and findings in the bundle that supplies the compliance_core nodes are demo data until the CI SBOM
 delivers enriched vulnerabilities.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-vulnerabilities-1 | Route Serves | Proposed | `GET /playground/vulnerabilities` and `/playground/vulnerabilities/detail` return 200. | |
-| req-rampart-20x-playground-page-vulnerabilities-2 | Three Lanes | Proposed | The page has three lanes; each opens with a text panel and a Stat Cards card and then shows charts. | |
-| req-rampart-20x-playground-page-vulnerabilities-3 | No Tool In A Search | Proposed | No Search of the story page names a scanner or a node id. | The scanner is reached by edge. |
-| req-rampart-20x-playground-page-vulnerabilities-4 | Standard Vocabulary Only | Proposed | The story Searches read only `compliance_core` and `computing_core` types. | |
-| req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a card or chart config names is a RETURN alias of its Search. | |
-| req-rampart-20x-playground-page-vulnerabilities-6 | Charts Describe Themselves | Proposed | Every chart carries an accessible label and says what an empty result means. | |
-| req-rampart-20x-playground-page-vulnerabilities-7 | Detail Keeps The Tables | Proposed | The detail page shows one table per source, Dependabot first, open alerts most severe first, then the closed alerts with the dismissal reason and comment as recorded. | The earlier ACIDs 2 to 6. |
+| req-rampart-20x-playground-page-vulnerabilities-1 | Routes Serve | Proposed | `GET /playground/vulnerabilities`, `/playground/vulnerabilities/vulnerability?vuln_id=...` and `/playground/vulnerabilities/component?component_id=...` return 200. | |
+| req-rampart-20x-playground-page-vulnerabilities-2 | Cards Over Charts In Three Columns | Proposed | The first band is three equal columns, each a card over a chart; the cards carry no unit, secondary line or tone word. | |
+| req-rampart-20x-playground-page-vulnerabilities-3 | No Tool In A Search | Proposed | No Search names a scanner, a vulnerability or a node id. | The scanner is reached by edge, the vulnerability by a parameter. |
+| req-rampart-20x-playground-page-vulnerabilities-4 | Standard Vocabulary Only | Proposed | The Searches read only `compliance_core`, `computing_core` and `github_core` types. | |
+| req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a column, chart or row link names is a RETURN alias of its Search; every `$parameter` a Search uses is declared in its input schema. | |
+| req-rampart-20x-playground-page-vulnerabilities-6 | Charts Describe Themselves | Proposed | The three charts share a height; each carries an accessible label and says what an empty result means; the score chart prints its counts. | |
+| req-rampart-20x-playground-page-vulnerabilities-7 | Two Searchable Paged Tables | Proposed | A full-width band holds the open-vulnerability table and the per-component table, each with a quick filter, paging and a row link to its drill-in. | |
+| req-rampart-20x-playground-page-vulnerabilities-8 | Vulnerability Drill-In | Proposed | The vulnerability page shows its score, vector, KEV and exploitation signals, publication time, CWE, description, the components that carry it, the hosts that install them and the scanner alerts. | |
+| req-rampart-20x-playground-page-vulnerabilities-9 | Component Drill-In | Proposed | The component page shows its type, open findings, highest CVSS, every vulnerability it carries and the hosts that install it. | |
 
 ### VDR Reports Page
 ----

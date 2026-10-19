@@ -1,53 +1,43 @@
-"""The vulnerabilities page, read from the bundle as written (`req-rampart-20x-playground-page-vulnerabilities-*`).
+"""The vulnerabilities pages, read from the bundle as written (`req-rampart-20x-playground-page-vulnerabilities-*`).
 
-These tests read the JSON file only, so they hold what the bundle declares, not what a grid returns. How many
-rows each table shows and whether the tool sections match the tools on the grid is checked in the browser."""
+These tests read the JSON file only, so they hold what the bundle declares, not what a grid returns. What the
+Searches return, and how the pages look, is checked against a booted stack in a browser."""
 
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
 FILE = "vulnerabilities-page.grift.json"
-# The panel slot of each table, in page order: the open alerts by source, Dependabot first, then the closed alerts.
-OPEN_SLOTS = ["dependabot", "trivy", "grype", "sonarcloud", "codeql"]
-CLOSED_SLOTS = ["closed-dependabot", "closed-code-scanning"]
-SLOTS = OPEN_SLOTS + CLOSED_SLOTS
-TOOLS = {"trivy": "Trivy", "grype": "Grype", "sonarcloud": "SonarCloud", "codeql": "CodeQL"}
-# Fields the alert models hold (github_core__dependabot_alert, github_core__code_scanning_alert).
-DEPENDABOT_FIELDS = {
-    "data.package_name", "data.ecosystem", "data.severity", "data.state", "data.advisory_summary", "data.ghsa_id",
-    "data.first_patched_version", "data.manifest_path", "data.created_at", "data.fixed_at", "data.html_url",
-    "data.dismissed_reason", "data.dismissed_comment", "data.dismissed_at",
-}
-CODE_SCANNING_FIELDS = {
-    "data.tool_name", "data.rule_id", "data.security_severity_level", "data.state", "data.location.path",
-    "data.location.start_line", "data.number", "data.created_at", "data.fixed_at", "data.dismissed_at",
-    "data.html_url", "data.dismissed_reason", "data.dismissed_comment",
-}
+OVERVIEW = "/playground/vulnerabilities"
+VULNERABILITY = "/playground/vulnerabilities/vulnerability"
+COMPONENT = "/playground/vulnerabilities/component"
+CARD = "tap_web/panels/stat_card_panel.html"
+CHART = "tap_web/panels/chart.html"
+TABLE = "tap_web/panels/table_panel.html"
+# Plugins whose node types the Searches may name; no Search names a scanner, a tool or a node id.
+VOCABULARY = ("compliance_core__", "computing_core__", "github_core__")
+SCANNERS = ("Trivy", "Grype", "SonarCloud", "CodeQL", "Dependabot")
 
 
 def _bundle() -> dict:
     return json.loads((GRIFT / FILE).read_text(encoding="utf-8"))
 
 
-class TestVulnerabilitiesPage:
+class TestVulnerabilityPages:
     def setup_method(self) -> None:
         batch = _bundle()["batches"][0]
         self.batch = batch
         self.nodes = batch["nodes"]
         self.edges = batch["edges"]
         self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
-
-    def _of(self, entity_type: str) -> list[dict]:
-        return [n for n in self.nodes if n["entity"]["entity_type"] == entity_type]
-
-    def _tables(self) -> list[dict]:
-        """The seven raw alert tables of the detail page; the story page's cards and charts are not tables."""
-        return [p for p in self._of("panel") if p["node"]["view"] == "tap_web/panels/table_panel.html"]
+        self.pages = {n["node"]["slug"]: n for n in self.nodes if n["entity"]["entity_type"] == "page"}
+        self.panels = [n for n in self.nodes if n["entity"]["entity_type"] == "panel"]
+        self.by_slug = {p["node"]["slug"]: p for p in self.panels}
 
     def _search_of(self, panel: dict) -> dict:
         links = [
@@ -57,112 +47,189 @@ class TestVulnerabilitiesPage:
         assert len(links) == 1, panel["entity"]["name"]
         return self.by_id[links[0]["edge"]["to_entity_id"]]
 
-    def _panel_in_slot(self, slot: str) -> dict:
-        edge = next(
-            e for e in self.edges
-            if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["properties"]["hotlink"]["value"] == slot
-        )
-        return self.by_id[edge["edge"]["to_entity_id"]]
+    def _query(self, panel: dict) -> str:
+        return " ".join(self._search_of(panel)["node"]["definition"]["query"])
 
-    def test_route_and_title(self) -> None:
-        pages = {p["node"]["slug"]: p["node"]["name"] for p in self._of("page")}
-        assert pages == {
-            "/playground/vulnerabilities": "Vulnerabilities",
-            "/playground/vulnerabilities/detail": "Vulnerability detail",
-        }
+    def _returned(self, panel: dict) -> set[str]:
+        return set(re.findall(r" AS (\w+)", self._query(panel)))
 
-    def test_open_sections_by_source_then_the_closed_pair(self) -> None:
-        (page,) = [p for p in self._of("page") if p["node"]["slug"].endswith("/detail")]
-        rows = page["node"]["layout"]["columns"]["col-1"]["rows"]
-        assert [rows[k]["panel-id"] for k in sorted(rows, key=lambda r: int(r.split("-")[1]))] == SLOTS
-        hotlinks = [
-            e["edge"]["properties"]["hotlink"]["value"]
-            for e in self.edges
-            if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["from_entity_id"] == page["entity"]["entity_id"]
-        ]
-        assert sorted(hotlinks) == sorted(SLOTS)
+    def _bands(self, slug: str) -> dict[int, list[dict]]:
+        bands: dict[int, list[dict]] = {}
+        columns = self.pages[slug]["node"]["layout"]["columns"]
+        for key in sorted(columns, key=lambda k: int(k.split("-")[1])):
+            bands.setdefault(columns[key]["band"], []).append(columns[key])
+        return bands
 
-    def test_each_panel_is_a_standard_table_with_one_search(self) -> None:
-        panels = self._tables()
-        assert len(panels) == len(SLOTS)
-        for panel in panels:
-            assert self._search_of(panel)["entity"]["entity_type"] == "search"
+    def _slots(self, slug: str) -> list[str]:
+        return [row["panel-id"] for col in self.pages[slug]["node"]["layout"]["columns"].values() for row in col["rows"].values()]
 
-    def test_dependabot_search_reads_the_dependabot_alerts(self) -> None:
-        query = self._search_of(self._panel_in_slot("dependabot"))["node"]["definition"]["query"]
-        assert query[0] == "MATCH (n:github_core__dependabot_alert)"
-        assert [line for line in query if line.startswith("WHERE")] == ['WHERE n.data.state = "open"']
+    def _of(self, band: list[dict]) -> list[list[dict]]:
+        return [[self.by_slug[row["panel-id"]] for row in col["rows"].values()] for col in band]
 
-    def test_each_tool_search_selects_its_tool_so_no_alert_is_in_two_sections(self) -> None:
-        seen = []
-        for slot, tool in TOOLS.items():
-            query = self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"]
-            assert query[0] == "MATCH (n:github_core__code_scanning_alert)"
-            assert f'WHERE n.data.tool_name = "{tool}" AND n.data.state = "open"' in query
-            seen.append(tool)
-        assert len(seen) == len(set(seen))
+    # -- every page ------------------------------------------------------------------------------------------
 
-    def test_the_open_searches_select_open_alerts_only(self) -> None:
-        for slot in OPEN_SLOTS:
-            query = " ".join(self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"])
-            assert 'n.data.state = "open"' in query, slot
+    def test_the_overview_and_its_two_drill_in_pages_exist(self) -> None:
+        assert set(self.pages) == {OVERVIEW, VULNERABILITY, COMPONENT}
 
-    def test_the_closed_searches_select_every_alert_that_is_not_open_and_name_no_tool(self) -> None:
-        for slot, model in (("closed-dependabot", "dependabot_alert"), ("closed-code-scanning", "code_scanning_alert")):
-            query = self._search_of(self._panel_in_slot(slot))["node"]["definition"]["query"]
-            assert query[0] == f"MATCH (n:github_core__{model})"
-            assert 'WHERE n.data.state != "open"' in query
-            assert "tool_name" not in " ".join(query), slot
+    def test_each_slot_is_wired_to_exactly_one_panel_and_each_panel_to_one_slot(self) -> None:
+        for slug, page in self.pages.items():
+            slots = self._slots(slug)
+            assert len(slots) == len(set(slots)), slug
+            hotlinks = [
+                e["edge"]["properties"]["hotlink"]["value"] for e in self.edges
+                if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["from_entity_id"] == page["entity"]["entity_id"]
+            ]
+            assert sorted(hotlinks) == sorted(slots), slug
+            assert all(s in self.by_slug for s in slots), slug
+        every = [s for slug in self.pages for s in self._slots(slug)]
+        assert sorted(every) == sorted(self.by_slug)
 
-    def test_the_closed_tables_show_the_dismissal_reason_and_comment_as_recorded(self) -> None:
-        for slot in CLOSED_SLOTS:
-            fields = {c["field"] for c in self._panel_in_slot(slot)["node"]["config"]["columns"]}
-            assert {"data.dismissed_reason", "data.dismissed_comment"} <= fields, slot
+    def test_bands_are_numbered_from_one_without_gaps(self) -> None:
+        for slug in self.pages:
+            assert sorted(self._bands(slug)) == list(range(1, len(self._bands(slug)) + 1)), slug
 
-    def test_the_closed_code_scanning_table_shows_the_tool_as_a_column(self) -> None:
-        fields = {c["field"] for c in self._panel_in_slot("closed-code-scanning")["node"]["config"]["columns"]}
-        assert "data.tool_name" in fields
+    def test_every_panel_reads_one_search(self) -> None:
+        for panel in self.panels:
+            self._search_of(panel)
 
-    def test_every_open_panel_opens_sorted_by_severity_rank(self) -> None:
-        for slot in OPEN_SLOTS:
-            panel = self._panel_in_slot(slot)
-            config = panel["node"]["config"]
-            severity = [c for c in config["columns"] if c["title"] == "Severity"]
-            assert len(severity) == 1 and severity[0]["sorter"] == "severityRank", panel["entity"]["name"]
-            assert config["initial_sort"] == [{"field": severity[0]["field"], "dir": "desc"}], panel["entity"]["name"]
+    def test_no_search_names_a_scanner_a_vulnerability_or_a_node_id(self) -> None:
+        """Tools and vulnerabilities are nodes: the Searches reach them by edge or by a parameter, never by value."""
+        for panel in self.panels:
+            text = self._query(panel)
+            for tool in SCANNERS:
+                assert tool not in text, (panel["entity"]["name"], tool)
+            assert not re.search(r"CVE-\d", text), panel["entity"]["name"]
+            assert not re.search(r"entity_id\s*=\s*\"", text), panel["entity"]["name"]
 
-    def test_every_closed_panel_has_a_severity_column_that_sorts_by_rank_and_opens_newest_first(self) -> None:
-        for slot in CLOSED_SLOTS:
-            config = self._panel_in_slot(slot)["node"]["config"]
-            severity = [c for c in config["columns"] if c["title"] == "Severity"]
-            assert len(severity) == 1 and severity[0]["sorter"] == "severityRank", slot
-            assert config["initial_sort"] == [{"field": "data.created_at", "dir": "desc"}], slot
+    def test_searches_use_the_standard_vocabulary_only(self) -> None:
+        for panel in self.panels:
+            types = set(re.findall(r"[:\[]([a-z_]+__[A-Za-z_]+)", self._query(panel)))
+            assert types and all(t.startswith(VOCABULARY) for t in types), (panel["entity"]["name"], types)
 
-    def test_every_search_orders_newest_first(self) -> None:
-        for panel in self._tables():
-            assert self._search_of(panel)["node"]["definition"]["query"][-1] == "ORDER BY n.data.created_at DESC"
+    def test_a_search_that_takes_a_parameter_declares_it(self) -> None:
+        for panel in self.panels:
+            search = self._search_of(panel)["node"]
+            used = set(re.findall(r"\$(\w+)", self._query(panel)))
+            declared = set(search.get("input_schema", {}).get("properties", {}))
+            assert used == declared, (panel["entity"]["name"], used, declared)
+            if used:
+                assert set(search["input_schema"]["required"]) == used, panel["entity"]["name"]
 
-    def test_columns_read_fields_the_alert_models_hold(self) -> None:
-        for slot in SLOTS:
-            fields = {c["field"] for c in self._panel_in_slot(slot)["node"]["config"]["columns"]}
-            href = {
-                c["formatter_params"]["href_field"]
-                for c in self._panel_in_slot(slot)["node"]["config"]["columns"]
-                if c.get("formatter") == "link"
-            }
-            allowed = DEPENDABOT_FIELDS if slot in ("dependabot", "closed-dependabot") else CODE_SCANNING_FIELDS
-            assert fields | href <= allowed, (slot, sorted((fields | href) - allowed))
+    def test_table_columns_and_row_links_name_aliases_the_search_returns(self) -> None:
+        for panel in self.panels:
+            if panel["node"]["view"] != TABLE:
+                continue
+            config, returned = panel["node"]["config"], self._returned(panel)
+            assert {c["field"] for c in config["columns"]} <= returned, panel["entity"]["name"]
+            if "row_url_template" in config:
+                assert set(re.findall(r"\{(\w+)\}", config["row_url_template"])) <= returned, panel["entity"]["name"]
+            for column in config["columns"]:
+                template = column.get("formatter_params", {}).get("href_template", "")
+                assert set(re.findall(r"\{(\w+)\}", template)) <= returned, (panel["entity"]["name"], column["field"])
 
-    def test_every_column_explains_itself(self) -> None:
-        for panel in self._tables():
+    def test_every_column_explains_itself_or_says_what_it_is_by_its_title(self) -> None:
+        for panel in self.panels:
+            if panel["node"]["view"] != TABLE:
+                continue
             for column in panel["node"]["config"]["columns"]:
-                assert column["header_tooltip"], (panel["entity"]["name"], column["field"])
+                assert column["title"].strip(), (panel["entity"]["name"], column["field"])
+
+    def test_row_links_land_on_the_drill_in_pages(self) -> None:
+        links = {
+            panel["node"]["slug"]: panel["node"]["config"]["row_url_template"]
+            for panel in self.panels if "row_url_template" in panel["node"].get("config", {})
+        }
+        assert links
+        for slug, link in links.items():
+            assert link.startswith((VULNERABILITY + "?vuln_id=", COMPONENT + "?component_id=")), slug
+
+    # -- the overview ----------------------------------------------------------------------------------------
+
+    def test_the_overview_has_a_band_of_three_columns_then_one_band_of_tables(self) -> None:
+        bands = self._bands(OVERVIEW)
+        assert sorted(bands) == [1, 2]
+        assert [c["width"] for c in bands[1]] == ["4fr", "4fr", "4fr"]
+        assert len(bands[2]) == 1 and bands[2][0]["width"] == "12fr"
+        assert all(p["node"]["view"] == TABLE for p in self._of(bands[2])[0])
+
+    def test_each_column_is_a_card_over_a_chart_so_the_card_is_as_wide_as_the_column(self) -> None:
+        for column in self._of(self._bands(OVERVIEW)[1]):
+            assert [p["node"]["view"] for p in column] == [CARD, CHART]
+
+    def test_the_cards_say_a_number_and_nothing_else(self) -> None:
+        """No unit, no secondary lines, no tone words and no header or description: the figure and the tone's left edge."""
+        cards = [p for p in self.panels if p["node"]["view"] == CARD]
+        assert len(cards) == 3
+        for card in cards:
+            config = card["node"]["config"]
+            assert config["hide_header"] is True and config["title"], card["entity"]["name"]
+            assert "unit" not in config and "lines" not in config, card["entity"]["name"]
+            assert set(config["tone_labels"].values()) == {""}, card["entity"]["name"]
+
+    def test_the_three_charts_share_one_height_and_the_score_chart_prints_its_numbers(self) -> None:
+        charts = [p for p in self.panels if p["node"]["view"] == CHART]
+        assert len(charts) == 3
+        assert len({c["node"]["config"]["height"] for c in charts}) == 1
+        score = self.by_slug["playground-vulnerabilities-cvss"]["node"]["config"]["option"]["series"][0]
+        assert score["label"]["show"] is True
+
+    def test_every_chart_describes_itself_and_says_what_an_empty_result_means(self) -> None:
+        for panel in self.panels:
+            if panel["node"]["view"] == CHART:
+                config = panel["node"]["config"]
+                assert config.get("aria_label") and config.get("empty_text"), panel["entity"]["name"]
+
+    def test_chart_fields_are_row_aliases_the_search_returns(self) -> None:
+        for panel in self.panels:
+            if panel["node"]["view"] != CHART:
+                continue
+            series = panel["node"]["config"]["option"]["series"][0]
+            used = {v for v in series.get("encode", {}).values() if isinstance(v, str)}
+            for v in series.get("encode", {}).values():
+                if isinstance(v, list):
+                    used |= set(v)
+            assert used <= self._returned(panel), panel["entity"]["name"]
+
+    def test_the_two_overview_tables_search_and_page(self) -> None:
+        (column,) = self._of(self._bands(OVERVIEW)[2])
+        assert len(column) == 2
+        for table in column:
+            config = table["node"]["config"]
+            assert config["quick_filter"] is True and config["default_page_size"] >= 10, table["entity"]["name"]
+            assert config["row_url_template"], table["entity"]["name"]
+
+    def test_the_component_table_says_what_kind_of_thing_each_row_is(self) -> None:
+        table = self.by_slug["playground-vulnerabilities-open-components"]
+        assert "type" in {c["field"] for c in table["node"]["config"]["columns"]}
+        assert "entity_type" in self._query(table)
+
+    def test_the_removed_overview_panels_are_gone(self) -> None:
+        for gone in ("exploitation", "tree", "remediation", "found-by", "l1-lede", "l2-lede", "l3-lede"):
+            assert f"playground-vulnerabilities-{gone}" not in self.by_slug, gone
+
+    # -- the drill-ins ---------------------------------------------------------------------------------------
+
+    def test_the_vulnerability_page_shows_its_context_its_components_and_its_systems(self) -> None:
+        slots = set(self._slots(VULNERABILITY))
+        for need in ("vuln-identity", "vuln-description", "vuln-components", "vuln-systems", "vuln-alerts"):
+            assert f"playground-vulnerabilities-{need}" in slots, need
+        systems = self.by_slug["playground-vulnerabilities-vuln-systems"]
+        assert "computing_core__host" in self._query(systems)
+        assert "$vuln_id" in self._query(systems)
+
+    def test_the_component_page_lists_the_vulnerabilities_of_one_component(self) -> None:
+        slots = set(self._slots(COMPONENT))
+        for need in ("component-identity", "component-vulnerabilities", "component-systems"):
+            assert f"playground-vulnerabilities-{need}" in slots, need
+        assert "$component_id" in self._query(self.by_slug["playground-vulnerabilities-component-vulnerabilities"])
+
+    # -- the data is observed --------------------------------------------------------------------------------
 
     def test_names_follow_the_playground_pattern(self) -> None:
-        for slot in SLOTS:
-            panel = self._panel_in_slot(slot)
-            assert panel["node"]["slug"] == f"playground-vulnerabilities-{slot}"
-            assert self._search_of(panel)["entity"]["name"] == f"playground — vulnerabilities {slot}"
+        for panel in self.panels:
+            slug = panel["node"]["slug"]
+            assert slug.startswith("playground-vulnerabilities-"), slug
+            assert self._search_of(panel)["entity"]["name"].startswith("playground — vulnerabilities "), slug
 
     def test_nothing_is_stamped_mock_or_called_mock(self) -> None:
         """The data is observed: no `dcom` value anywhere and no mock framing in any name or description."""
@@ -185,104 +252,3 @@ class TestVulnerabilitiesPage:
                 other |= {n["entity"]["entity_id"] for n in batch["nodes"] if "entity_id" in n["entity"]}
                 other |= {e["entity"]["entity_id"] for e in batch["edges"] if "entity_id" in e["entity"]}
         assert not other & set(ids)
-
-
-STORY_VIEWS = {
-    "tap_web/panels/chart.html", "tap_web/panels/stat_card_panel.html", "tap_web/panels/text_panel.html",
-}
-
-
-class TestVulnerabilityStory:
-    """The story page: lanes of cards and charts over the compliance_core nodes, and nothing hardcoded."""
-
-    def setup_method(self) -> None:
-        batch = _bundle()["batches"][0]
-        self.nodes = batch["nodes"]
-        self.edges = batch["edges"]
-        self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
-        (self.page,) = [n for n in self.nodes if n["entity"]["entity_type"] == "page"
-                        and n["node"]["slug"] == "/playground/vulnerabilities"]
-        self.panels = [n for n in self.nodes if n["entity"]["entity_type"] == "panel" and n["node"]["view"] in STORY_VIEWS]
-
-    def _search_of(self, panel: dict) -> dict | None:
-        links = [e for e in self.edges if e["edge"]["edge_type"] == "USES_SEARCH"
-                 and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]]
-        return self.by_id[links[0]["edge"]["to_entity_id"]] if links else None
-
-    def test_three_lanes_each_slot_wired_to_one_panel(self) -> None:
-        columns = self.page["node"]["layout"]["columns"]
-        assert sorted(columns) == ["col-1", "col-2", "col-3"]
-        slots = [row["panel-id"] for col in columns.values() for row in col["rows"].values()]
-        assert len(slots) == len(set(slots))
-        hotlinks = [e["edge"]["properties"]["hotlink"]["value"] for e in self.edges
-                    if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["from_entity_id"] == self.page["entity"]["entity_id"]]
-        assert sorted(hotlinks) == sorted(slots)
-        assert {p["node"]["slug"] for p in self.panels} == set(slots)
-
-    def test_every_lane_opens_with_a_text_panel_then_a_card(self) -> None:
-        by_slug = {p["node"]["slug"]: p for p in self.panels}
-        for col in self.page["node"]["layout"]["columns"].values():
-            first, second = (col["rows"][k]["panel-id"] for k in ("row-1", "row-2"))
-            assert by_slug[first]["node"]["view"] == "tap_web/panels/text_panel.html"
-            assert by_slug[second]["node"]["view"] == "tap_web/panels/stat_card_panel.html"
-
-    def test_cards_and_charts_read_a_search_and_text_panels_do_not(self) -> None:
-        for panel in self.panels:
-            search = self._search_of(panel)
-            assert (search is None) == (panel["node"]["view"] == "tap_web/panels/text_panel.html"), panel["entity"]["name"]
-
-    def test_no_search_names_a_scanner_or_a_node_id(self) -> None:
-        """Tools are nodes: the Searches reach scanners by edge, and the page never says which tool."""
-        for panel in self.panels:
-            search = self._search_of(panel)
-            if search is None:
-                continue
-            text = " ".join(search["node"]["definition"]["query"])
-            for tool in ("Trivy", "Grype", "SonarCloud", "CodeQL", "Dependabot"):
-                assert tool not in text, (panel["entity"]["name"], tool)
-            assert "entity_id =" not in text, panel["entity"]["name"]
-
-    def test_searches_use_the_standard_vocabulary_only(self) -> None:
-        allowed = {"compliance_core__", "computing_core__"}
-        for panel in self.panels:
-            search = self._search_of(panel)
-            if search is None:
-                continue
-            types = {t for line in search["node"]["definition"]["query"] for t in
-                     __import__("re").findall(r"[:\[]([a-z_]+__[A-Za-z_]+)", line)}
-            assert types and all(any(t.startswith(a) for a in allowed) for t in types), (panel["entity"]["name"], types)
-
-    def test_config_fields_are_row_aliases_the_search_returns(self) -> None:
-        import re
-
-        for panel in self.panels:
-            search = self._search_of(panel)
-            if search is None:
-                continue
-            returned = set(re.findall(r" AS (\w+)", " ".join(search["node"]["definition"]["query"])))
-            config = panel["node"]["config"]
-            used: set[str] = set()
-            if panel["node"]["view"].endswith("stat_card_panel.html"):
-                used |= {config["value_field"]} | {line["field"] for line in config.get("lines", [])}
-            else:
-                series = config["option"]["series"][0]
-                used |= {v for k, v in series.get("encode", {}).items() if isinstance(v, str)}
-                for v in series.get("encode", {}).values():
-                    if isinstance(v, list):
-                        used |= set(v)
-                if "series_by" in config:
-                    used |= {config["series_by"][k] for k in ("category", "series", "value")}
-                if "hierarchy" in config:
-                    used |= set(config["hierarchy"]["path"]) | {config["hierarchy"]["value"]}
-            assert used <= returned, (panel["entity"]["name"], sorted(used - returned))
-
-    def test_every_chart_describes_itself_and_says_what_an_empty_result_means(self) -> None:
-        for panel in self.panels:
-            if panel["node"]["view"] != "tap_web/panels/chart.html":
-                continue
-            config = panel["node"]["config"]
-            assert config.get("aria_label") and config.get("empty_text"), panel["entity"]["name"]
-
-    def test_the_story_is_observed_data_not_framed_as_mock(self) -> None:
-        for node in self.nodes:
-            assert "dcom" not in node["entity"]["dimensions"], node["entity"]["name"]
