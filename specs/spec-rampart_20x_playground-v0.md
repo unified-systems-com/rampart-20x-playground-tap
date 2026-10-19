@@ -381,7 +381,7 @@ delivers enriched vulnerabilities.
 | req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a column, chart or row link names is a RETURN alias of its Search; every `$parameter` a Search uses is declared in its input schema. | |
 | req-rampart-20x-playground-page-vulnerabilities-6 | Charts Describe Themselves | Proposed | The three charts share a height; each carries an accessible label and says what an empty result means; the score chart prints its counts. | |
 | req-rampart-20x-playground-page-vulnerabilities-7 | Two Searchable Paged Tables | Proposed | A full-width band holds the open-vulnerability table and the per-component table, each with a quick filter, paging and a row link to its drill-in. | |
-| req-rampart-20x-playground-page-vulnerabilities-8 | Vulnerability Drill-In | Proposed | The vulnerability page shows its score, vector, KEV and exploitation signals, publication time, CWE, description, the components that carry it, the hosts that install them and the scanner alerts. | |
+| req-rampart-20x-playground-page-vulnerabilities-8 | Vulnerability Drill-In | Proposed | The vulnerability page shows its score, vector, KEV and exploitation signals, publication time, CWE, description, the components that carry it and the hosts that install them. | |
 | req-rampart-20x-playground-page-vulnerabilities-9 | Component Drill-In | Proposed | The component page shows its type, open findings, highest CVSS, every vulnerability it carries and the hosts that install it. | |
 
 ### VDR Reports Page

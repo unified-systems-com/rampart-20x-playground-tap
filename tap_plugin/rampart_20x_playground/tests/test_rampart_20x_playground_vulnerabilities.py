@@ -244,7 +244,7 @@ class TestVulnerabilityPages:
 
     def test_the_vulnerability_page_shows_its_context_its_components_and_its_systems(self) -> None:
         slots = set(self._slots(VULNERABILITY))
-        for need in ("vuln-identity", "vuln-description", "vuln-components", "vuln-systems", "vuln-alerts"):
+        for need in ("vuln-identity", "vuln-description", "vuln-components", "vuln-systems"):
             assert f"playground-vulnerabilities-{need}" in slots, need
         systems = self.by_slug["playground-vulnerabilities-vuln-systems"]
         assert "computing_core__host" in self._query(systems)

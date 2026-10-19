@@ -261,6 +261,7 @@
                 "field": "cvss",
                 "order": "asc"
               },
+              "null_text": "no score",
               "aria_label": "Open findings by CVSS base score",
               "empty_text": "No open findings.",
               "height": 320,
@@ -565,19 +566,19 @@
                       "false": "—"
                     }
                   },
-                  "width": 90,
+                  "width": 110,
                   "align": "center"
                 },
                 {
                   "field": "published",
                   "title": "Published",
-                  "width": 150,
+                  "width": 190,
                   "formatter": "datetime"
                 },
                 {
                   "field": "components",
                   "title": "Components",
-                  "width": 110,
+                  "width": 140,
                   "align": "right",
                   "sorter": "number",
                   "header_tooltip": "How many components carry an open finding for it."
@@ -779,7 +780,7 @@
                 {
                   "field": "title",
                   "title": "Title",
-                  "widthGrow": 4
+                  "width": 320
                 },
                 {
                   "field": "cvss",
@@ -792,7 +793,7 @@
                 {
                   "field": "vector",
                   "title": "Vector",
-                  "widthGrow": 3,
+                  "width": 260,
                   "header_tooltip": "The CVSS vector string."
                 },
                 {
@@ -808,7 +809,7 @@
                       "false": "—"
                     }
                   },
-                  "width": 90,
+                  "width": 110,
                   "align": "center"
                 },
                 {
@@ -842,7 +843,7 @@
                 {
                   "field": "published",
                   "title": "Published",
-                  "width": 150,
+                  "width": 190,
                   "formatter": "datetime"
                 },
                 {
@@ -1146,99 +1147,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
-            "entity_type": "panel",
-            "name": "Scanner alerts",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Scanner alerts",
-            "slug": "playground-vulnerabilities-vuln-alerts",
-            "description": "The alerts that raised it, in their repository.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "quick_filter": true,
-              "default_page_size": 25,
-              "columns": [
-                {
-                  "field": "repository",
-                  "title": "Repository",
-                  "width": 240
-                },
-                {
-                  "field": "alert",
-                  "title": "Alert",
-                  "width": 300
-                },
-                {
-                  "field": "status",
-                  "title": "State",
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "open": "bad",
-                      "resolved": "good"
-                    },
-                    "labels": {
-                      "resolved": "Closed"
-                    },
-                    "capitalize": true
-                  },
-                  "width": 100
-                },
-                {
-                  "field": "finding",
-                  "title": "Finding",
-                  "widthGrow": 2
-                },
-                {
-                  "field": "summary",
-                  "title": "Summary",
-                  "widthGrow": 4
-                }
-              ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-a5b2-7ddd-9799-116ebba05cb5",
-            "entity_type": "search",
-            "name": "playground — vulnerabilities vuln-alerts",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — vulnerabilities vuln-alerts",
-            "description": "The scanner alerts, in their repository, that raised the selected vulnerability.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (r:github_core__github_repository)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE v.data.vuln_id = $vuln_id",
-                "RETURN r.name AS repository, f.data.source_key AS alert, f.data.status AS status, f.name AS finding, f.data.summary AS summary",
-                "ORDER BY alert ASC"
-              ]
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "vuln_id": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "The vulnerability id, such as CVE-2026-86805."
-                }
-              },
-              "required": [
-                "vuln_id"
-              ],
-              "description": "Selects one vulnerability."
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13fc0-9dc2-7340-9dfc-6e175fc034d4",
             "entity_type": "panel",
             "name": "Component",
@@ -1384,13 +1292,13 @@
                       "false": "—"
                     }
                   },
-                  "width": 90,
+                  "width": 110,
                   "align": "center"
                 },
                 {
                   "field": "published",
                   "title": "Published",
-                  "width": 150,
+                  "width": 190,
                   "formatter": "datetime"
                 },
                 {
@@ -1555,16 +1463,6 @@
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-vuln-systems",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-4": {
-                  "width": "12fr",
-                  "band": 3,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-vulnerabilities-vuln-alerts",
                       "height": "auto"
                     }
                   }
@@ -1869,20 +1767,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a13fc0-b59e-7255-8a3e-af4a377dfb18",
-            "entity_type": "edge",
-            "name": "Scanner alerts USES_SEARCH vuln-alerts",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
-            "to_entity_id": "01a13fc0-a5b2-7ddd-9799-116ebba05cb5",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a13fc0-7f88-7a2e-82ce-a912a6d37343",
             "entity_type": "edge",
             "name": "Component USES_SEARCH comp-identity",
@@ -1999,26 +1883,6 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-vulnerabilities-vuln-systems"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13fc0-aece-732f-b8d6-e73e89b587f2",
-            "entity_type": "edge",
-            "name": "Vulnerability USES_PANEL v-alerts",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13c36-8c0d-7159-9942-c57d4bcc510e",
-            "to_entity_id": "01a13fc0-6b21-7af2-8e4d-5e715da59f62",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-vulnerabilities-vuln-alerts"
               }
             }
           }
