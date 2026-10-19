@@ -303,6 +303,90 @@
         },
         {
           "entity": {
+            "entity_id": "01a1c48a-6763-79f7-9408-0f56c5aa328f",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs-container",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs-container",
+            "description": "Each ECS task and the container it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_ecs_task)-[:RUNS_CONTAINER__aws_core]->(b:aws_core__aws_ecs_container)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c41f-1bd3-78f1-bf34-920fbd01f400",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs-program",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs-program",
+            "description": "Each container or program and the program it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:RUNS_PROGRAM__computing_core]->(b:computing_core__program)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
+            "entity_type": "search",
+            "name": "playground \u2014 landing flow-source",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing flow-source",
+            "description": "Each shown node that sends an application flow, and the flow.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:APPLICATION_FLOW_SOURCE__computing_core]->(b:computing_core__application_flow)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c42b-e01e-74fc-b2d0-31c41885221c",
+            "entity_type": "search",
+            "name": "playground \u2014 landing flow-destination",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing flow-destination",
+            "description": "Each application flow and the shown node that receives it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__application_flow)-[:APPLICATION_FLOW_DESTINATION__computing_core]->(b)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
             "entity_type": "layout",
             "name": "Playground landing layout",
@@ -903,6 +987,62 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a1557d-3938-760e-88bd-abe220ba6f2a",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c422-6e23-76a2-83e2-38e3b1c77fc4",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs-container",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c48a-6763-79f7-9408-0f56c5aa328f",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c43c-f347-7862-9554-017cdf83fd98",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs-program",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c41f-1bd3-78f1-bf34-920fbd01f400",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c48b-fcc8-7c92-a834-4b16103485a1",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-flow-source",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c46a-af76-7fdc-a6c3-69aad6b68b75",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-flow-destination",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c42b-e01e-74fc-b2d0-31c41885221c",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

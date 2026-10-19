@@ -14,14 +14,63 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-entities",
         "name": "rampart-20x-playground inventory entities v0.1.0",
-        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges: computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets)."
+        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs, gunicorn and tap-web once per web task, plus PostgreSQL, and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges here: the RUNS_PROGRAM edges that join each task's container to its programs are in the application flow bundle; computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets)."
       },
       "nodes": [
         {
           "entity": {
             "entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
             "entity_type": "computing_core__program",
-            "name": "TAP web program",
+            "name": "tap-web (web task a)",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications",
+              "overview": "shown"
+            }
+          },
+          "node": {
+            "program_name": "tap-web",
+            "version": "0.2.1",
+            "path": "/app",
+            "name": "tap-web (web task a)"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "entity_type": "computing_core__program",
+            "name": "gunicorn (web task a)",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications",
+              "overview": "shown"
+            }
+          },
+          "node": {
+            "program_name": "gunicorn",
+            "name": "gunicorn (web task a)"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca",
+            "entity_type": "computing_core__program",
+            "name": "gunicorn (web task b)",
+            "dimensions": {
+              "dcom": "design",
+              "inventory": "applications"
+            }
+          },
+          "node": {
+            "program_name": "gunicorn",
+            "name": "gunicorn (web task b)"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "entity_type": "computing_core__program",
+            "name": "tap-web (web task b)",
             "dimensions": {
               "dcom": "design",
               "inventory": "applications"
@@ -31,22 +80,7 @@
             "program_name": "tap-web",
             "version": "0.2.1",
             "path": "/app",
-            "name": "TAP web program"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
-            "entity_type": "computing_core__program",
-            "name": "gunicorn",
-            "dimensions": {
-              "dcom": "design",
-              "inventory": "applications"
-            }
-          },
-          "node": {
-            "program_name": "gunicorn",
-            "name": "gunicorn"
+            "name": "tap-web (web task b)"
           }
         },
         {

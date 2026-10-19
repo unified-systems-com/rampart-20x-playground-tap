@@ -1,0 +1,308 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1c45e-5ab3-7350-b76a-a74771cf3291",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground application flow v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.application-flow",
+        "name": "rampart-20x-playground application flow v0.1.0",
+        "description": "MOCK DATA, never collected from a live system: what runs inside the two web tasks and the customer traffic that reaches them. One ECS container per web task (aws_core, real-shaped ARNs, the image reference and digest of the git-serious web image), the RUNS_TASK edges from the service and the cluster to each task, RUNS_CONTAINER from each task to its container, RUNS_IMAGE from each container to the one image host, RUNS_PROGRAM from each container to its gunicorn and from gunicorn to tap-web (the programs are in the inventory entities bundle), and ONE application flow (computing_core, keyless, so it carries its own fixed entity id) from the customer's computer to the tap-web program of web task a, stamped dataclass.customer=data. Only web task a's container and programs and the flow are marked overview=shown: web task b is the stacked copy of a. Every entity carries dcom=design. Import after the mock inventory, the inventory entities and the inventory software bundles."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
+            "entity_type": "aws_core__aws_ecs_container",
+            "name": "web task a container",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
+            }
+          },
+          "node": {
+            "container_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:container/git-serious/web-a/6f1c2d3e-4a5b-4c6d-8e7f-0a1b2c3d4e5f",
+            "image": "100000000001.dkr.ecr.us-gov-west-1.amazonaws.com/git-serious/web:2026.10.16",
+            "image_digest": "sha256:48e30963aa6e9786bba6cbea65c391f830f435fe15360fd87f0bd80f47eb56a4",
+            "runtime_id": "web-a-5d2a8e41b7c04f3a9e6d1c0b8a7f6e5d-1048576321",
+            "last_status": "RUNNING",
+            "name": "web task a container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c442-df9e-7687-bb62-0b43898746a5",
+            "entity_type": "aws_core__aws_ecs_container",
+            "name": "web task b container",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1"
+            }
+          },
+          "node": {
+            "container_arn": "arn:aws-us-gov:ecs:us-gov-west-1:100000000001:container/git-serious/web-b/7a2d3e4f-5b6c-4d7e-9f80-1b2c3d4e5f60",
+            "image": "100000000001.dkr.ecr.us-gov-west-1.amazonaws.com/git-serious/web:2026.10.16",
+            "image_digest": "sha256:48e30963aa6e9786bba6cbea65c391f830f435fe15360fd87f0bd80f47eb56a4",
+            "runtime_id": "web-b-9c3b7f52a8d14e6b8f2a0d1c9b8e7f6a-2097152643",
+            "last_status": "RUNNING",
+            "name": "web task b container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c40f-35b9-710b-a232-03df41fdae85",
+            "entity_type": "computing_core__application_flow",
+            "name": "customer traffic",
+            "dimensions": {
+              "dcom": "design",
+              "overview": "shown",
+              "dataclass.customer": "data"
+            }
+          },
+          "node": {
+            "name": "customer traffic",
+            "description": "Customer traffic from a customer's computer to the TAP web application that serves it. It carries customer data."
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a1c45e-9df1-78d6-8995-8bf9b9e561a5",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d2361d087d38 --[RUNS_TASK__aws_core]--> 01a13b2b-a806-70ab-bec7-d238818190f7",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d2361d087d38",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d238818190f7",
+            "edge_type": "RUNS_TASK__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4be-ad46-7da9-8061-2bbeb8379d36",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d2361d087d38 --[RUNS_TASK__aws_core]--> 01a13b2b-a806-70ab-bec7-d23ae734451d",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d2361d087d38",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d23ae734451d",
+            "edge_type": "RUNS_TASK__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4c9-1852-78fd-800a-8bd306c8b4c3",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d23521f9e4a4 --[RUNS_TASK__aws_core]--> 01a13b2b-a806-70ab-bec7-d238818190f7",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d23521f9e4a4",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d238818190f7",
+            "edge_type": "RUNS_TASK__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c457-ddd2-75ea-8f57-da6e98362012",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d23521f9e4a4 --[RUNS_TASK__aws_core]--> 01a13b2b-a806-70ab-bec7-d23ae734451d",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d23521f9e4a4",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d23ae734451d",
+            "edge_type": "RUNS_TASK__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4e6-6933-7cd0-8866-e874f946b17f",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d238818190f7 --[RUNS_CONTAINER__aws_core]--> 01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d238818190f7",
+            "to_entity_id": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
+            "edge_type": "RUNS_CONTAINER__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c46c-dbb7-7e5d-acde-111269530f2b",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d23ae734451d --[RUNS_CONTAINER__aws_core]--> 01a1c442-df9e-7687-bb62-0b43898746a5",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d23ae734451d",
+            "to_entity_id": "01a1c442-df9e-7687-bb62-0b43898746a5",
+            "edge_type": "RUNS_CONTAINER__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c42a-45c2-7d1d-a67c-d48ce59e6190",
+            "entity_type": "edge",
+            "name": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a --[RUNS_IMAGE__computing_core]--> 01a13c38-4f5e-735c-9cf2-1f159f4282b6",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
+            "to_entity_id": "01a13c38-4f5e-735c-9cf2-1f159f4282b6",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c43c-80f9-7f4e-9eb3-70555a4d9693",
+            "entity_type": "edge",
+            "name": "01a1c442-df9e-7687-bb62-0b43898746a5 --[RUNS_IMAGE__computing_core]--> 01a13c38-4f5e-735c-9cf2-1f159f4282b6",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c442-df9e-7687-bb62-0b43898746a5",
+            "to_entity_id": "01a13c38-4f5e-735c-9cf2-1f159f4282b6",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c402-10e7-7961-8680-966262cb354d",
+            "entity_type": "edge",
+            "name": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a --[RUNS_PROGRAM__computing_core]--> 01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
+            "to_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c438-dd86-74bc-a4d3-426dd6971d9a",
+            "entity_type": "edge",
+            "name": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5 --[RUNS_PROGRAM__computing_core]--> 01a13be3-0373-7afc-8d07-441072bee2eb",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "to_entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4ab-cc2f-7d6f-9ad6-50a239f97384",
+            "entity_type": "edge",
+            "name": "01a1c442-df9e-7687-bb62-0b43898746a5 --[RUNS_PROGRAM__computing_core]--> 01a1c4a3-6f98-70b4-a09e-8a22c87e25ca",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c442-df9e-7687-bb62-0b43898746a5",
+            "to_entity_id": "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4db-3979-705f-b6a9-84f27d25d4a5",
+            "entity_type": "edge",
+            "name": "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca --[RUNS_PROGRAM__computing_core]--> 01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca",
+            "to_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4d8-96cb-7f51-9d3c-e3c146ccc47d",
+            "entity_type": "edge",
+            "name": "01a13b55-8896-76ca-9f21-d08a12acd38f --[APPLICATION_FLOW_SOURCE__computing_core]--> 01a1c40f-35b9-710b-a232-03df41fdae85",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b55-8896-76ca-9f21-d08a12acd38f",
+            "to_entity_id": "01a1c40f-35b9-710b-a232-03df41fdae85",
+            "edge_type": "APPLICATION_FLOW_SOURCE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c4e6-8b01-783c-8784-ee7065843c23",
+            "entity_type": "edge",
+            "name": "01a1c40f-35b9-710b-a232-03df41fdae85 --[APPLICATION_FLOW_DESTINATION__computing_core]--> 01a13be3-0373-7afc-8d07-441072bee2eb",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c40f-35b9-710b-a232-03df41fdae85",
+            "to_entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
+            "edge_type": "APPLICATION_FLOW_DESTINATION__computing_core",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -65,7 +65,7 @@
             "dimensions": {
               "dcom": "design",
               "overview": "shown",
-              "column": "2",
+              "column": "3",
               "row": "0"
             }
           },
@@ -675,7 +675,7 @@
               "actor": "developer",
               "dcom": "design",
               "overview": "shown",
-              "column": "5",
+              "column": "6",
               "row": "0"
             }
           },
@@ -693,7 +693,7 @@
               "device": "developer",
               "dcom": "design",
               "overview": "shown",
-              "column": "4",
+              "column": "5",
               "row": "0"
             }
           },
@@ -733,7 +733,7 @@
               "actor": "administrator",
               "dcom": "design",
               "overview": "shown",
-              "column": "2",
+              "column": "3",
               "row": "2"
             }
           },
@@ -751,7 +751,7 @@
               "device": "administrator",
               "dcom": "design",
               "overview": "shown",
-              "column": "2",
+              "column": "3",
               "row": "1"
             }
           },
@@ -797,7 +797,7 @@
             "host": "github.com",
             "html_url": "https://github.com",
             "tags": {
-              "layout:column": "3",
+              "layout:column": "4",
               "layout:order": "9"
             }
           }

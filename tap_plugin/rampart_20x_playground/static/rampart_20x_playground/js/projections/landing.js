@@ -50,13 +50,28 @@
  *   6. the boundary's look: transparent, a bold red line, its title above the box (a per-node display override);
  *   5. the boundary growing with the account when the account grows for the row (the same `reserve` option as 1,
  *      applied through the nesting: a parent follows the growth of its child).
+ *   7. the application flow's click window (Wave 7): a node-tap handler on the flow node, reading the node's own name,
+ *      description and `dataclass.*` dimensions (no network call), drawn with the tap_viz info window's CSS classes
+ *      (should become a projection-declared `node_info` window of tap_viz, a sibling of the status-badge info window,
+ *      bound to a node type; the host-body tap is reserved for projections by req-viz-panel-click-semantics);
+ *   8. the application flow's place: it stands in its own column between the customer's computer and the boundary,
+ *      a little below the line of sight (a `rankedPlacement` offset of the ranked layout), off the line so the
+ *      eight nodes of the line of sight stay the eight.
  * None changes the Python, the vocabulary or the data rules.
+ *
+ * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container holds gunicorn
+ * (RUNS_PROGRAM) and gunicorn holds the tap-web program (RUNS_PROGRAM), so web task a is drawn as the nested chain
+ * task > container > gunicorn > tap-web. The nesting is DATA in the `relationships` below (never a type test in code),
+ * so the later elevation lift can hide or reveal the interior by relationship. The application flow is a node between
+ * the customer's computer and the tap-web program; APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION are its
+ * two lines.
  */
 
 import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
+import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
@@ -81,6 +96,10 @@ const T = {
     repo: "github_core__github_repository",
     workflow: "github_core__github_workflow",
     package: "github_core__github_package",
+    task: "aws_core__aws_ecs_task",
+    ecsContainer: "aws_core__aws_ecs_container",
+    program: "computing_core__program",
+    flow: "computing_core__application_flow",
 };
 const E = {
     belongs: "BELONGS_TO_ACCOUNT__aws_core",
@@ -96,8 +115,10 @@ const E = {
     executesWorkflow: "EXECUTES_WORKFLOW__github_core",
     publishesPackage: "PUBLISHES_PACKAGE__github_core",
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
+    runsContainer: "RUNS_CONTAINER__aws_core",
+    runsProgram: "RUNS_PROGRAM__computing_core",
 };
-const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
+const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.task, T.ecsContainer, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
 const ICON_TYPES = [T.platform];
 const ICON = {width: 84, height: 84};
@@ -105,7 +126,7 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild, T.flow];
 const SOLO = {width: 72, height: 72};
 //: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
 //: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
@@ -131,6 +152,16 @@ const BELOW_ACCOUNT_GAP = 56;
 const BOUNDARY_RED = "#dc2626";
 const BOUNDARY_LINE_WIDTH = 4;
 const BOUNDARY_LABEL_RISE = 8;
+
+//: Playground exception (should become a `rankedPlacement` offset of the ranked layout): how far below the line of
+//: sight the application flow stands, in model units.
+const FLOW_DROP = 150;
+//: The application flow's click window: the dimensions it lists (a key prefix), its width, and its class name (the
+//: tap_viz info window's own, so it looks like it).
+const FLOW_DIMENSION_PREFIX = "dataclass.";
+const FLOW_WINDOW_WIDTH = 320;
+const FLOW_WINDOW_OFFSET = 12;
+const FLOW_WINDOW_CLASS = "tap-info-window";
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -165,6 +196,9 @@ export async function execute(context) {
             {name: "vpc-holds-subnets", gryphon: `(parent:${T.vpc})-[:${E.partitioned}]->(child)`},
             {name: "vpc-holds-gateway", gryphon: `(parent:${T.vpc})<-[:${E.attachedToVpc}]-(child)`},
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
+            {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
+            {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
+            {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
             {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
@@ -175,7 +209,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: Object.fromEntries(CONTAINERS.map((t) => [t, pad])),
+        paddings: Object.fromEntries([...CONTAINERS, T.program].map((t) => [t, pad])),
         innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -196,6 +230,9 @@ export async function execute(context) {
             },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
+            [T.task]: {name: "flow", gap: 12, sort: "label"},
+            [T.ecsContainer]: {name: "flow", gap: 12, sort: "label"},
+            [T.program]: {name: "flow", gap: 12, sort: "label"},
         },
     });
 
@@ -216,9 +253,12 @@ export async function execute(context) {
     const productRoot = account.nonempty() ? _outermost(cy, account) : account;
     const productStage = productRoot.nonempty() ? productRoot.data("_stage") : undefined;
     if (anchor.nonempty()) {
-        const row = roots.filter((n) => n.data("_stage") !== productStage);
+        // The application flow has its own column but stays off the line (playground exception 8, placed below).
+        const row = roots.filter((n) => n.data("_stage") !== productStage && n.data("entity_type") !== T.flow);
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
+
+    _placeFlow(cy, shown([T.flow]), anchor);
 
     // Playground exception (gateway on the line; should become an anchor-relative align of a nested node in the
     // ranked natural layout): the internet gateway is the first column of the VPC and is top-aligned with it, so
@@ -246,6 +286,7 @@ export async function execute(context) {
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
     _styleBoundary(cy, shown([T.boundary]));
+    _bindFlowWindow(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
 }
@@ -488,4 +529,118 @@ function _stampRootColumns(cy) {
             n.data({_stage: Number(tags["layout:column"]), _order: Number(tags["layout:order"] || 0)});
         }
     });
+}
+
+/**
+ * Playground exception 8 (should become a `rankedPlacement` offset of the ranked layout): the application flow keeps the
+ * x of its own column (between the customer's computer and the boundary) and stands FLOW_DROP below the anchor's line,
+ * so it is not a ninth node of the line of sight.
+ */
+function _placeFlow(cy, flows, anchor) {
+    if (anchor.empty()) return;
+    flows.forEach((flow) => {
+        flow.position({x: flow.position("x"), y: anchor.position("y") + FLOW_DROP});
+    });
+}
+
+/**
+ * Playground exception 7 (STANDING EXCEPTION; should become a projection-declared `node_info` window of tap_viz, a
+ * sibling of the status-badge info window, bound to a node type): a tap on an application flow opens a window with
+ * the node's own name, description and `dataclass.*` dimensions. It reads only the node's Cytoscape data (`label`,
+ * `fields.description`, `dimensions`, all lifted from the envelope by panel-graph.js): no network call. It reuses the
+ * tap_viz info window's CSS classes and behaves like it: a close X, ESC, a click outside, one window at a time (a
+ * status-badge window is closed first; a badge click closes this one through the outside click).
+ * Bound once per graph (a namespaced handler), because the layout runs again on every elevation change.
+ */
+function _bindFlowWindow(cy) {
+    cy.off("tap.playgroundFlowWindow");
+    cy.on("tap.playgroundFlowWindow", "node", (evt) => {
+        const node = evt.target;
+        if (node.data("entity_type") !== T.flow) return;
+        _openFlowWindow(cy, node);
+    });
+}
+
+let _flowWindow = null;
+
+function _closeFlowWindow() {
+    if (!_flowWindow) return;
+    const state = _flowWindow;
+    _flowWindow = null;
+    document.removeEventListener("keydown", state.keydown);
+    if (state.outsideClick) document.removeEventListener("click", state.outsideClick, true);
+    if (state.el.parentNode) state.el.parentNode.removeChild(state.el);
+}
+
+function _openFlowWindow(cy, node) {
+    const panelEl = cy.container();
+    if (!panelEl) return;
+    const wasThis = _flowWindow && _flowWindow.nodeId === node.id();
+    _closeFlowWindow();
+    closeInfoWindow();
+    if (wasThis) return;
+    const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const dims = Object.entries(node.data("dimensions") || {}).filter(([key]) => key.startsWith(FLOW_DIMENSION_PREFIX))
+        .sort(([a], [b]) => a.localeCompare(b));
+    const description = (node.data("fields") || {}).description || "";
+    const rows = dims.length
+        ? dims.map(([key, value]) => `<tr><td>${esc(key)}</td><td><strong>${esc(value)}</strong></td></tr>`).join("")
+        : `<tr><td>none</td></tr>`;
+    const el = document.createElement("div");
+    el.className = FLOW_WINDOW_CLASS;
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-label", "Application flow details");
+    el.dataset.playgroundFlowWindow = "true";
+    el.innerHTML = `
+        <div class="tap-info-window__header">
+            <div class="tap-info-window__title">
+                <div class="tap-info-window__name">${esc(node.data("label") || node.id())}</div>
+                <div class="tap-info-window__type">${esc(node.data("entity_type"))}</div>
+            </div>
+            <button type="button" class="tap-info-window__close" aria-label="Close">×</button>
+        </div>
+        <div class="tap-info-window__body">
+            <section class="tap-info-window__section">
+                <div class="tap-info-window__section-header"><span class="tap-info-window__set-name">Description</span></div>
+                <div class="tap-info-window__section-body" data-flow-description>${esc(description)}</div>
+            </section>
+            <section class="tap-info-window__section">
+                <div class="tap-info-window__section-header">
+                    <span class="tap-info-window__set-name">Data classification</span>
+                    <span class="tap-info-window__count">${dims.length}</span>
+                </div>
+                <div class="tap-info-window__section-body">
+                    <table class="tap-info-window__table"><tbody>${rows}</tbody></table>
+                </div>
+            </section>
+        </div>`.trim();
+    // Positioned like the tap_viz info window: right of the node, clamped to the panel.
+    const rpos = node.renderedPosition();
+    const panelRect = panelEl.getBoundingClientRect();
+    const left = Math.min(Math.max(0, rpos.x + node.renderedWidth() / 2 + FLOW_WINDOW_OFFSET), Math.max(0, panelRect.width - FLOW_WINDOW_WIDTH));
+    const top = Math.min(Math.max(0, rpos.y - node.renderedHeight() / 2), Math.max(0, panelRect.height - 40));
+    el.style.position = "absolute";
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    el.style.width = `${FLOW_WINDOW_WIDTH}px`;
+    el.style.maxHeight = `${Math.floor(panelRect.height * 0.6)}px`;
+    panelEl.appendChild(el);
+    const state = {el, nodeId: node.id(), keydown: null, outsideClick: null};
+    _flowWindow = state;
+    el.querySelector(".tap-info-window__close").addEventListener("click", (e) => {
+        e.stopPropagation();
+        _closeFlowWindow();
+    });
+    state.keydown = (e) => {
+        if (e.key === "Escape") _closeFlowWindow();
+    };
+    document.addEventListener("keydown", state.keydown);
+    // One tick so the tap that opened the window does not dismiss it.
+    setTimeout(() => {
+        if (_flowWindow !== state) return;
+        state.outsideClick = (e) => {
+            if (!state.el.contains(e.target)) _closeFlowWindow();
+        };
+        document.addEventListener("click", state.outsideClick, true);
+    }, 0);
 }
