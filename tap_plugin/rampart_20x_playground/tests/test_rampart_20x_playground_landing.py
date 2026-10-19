@@ -508,3 +508,21 @@ class TestTaskBubbleSearches:
         libs = {e["to_entity_id"] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
         sources = {programs[e["from_entity_id"]] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
         assert sources == {"tap-web (web task b)"} and len(libs) == 2  # task a's two are in the software bundle
+
+
+class TestVulnerabilityWindowColumns:
+    """Overview: the vulnerability window is a table (core `info_window.columns`, tap#1076)."""
+
+    def test_the_window_shows_id_cvss_and_title_as_columns_with_the_id_as_the_link(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        windows = [
+            badge_set["info_window"]
+            for n in pages["nodes"]
+            for badge_set in n["node"].get("definition", {}).get("status_badges", {}).get("badge_sets", [])
+        ]
+        assert len(windows) == 1
+        columns = windows[0]["columns"]
+        assert [(c["field"], c["label"]) for c in columns] == [("id", "ID"), ("cvss", "CVSS"), ("title", "Title")]
+        assert columns[0]["link"] is True
+        assert columns[1]["format"] == "number" and columns[1]["align"] == "right"
+        assert windows[0]["row_url_template"].endswith("vuln_id={id}")
