@@ -1430,6 +1430,7 @@
           "node": {
             "name": "Vulnerability",
             "slug": "/playground/vulnerabilities/vulnerability",
+            "discoverable": false,
             "description": "One vulnerability: what it is, how it scores, whether it is being exploited, the components that carry it and the systems where it was found. Open it from a row on the Vulnerabilities page.",
             "layout": {
               "columns": {
@@ -1483,6 +1484,7 @@
           "node": {
             "name": "Component",
             "slug": "/playground/vulnerabilities/component",
+            "discoverable": false,
             "description": "One component: its type and open findings, every vulnerability it carries and the systems where it runs. Open it from a row on the Vulnerabilities page.",
             "layout": {
               "columns": {
