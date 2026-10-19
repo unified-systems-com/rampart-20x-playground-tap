@@ -54,11 +54,26 @@
             "account_id": "100000000001",
             "email": "git-serious@example.invalid",
             "status": "ACTIVE",
-            "name": "git-serious",
-            "tags": {
-              "layout:column": "2",
-              "layout:order": "0"
+            "name": "git-serious"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1557d-3937-7faf-9ad9-9267dc986834",
+            "entity_type": "compliance_core__compliance_boundary",
+            "name": "git-serious authorization boundary",
+            "dimensions": {
+              "dcom": "design",
+              "overview": "shown",
+              "column": "2",
+              "row": "0"
             }
+          },
+          "node": {
+            "source": "rampart_20x_playground",
+            "source_key": "git-serious",
+            "name": "git-serious authorization boundary",
+            "description": "The authorization boundary around the git-serious AWS account: the account and everything that runs in it. GitHub, the customers, the developer and the administrator stand outside it."
           }
         },
         {
@@ -1976,6 +1991,22 @@
             "from_entity_id": "01a13c03-33b8-7333-acdc-7c016a8fef36",
             "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
             "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1557d-3937-7a4d-99fb-df210f48a3b4",
+            "entity_type": "edge",
+            "name": "01a13b2b-a806-70ab-bec7-d21606cf61e9 --[SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core]--> 01a1557d-3937-7faf-9ad9-9267dc986834",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "to_entity_id": "01a1557d-3937-7faf-9ad9-9267dc986834",
+            "edge_type": "SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core",
             "properties": {}
           }
         }

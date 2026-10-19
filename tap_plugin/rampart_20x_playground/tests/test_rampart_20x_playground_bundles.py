@@ -60,7 +60,15 @@ class TestKeystone:
         rows = list(Keystone.objects.filter(name="rampart-20x-playground"))
         assert len(rows) == 1
         text = rows[0].description
-        assert "MOCK DATA" in text and "NOT a FedRAMP authorization boundary" in text
+        assert "MOCK DATA" in text and "no FedRAMP authorization has been granted" in text
+        assert "draws one authorization boundary, around the git-serious account" in text
+
+    def test_the_keystone_says_the_design_draws_a_boundary(self) -> None:
+        """`req-rampart-20x-playground-nongoals-3`: the flag that said `false` now says `true`, and its schema says why."""
+        (node,) = _load(KEYSTONE)["batches"][0]["nodes"]
+        assert node["node"]["context_json"]["authorization_boundary"] is True
+        flag = node["node"]["context_schema_json"]["properties"]["authorization_boundary"]
+        assert "Always false" not in flag["description"]
 
     def test_keystone_carries_no_dcom_value(self) -> None:
         for node in _load(KEYSTONE)["batches"][0]["nodes"]:
