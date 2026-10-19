@@ -196,8 +196,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "secrets",
-              "overview": "shown"
+              "inventory": "secrets"
             }
           },
           "node": {
@@ -530,8 +529,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud",
-              "overview": "shown"
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -549,8 +547,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud",
-              "overview": "shown"
+              "inventory": "cloud"
             }
           },
           "node": {

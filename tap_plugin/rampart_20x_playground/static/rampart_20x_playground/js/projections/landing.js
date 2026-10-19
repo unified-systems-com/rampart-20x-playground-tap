@@ -19,20 +19,40 @@
  * Every other edge in the scene is a line.
  *
  * Top level, left to right: the customer and their computer, the product account, GitHub, the developer's computer and the developer. The administrator and their computer
- * stand beneath the product account, the computer above the person. The people, computers and GitHub are
- * put on the load balancer's horizontal line (align-only).
+ * hang under the bottom-centre of the product account, the computer above the person. The line of sight is one horizontal line,
+ * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
+ * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
+ * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
  *
- * The gateway, load balancer, database, Lambda, buckets and secrets are icon-centric-solo nodes (icon-node.js):
- * the icon and its name, no card. The people, their computers and GitHub are icon nodes with a card. Icon nodes
- * are terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs and packages
- * are not drawn.
+ * The people, their computers, the gateway, load balancer, database, Route 53 zone, ECR repository, Lambda,
+ * buckets, secrets, pipeline and CodeBuild projects are icon-centric-solo nodes (icon-node.js): the icon and
+ * its name, no card. GitHub is an icon node with a card. Icon nodes are terminal, so a computer's local account
+ * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
+ *
+ * Deploy path: the AWS icons of the delivery path (the secret a deploy Lambda retrieves, the ECR repository, the
+ * buckets, the pipeline, the Lambda and the CodeBuild projects) stand in ONE tightly packed horizontal row, centred at
+ * the bottom-middle of the account under the VPC, and a titled scope box, "Continuous Delivery", marks them as one
+ * collection. The row is the tap_viz align-distribute helper with its `label` option (as samsite's Deploy & Bootstrap
+ * row); the account is grown to hold it.
+ *
+ * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
+ * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
+ * "playground exception" with the tap_viz runtime form it should become:
+ *   1. the account's growth for the row and the choice of its members (a `reserve` option of the nested
+ *      layouts, and a nesting-aware member rule: delivery types and the secrets a deploy Lambda retrieves);
+ *   2. the gateway on the anchor's line (an `alignTo` of a nested node in the ranked natural layout, so a nested
+ *      column can be centre-aligned to an anchor without a post-pass);
+ *   3. a person and their computer as a close pair, and the administrator pair under the account (the spacing
+ *      option of the align/distribute helpers);
+ *   4. waiting for the scene to be shown before the scope box is drawn (a fix in the tap_viz scope-box helper).
+ * None changes the Python, the vocabulary or the data rules.
  */
 
 import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
-import {alignDistributeHorizontal, alignDistributeVertical} from "/static/tap_viz/js/runtime/align-distribute.js";
+import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
     vpc: "aws_core__aws_vpc",
@@ -42,8 +62,6 @@ const T = {
     alb: "aws_core__aws_alb",
     rds: "aws_core__aws_rds_instance",
     zone: "aws_core__aws_route53_zone",
-    cert: "aws_core__aws_acm_certificate",
-    key: "aws_core__aws_kms_key",
     ecr: "aws_core__aws_ecr_repository",
     pipeline: "aws_core__aws_codepipeline_pipeline",
     codebuild: "aws_core__aws_codebuild_project",
@@ -60,6 +78,7 @@ const T = {
 };
 const E = {
     belongs: "BELONGS_TO_ACCOUNT__aws_core",
+    retrievesSecret: "RETRIEVES_SECRET_FROM__aws_core",
     partitioned: "PARTITIONED_INTO_SUBNET__aws_core",
     attachedToVpc: "ATTACHED_TO_VPC__aws_core",
     residesInSubnet: "RESIDES_IN_SUBNET__aws_core",
@@ -73,11 +92,32 @@ const E = {
 };
 const CONTAINERS = [T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
-const ICON_TYPES = [T.human, T.host, T.platform];
+const ICON_TYPES = [T.platform];
 const ICON = {width: 84, height: 84};
+//: Shown as icon-centric-solo nodes at the icon-node size (no card): the people and their computers. Same box as
+//: the carded icon nodes they were, so nothing moves.
+const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
+//: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
+//: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
+//: retrieves would not be part of it).
+const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
+const DEPLOY_SECRET_READERS = [T.lambda];
+//: The gap between two icons of the deploy row (model units): fairly tight, but wide enough that the names under
+//: neighbouring icons (wrapped at 104 units) do not run together.
+const DEPLOY_GAP = 28;
+//: The title of the scope box around the deploy row.
+const DEPLOY_LABEL = "Continuous Delivery";
+//: Room the scope box takes around its icons, on all sides: it must contain the names under the icons.
+const DEPLOY_BOX_PADDING = 36;
+//: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
+//: model units, between the boxes of a person and their computer. One constant for all three pairs.
+const PAIR_GAP = 28;
+//: Playground exception (same exit): the clear gap between the bottom edge of the account and the pair that hangs
+//: below it.
+const BELOW_ACCOUNT_GAP = 56;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -95,7 +135,13 @@ export async function execute(context) {
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
+    // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
+    // them afterwards, which grows the account.
+    const deploy = _deployPath(cy, shown);
+    deploy.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
 
@@ -124,17 +170,13 @@ export async function execute(context) {
             [T.repo]: {name: "flow", gap: 12, sort: "label"},
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
-            //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
-            //: key (placed under the load balancer and the database), then the rest.
+            //: Inside the account, by row: the DNS zone in the top-left corner, then the VPC. The deploy path is the row
+            //: below them. The certificate, the key and the runtime secret are not on the Overview (no `overview` value).
             [T.account]: {
                 name: "tiered-rows", rowGap: 44, itemGap: 40,
                 tiers: [
                     {name: "dns", entityTypes: [T.zone], align: "start"},
                     {name: "vpc", entityTypes: [T.vpc]},
-                    {name: "protection", entityTypes: [T.cert, T.key]},
-                    {name: "secrets", entityTypes: [T.secret, T.ecr]},
-                    {name: "release", entityTypes: [T.bucket, T.pipeline, T.lambda]},
-                    {name: "builds", entityTypes: [T.codebuild]},
                 ],
             },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
@@ -145,6 +187,7 @@ export async function execute(context) {
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
+    deploy.removeClass(ELEVATION_HIDDEN_CLASS);
 
     // Everything that stands outside the product's column already has its column; put it on the request
     // path's line. What stands in the product's column besides the account (the administrator's computer
@@ -160,20 +203,19 @@ export async function execute(context) {
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
 
-    // The certificate stands directly under the load balancer, and the key directly under the database.
-    [[T.cert, T.alb], [T.key, T.rds]].forEach(([type, above]) => {
-        const member = shown([type]), anchorNode = shown([above]).first();
-        if (member.nonempty() && anchorNode.nonempty()) {
-            alignDistributeVertical(cy, {members: member, anchorNode, distribute: false, reactive: false});
-        }
-    });
-
-    // Under the account, top to bottom in their own order (the computer, then the person).
-    const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
-        .sort((a, b) => a.data("_order") - b.data("_order"));
-    if (beneath.length > 1) {
-        alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
+    // Playground exception (gateway on the line; should become an anchor-relative align of a nested node in the
+    // ranked natural layout): the internet gateway is the first column of the VPC and is top-aligned with it, so
+    // it sits above the line. Put it on the anchor's line, align-only.
+    const gateway = shown([T.igw]);
+    if (anchor.nonempty() && gateway.nonempty()) {
+        alignDistributeHorizontal(cy, {members: gateway, anchorNode: anchor, distribute: false, reactive: false});
     }
+
+    // Playground exception (deploy row room): the account grows downward for the row. The line of sight does not
+    // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
+    if (cy.scratch("landing_deploy")) cy.scratch("landing_deploy").destroy();
+    cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
+    _closePairs(roots, account);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -186,6 +228,117 @@ export async function execute(context) {
     });
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
+}
+
+function _whenShown(cy, draw, tries = 600) {
+    const container = cy.container();
+    if (!container || container.style.visibility !== "hidden" || tries <= 0) {
+        draw();
+        return;
+    }
+    requestAnimationFrame(() => _whenShown(cy, draw, tries - 1));
+}
+
+/**
+ * Stand the deploy-path icons in one row, left to right, DEPLOY_GAP apart (the tap_viz align-distribute helper, with
+ * its `label` option drawing the titled scope box), the row centred on the account's centre line below the account's
+ * other contents. Playground exception: the account grows downward to hold the row, and the members and their order
+ * are chosen here: the `layout:order` tag when a node has one, then label (a stable key, never a place). The edges
+ * between two icons of the row are hidden (they would run along and under the icons); edges that leave it stay.
+ * Returns a handle whose destroy() removes the row's box and restores those edges.
+ */
+function _placeDeployRow(cy, account, deploy, bottomPad) {
+    const restore = () => cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
+        e.removeData("_row_internal");
+        e.removeStyle("display");
+    });
+    restore();
+    if (account.empty() || deploy.empty()) return {destroy: restore};
+    const box = account.boundingBox({includeLabels: false, includeOverlays: false});
+    const others = cy.nodes().filter((n) => n.data("_viewport_parent") === account.id() && !n.hasClass(ELEVATION_HIDDEN_CLASS)
+        && !deploy.anySame(n));
+    const above = others.nonempty() ? others.boundingBox({includeLabels: true, includeOverlays: false}).y2 : box.y1;
+    const iconHeight = (n) => Number(n.data("_icon_h")) || n.height();
+    const tagOrder = (n) => Number((n.data("tags") || {})["layout:order"]);
+    const ordered = deploy.toArray().sort((a, b) => {
+        const ta = tagOrder(a), tb = tagOrder(b);
+        if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
+        return String(a.data("label")).localeCompare(String(b.data("label")));
+    });
+    const half = iconHeight(ordered[0]) / 2;
+    // The scope box starts DEPLOY_BOX_PADDING above the icons; keep it clear of what is above.
+    const y = above + 44 + DEPLOY_BOX_PADDING + half;
+    const baseZ = Number(account.style("z-index")) + 10;
+    ordered.forEach((n) => {
+        n.style({"z-index": baseZ});
+        n.data("_viewport_parent", account.id());
+    });
+    const row = {members: ordered, anchor: {x: account.position("x"), y}, anchorMode: "center", gap: DEPLOY_GAP, sort: false};
+    alignDistributeHorizontal(cy, row);
+    let handle = {destroy: () => {}}, destroyed = false;
+    // Playground exception: the scope box tracks its members' bounds, and cytoscape recurses computing them while the
+    // projection is still revealing the scene (the graph element is hidden). Draw the box once the scene is shown.
+    // Should become a fix in the tap_viz scope-box helper (observed 2026-10-19), after which this wait goes.
+    _whenShown(cy, () => {
+        if (!destroyed) handle = alignDistributeHorizontal(cy, {...row, label: DEPLOY_LABEL, style: {padding: DEPLOY_BOX_PADDING}});
+    });
+    cy.edges().filter((e) => deploy.anySame(e.source()) && deploy.anySame(e.target())).forEach((e) => {
+        e.data("_row_internal", true);
+        e.style("display", "none");
+    });
+    // Bottom of the box: the icons, the room for their names, then the account's own bottom padding.
+    const newBottom = y + half + DEPLOY_BOX_PADDING + bottomPad;
+    const delta = Math.max(0, newBottom - box.y2);
+    if (delta > 0) {
+        account.style({height: box.h + delta});
+        account.position({x: account.position("x"), y: account.position("y") + delta / 2});
+    }
+    return {destroy: () => {
+        destroyed = true;
+        handle.destroy();
+        restore();
+    }};
+}
+
+/**
+ * Playground exception (should become the spacing option of the tap_viz align/distribute helpers): a person and
+ * their computer stand close together, PAIR_GAP apart, and the computer is the one that moves, toward its person
+ * and so away from the account. The pair is read from the data: the `actor` dimension of a person and the `device`
+ * dimension of a computer carry the same value (`customer`, `developer`, `administrator`). Two that stand in the
+ * same column (the administrator's, beneath the account) are a vertical pair, the computer above the person; the
+ * pair hangs under the account's bottom-centre. Otherwise the pair is horizontal and the computer moves along the
+ * line toward the person.
+ */
+function _closePairs(roots, account) {
+    const dim = (n, key) => (n.data("dimensions") || {})[key];
+    const people = roots.filter((n) => n.data("entity_type") === T.human && dim(n, "actor") !== undefined);
+    const computers = roots.filter((n) => n.data("entity_type") === T.host && dim(n, "device") !== undefined);
+    people.forEach((person) => {
+        computers.filter((c) => dim(c, "device") === dim(person, "actor")).forEach((computer) => {
+            if (person.data("_stage") === computer.data("_stage")) {
+                // Hangs under the bottom-centre of the account: the computer first, the person below it.
+                const x = account.position("x");
+                const bottom = account.boundingBox({includeLabels: false, includeOverlays: false}).y2;
+                const y = bottom + BELOW_ACCOUNT_GAP + computer.height() / 2;
+                computer.position({x, y});
+                person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
+            } else {
+                const toward = Math.sign(account.position("x") - person.position("x"));
+                computer.position({y: computer.position("y"),
+                    x: person.position("x") + toward * ((person.width() + computer.width()) / 2 + PAIR_GAP)});
+            }
+        });
+    });
+}
+
+/**
+ * The deploy-path icons: the delivery types, plus every secret a deploy node retrieves (an edge, not a name).
+ */
+function _deployPath(cy, shown) {
+    const readers = shown(DEPLOY_SECRET_READERS);
+    const secrets = shown([T.secret]).filter((secret) => cy.edges().some((e) => _edgeType(e) === E.retrievesSecret
+        && e.target().same(secret) && readers.anySame(e.source())));
+    return shown(DEPLOY_TYPES).union(secrets);
 }
 
 function _edgeType(e) {

@@ -99,6 +99,14 @@ findings land they seed other plugins' types by string, which is a vocabulary de
 gains those plugins (with a `note`) in the same change (`new-plugin` Tier 1b). The one permitted code path is a programmatic JavaScript
 layout, written through the `create-layout` skill, if a page cannot be drawn from data.
 
+**Standing exception (George, 2026-10-19, the "make it work" phase).** Custom tweaks are permitted in the
+playground's layout JavaScript (`landing.js` and its sibling modules), and only there. This relaxes, for the
+playground only, the part of the `create-layout` skill that says a plugin layout module holds configuration and no
+helper. It does not touch the Python, vocabulary or data rules: no Python, vocabulary declared in its owning
+plugin, data through GRIFT, no placement by label, id or type constant. Each tweak is marked in a comment as a
+"playground exception" and names the tap_viz runtime form it should become. Exit: fold into tap_viz when the
+concepts settle; the tweaks then become runtime configuration and the markers are removed.
+
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
@@ -107,6 +115,7 @@ layout, written through the `create-layout` skill, if a page cannot be drawn fro
 | req-rampart-20x-playground-nongoals-2 | No Network | Proposed | The plugin's `ci` record contains no collector and no credential, and boots offline. | |
 | req-rampart-20x-playground-nongoals-3 | Mock Is Not A Boundary | Proposed | The keystone description says the data is mock and the design is not an authorization boundary. | |
 | req-rampart-20x-playground-nongoals-4 | No Dcom On App Entities | Proposed | The keystone, page, panel and Searches seeded by this plugin carry no `dcom` key. | The axis describes the system under design, not the app showing it. |
+| req-rampart-20x-playground-nongoals-5 | Layout Tweaks Are A Marked Exception | Proposed | Custom geometry exists only in the playground's layout JavaScript, each tweak is marked "playground exception" with the runtime form it should become, and this spec records the exit: fold into tap_viz when the concepts settle. | Ruled 2026-10-19. Today: the deploy row's members and room, the gateway's alignment, the person-computer pairs and the wait before the scope box is drawn (`req-rampart-20x-playground-govcloud-layout-8`, `-9`). |
 
 ### Boot Records
 ----
