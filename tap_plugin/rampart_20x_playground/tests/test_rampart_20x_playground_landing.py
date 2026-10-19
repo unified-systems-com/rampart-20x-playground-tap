@@ -48,11 +48,24 @@ class TestSoloIcons:
         assert "platform" not in _list("SOLO_TYPES") + _list("SOLO_ICON_TYPES")
 
 
-class TestDeployColumn:
-    """`req-rampart-20x-playground-govcloud-layout-8`: C3."""
+class TestDeployPile:
+    """`req-rampart-20x-playground-govcloud-layout-8`: C3 (a pile, not a column)."""
 
     def test_the_deploy_types_are_the_delivery_path(self) -> None:
-        assert sorted(_list("DEPLOY_TYPES")) == ["bucket", "codebuild", "ecr", "lambda", "pipeline", "secret"]
+        assert sorted(_list("DEPLOY_TYPES")) == ["bucket", "codebuild", "ecr", "lambda", "pipeline"]
+
+    def test_a_secret_is_in_the_column_only_when_a_deploy_lambda_retrieves_it(self) -> None:
+        """The data difference: the GitHub App token has a RETRIEVES_SECRET_FROM edge from the Lambda; the runtime
+        secret has none (it has ENCRYPTED_WITH_KEY). The layout selects by that edge, never by name."""
+        assert _list("DEPLOY_SECRET_READERS") == ["lambda"]
+        assert "E.retrievesSecret" in _js()
+        edges = [e["edge"] for b in json.loads(MOCK.read_text(encoding="utf-8"))["batches"] for e in b["edges"]]
+        types = {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in _nodes()}
+        retrieved = {e["to_entity_id"] for e in edges if e["edge_type"] == "RETRIEVES_SECRET_FROM__aws_core"
+                     and types[e["from_entity_id"]] == "aws_core__aws_lambda"}
+        secrets = {n["entity"]["name"]: n["entity"]["entity_id"] for n in _by_type("aws_core__aws_secrets_manager_secret")}
+        assert retrieved == {secrets["github app token"]}
+        assert secrets["runtime secrets"] not in retrieved
 
     def test_the_certificate_and_the_key_are_not_in_the_column(self) -> None:
         deploy = set(_list("DEPLOY_TYPES"))
@@ -62,12 +75,20 @@ class TestDeployColumn:
         tiers = re.search(r"tiers: \[(.*?)\n\s*\],", _js(), re.S)
         assert tiers
         named = set(re.findall(r"T\.(\w+)", tiers.group(1)))
-        assert named == {"zone", "vpc", "cert", "key"}
+        assert named == {"zone", "vpc", "cert", "key", "secret"}
 
-    def test_the_column_is_centred_on_the_account(self) -> None:
+    def test_the_pile_is_a_small_equal_diagonal_offset_centred_on_the_account(self) -> None:
         source = _js()
-        assert "const x = account.position(\"x\");" in source
-        assert "n.position({x, y: cyY});" in source
+        step = re.search(r"const PILE_STEP = \{dx: (\d+), dy: (\d+)\}", source)
+        assert step
+        dx, dy = int(step.group(1)), int(step.group(2))
+        assert 0 < dx <= 20 and 0 < dy <= 30, "small enough that each icon overlaps the next"
+        assert "const x0 = account.position(\"x\") - ((count - 1) * PILE_STEP.dx) / 2;" in source
+        assert "x: x0 + i * PILE_STEP.dx, y: y0 + i * PILE_STEP.dy" in source
+
+    def test_edges_inside_the_pile_are_hidden_and_the_others_stay(self) -> None:
+        source = _js()
+        assert "deploy.anySame(e.source()) && deploy.anySame(e.target())" in source
 
 
 class TestLineOfSight:

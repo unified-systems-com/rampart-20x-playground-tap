@@ -29,15 +29,14 @@
  * its name, no card. GitHub is an icon node with a card. Icon nodes are terminal, so a computer's local account
  * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
  *
- * Deploy path: the AWS icons of the delivery path (the secrets, the ECR repository, the buckets, the pipeline, the
- * Lambda and the CodeBuild projects) stand in ONE column, centred at the bottom-middle of the account, under the
- * certificate and the key.
+ * Deploy path: the AWS icons of the delivery path (the secret a deploy Lambda retrieves, the ECR repository, the buckets, the pipeline, the
+ * Lambda and the CodeBuild projects) are gathered into ONE pile, each icon overlapping the one before it with a small
+ * diagonal offset, centred at the bottom-middle of the account, under the certificate and the key.
  *
  * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
  * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
  * "playground exception" with the tap_viz runtime form it should become:
- *   1. the deploy column (a `column` tier kind of the tiered-rows natural layout, or a `stack` arrangement that
- *      reserves its own room in the container);
+ *   1. the deploy pile (the `stack` form taking mixed-type members, reserving its own room in the container);
  *   2. the gateway on the anchor's line (an `alignTo` of a nested node in the ranked natural layout, so a nested
  *      column can be centre-aligned to an anchor without a post-pass).
  * Neither changes the Python, the vocabulary or the data rules.
@@ -75,6 +74,7 @@ const T = {
 };
 const E = {
     belongs: "BELONGS_TO_ACCOUNT__aws_core",
+    retrievesSecret: "RETRIEVES_SECRET_FROM__aws_core",
     partitioned: "PARTITIONED_INTO_SUBNET__aws_core",
     attachedToVpc: "ATTACHED_TO_VPC__aws_core",
     residesInSubnet: "RESIDES_IN_SUBNET__aws_core",
@@ -96,11 +96,14 @@ const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
 const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
-//: The deploy path inside the account: every AWS icon of the delivery path. The certificate and the key are not
-//: part of it (they stand under the load balancer and the database).
-const DEPLOY_TYPES = [T.secret, T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
-//: Distance between the centres of two icons in the deploy column: the icon, then room for a three-line name.
-const DEPLOY_PITCH = 120;
+//: The deploy path inside the account: the AWS icons of the delivery path. The certificate and the key are not
+//: part of it (they stand under the load balancer and the database). A secret is part of it only when a deploy
+//: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token. The runtime secret, which is
+//: encrypted with the database key and retrieved by no deploy node, stays in the account's rows.
+const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
+const DEPLOY_SECRET_READERS = [T.lambda];
+//: The offset between two successive icons of the deploy pile (model units): small, so each icon stays partly visible.
+const PILE_STEP = {dx: 12, dy: 18};
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -120,10 +123,10 @@ export async function execute(context) {
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
-    // Playground exception (deploy column; should become a column tier of tiered-rows): the deploy icons are out
-    // of the nesting while it runs, so the account is sized for its own rows; they are placed in one column below
+    // Playground exception (deploy pile; should become the tap_viz stack form with mixed-type members): the deploy icons are out
+    // of the nesting while it runs, so the account is sized for its own rows; they are placed in one pile below
     // them afterwards, which grows the account.
-    const deploy = shown(DEPLOY_TYPES);
+    const deploy = _deployPath(cy, shown);
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
@@ -154,13 +157,15 @@ export async function execute(context) {
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
             //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
-            //: key (placed under the load balancer and the database). The deploy path is the column below them.
+            //: key (placed under the load balancer and the database), then the secrets the deploy path does not use. The
+            //: deploy path is the pile below them.
             [T.account]: {
                 name: "tiered-rows", rowGap: 44, itemGap: 40,
                 tiers: [
                     {name: "dns", entityTypes: [T.zone], align: "start"},
                     {name: "vpc", entityTypes: [T.vpc]},
                     {name: "protection", entityTypes: [T.cert, T.key]},
+                    {name: "secrets", entityTypes: [T.secret]},
                 ],
             },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
@@ -206,9 +211,9 @@ export async function execute(context) {
     // Under the account, top to bottom in their own order (the computer, then the person).
     const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
         .sort((a, b) => a.data("_order") - b.data("_order"));
-    // Playground exception (deploy column): the account grows downward for the column; what stands beneath it
+    // Playground exception (deploy pile): the account grows downward for the pile; what stands beneath it
     // moves down by the same amount. The line of sight does not move (the anchor is above the growth).
-    const grown = _placeDeployColumn(cy, account, deploy, pad.bottom);
+    const grown = _placeDeployPile(cy, account, deploy, pad.bottom);
     beneath.forEach((n) => n.position({x: n.position("x"), y: n.position("y") + grown}));
     if (beneath.length > 1) {
         alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
@@ -228,38 +233,63 @@ export async function execute(context) {
 }
 
 /**
- * Playground exception: stand the deploy-path icons in ONE column, centred on the account's own centre line, below
- * the account's other contents, and grow the account (downward only) to hold them. Order within the column is by
- * label (stable). Returns how far the account's bottom edge moved. Should become a `column` tier of the
- * tiered-rows natural layout in tap_viz, which would size the container itself.
+ * Playground exception: gather the deploy-path icons into ONE pile, each icon overlapping the one before it, offset
+ * by the same small step down and to the right (a fanned deck), centred on the account's centre line below the
+ * account's other contents; grow the account (downward only) to hold it. Order: the `layout:order` tag when a node
+ * has one, then label (a stable key, never a place). Only the top icon's name is drawn. The edges between two icons of the pile are hidden (they would
+ * be short lines under the icons); edges that leave the pile stay. Returns how far the account's bottom edge moved.
+ * Should become the tap_viz `stack` form taking mixed-type members (today applyStack collapses same-type siblings
+ * into the representative and hides the rest), with the offset as its configured step.
  */
-function _placeDeployColumn(cy, account, deploy, bottomPad) {
+function _placeDeployPile(cy, account, deploy, bottomPad) {
+    cy.edges().filter((e) => e.data("_pile_internal")).forEach((e) => {
+        e.removeData("_pile_internal");
+        e.removeStyle("display");
+    });
     if (account.empty() || deploy.empty()) return 0;
     const box = account.boundingBox({includeLabels: false, includeOverlays: false});
     const others = cy.nodes().filter((n) => n.data("_viewport_parent") === account.id() && !n.hasClass(ELEVATION_HIDDEN_CLASS)
         && !deploy.anySame(n));
     const above = others.nonempty() ? others.boundingBox({includeLabels: true, includeOverlays: false}).y2 : box.y1;
     const iconHeight = (n) => Number(n.data("_icon_h")) || n.height();
-    const x = account.position("x");
-    const ordered = deploy.toArray().sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
-    let y = above + 44;
-    let last = y;
-    ordered.forEach((n, i) => {
-        const half = iconHeight(n) / 2;
-        const cyY = i === 0 ? y + half : last + DEPLOY_PITCH;
-        n.position({x, y: cyY});
-        // One layer above the account, as the nesting would have drawn a child of it.
-        n.style({"z-index": Number(account.style("z-index")) + 10});
-        n.data("_viewport_parent", account.id());
-        last = cyY;
+    const tagOrder = (n) => Number((n.data("tags") || {})["layout:order"]);
+    const ordered = deploy.toArray().sort((a, b) => {
+        const ta = tagOrder(a), tb = tagOrder(b);
+        if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
+        return String(a.data("label")).localeCompare(String(b.data("label")));
     });
-    const newBottom = last + iconHeight(ordered[ordered.length - 1]) / 2 + bottomPad;
+    const count = ordered.length;
+    const x0 = account.position("x") - ((count - 1) * PILE_STEP.dx) / 2;
+    const y0 = above + 44 + iconHeight(ordered[0]) / 2;
+    const baseZ = Number(account.style("z-index")) + 10;
+    ordered.forEach((n, i) => {
+        n.position({x: x0 + i * PILE_STEP.dx, y: y0 + i * PILE_STEP.dy});
+        // Only the top icon's name is drawn: the names of the covered ones would print over each other.
+        n.style({"z-index": baseZ + i, "text-opacity": i === count - 1 ? 1 : 0});
+        n.data("_viewport_parent", account.id());
+    });
+    cy.edges().filter((e) => deploy.anySame(e.source()) && deploy.anySame(e.target())).forEach((e) => {
+        e.data("_pile_internal", true);
+        e.style("display", "none");
+    });
+    const last = ordered[count - 1];
+    const newBottom = last.position("y") + iconHeight(last) / 2 + bottomPad;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
         account.position({x: account.position("x"), y: account.position("y") + delta / 2});
     }
     return delta;
+}
+
+/**
+ * The deploy-path icons: the delivery types, plus every secret a deploy node retrieves (an edge, not a name).
+ */
+function _deployPath(cy, shown) {
+    const readers = shown(DEPLOY_SECRET_READERS);
+    const secrets = shown([T.secret]).filter((secret) => cy.edges().some((e) => _edgeType(e) === E.retrievesSecret
+        && e.target().same(secret) && readers.anySame(e.source())));
+    return shown(DEPLOY_TYPES).union(secrets);
 }
 
 function _edgeType(e) {
