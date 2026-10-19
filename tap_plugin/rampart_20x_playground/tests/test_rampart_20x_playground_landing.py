@@ -126,6 +126,29 @@ class TestLineOfSight:
         assert not re.search(r"data\(\"label\"\)\s*===", source)
 
 
+class TestPersonComputerPairs:
+    """`req-rampart-20x-playground-govcloud-layout-10`."""
+
+    def test_one_named_gap_constant_marked_as_an_exception(self) -> None:
+        source = _js()
+        assert len(re.findall(r"const PAIR_GAP = \d+;", source)) == 1
+        gap = int(re.search(r"const PAIR_GAP = (\d+);", source).group(1))
+        assert 20 <= gap <= 32
+        assert "_closePairs(roots, account);" in source
+
+    def test_the_pair_is_read_from_the_actor_and_device_dimensions(self) -> None:
+        source = _js()
+        assert 'dim(n, "actor")' in source and 'dim(n, "device")' in source
+        assert 'dim(c, "device") === dim(person, "actor")' in source
+
+    def test_every_person_has_exactly_one_computer_with_the_same_value(self) -> None:
+        people = {n["entity"]["dimensions"]["actor"] for n in _by_type("identity_core__human")}
+        devices = [n["entity"]["dimensions"]["device"] for n in _by_type("computing_core__host")
+                   if "device" in n["entity"]["dimensions"]]
+        assert people == {"customer", "developer", "administrator"}
+        assert sorted(devices) == sorted(people)
+
+
 class TestPlaygroundException:
     """`req-rampart-20x-playground-nongoals-5`: the standing exception is marked where it is used and recorded."""
 

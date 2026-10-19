@@ -104,6 +104,9 @@ const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
 const DEPLOY_SECRET_READERS = [T.lambda];
 //: The offset between two successive icons of the deploy pile (model units): small, so each icon stays partly visible.
 const PILE_STEP = {dx: 12, dy: 18};
+//: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
+//: model units, between the boxes of a person and their computer. One constant for all three pairs.
+const PAIR_GAP = 28;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -218,6 +221,7 @@ export async function execute(context) {
     if (beneath.length > 1) {
         alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
     }
+    _closePairs(roots, account);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -280,6 +284,32 @@ function _placeDeployPile(cy, account, deploy, bottomPad) {
         account.position({x: account.position("x"), y: account.position("y") + delta / 2});
     }
     return delta;
+}
+
+/**
+ * Playground exception (should become the spacing option of the tap_viz align/distribute helpers): a person and
+ * their computer stand close together, PAIR_GAP apart, and the computer is the one that moves, toward its person
+ * and so away from the account. The pair is read from the data: the `actor` dimension of a person and the `device`
+ * dimension of a computer carry the same value (`customer`, `developer`, `administrator`). Two that stand in the
+ * same column (the administrator's, beneath the account) are a vertical pair, the computer above the person;
+ * otherwise the pair is horizontal and the computer moves along the line toward the person.
+ */
+function _closePairs(roots, account) {
+    const dim = (n, key) => (n.data("dimensions") || {})[key];
+    const people = roots.filter((n) => n.data("entity_type") === T.human && dim(n, "actor") !== undefined);
+    const computers = roots.filter((n) => n.data("entity_type") === T.host && dim(n, "device") !== undefined);
+    people.forEach((person) => {
+        computers.filter((c) => dim(c, "device") === dim(person, "actor")).forEach((computer) => {
+            if (person.data("_stage") === computer.data("_stage")) {
+                computer.position({x: computer.position("x"),
+                    y: person.position("y") - (person.height() + computer.height()) / 2 - PAIR_GAP});
+            } else {
+                const toward = Math.sign(account.position("x") - person.position("x"));
+                computer.position({y: computer.position("y"),
+                    x: person.position("x") + toward * ((person.width() + computer.width()) / 2 + PAIR_GAP)});
+            }
+        });
+    });
 }
 
 /**
