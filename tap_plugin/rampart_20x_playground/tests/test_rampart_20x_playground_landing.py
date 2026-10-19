@@ -63,19 +63,33 @@ class TestDeployPile:
         types = {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in _nodes()}
         retrieved = {e["to_entity_id"] for e in edges if e["edge_type"] == "RETRIEVES_SECRET_FROM__aws_core"
                      and types[e["from_entity_id"]] == "aws_core__aws_lambda"}
-        secrets = {n["entity"]["name"]: n["entity"]["entity_id"] for n in _by_type("aws_core__aws_secrets_manager_secret")}
-        assert retrieved == {secrets["github app token"]}
-        assert secrets["runtime secrets"] not in retrieved
+        shown_secrets = {n["entity"]["entity_id"] for n in _by_type("aws_core__aws_secrets_manager_secret")
+                         if n["entity"]["dimensions"].get("overview") == "shown"}
+        assert shown_secrets and shown_secrets <= retrieved, "every secret still drawn is in the pile"
 
-    def test_the_certificate_and_the_key_are_not_in_the_column(self) -> None:
-        deploy = set(_list("DEPLOY_TYPES"))
-        assert not deploy & {"cert", "key", "zone", "alb", "rds", "igw"}
+    def test_the_certificate_the_key_and_the_runtime_secret_are_not_on_the_overview(self) -> None:
+        """`req-rampart-20x-playground-govcloud-layout-11`: no `overview` value, nodes kept for the grid."""
+        hidden = {"tls certificate", "DB Encryption Key", "runtime secrets"}
+        found = {n["entity"]["name"]: n["entity"]["dimensions"] for n in _nodes() if n["entity"]["name"] in hidden}
+        assert set(found) == hidden
+        assert all("overview" not in dims and dims.get("inventory") for dims in found.values())
+        source = _js()
+        assert "T.cert" not in source and "T.key" not in source
+
+    def test_nothing_in_the_deploy_pile_is_a_line_of_sight_type(self) -> None:
+        assert not set(_list("DEPLOY_TYPES")) & {"zone", "alb", "rds", "igw"}
 
     def test_the_deploy_types_are_not_account_rows_any_more(self) -> None:
         tiers = re.search(r"tiers: \[(.*?)\n\s*\],", _js(), re.S)
         assert tiers
         named = set(re.findall(r"T\.(\w+)", tiers.group(1)))
-        assert named == {"zone", "vpc", "cert", "key", "secret"}
+        assert named == {"zone", "vpc"}
+
+    def test_the_administrator_pair_hangs_under_the_account_centre(self) -> None:
+        source = _js()
+        assert len(re.findall(r"const BELOW_ACCOUNT_GAP = \d+;", source)) == 1
+        assert "const x = account.position(\"x\");" in source.split("function _closePairs")[1]
+        assert "computer.position({x, y});" in source and "person.position({x, y: y +" in source
 
     def test_the_pile_is_a_small_equal_diagonal_offset_centred_on_the_account(self) -> None:
         source = _js()

@@ -19,7 +19,7 @@
  * Every other edge in the scene is a line.
  *
  * Top level, left to right: the customer and their computer, the product account, GitHub, the developer's computer and the developer. The administrator and their computer
- * stand beneath the product account, the computer above the person. The line of sight is one horizontal line,
+ * hang under the bottom-centre of the product account, the computer above the person. The line of sight is one horizontal line,
  * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
  * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
  * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
@@ -31,7 +31,7 @@
  *
  * Deploy path: the AWS icons of the delivery path (the secret a deploy Lambda retrieves, the ECR repository, the buckets, the pipeline, the
  * Lambda and the CodeBuild projects) are gathered into ONE pile, each icon overlapping the one before it with a small
- * diagonal offset, centred at the bottom-middle of the account, under the certificate and the key.
+ * diagonal offset, centred at the bottom-middle of the account, under the VPC.
  *
  * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
  * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
@@ -46,7 +46,7 @@ import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
-import {alignDistributeHorizontal, alignDistributeVertical} from "/static/tap_viz/js/runtime/align-distribute.js";
+import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
     vpc: "aws_core__aws_vpc",
@@ -56,8 +56,6 @@ const T = {
     alb: "aws_core__aws_alb",
     rds: "aws_core__aws_rds_instance",
     zone: "aws_core__aws_route53_zone",
-    cert: "aws_core__aws_acm_certificate",
-    key: "aws_core__aws_kms_key",
     ecr: "aws_core__aws_ecr_repository",
     pipeline: "aws_core__aws_codepipeline_pipeline",
     codebuild: "aws_core__aws_codebuild_project",
@@ -94,12 +92,11 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
-//: The deploy path inside the account: the AWS icons of the delivery path. The certificate and the key are not
-//: part of it (they stand under the load balancer and the database). A secret is part of it only when a deploy
-//: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token. The runtime secret, which is
-//: encrypted with the database key and retrieved by no deploy node, stays in the account's rows.
+//: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
+//: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
+//: retrieves would not be part of it).
 const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
 const DEPLOY_SECRET_READERS = [T.lambda];
 //: The offset between two successive icons of the deploy pile (model units): small, so each icon stays partly visible.
@@ -107,6 +104,9 @@ const PILE_STEP = {dx: 12, dy: 18};
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
+//: Playground exception (same exit): the clear gap between the bottom edge of the account and the pair that hangs
+//: below it.
+const BELOW_ACCOUNT_GAP = 56;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -159,16 +159,13 @@ export async function execute(context) {
             [T.repo]: {name: "flow", gap: 12, sort: "label"},
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
-            //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
-            //: key (placed under the load balancer and the database), then the secrets the deploy path does not use. The
-            //: deploy path is the pile below them.
+            //: Inside the account, by row: the DNS zone in the top-left corner, then the VPC. The deploy path is the pile
+            //: below them. The certificate, the key and the runtime secret are not on the Overview (no `overview` value).
             [T.account]: {
                 name: "tiered-rows", rowGap: 44, itemGap: 40,
                 tiers: [
                     {name: "dns", entityTypes: [T.zone], align: "start"},
                     {name: "vpc", entityTypes: [T.vpc]},
-                    {name: "protection", entityTypes: [T.cert, T.key]},
-                    {name: "secrets", entityTypes: [T.secret]},
                 ],
             },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
@@ -203,24 +200,9 @@ export async function execute(context) {
         alignDistributeHorizontal(cy, {members: gateway, anchorNode: anchor, distribute: false, reactive: false});
     }
 
-    // The certificate stands directly under the load balancer, and the key directly under the database.
-    [[T.cert, T.alb], [T.key, T.rds]].forEach(([type, above]) => {
-        const member = shown([type]), anchorNode = shown([above]).first();
-        if (member.nonempty() && anchorNode.nonempty()) {
-            alignDistributeVertical(cy, {members: member, anchorNode, distribute: false, reactive: false});
-        }
-    });
-
-    // Under the account, top to bottom in their own order (the computer, then the person).
-    const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
-        .sort((a, b) => a.data("_order") - b.data("_order"));
-    // Playground exception (deploy pile): the account grows downward for the pile; what stands beneath it
-    // moves down by the same amount. The line of sight does not move (the anchor is above the growth).
-    const grown = _placeDeployPile(cy, account, deploy, pad.bottom);
-    beneath.forEach((n) => n.position({x: n.position("x"), y: n.position("y") + grown}));
-    if (beneath.length > 1) {
-        alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
-    }
+    // Playground exception (deploy pile): the account grows downward for the pile. The line of sight does not
+    // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
+    _placeDeployPile(cy, account, deploy, pad.bottom);
     _closePairs(roots, account);
 
     // An empty container is still a box, not a leaf.
@@ -301,8 +283,12 @@ function _closePairs(roots, account) {
     people.forEach((person) => {
         computers.filter((c) => dim(c, "device") === dim(person, "actor")).forEach((computer) => {
             if (person.data("_stage") === computer.data("_stage")) {
-                computer.position({x: computer.position("x"),
-                    y: person.position("y") - (person.height() + computer.height()) / 2 - PAIR_GAP});
+                // Hangs under the bottom-centre of the account: the computer first, the person below it.
+                const x = account.position("x");
+                const bottom = account.boundingBox({includeLabels: false, includeOverlays: false}).y2;
+                const y = bottom + BELOW_ACCOUNT_GAP + computer.height() / 2;
+                computer.position({x, y});
+                person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
             } else {
                 const toward = Math.sign(account.position("x") - person.position("x"));
                 computer.position({y: computer.position("y"),
