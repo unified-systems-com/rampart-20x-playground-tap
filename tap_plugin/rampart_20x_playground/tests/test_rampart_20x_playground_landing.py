@@ -432,3 +432,31 @@ class TestFlowWindow:
         assert "Playground exception 7 (STANDING EXCEPTION; should become a projection-declared `node_info` window of tap_viz" in source
         v0 = (SPECS / "spec-rampart_20x_playground-v0.md").read_text(encoding="utf-8")
         assert "its click window, a node-tap handler" in v0
+
+
+class TestTaskBubbleSearches:
+    """Overview Wave 6: the open-findings bubble and its window are module Searches that sum two routes."""
+
+    def _searches(self) -> dict[str, dict]:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        return {n["entity"]["name"]: n["node"] for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
+
+    def test_the_two_searches_are_the_reach_runners_with_both_routes_as_defaults(self) -> None:
+        searches = self._searches()
+        count = searches["playground — landing task-open-findings"]
+        listing = searches["playground — landing task-open-vulnerabilities"]
+        assert count["search_type"] == listing["search_type"] == "module"
+        assert count["definition"]["runner_key"] == "tap_plugin.compliance_core.searches.reach:findings-reached-count"
+        assert listing["definition"]["runner_key"] == "tap_plugin.compliance_core.searches.reach:findings-reached-list"
+        for node in (count, listing):
+            props = node["input_schema"]["properties"]
+            assert props["root_type"]["default"] == "aws_core__aws_ecs_task"
+            assert [chain[-1] for chain in props["paths"]["default"]] == [
+                "INSTALLS_PACKAGE__computing_core", "LOADS_LIBRARY__computing_core"]
+            assert "Gryphon has no multi-path aggregate" in node["description"]
+
+    def test_both_tasks_load_the_two_libraries(self) -> None:
+        programs = {n["entity"]["entity_id"]: n["entity"]["name"] for n in _batch_nodes(ENTITIES)}
+        libs = {e["to_entity_id"] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
+        sources = {programs[e["from_entity_id"]] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
+        assert sources == {"tap-web (web task b)"} and len(libs) == 2  # task a's two are in the software bundle

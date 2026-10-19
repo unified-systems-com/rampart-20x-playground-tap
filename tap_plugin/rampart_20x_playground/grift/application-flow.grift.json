@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.application-flow",
         "name": "rampart-20x-playground application flow v0.1.0",
-        "description": "MOCK DATA, never collected from a live system: what runs inside the two web tasks and the customer traffic that reaches them. One ECS container per web task (aws_core, real-shaped ARNs, the image reference and digest of the git-serious web image), the RUNS_TASK edges from the service and the cluster to each task, RUNS_CONTAINER from each task to its container, RUNS_IMAGE from each container to the one image host, RUNS_PROGRAM from each container to its gunicorn and from gunicorn to tap-web (the programs are in the inventory entities bundle), and ONE application flow (computing_core, keyless, so it carries its own fixed entity id) from the customer's computer to the tap-web program of web task a, stamped dataclass.customer=data. Only web task a's container and programs and the flow are marked overview=shown: web task b is the stacked copy of a. Every entity carries dcom=design. Import after the mock inventory, the inventory entities and the inventory software bundles."
+        "description": "MOCK DATA, never collected from a live system: what runs inside the two web tasks and the customer traffic that reaches them. One ECS container per web task (aws_core, real-shaped ARNs, the image reference and digest of the git-serious web image), the RUNS_TASK edges from the service and the cluster to each task, RUNS_CONTAINER from each task to its container, RUNS_IMAGE from each container to the one image host, RUNS_PROGRAM from each container to its gunicorn and from gunicorn to tap-web (the programs are in the inventory entities bundle), LOADS_LIBRARY from web task b's tap-web to the two libraries web task a's loads (openssl-fips-provider and cryptography, from the inventory software bundle), and ONE application flow (computing_core, keyless, so it carries its own fixed entity id) from the customer's computer to the tap-web program of web task a, stamped dataclass.customer=data. Only web task a's container and programs and the flow are marked overview=shown: web task b is the stacked copy of a. Every entity carries dcom=design. Import after the mock inventory, the inventory entities and the inventory software bundles."
       },
       "nodes": [
         {
@@ -301,6 +301,38 @@
             "from_entity_id": "01a1c40f-35b9-710b-a232-03df41fdae85",
             "to_entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
             "edge_type": "APPLICATION_FLOW_DESTINATION__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c73e-560a-7d33-9e7d-774db7f2bbcb",
+            "entity_type": "edge",
+            "name": "01a1c453-b1c0-7baf-989a-834ff276c1b9 --[LOADS_LIBRARY__computing_core]--> 01a13c38-4f77-76da-a965-3c6ed63426de",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "to_entity_id": "01a13c38-4f77-76da-a965-3c6ed63426de",
+            "edge_type": "LOADS_LIBRARY__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c75a-a556-7560-bfb7-628abdf81bf3",
+            "entity_type": "edge",
+            "name": "01a1c453-b1c0-7baf-989a-834ff276c1b9 --[LOADS_LIBRARY__computing_core]--> 01a13c38-4f78-7159-8af3-1c9736dfff85",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "to_entity_id": "01a13c38-4f78-7159-8af3-1c9736dfff85",
+            "edge_type": "LOADS_LIBRARY__computing_core",
             "properties": {}
           }
         }
