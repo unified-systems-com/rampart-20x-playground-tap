@@ -87,7 +87,13 @@ class TestOverviewMembership:
         for node in pages:
             if node["entity"]["entity_type"] != "search":
                 continue
-            query = " ".join(node["node"]["definition"]["query"])
+            definition = node["node"]["definition"]
+            if node["node"]["search_type"] == "module":
+                # A module Search has no query text to hand-list types in: it names a runner and defaults its inputs.
+                assert "query" not in definition and definition["runner_key"], node["entity"]["name"]
+                assert "entity_type IN" not in json.dumps(node["node"].get("input_schema", {})), node["entity"]["name"]
+                continue
+            query = " ".join(definition["query"])
             assert "entity_type IN" not in query, node["entity"]["name"]
 
     def test_shown_entities_are_stamped_and_the_organization_and_other_accounts_are_not(self) -> None:

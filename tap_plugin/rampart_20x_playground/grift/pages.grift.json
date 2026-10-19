@@ -303,6 +303,192 @@
         },
         {
           "entity": {
+            "entity_id": "01a1c48a-6763-79f7-9408-0f56c5aa328f",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs-container",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs-container",
+            "description": "Each ECS task and the container it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_ecs_task)-[:RUNS_CONTAINER__aws_core]->(b:aws_core__aws_ecs_container)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c41f-1bd3-78f1-bf34-920fbd01f400",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs-program",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs-program",
+            "description": "Each container or program and the program it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:RUNS_PROGRAM__computing_core]->(b:computing_core__program)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
+            "entity_type": "search",
+            "name": "playground \u2014 landing flow-source",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing flow-source",
+            "description": "Each shown node that sends an application flow, and the flow.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:APPLICATION_FLOW_SOURCE__computing_core]->(b:computing_core__application_flow)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c42b-e01e-74fc-b2d0-31c41885221c",
+            "entity_type": "search",
+            "name": "playground \u2014 landing flow-destination",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing flow-destination",
+            "description": "Each application flow and the shown node that receives it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__application_flow)-[:APPLICATION_FLOW_DESTINATION__computing_core]->(b)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c6a1-7b2e-7c41-9d3a-5e0f1a2b3c4d",
+            "entity_type": "search",
+            "name": "playground \u2014 landing task-open-findings",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing task-open-findings",
+            "description": "The open findings on each ECS task, from the packages of its container's image host and the libraries its container's programs load, each finding counted once: one count per task (findings, not distinct vulnerabilities). A module Search because Gryphon has no multi-path aggregate (a union of MATCH clauses cannot be aggregated across, and a projection with aggregates needs one MATCH): the missing capability is a count of what several different routes reach, counted once.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.reach:findings-reached-count"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Which roots, and which routes from a root to what carries its findings.",
+              "properties": {
+                "root_type": {
+                  "type": "string",
+                  "default": "aws_core__aws_ecs_task",
+                  "description": "The type of the nodes the count and the list are for."
+                },
+                "paths": {
+                  "type": "array",
+                  "default": [
+                    [
+                      "RUNS_CONTAINER__aws_core",
+                      "RUNS_IMAGE__computing_core",
+                      "INSTALLS_PACKAGE__computing_core"
+                    ],
+                    [
+                      "RUNS_CONTAINER__aws_core",
+                      "RUNS_PROGRAM__computing_core",
+                      "RUNS_PROGRAM__computing_core",
+                      "LOADS_LIBRARY__computing_core"
+                    ]
+                  ],
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Edge-type chains followed outward from a task: its container's image host's packages, and the libraries its container's programs load."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c6a1-7b2f-7d52-8e4b-6f1a2b3c4d5e",
+            "entity_type": "search",
+            "name": "playground \u2014 landing task-open-vulnerabilities",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing task-open-vulnerabilities",
+            "description": "One row per open finding on each ECS task, highest CVSS first, named 'id | CVSS score | title'; the id links to the vulnerability page. A module Search because Gryphon has no multi-path aggregate (a union of MATCH clauses cannot be aggregated across, and a projection with aggregates needs one MATCH): the missing capability is a count of what several different routes reach, counted once.",
+            "search_type": "module",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.reach:findings-reached-list"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Which roots, and which routes from a root to what carries its findings.",
+              "properties": {
+                "root_type": {
+                  "type": "string",
+                  "default": "aws_core__aws_ecs_task",
+                  "description": "The type of the nodes the count and the list are for."
+                },
+                "paths": {
+                  "type": "array",
+                  "default": [
+                    [
+                      "RUNS_CONTAINER__aws_core",
+                      "RUNS_IMAGE__computing_core",
+                      "INSTALLS_PACKAGE__computing_core"
+                    ],
+                    [
+                      "RUNS_CONTAINER__aws_core",
+                      "RUNS_PROGRAM__computing_core",
+                      "RUNS_PROGRAM__computing_core",
+                      "LOADS_LIBRARY__computing_core"
+                    ]
+                  ],
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "Edge-type chains followed outward from a task: its container's image host's packages, and the libraries its container's programs load."
+                }
+              }
+            },
+            "root": "node"
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
             "entity_type": "layout",
             "name": "Playground landing layout",
@@ -345,17 +531,40 @@
           },
           "node": {
             "name": "Playground landing projection",
-            "description": "Landing: one elevation, the landing.js layout module, icon-badge chrome, opens fitted.",
+            "description": "Landing: one elevation, the landing.js layout module (which also reveals the interior of web task a past a zoom threshold), icon-badge chrome, opens fitted.",
             "definition": {
               "node_style": {
-                "mode": "icon-badge"
+                "mode": "icon-badge",
+                "exclude_types": [
+                  "computing_core__program",
+                  "aws_core__aws_ecs_container"
+                ]
               },
               "elevations": [
                 "01a13b2c-82d6-73d2-baa8-173e83503bfa"
               ],
               "default_elevation_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
               "min_zoom": "fit",
-              "lock_nodes": true
+              "lock_nodes": true,
+              "status_badges": {
+                "refresh_seconds": 0,
+                "badge_sets": [
+                  {
+                    "name": "open findings",
+                    "label": "Open findings",
+                    "color": "#dc2626",
+                    "text_color": "#ffffff",
+                    "population": {
+                      "type": "search",
+                      "search_id": "01a1c6a1-7b2e-7c41-9d3a-5e0f1a2b3c4d"
+                    },
+                    "info_window": {
+                      "search_id": "01a1c6a1-7b2f-7d52-8e4b-6f1a2b3c4d5e",
+                      "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
+                    }
+                  }
+                ]
+              }
             }
           }
         },
@@ -903,6 +1112,62 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a1557d-3938-760e-88bd-abe220ba6f2a",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c422-6e23-76a2-83e2-38e3b1c77fc4",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs-container",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c48a-6763-79f7-9408-0f56c5aa328f",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c43c-f347-7862-9554-017cdf83fd98",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs-program",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c41f-1bd3-78f1-bf34-920fbd01f400",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c48b-fcc8-7c92-a834-4b16103485a1",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-flow-source",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c46a-af76-7fdc-a6c3-69aad6b68b75",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-flow-destination",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1c42b-e01e-74fc-b2d0-31c41885221c",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

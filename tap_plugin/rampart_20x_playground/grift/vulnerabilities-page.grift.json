@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.3.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.4.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.3.0",
-        "description": "The /playground/vulnerabilities page (three cards, three charts, a table of open vulnerabilities and a table of affected components) with a drill-in page per vulnerability and per component. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
+        "name": "rampart-20x-playground vulnerabilities page v0.4.0",
+        "description": "The /playground/vulnerabilities page (three cards, three charts, a table of open vulnerabilities and a table of affected components) with a drill-in page per vulnerability and per component, and a CVE record page. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
       },
       "nodes": [
         {
@@ -42,7 +42,8 @@
                 "warn": "",
                 "bad": ""
               },
-              "null_text": "not observed"
+              "null_text": "not observed",
+              "tone_text": true
             }
           }
         },
@@ -83,13 +84,7 @@
             "config": {
               "value_field": "kev",
               "value_formatter": "integer",
-              "tone": {
-                "field": "kev",
-                "map": {
-                  "0": "good"
-                },
-                "default": "bad"
-              },
+              "tone": "bad",
               "hide_header": true,
               "title": "On the CISA exploited list",
               "tone_labels": {
@@ -97,7 +92,9 @@
                 "warn": "",
                 "bad": ""
               },
-              "null_text": "not observed"
+              "null_text": "not observed",
+              "tone_text": true,
+              "zero_tone": "muted"
             }
           }
         },
@@ -146,7 +143,8 @@
                 "warn": "",
                 "bad": ""
               },
-              "null_text": "not observed"
+              "null_text": "not observed",
+              "tone_text": true
             }
           }
         },
@@ -351,7 +349,10 @@
               "aria_label": "Open findings by component, top ten",
               "empty_text": "No open findings.",
               "height": 320,
-              "hide_header": false
+              "hide_header": false,
+              "click": {
+                "row_url_template": "/playground/vulnerabilities/component?component_id={cid}"
+              }
             }
           }
         },
@@ -370,7 +371,7 @@
             "definition": {
               "query": [
                 "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND c.entity_type != \"github_core__github_repository\"",
-                "RETURN c.name AS component, COUNT(f) AS c",
+                "RETURN c.name AS component, c.entity_id AS cid, COUNT(f) AS c",
                 "ORDER BY c DESC LIMIT 10"
               ]
             }
@@ -487,7 +488,10 @@
               "aria_label": "Vulnerabilities with an open finding, by publication time and CVSS score",
               "empty_text": "No open findings.",
               "height": 320,
-              "hide_header": false
+              "hide_header": false,
+              "click": {
+                "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
+              }
             }
           }
         },
@@ -584,10 +588,17 @@
                   "header_tooltip": "How many components carry an open finding for it."
                 },
                 {
-                  "field": "component_names",
+                  "field": "component_items",
                   "title": "Affected components",
                   "widthGrow": 3,
-                  "header_tooltip": "The components that carry it, comma separated."
+                  "header_tooltip": "The components that carry it; click one for its detail.",
+                  "formatter": "linkList",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/component?component_id={id}",
+                    "label_field": "name",
+                    "external": false,
+                    "max_items": 5
+                  }
                 }
               ],
               "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
@@ -775,7 +786,13 @@
                 {
                   "field": "id",
                   "title": "Vulnerability",
-                  "width": 160
+                  "width": 160,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/cve?vuln_id={id}",
+                    "external": false
+                  },
+                  "header_tooltip": "Open the CVE record dashboard."
                 },
                 {
                   "field": "title",
@@ -1430,6 +1447,7 @@
           "node": {
             "name": "Vulnerability",
             "slug": "/playground/vulnerabilities/vulnerability",
+            "discoverable": false,
             "description": "One vulnerability: what it is, how it scores, whether it is being exploited, the components that carry it and the systems where it was found. Open it from a row on the Vulnerabilities page.",
             "layout": {
               "columns": {
@@ -1483,6 +1501,7 @@
           "node": {
             "name": "Component",
             "slug": "/playground/vulnerabilities/component",
+            "discoverable": false,
             "description": "One component: its type and open findings, every vulnerability it carries and the systems where it runs. Open it from a row on the Vulnerabilities page.",
             "layout": {
               "columns": {
@@ -1540,7 +1559,7 @@
                   "band": 1,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vulnerabilities-open",
+                      "panel-id": "playground-vulnerabilities-kev",
                       "height": "auto"
                     },
                     "row-2": {
@@ -1554,7 +1573,7 @@
                   "band": 1,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vulnerabilities-kev",
+                      "panel-id": "playground-vulnerabilities-open",
                       "height": "auto"
                     },
                     "row-2": {
@@ -1587,6 +1606,59 @@
                     },
                     "row-2": {
                       "panel-id": "playground-vulnerabilities-open-components",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-8513-7d45-91d0-d5624998bc74",
+            "entity_type": "panel",
+            "name": "CVE record",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "CVE record",
+            "slug": "playground-vulnerabilities-cve",
+            "description": "The CVE record of the selected vulnerability, read from the local vuln-mosaic stores: exploitation, scores, products, references. Needs the vuln-mosaic plugin on the stack.",
+            "view": "vuln_mosaic/panels/cve.html",
+            "editor_view": "",
+            "config": {
+              "vuln_id_var": "vuln_id",
+              "hide_header": true,
+              "queue_misses": false,
+              "max_references_per_tag": 8
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-de08-7d63-8b08-f86c8e3be813",
+            "entity_type": "page",
+            "name": "CVE",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "CVE",
+            "slug": "/playground/vulnerabilities/cve",
+            "discoverable": false,
+            "description": "One CVE record: what the public record says about it. Open it from the vulnerability id on the Vulnerability page.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-cve",
                       "height": "auto"
                     }
                   }
@@ -2103,6 +2175,26 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-vulnerabilities-open-components"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a13fc0-9204-7f69-b9ca-c69599f1ddaf",
+            "entity_type": "edge",
+            "name": "CVE USES_PANEL cve",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-de08-7d63-8b08-f86c8e3be813",
+            "to_entity_id": "01a13fc0-8513-7d45-91d0-d5624998bc74",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-cve"
               }
             }
           }

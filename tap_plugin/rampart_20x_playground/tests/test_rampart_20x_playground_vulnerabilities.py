@@ -16,6 +16,8 @@ FILE = "vulnerabilities-page.grift.json"
 OVERVIEW = "/playground/vulnerabilities"
 VULNERABILITY = "/playground/vulnerabilities/vulnerability"
 COMPONENT = "/playground/vulnerabilities/component"
+CVE = "/playground/vulnerabilities/cve"
+MOSAIC = "vuln_mosaic/panels/cve.html"
 CARD = "tap_web/panels/stat_card_panel.html"
 CHART = "tap_web/panels/chart.html"
 TABLE = "tap_web/panels/table_panel.html"
@@ -26,7 +28,7 @@ SCANNERS = ("Trivy", "Grype", "SonarCloud", "CodeQL", "Dependabot")
 # conditional counts. The fields below are the rows those runners return (req-compliance-core-searches).
 RUNNER_PREFIX = "tap_plugin.compliance_core.searches.cross_tabs:"
 RUNNER_ROWS = {
-    "vulnerability-components": {"id", "title", "cvss", "kev", "published", "components", "component_names"},
+    "vulnerability-components": {"id", "title", "cvss", "kev", "published", "components", "component_names", "component_items"},
     "component-severity": {"cid", "component", "type", "high", "medium", "low", "unscored", "kev", "total"},
 }
 
@@ -43,8 +45,11 @@ class TestVulnerabilityPages:
         self.edges = batch["edges"]
         self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
         self.pages = {n["node"]["slug"]: n for n in self.nodes if n["entity"]["entity_type"] == "page"}
-        self.panels = [n for n in self.nodes if n["entity"]["entity_type"] == "panel"]
-        self.by_slug = {p["node"]["slug"]: p for p in self.panels}
+        every = [n for n in self.nodes if n["entity"]["entity_type"] == "panel"]
+        # the CVE record panel belongs to vuln-mosaic and reads no Search; every other panel reads exactly one
+        self.mosaic = [p for p in every if p["node"]["view"] == MOSAIC]
+        self.panels = [p for p in every if p["node"]["view"] != MOSAIC]
+        self.by_slug = {p["node"]["slug"]: p for p in every}
 
     def _search_of(self, panel: dict) -> dict:
         links = [
@@ -82,7 +87,7 @@ class TestVulnerabilityPages:
     # -- every page ------------------------------------------------------------------------------------------
 
     def test_the_overview_and_its_two_drill_in_pages_exist(self) -> None:
-        assert set(self.pages) == {OVERVIEW, VULNERABILITY, COMPONENT}
+        assert set(self.pages) == {OVERVIEW, VULNERABILITY, COMPONENT, CVE}
 
     def test_each_slot_is_wired_to_exactly_one_panel_and_each_panel_to_one_slot(self) -> None:
         for slug, page in self.pages.items():
@@ -141,6 +146,8 @@ class TestVulnerabilityPages:
             if "row_url_template" in config:
                 assert set(re.findall(r"\{(\w+)\}", config["row_url_template"])) <= returned, panel["entity"]["name"]
             for column in config["columns"]:
+                if column.get("formatter") == "linkList":
+                    continue  # its placeholders are the keys of each list item, checked in the linkList test
                 template = column.get("formatter_params", {}).get("href_template", "")
                 assert set(re.findall(r"\{(\w+)\}", template)) <= returned, (panel["entity"]["name"], column["field"])
 
@@ -160,6 +167,11 @@ class TestVulnerabilityPages:
         for slug, link in links.items():
             assert link.startswith((VULNERABILITY + "?vuln_id=", COMPONENT + "?component_id=")), slug
 
+    def test_the_drill_in_pages_are_hidden_from_navigation_and_the_overview_is_not(self) -> None:
+        for slug in (VULNERABILITY, COMPONENT, CVE):
+            assert self.pages[slug]["node"]["discoverable"] is False, slug
+        assert "discoverable" not in self.pages[OVERVIEW]["node"]
+
     # -- the overview ----------------------------------------------------------------------------------------
 
     def test_the_overview_has_a_band_of_three_columns_then_one_band_of_tables(self) -> None:
@@ -172,6 +184,17 @@ class TestVulnerabilityPages:
     def test_each_column_is_a_card_over_a_chart_so_the_card_is_as_wide_as_the_column(self) -> None:
         for column in self._of(self._bands(OVERVIEW)[1]):
             assert [p["node"]["view"] for p in column] == [CARD, CHART]
+
+    def test_the_cards_run_kev_then_open_then_closed(self) -> None:
+        first_row = [col["rows"]["row-1"]["panel-id"] for col in self._bands(OVERVIEW)[1]]
+        assert first_row == [f"playground-vulnerabilities-{s}" for s in ("kev", "open", "closed")]
+
+    def test_the_cards_draw_their_text_in_the_tone_and_kev_greys_out_at_zero(self) -> None:
+        tones = {"kev": "bad", "open": "warn", "closed": "good"}
+        for slot, tone in tones.items():
+            config = self.by_slug[f"playground-vulnerabilities-{slot}"]["node"]["config"]
+            assert config["tone"] == tone and config["tone_text"] is True, slot
+        assert self.by_slug["playground-vulnerabilities-kev"]["node"]["config"]["zero_tone"] == "muted"
 
     def test_the_cards_say_a_number_and_nothing_else(self) -> None:
         """No unit, no secondary lines, no tone words and no header or description: the figure and the tone's left edge."""
@@ -207,6 +230,18 @@ class TestVulnerabilityPages:
                     used |= set(v)
             assert used <= self._returned(panel), panel["entity"]["name"]
 
+    def test_the_component_and_severity_charts_click_through_to_their_drill_in_pages(self) -> None:
+        expect = {
+            "playground-vulnerabilities-top-components": COMPONENT + "?component_id={cid}",
+            "playground-vulnerabilities-severity-age": VULNERABILITY + "?vuln_id={id}",
+        }
+        for slug, template in expect.items():
+            panel = self.by_slug[slug]
+            assert panel["node"]["config"]["click"] == {"row_url_template": template}, slug
+            assert set(re.findall(r"\{(\w+)\}", template)) <= self._returned(panel), slug
+        others = [p for p in self.panels if p["node"]["view"] == CHART and p["node"]["slug"] not in expect]
+        assert all("click" not in p["node"]["config"] for p in others)
+
     def test_the_two_overview_tables_search_and_page(self) -> None:
         (column,) = self._of(self._bands(OVERVIEW)[2])
         assert len(column) == 2
@@ -221,9 +256,14 @@ class TestVulnerabilityPages:
         assert {"type", "high", "medium", "low", "kev"} <= fields
         assert self._query(table) == RUNNER_PREFIX + "component-severity"
 
-    def test_the_vulnerability_table_lists_its_components(self) -> None:
+    def test_the_vulnerability_table_lists_its_components_as_links(self) -> None:
         table = self.by_slug["playground-vulnerabilities-open-vulnerabilities"]
-        assert "component_names" in {c["field"] for c in table["node"]["config"]["columns"]}
+        (column,) = [c for c in table["node"]["config"]["columns"] if c["field"] == "component_items"]
+        assert column["formatter"] == "linkList"
+        params = column["formatter_params"]
+        assert params["href_template"] == COMPONENT + "?component_id={id}"
+        assert params["label_field"] == "name" and params["external"] is False
+        assert set(re.findall(r"\{(\w+)\}", params["href_template"])) | {params["label_field"]} <= {"id", "name", "type"}
         assert self._query(table) == RUNNER_PREFIX + "vulnerability-components"
 
     def test_a_module_search_records_the_gryphon_capability_it_lacks_and_leaves_out_systems(self) -> None:
@@ -255,6 +295,24 @@ class TestVulnerabilityPages:
         for need in ("component-identity", "component-vulnerabilities", "component-systems"):
             assert f"playground-vulnerabilities-{need}" in slots, need
         assert "$component_id" in self._query(self.by_slug["playground-vulnerabilities-component-vulnerabilities"])
+
+    def test_the_cve_page_is_one_vuln_mosaic_panel_that_writes_nothing(self) -> None:
+        (panel,) = self.mosaic
+        assert self._slots(CVE) == [panel["node"]["slug"]]
+        assert panel["node"]["config"] == {
+            "vuln_id_var": "vuln_id", "hide_header": True, "queue_misses": False, "max_references_per_tag": 8,
+        }
+        assert not [e for e in self.edges if e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]]
+
+    def test_the_vulnerability_page_opens_the_cve_page_by_the_id_it_carries(self) -> None:
+        identity = self.by_slug["playground-vulnerabilities-vuln-identity"]
+        (column,) = [c for c in identity["node"]["config"]["columns"] if c["field"] == "id"]
+        assert column["formatter_params"]["href_template"] == CVE + "?vuln_id={id}"
+
+    def test_vuln_mosaic_is_not_a_dependency_of_the_plugin(self) -> None:
+        """vuln-mosaic is a local dev plugin for the demo: no manifest dependency and no pin in a shipped boot record."""
+        for path in (PACKAGE_ROOT / "tap-plugin.toml", *(PACKAGE_ROOT / "boot").glob("*.json")):
+            assert "vuln_mosaic" not in path.read_text(encoding="utf-8").replace("-", "_"), path.name
 
     # -- the data is observed --------------------------------------------------------------------------------
 
