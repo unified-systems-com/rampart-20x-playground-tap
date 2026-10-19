@@ -180,10 +180,10 @@ const FLOW_LABEL_GAP = 4;
 //: ELEVATION_ZOOM_RATIO times the zoom the account is fitted to at load (about 0.6 at the demo size), so the interior,
 //: drawn at INTERIOR_SCALE of the account's sizes, reads as large on screen as the account does.
 const ELEVATION_REVEAL_ZOOM = 1.2;
-//: Playground exception 9 switch: false keeps the account elevation (interior hidden, the flow lifted onto the task) at every
-//: zoom. The reveal past ELEVATION_REVEAL_ZOOM is built but raises a stack overflow in the deploy row's scope box on the way
-//: back out (found 2026-10-19); it stays off until that is fixed in tap_viz.
-const REVEAL_ON_ZOOM = false;
+//: Playground exception 9 switch: true reveals the task's interior past ELEVATION_REVEAL_ZOOM and lifts the flow back onto
+//: the tap-web program; false would keep the account elevation at every zoom. The deploy row's scope box used to overflow the
+//: stack on the way back out; tap_viz fixed that (tap#1077), and it is checked at 2.0 / 0.6 / 1.3 with no console errors.
+const REVEAL_ON_ZOOM = true;
 //: Playground exception 12 (should become a `badge_size` option of the projection's node_style): the type badges keep one
 //: size, in model units. The runtime derives it from the smallest host drawn (0.35 of its shorter side, 24 at least), and
 //: hiding the small interior made it 31 and more.

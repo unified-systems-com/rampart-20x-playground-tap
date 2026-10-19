@@ -427,7 +427,7 @@ class TestEdgeLiftAndLayers:
         source = _js()
         assert "const LIFT_EDGE = [" in source and "liftEdge(cy, {relationships: LIFT_EDGE})" in source
         assert "next.contained.addClass(ELEVATION_HIDDEN_CLASS);" in source
-        assert "const REVEAL_ON_ZOOM = false;" in source, "stays off until the scope-box recursion is fixed in tap_viz"
+        assert "const REVEAL_ON_ZOOM = true;" in source, "the reveal is on now that tap_viz guards the scope box (tap#1077)"
 
     def test_edges_sit_between_the_container_fills_and_the_leaf_nodes(self) -> None:
         source = _js()
