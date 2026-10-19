@@ -22,6 +22,13 @@ TABLE = "tap_web/panels/table_panel.html"
 # Plugins whose node types the Searches may name; no Search names a scanner, a tool or a node id.
 VOCABULARY = ("compliance_core__", "computing_core__", "github_core__")
 SCANNERS = ("Trivy", "Grype", "SonarCloud", "CodeQL", "Dependabot")
+# The two tables are `module` Searches (compliance_core v0.8.0 runners): Gryphon has no group-concat and no
+# conditional counts. The fields below are the rows those runners return (req-compliance-core-searches).
+RUNNER_PREFIX = "tap_plugin.compliance_core.searches.cross_tabs:"
+RUNNER_ROWS = {
+    "vulnerability-components": {"id", "title", "cvss", "kev", "published", "components", "component_names"},
+    "component-severity": {"cid", "component", "type", "high", "medium", "low", "unscored", "kev", "total"},
+}
 
 
 def _bundle() -> dict:
@@ -47,10 +54,16 @@ class TestVulnerabilityPages:
         assert len(links) == 1, panel["entity"]["name"]
         return self.by_id[links[0]["edge"]["to_entity_id"]]
 
+    def _is_module(self, panel: dict) -> bool:
+        return self._search_of(panel)["node"]["search_type"] == "module"
+
     def _query(self, panel: dict) -> str:
-        return " ".join(self._search_of(panel)["node"]["definition"]["query"])
+        definition = self._search_of(panel)["node"]["definition"]
+        return definition["runner_key"] if "runner_key" in definition else " ".join(definition["query"])
 
     def _returned(self, panel: dict) -> set[str]:
+        if self._is_module(panel):
+            return RUNNER_ROWS[self._query(panel).removeprefix(RUNNER_PREFIX)]
         return set(re.findall(r" AS (\w+)", self._query(panel)))
 
     def _bands(self, slug: str) -> dict[int, list[dict]]:
@@ -103,11 +116,15 @@ class TestVulnerabilityPages:
 
     def test_searches_use_the_standard_vocabulary_only(self) -> None:
         for panel in self.panels:
+            if self._is_module(panel):
+                continue
             types = set(re.findall(r"[:\[]([a-z_]+__[A-Za-z_]+)", self._query(panel)))
             assert types and all(t.startswith(VOCABULARY) for t in types), (panel["entity"]["name"], types)
 
     def test_a_search_that_takes_a_parameter_declares_it(self) -> None:
         for panel in self.panels:
+            if self._is_module(panel):
+                continue  # a runner reads its inputs in code; its schema is checked in the module-search test
             search = self._search_of(panel)["node"]
             used = set(re.findall(r"\$(\w+)", self._query(panel)))
             declared = set(search.get("input_schema", {}).get("properties", {}))
@@ -198,10 +215,26 @@ class TestVulnerabilityPages:
             assert config["quick_filter"] is True and config["default_page_size"] >= 10, table["entity"]["name"]
             assert config["row_url_template"], table["entity"]["name"]
 
-    def test_the_component_table_says_what_kind_of_thing_each_row_is(self) -> None:
+    def test_the_component_table_says_what_kind_of_thing_each_row_is_and_counts_by_band(self) -> None:
         table = self.by_slug["playground-vulnerabilities-open-components"]
-        assert "type" in {c["field"] for c in table["node"]["config"]["columns"]}
-        assert "entity_type" in self._query(table)
+        fields = {c["field"] for c in table["node"]["config"]["columns"]}
+        assert {"type", "high", "medium", "low", "kev"} <= fields
+        assert self._query(table) == RUNNER_PREFIX + "component-severity"
+
+    def test_the_vulnerability_table_lists_its_components(self) -> None:
+        table = self.by_slug["playground-vulnerabilities-open-vulnerabilities"]
+        assert "component_names" in {c["field"] for c in table["node"]["config"]["columns"]}
+        assert self._query(table) == RUNNER_PREFIX + "vulnerability-components"
+
+    def test_a_module_search_records_the_gryphon_capability_it_lacks_and_leaves_out_systems(self) -> None:
+        """`req-grid-search-canonical-read-3`: the reason sits in the description; the repository is excluded by an input."""
+        modules = [p for p in self.panels if self._is_module(p)]
+        assert len(modules) == 2
+        for panel in modules:
+            search = self._search_of(panel)["node"]
+            assert "Gryphon has no" in search["description"] and "missing capability" in search["description"]
+            default = search["input_schema"]["properties"]["exclude_types"]["default"]
+            assert default == ["github_core__github_repository"]
 
     def test_the_removed_overview_panels_are_gone(self) -> None:
         for gone in ("exploitation", "tree", "remediation", "found-by", "l1-lede", "l2-lede", "l3-lede"):
