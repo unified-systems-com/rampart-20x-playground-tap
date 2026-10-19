@@ -48,8 +48,8 @@ class TestSoloIcons:
         assert "platform" not in _list("SOLO_TYPES") + _list("SOLO_ICON_TYPES")
 
 
-class TestDeployPile:
-    """`req-rampart-20x-playground-govcloud-layout-8`: C3 (a pile, not a column)."""
+class TestDeployRow:
+    """`req-rampart-20x-playground-govcloud-layout-8`: C3 (one titled row)."""
 
     def test_the_deploy_types_are_the_delivery_path(self) -> None:
         assert sorted(_list("DEPLOY_TYPES")) == ["bucket", "codebuild", "ecr", "lambda", "pipeline"]
@@ -65,7 +65,7 @@ class TestDeployPile:
                      and types[e["from_entity_id"]] == "aws_core__aws_lambda"}
         shown_secrets = {n["entity"]["entity_id"] for n in _by_type("aws_core__aws_secrets_manager_secret")
                          if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown_secrets and shown_secrets <= retrieved, "every secret still drawn is in the pile"
+        assert shown_secrets and shown_secrets <= retrieved, "every secret still drawn is in the row"
 
     def test_the_certificate_the_key_and_the_runtime_secret_are_not_on_the_overview(self) -> None:
         """`req-rampart-20x-playground-govcloud-layout-11`: no `overview` value, nodes kept for the grid."""
@@ -76,7 +76,7 @@ class TestDeployPile:
         source = _js()
         assert "T.cert" not in source and "T.key" not in source
 
-    def test_nothing_in_the_deploy_pile_is_a_line_of_sight_type(self) -> None:
+    def test_nothing_in_the_deploy_row_is_a_line_of_sight_type(self) -> None:
         assert not set(_list("DEPLOY_TYPES")) & {"zone", "alb", "rds", "igw"}
 
     def test_the_deploy_types_are_not_account_rows_any_more(self) -> None:
@@ -91,18 +91,23 @@ class TestDeployPile:
         assert "const x = account.position(\"x\");" in source.split("function _closePairs")[1]
         assert "computer.position({x, y});" in source and "person.position({x, y: y +" in source
 
-    def test_the_pile_is_a_small_equal_diagonal_offset_centred_on_the_account(self) -> None:
+    def test_the_members_are_laid_out_by_align_distribute_with_a_label(self) -> None:
         source = _js()
-        step = re.search(r"const PILE_STEP = \{dx: (\d+), dy: (\d+)\}", source)
-        assert step
-        dx, dy = int(step.group(1)), int(step.group(2))
-        assert 0 < dx <= 20 and 0 < dy <= 30, "small enough that each icon overlaps the next"
-        assert "const x0 = account.position(\"x\") - ((count - 1) * PILE_STEP.dx) / 2;" in source
-        assert "x: x0 + i * PILE_STEP.dx, y: y0 + i * PILE_STEP.dy" in source
+        assert "alignDistributeHorizontal(cy, {...row, label: DEPLOY_LABEL" in source
+        assert re.search(r'const DEPLOY_LABEL = "Continuous Delivery";', source)
+        assert "anchorMode: \"center\"" in source and "x: account.position(\"x\")" in source
+        assert "sort: false" in source and "gap: DEPLOY_GAP" in source
 
-    def test_edges_inside_the_pile_are_hidden_and_the_others_stay(self) -> None:
+    def test_one_small_named_gap(self) -> None:
         source = _js()
-        assert "deploy.anySame(e.source()) && deploy.anySame(e.target())" in source
+        assert len(re.findall(r"const DEPLOY_GAP = \d+;", source)) == 1
+        assert 20 <= int(re.search(r"const DEPLOY_GAP = (\d+);", source).group(1)) <= 40
+
+    def test_the_old_pile_code_is_gone(self) -> None:
+        assert "PILE_STEP" not in _js() and "_placeDeployPile" not in _js()
+
+    def test_edges_inside_the_row_are_hidden_and_the_others_stay(self) -> None:
+        assert "deploy.anySame(e.source()) && deploy.anySame(e.target())" in _js()
 
 
 class TestLineOfSight:
