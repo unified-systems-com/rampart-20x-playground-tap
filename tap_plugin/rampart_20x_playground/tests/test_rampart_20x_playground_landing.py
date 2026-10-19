@@ -128,11 +128,11 @@ class TestLineOfSight:
             dims, tags = entity.get("dimensions", {}), node["node"].get("tags", {})
             raw = dims.get("column", tags.get("layout:column"))
             if raw is not None and entity["name"] in {
-                "customer a", "customer a computer", "git-serious authorization boundary", "github.com",
+                "customer a", "customer a computer", "Authorization Boundary", "github.com",
                 "developer a laptop", "developer a",
             }:
                 columns[entity["name"]] = int(raw)
-        order = ["customer a", "customer a computer", "git-serious authorization boundary", "github.com",
+        order = ["customer a", "customer a computer", "Authorization Boundary", "github.com",
                  "developer a laptop", "developer a"]
         assert [columns[n] for n in order] == sorted(columns[n] for n in order)
         assert len(set(columns.values())) == len(order)
@@ -160,7 +160,7 @@ class TestAuthorizationBoundary:
         boundary = self._boundary()
         assert boundary["node"]["source"] == "rampart_20x_playground"
         assert boundary["node"]["source_key"] == "git-serious"
-        assert boundary["node"]["name"] == boundary["entity"]["name"] == "git-serious authorization boundary"
+        assert boundary["node"]["name"] == boundary["entity"]["name"] == "Authorization Boundary"
         assert "mock" not in boundary["node"]["description"].lower()
         dims = boundary["entity"]["dimensions"]
         assert dims["dcom"] == "design" and dims["overview"] == "shown"
@@ -197,6 +197,17 @@ class TestAuthorizationBoundary:
         source = _js()
         assert "_growAncestors(cy, account, accountBottom);" in source
         assert "Playground exception (should become the same `reserve` option" in source
+
+    def test_the_boundary_is_transparent_bold_red_with_its_title_above(self) -> None:
+        source = _js()
+        body = source.split("function _styleBoundary")[1].split("function _whenShown")[0]
+        assert '"background-opacity": 0' in body
+        assert '"border-opacity": 1' in body, "a true red, not the runtime's 0.6-opacity container border"
+        assert '"text-valign": "top"' in body and "-BOUNDARY_LABEL_RISE" in body
+        assert "_styleBoundary(cy, shown([T.boundary]));" in source
+        assert re.search(r'const BOUNDARY_RED = "#dc2626";', source)
+        assert int(re.search(r"const BOUNDARY_LINE_WIDTH = (\d+);", source).group(1)) >= 3
+        assert "should become a per-node display override" in source
 
     def test_a_search_brings_the_scoped_to_edge_and_collides_with_no_other(self) -> None:
         pages = json.loads((PACKAGE_ROOT / "grift" / "pages.grift.json").read_text(encoding="utf-8"))["batches"][0]

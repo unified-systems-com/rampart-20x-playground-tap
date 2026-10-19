@@ -47,6 +47,7 @@
  *   3. a person and their computer as a close pair, and the administrator pair under the account (the spacing
  *      option of the align/distribute helpers);
  *   4. waiting for the scene to be shown before the scope box is drawn (a fix in the tap_viz scope-box helper);
+ *   6. the boundary's look: transparent, a bold red line, its title above the box (a per-node display override);
  *   5. the boundary growing with the account when the account grows for the row (the same `reserve` option as 1,
  *      applied through the nesting: a parent follows the growth of its child).
  * None changes the Python, the vocabulary or the data rules.
@@ -124,6 +125,12 @@ const PAIR_GAP = 28;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
 //: boundary) and the pair that hangs below it.
 const BELOW_ACCOUNT_GAP = 56;
+
+//: Playground exception (same exit as _styleBoundary): the boundary's line colour (a true red), its width and how far
+//: its title stands above the box.
+const BOUNDARY_RED = "#dc2626";
+const BOUNDARY_LINE_WIDTH = 4;
+const BOUNDARY_LABEL_RISE = 8;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -238,6 +245,7 @@ export async function execute(context) {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
+    _styleBoundary(cy, shown([T.boundary]));
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
 }
@@ -267,6 +275,28 @@ function _growAncestors(cy, node, oldBottom) {
         parent.style({height: parent.height() + delta});
         parent.position({x: parent.position("x"), y: parent.position("y") + delta / 2});
     }
+}
+
+/**
+ * Playground exception (should become a per-node display override on the entity, or a `display` hint a plugin's
+ * default display can be given per instance in tap_viz; compliance_core's default for the type stays as it is, as
+ * other instances share it): the authorization boundary is drawn as a transparent box with a bold true-red line,
+ * and its title stands outside the box, above its top edge, centred. Applied after placeParentLabels, which anchors
+ * every container's label inside the box.
+ */
+function _styleBoundary(cy, boundary) {
+    boundary.forEach((n) => {
+        n.style({
+            "background-opacity": 0,
+            "border-width": BOUNDARY_LINE_WIDTH,
+            "border-color": BOUNDARY_RED,
+            "border-opacity": 1,
+            "color": BOUNDARY_RED,
+            "text-valign": "top", "text-halign": "center",
+            "text-margin-x": 0, "text-margin-y": -BOUNDARY_LABEL_RISE,
+            "text-wrap": "none", "text-max-width": `${n.width()}px`,
+        });
+    });
 }
 
 function _whenShown(cy, draw, tries = 600) {
