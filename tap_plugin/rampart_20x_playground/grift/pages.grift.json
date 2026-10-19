@@ -387,6 +387,49 @@
         },
         {
           "entity": {
+            "entity_id": "01a1c6a1-7b2e-7c41-9d3a-5e0f1a2b3c4d",
+            "entity_type": "search",
+            "name": "playground \u2014 landing task-open-findings",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing task-open-findings",
+            "description": "The open findings on each ECS task, through its container, the container's image host, the host's packages and the findings they carry: one count per task (findings, not distinct vulnerabilities).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (t:aws_core__aws_ecs_task)-[:RUNS_CONTAINER__aws_core]->(c:aws_core__aws_ecs_container)-[:RUNS_IMAGE__computing_core]->(h:computing_core__host)-[:INSTALLS_PACKAGE__computing_core]->(p:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability)",
+                "WHERE f.data.status = \"open\"",
+                "RETURN t.entity_id AS entity_id, COUNT(f) AS count"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c6a1-7b2f-7d52-8e4b-6f1a2b3c4d5e",
+            "entity_type": "search",
+            "name": "playground \u2014 landing task-open-vulnerabilities",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing task-open-vulnerabilities",
+            "description": "One row per open finding on each ECS task: the vulnerability id (the link), highest CVSS first.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (t:aws_core__aws_ecs_task)-[:RUNS_CONTAINER__aws_core]->(c:aws_core__aws_ecs_container)-[:RUNS_IMAGE__computing_core]->(h:computing_core__host)-[:INSTALLS_PACKAGE__computing_core]->(p:computing_core__package)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability)",
+                "WHERE f.data.status = \"open\"",
+                "RETURN t.entity_id AS entity_id, v.data.vuln_id AS name, v.data.vuln_id AS id, v.data.cvss_score AS cvss",
+                "ORDER BY cvss DESC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-173dc709ece5",
             "entity_type": "layout",
             "name": "Playground landing layout",
@@ -443,7 +486,26 @@
               ],
               "default_elevation_id": "01a13b2c-82d6-73d2-baa8-173e83503bfa",
               "min_zoom": "fit",
-              "lock_nodes": true
+              "lock_nodes": true,
+              "status_badges": {
+                "refresh_seconds": 0,
+                "badge_sets": [
+                  {
+                    "name": "open findings",
+                    "label": "Open findings",
+                    "color": "#dc2626",
+                    "text_color": "#ffffff",
+                    "population": {
+                      "type": "search",
+                      "search_id": "01a1c6a1-7b2e-7c41-9d3a-5e0f1a2b3c4d"
+                    },
+                    "info_window": {
+                      "search_id": "01a1c6a1-7b2f-7d52-8e4b-6f1a2b3c4d5e",
+                      "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}"
+                    }
+                  }
+                ]
+              }
             }
           }
         },
