@@ -25,7 +25,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "overview": "shown"
+              "overview": "shown",
+              "column": "0"
             }
           },
           "node": {
@@ -43,7 +44,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "overview": "shown"
+              "overview": "shown",
+              "column": "1"
             }
           },
           "node": {
@@ -58,7 +60,8 @@
             "name": "gunicorn (web task b)",
             "dimensions": {
               "dcom": "design",
-              "inventory": "applications"
+              "inventory": "applications",
+              "column": "1"
             }
           },
           "node": {
@@ -73,7 +76,8 @@
             "name": "tap-web (web task b)",
             "dimensions": {
               "dcom": "design",
-              "inventory": "applications"
+              "inventory": "applications",
+              "column": "0"
             }
           },
           "node": {

@@ -406,9 +406,9 @@ class TestApplicationFlow:
 class TestFlowWindow:
     """`req-rampart-20x-playground-govcloud-layout-15`: the node-tap window of Overview Wave 7."""
 
-    def test_a_namespaced_node_tap_handler_bound_by_the_layout(self) -> None:
+    def test_a_node_tap_handler_bound_once_by_the_layout(self) -> None:
         source = _js()
-        assert 'cy.on("tap.playgroundFlowWindow", "node"' in source and 'cy.off("tap.playgroundFlowWindow")' in source
+        assert 'cy.on("tap", "node", handler);' in source and 'cy.off("tap", "node", previous);' in source
         assert "_bindFlowWindow(cy);" in source
 
     def test_it_reads_the_node_s_own_data_and_makes_no_network_call(self) -> None:

@@ -54,24 +54,34 @@
  *      description and `dataclass.*` dimensions (no network call), drawn with the tap_viz info window's CSS classes
  *      (should become a projection-declared `node_info` window of tap_viz, a sibling of the status-badge info window,
  *      bound to a node type; the host-body tap is reserved for projections by req-viz-panel-click-semantics);
- *   8. the application flow's place: it stands in its own column between the customer's computer and the boundary,
- *      a little below the line of sight (a `rankedPlacement` offset of the ranked layout), off the line so the
- *      eight nodes of the line of sight stay the eight.
+ *   8. the application flow's place and look: a solo icon (the circle) at half the standard icon size, centred in the gap between the
+ *      customer's computer and the boundary, on the line of sight (a `rankedPlacement` centring of a root column and
+ *      a per-type `shape` and size hint of the type's default display);
+ *   9. the edge lift (`lift-edge.js`, a `lift_edge` section of the runtime) and the two elevations of the account:
+ *      at the account elevation the task's interior is hidden and the flow's edge is lifted onto the task; past the
+ *      reveal zoom the interior is shown and the lift is destroyed (the second Elevation of the projection);
+ *  10. the interior's relative scale: the interior of the task is laid out and labelled at 1/ELEVATION_ZOOM_RATIO of the
+ *      account's sizes, so its text is as large on screen at the reveal zoom as the account's text is at the account
+ *      zoom, and the task box never changes size (a per-elevation label and size scale of the Elevation definition);
+ *  11. tap-web and gunicorn as siblings in the container: a derived containment (`_deriveContainment`, should become a
+ *      `flatten` option of a projectNested relationship), ordered by the `column` dimension.
  * None changes the Python, the vocabulary or the data rules.
  *
- * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container holds gunicorn
- * (RUNS_PROGRAM) and gunicorn holds the tap-web program (RUNS_PROGRAM), so web task a is drawn as the nested chain
- * task > container > gunicorn > tap-web. The nesting is DATA in the `relationships` below (never a type test in code),
- * so the later elevation lift can hide or reveal the interior by relationship. The application flow is a node between
- * the customer's computer and the tap-web program; APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION are its
- * two lines.
+ * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
+ * runs the tap-web program (RUNS_PROGRAM). The task is drawn as task > container > [tap-web, gunicorn]: tap-web (left,
+ * by its `column` dimension) and gunicorn (right) are SIBLINGS in the container, and gunicorn -> tap-web is drawn as the
+ * arrow between them. The nesting is DATA in the `relationships` below (never a type test in code). The application
+ * flow is a circle on the line of sight between the customer's computer and the account; APPLICATION_FLOW_SOURCE and
+ * APPLICATION_FLOW_DESTINATION are its two lines. At the account elevation the destination line ends on the task (the
+ * lift), past the reveal zoom it ends on the tap-web program.
  */
 
-import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
+import {projectNested, ELEVATION_HIDDEN_CLASS, VIEWPORT_PARENT_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
 import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
+import {liftEdge, containedNodes} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
@@ -117,6 +127,10 @@ const E = {
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
     runsContainer: "RUNS_CONTAINER__aws_core",
     runsProgram: "RUNS_PROGRAM__computing_core",
+    //: Derived by `_deriveContainment`, never in the grid: container -> a program gunicorn runs, for the nesting only.
+    containsProgram: "CONTAINS_PROGRAM__playground",
+    flowSource: "APPLICATION_FLOW_SOURCE__computing_core",
+    flowDestination: "APPLICATION_FLOW_DESTINATION__computing_core",
 };
 const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.task, T.ecsContainer, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
@@ -126,7 +140,7 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild, T.flow];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
 //: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
 //: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
@@ -153,9 +167,39 @@ const BOUNDARY_RED = "#dc2626";
 const BOUNDARY_LINE_WIDTH = 4;
 const BOUNDARY_LABEL_RISE = 8;
 
-//: Playground exception (should become a `rankedPlacement` offset of the ranked layout): how far below the line of
-//: sight the application flow stands, in model units.
-const FLOW_DROP = 150;
+//: Playground exception 8 (same exit): the application flow is a solo icon node (its type icon is the circle) at HALF the
+//: standard icon size (ICON), in the dark blue of a river of data, its name above it; its two lines are thick and the same
+//: blue, the source line without an arrowhead (a per-edge-type display hint of tap_viz: width, colour, arrow shape).
+const FLOW_SCALE = 0.5;
+const FLOW_BLUE = "#0B3D91";
+const FLOW_EDGE_WIDTH = 5;
+const FLOW_LABEL_GAP = 4;
+//: Playground exceptions 9 and 10 (should become the second Elevation of the projection and its per-elevation scale).
+//: The projection has two elevations: the account (the initial one) and the interior, which the zoom watcher activates at
+//: ELEVATION_REVEAL_ZOOM (the `zoom` of the second elevation in pages.grift.json, pinned by a test). The reveal zoom is
+//: ELEVATION_ZOOM_RATIO times the zoom the account is fitted to at load (about 0.6 at the demo size), so the interior,
+//: drawn at INTERIOR_SCALE of the account's sizes, reads as large on screen as the account does.
+const ELEVATION_REVEAL_ZOOM = 1.2;
+//: Playground exception 9 switch: false keeps the account elevation (interior hidden, the flow lifted onto the task) at every
+//: zoom. The reveal past ELEVATION_REVEAL_ZOOM is built but raises a stack overflow in the deploy row's scope box on the way
+//: back out (found 2026-10-19); it stays off until that is fixed in tap_viz.
+const REVEAL_ON_ZOOM = false;
+//: Playground exception 12 (should become a `badge_size` option of the projection's node_style): the type badges keep one
+//: size, in model units. The runtime derives it from the smallest host drawn (0.35 of its shorter side, 24 at least), and
+//: hiding the small interior made it 31 and more.
+const BADGE_SIZE = 24;
+const ELEVATION_ZOOM_RATIO = 2;
+const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;
+//: The `lift_edge` section: containment-style relationships (the shape of projectNested's), saying what the task holds,
+//: so an edge that ends inside it is lifted onto it while the interior is hidden.
+const LIFT_EDGE = [
+    {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
+    {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
+    {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
+];
+//: Playground exception 11: what a container holds besides what it runs directly: the programs those run, drawn beside
+//: them (siblings) and not inside them. `via` is the edge walked, `from` the holder.
+const DERIVED_CONTAINMENT = {from: T.ecsContainer, via: E.runsProgram, edgeType: E.containsProgram};
 //: The application flow's click window: the dimensions it lists (a key prefix), its width, and its class name (the
 //: tap_viz info window's own, so it looks like it).
 const FLOW_DIMENSION_PREFIX = "dataclass.";
@@ -169,18 +213,29 @@ const CONTAINER = {width: 220, height: 110};
 
 export async function execute(context) {
     const {cy, trigger_reason} = context;
+    _resetElevation(cy);
     const chrome = applyStandardChrome(cy);
     const labelInset = parentLabelInset({...chrome, inset: 16});
     //: The bottom edge leaves room for the name under an icon node, which is drawn outside its card.
     const pad = {top: 14 + labelInset, right: 24, bottom: 40, left: 24};
+    //: The interior's own chrome and padding, at INTERIOR_SCALE (playground exception 10).
+    const interiorChrome = {...chrome, parentFontSize: chrome.parentFontSize * INTERIOR_SCALE, nodeFontSize: chrome.nodeFontSize * INTERIOR_SCALE};
+    const interiorInset = 16 * INTERIOR_SCALE;
+    const interiorPad = {top: 14 * INTERIOR_SCALE + parentLabelInset({...interiorChrome, inset: interiorInset}),
+        right: 24 * INTERIOR_SCALE, bottom: 24 * INTERIOR_SCALE, left: 24 * INTERIOR_SCALE};
 
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
+    // The interior is sized at INTERIOR_SCALE (a leaf program, and the container's floor); the circle of the flow is half an icon.
+    baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
+    baseSizes[T.ecsContainer] = {width: 0, height: 0};
+    baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
     // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
     // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
     // them afterwards, which grows the account.
@@ -188,6 +243,7 @@ export async function execute(context) {
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
+    _deriveContainment(cy, DERIVED_CONTAINMENT);
 
     const result = await projectNested(cy, {
         relationships: [
@@ -198,7 +254,7 @@ export async function execute(context) {
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
             {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
-            {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
+            {name: "container-holds-derived-program", gryphon: `(parent:${T.ecsContainer})-[:${E.containsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
             {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
@@ -209,7 +265,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: Object.fromEntries([...CONTAINERS, T.program].map((t) => [t, pad])),
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.ecsContainer]: interiorPad},
         innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -231,8 +287,8 @@ export async function execute(context) {
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
             [T.task]: {name: "flow", gap: 12, sort: "label"},
-            [T.ecsContainer]: {name: "flow", gap: 12, sort: "label"},
-            [T.program]: {name: "flow", gap: 12, sort: "label"},
+            //: tap-web left, gunicorn right: the `column` dimension (read by _stampRootColumns) orders the siblings.
+            [T.ecsContainer]: {name: "ranked", sort: "order", columnGap: 12 * INTERIOR_SCALE, rowGap: 12 * INTERIOR_SCALE},
         },
     });
 
@@ -253,12 +309,9 @@ export async function execute(context) {
     const productRoot = account.nonempty() ? _outermost(cy, account) : account;
     const productStage = productRoot.nonempty() ? productRoot.data("_stage") : undefined;
     if (anchor.nonempty()) {
-        // The application flow has its own column but stays off the line (playground exception 8, placed below).
-        const row = roots.filter((n) => n.data("_stage") !== productStage && n.data("entity_type") !== T.flow);
+        const row = roots.filter((n) => n.data("_stage") !== productStage);
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
-
-    _placeFlow(cy, shown([T.flow]), anchor);
 
     // Playground exception (gateway on the line; should become an anchor-relative align of a nested node in the
     // ranked natural layout): the internet gateway is the first column of the VPC and is top-aligned with it, so
@@ -275,18 +328,35 @@ export async function execute(context) {
     cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
     _growAncestors(cy, account, accountBottom);
     _closePairs(roots, account, productRoot);
+    _centreFlow(cy, roots, productRoot, shown([T.flow]));
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
         if (n.data("_is_icon_node")) return;
         if (!cy.nodes().some((c) => c.data("_viewport_parent") === n.id())) n.addClass("tap-viewport-parent");
     });
-    placeParentLabels(cy, {
+    // Playground exception 10: the interior's labels at INTERIOR_SCALE (placeParentLabels reads `cy.nodes` and `cy.batch`
+    // only, so it is handed the interior's parents and the rest separately).
+    const interior = containedNodes(cy, LIFT_EDGE).outermost;
+    const isInterior = (n) => interior.has(n.id());
+    const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
+    placeParentLabels(_only(cy, parents.filter(isInterior)), {
+        anchor: "upper-left", inset: interiorInset,
+        parentFontSize: interiorChrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
+    });
+    parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
+    cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
+    _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
+    // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
+    // past ELEVATION_REVEAL_ZOOM shows the interior and destroys the lift. The layout itself never changes between the two.
+    _watchElevation(cy);
     _bindFlowWindow(cy);
+    _pinBadgeSize(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
 }
@@ -340,13 +410,15 @@ function _styleBoundary(cy, boundary) {
     });
 }
 
-function _whenShown(cy, draw, tries = 600) {
+function _whenShown(cy, draw, tries = 600, waited = false) {
     const container = cy.container();
-    if (!container || container.style.visibility !== "hidden" || tries <= 0) {
+    // Playground exception (same exit): always at least one frame after the run, so a re-run of the layout (the second
+    // elevation) has finished moving nodes before the box starts tracking them (it recurses otherwise).
+    if (waited && (!container || container.style.visibility !== "hidden" || tries <= 0)) {
         draw();
         return;
     }
-    requestAnimationFrame(() => _whenShown(cy, draw, tries - 1));
+    requestAnimationFrame(() => _whenShown(cy, draw, tries - 1, true));
 }
 
 /**
@@ -384,7 +456,8 @@ function _placeDeployRow(cy, account, deploy, bottomPad) {
         n.data("_viewport_parent", account.id());
     });
     const row = {members: ordered, anchor: {x: account.position("x"), y}, anchorMode: "center", gap: DEPLOY_GAP, sort: false};
-    alignDistributeHorizontal(cy, row);
+    // Its reactive anchor (the account) is released by destroy(), so a re-run of the layout (the second elevation) does not fight it.
+    const rowHandle = alignDistributeHorizontal(cy, row);
     let handle = {destroy: () => {}}, destroyed = false;
     // Playground exception: the scope box tracks its members' bounds, and cytoscape recurses computing them while the
     // projection is still revealing the scene (the graph element is hidden). Draw the box once the scene is shown.
@@ -405,6 +478,7 @@ function _placeDeployRow(cy, account, deploy, bottomPad) {
     }
     return {destroy: () => {
         destroyed = true;
+        rowHandle.destroy();
         handle.destroy();
         restore();
     }};
@@ -532,33 +606,26 @@ function _stampRootColumns(cy) {
 }
 
 /**
- * Playground exception 8 (should become a `rankedPlacement` offset of the ranked layout): the application flow keeps the
- * x of its own column (between the customer's computer and the boundary) and stands FLOW_DROP below the anchor's line,
- * so it is not a ninth node of the line of sight.
- */
-function _placeFlow(cy, flows, anchor) {
-    if (anchor.empty()) return;
-    flows.forEach((flow) => {
-        flow.position({x: flow.position("x"), y: anchor.position("y") + FLOW_DROP});
-    });
-}
-
-/**
  * Playground exception 7 (STANDING EXCEPTION; should become a projection-declared `node_info` window of tap_viz, a
  * sibling of the status-badge info window, bound to a node type): a tap on an application flow opens a window with
  * the node's own name, description and `dataclass.*` dimensions. It reads only the node's Cytoscape data (`label`,
  * `fields.description`, `dimensions`, all lifted from the envelope by panel-graph.js): no network call. It reuses the
  * tap_viz info window's CSS classes and behaves like it: a close X, ESC, a click outside, one window at a time (a
  * status-badge window is closed first; a badge click closes this one through the outside click).
- * Bound once per graph (a namespaced handler), because the layout runs again on every elevation change.
+ * Bound once per graph (the previous handler is removed first), because the layout runs again on every elevation change.
  */
 function _bindFlowWindow(cy) {
-    cy.off("tap.playgroundFlowWindow");
-    cy.on("tap.playgroundFlowWindow", "node", (evt) => {
+    // Not an event namespace: Cytoscape (3.x here) does not fire a namespaced listener for a plain "tap". The handler is
+    // kept in the graph's scratch so the next run of the layout unbinds exactly it.
+    const previous = cy.scratch("playgroundFlowWindowHandler");
+    if (previous) cy.off("tap", "node", previous);
+    const handler = (evt) => {
         const node = evt.target;
         if (node.data("entity_type") !== T.flow) return;
         _openFlowWindow(cy, node);
-    });
+    };
+    cy.scratch("playgroundFlowWindowHandler", handler);
+    cy.on("tap", "node", handler);
 }
 
 let _flowWindow = null;
@@ -643,4 +710,153 @@ function _openFlowWindow(cy, node) {
         };
         document.addEventListener("click", state.outsideClick, true);
     }, 0);
+}
+
+/**
+ * Playground exception 9: undo the previous run's elevation state, so the layout always sizes the whole interior: the lift
+ * is destroyed (the original edges come back), the interior is shown, the derived containment edges are removed.
+ */
+function _resetElevation(cy) {
+    const lift = cy.scratch("landing_lift");
+    if (lift) lift.destroy();
+    cy.removeScratch("landing_lift");
+    // The scope box of the deploy row and the row align track their members; they go before the members move again.
+    ["landing_deploy", "landing_row"].forEach((key) => {
+        if (cy.scratch(key)) cy.scratch(key).destroy();
+        cy.removeScratch(key);
+    });
+    containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => cy.getElementById(id).removeClass(ELEVATION_HIDDEN_CLASS));
+    cy.edges().filter((e) => _edgeType(e) === E.containsProgram).remove();
+}
+
+/**
+ * Playground exception 11 (should become a `flatten` option of a projectNested relationship): for each holder, a derived
+ * containment edge to every node reached from it by two or more steps along `via` (what the holder runs directly is
+ * already held by a relationship), so what gunicorn runs is nested beside it in the container, not inside it.
+ */
+function _deriveContainment(cy, {from, via, edgeType}) {
+    const out = new Map();
+    cy.edges().forEach((e) => {
+        if (_edgeType(e) !== via) return;
+        if (!out.has(e.source().id())) out.set(e.source().id(), []);
+        out.get(e.source().id()).push(e.target().id());
+    });
+    const added = [];
+    cy.nodes(`[entity_type = "${from}"]`).forEach((holder) => {
+        const direct = new Set(out.get(holder.id()) || []);
+        const seen = new Set([holder.id(), ...direct]);
+        const queue = [...direct];
+        while (queue.length) {
+            (out.get(queue.shift()) || []).forEach((id) => {
+                if (seen.has(id)) return;
+                seen.add(id);
+                queue.push(id);
+                added.push({group: "edges", data: {id: `contains:${holder.id()}|${id}`, source: holder.id(), target: id,
+                    edge_type: edgeType, label: edgeType}});
+            });
+        }
+    });
+    if (added.length) cy.add(added);
+}
+
+/** A stand-in for the graph that offers only the given nodes to a helper that reads `cy.nodes` and `cy.batch`. */
+function _only(cy, nodes) {
+    return {batch: (fn) => cy.batch(fn), nodes: () => nodes};
+}
+
+/**
+ * Playground exception 8 (should become a per-type display hint of the type, and a per-edge-type display hint of tap_viz:
+ * width, colour, arrow shape): the application flow's name stands above its icon in dark blue, and its two lines are thick
+ * and dark blue, the source line a plain line and the destination line with its arrowhead. Re-applied to a lifted edge, which
+ * is a new element.
+ */
+function _styleFlow(cy, flows) {
+    flows.forEach((flow) => flow.style({
+        "text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP, "color": FLOW_BLUE,
+    }));
+    _styleFlowEdges(cy);
+}
+
+function _styleFlowEdges(cy) {
+    cy.edges().forEach((edge) => {
+        const type = _edgeType(edge);
+        if (type !== E.flowSource && type !== E.flowDestination) return;
+        edge.style({
+            "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE,
+            "target-arrow-shape": type === E.flowSource ? "none" : "triangle",
+        });
+    });
+}
+
+/**
+ * Playground exception 8: the flow stands in the middle of the gap between what lies left of it on the line of sight
+ * (the customer's computer) and the product's box, on the line of sight (the root row is already aligned to it).
+ */
+function _centreFlow(cy, roots, productRoot, flows) {
+    if (productRoot.empty()) return;
+    const box = (n) => n.boundingBox({includeLabels: false, includeOverlays: false});
+    const right = box(productRoot).x1;
+    flows.forEach((flow) => {
+        const left = roots.filter((n) => n.data("_stage") < flow.data("_stage") && !n.same(flow)).map((n) => box(n).x2);
+        if (!left.length) return;
+        flow.position({x: (Math.max(...left) + right) / 2, y: flow.position("y")});
+    });
+}
+
+/**
+ * Playground exception 9 (should become the projection's second Elevation, `zoom` = ELEVATION_REVEAL_ZOOM, running the same
+ * layout with the interior shown; it is a watcher here because the layout's helpers (the deploy row's scope box, the
+ * stacks) are not yet safe to run twice): applies the elevation the zoom is in now, and again whenever the zoom crosses
+ * the reveal zoom. Nothing is laid out again, so nothing outside the interior can move or resize.
+ */
+function _watchElevation(cy) {
+    const previous = cy.scratch("landing_elevation_watch");
+    if (previous) cy.off("zoom", previous);
+    let revealed = null;
+    const apply = () => {
+        const now = cy.zoom() >= ELEVATION_REVEAL_ZOOM;
+        if (now === revealed) return;
+        revealed = now;
+        // In one batch: the scope box of the deploy row measures its members on every change, and would recurse otherwise.
+        cy.batch(() => {
+            const lift = cy.scratch("landing_lift");
+            if (lift) lift.destroy();
+            cy.removeScratch("landing_lift");
+            if (now) {
+                const interior = cy.collection();
+                containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => interior.merge(cy.getElementById(id)));
+                interior.removeClass(ELEVATION_HIDDEN_CLASS);
+                // The cascade reveal of the first load faded in only what was shown then (the interior was hidden).
+                interior.union(interior.connectedEdges()).style("opacity", 1);
+            } else {
+                const next = liftEdge(cy, {relationships: LIFT_EDGE});
+                next.contained.addClass(ELEVATION_HIDDEN_CLASS);
+                cy.scratch("landing_lift", next);
+                _styleFlowEdges(cy);
+            }
+        });
+    };
+    cy.scratch("landing_elevation_watch", apply);
+    if (REVEAL_ON_ZOOM) cy.on("zoom", apply);
+    apply();
+}
+
+/**
+ * Playground exception 12: the projection adds the type badges after this layout, with a size it derives; once they stand,
+ * give them all BADGE_SIZE. A badge is centred on its host's corner, so resizing it keeps it on the corner.
+ */
+function _pinBadgeSize(cy) {
+    const previous = cy.scratch("landing_badge_pin");
+    if (previous) cy.off("add", "node", previous);
+    let queued = false;
+    const handler = (evt) => {
+        if (!evt.target.data("_is_badge") || queued) return;
+        queued = true;
+        setTimeout(() => {
+            queued = false;
+            cy.nodes("[?_is_badge]").style({width: BADGE_SIZE, height: BADGE_SIZE});
+        }, 0);
+    };
+    cy.scratch("landing_badge_pin", handler);
+    cy.on("add", "node", handler);
 }

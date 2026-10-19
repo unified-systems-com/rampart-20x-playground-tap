@@ -68,7 +68,9 @@
             "dimensions": {
               "dcom": "design",
               "overview": "shown",
-              "dataclass.customer": "data"
+              "dataclass.customer": "data",
+              "column": "2",
+              "row": "0"
             }
           },
           "node": {

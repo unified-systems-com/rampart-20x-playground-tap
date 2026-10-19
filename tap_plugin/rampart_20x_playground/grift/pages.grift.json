@@ -429,10 +429,14 @@
           },
           "node": {
             "name": "Playground landing projection",
-            "description": "Landing: one elevation, the landing.js layout module, icon-badge chrome, opens fitted.",
+            "description": "Landing: one elevation, the landing.js layout module (which also reveals the interior of web task a past a zoom threshold), icon-badge chrome, opens fitted.",
             "definition": {
               "node_style": {
-                "mode": "icon-badge"
+                "mode": "icon-badge",
+                "exclude_types": [
+                  "computing_core__program",
+                  "aws_core__aws_ecs_container"
+                ]
               },
               "elevations": [
                 "01a13b2c-82d6-73d2-baa8-173e83503bfa"
