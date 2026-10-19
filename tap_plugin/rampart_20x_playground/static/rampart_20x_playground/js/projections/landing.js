@@ -404,10 +404,20 @@ function _styleBoundary(cy, boundary) {
             "border-opacity": 1,
             "color": BOUNDARY_RED,
             "text-valign": "top", "text-halign": "center",
-            "text-margin-x": 0, "text-margin-y": -BOUNDARY_LABEL_RISE,
+            // Left-aligned: a centred label is shifted so its left end stands on the box's left edge.
+            "text-margin-x": _boundaryLabelShift(n),
+            "text-margin-y": -BOUNDARY_LABEL_RISE,
             "text-wrap": "none", "text-max-width": `${n.width()}px`,
         });
     });
+}
+
+function _boundaryLabelShift(node) {
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!ctx) return 0;
+    ctx.font = `${node.style("font-weight")} ${node.style("font-size")} sans-serif`;
+    const textWidth = ctx.measureText(node.data("label") || "").width;
+    return -(node.width() - textWidth) / 2;
 }
 
 function _whenShown(cy, draw, tries = 600, waited = false) {
