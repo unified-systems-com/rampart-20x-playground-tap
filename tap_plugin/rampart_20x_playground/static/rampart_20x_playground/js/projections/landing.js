@@ -350,6 +350,7 @@ export async function execute(context) {
     });
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
+    _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
     // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
@@ -359,6 +360,37 @@ export async function execute(context) {
     _pinBadgeSize(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
+}
+
+/**
+ * Playground exception 13 (should become an `edge_layer` option of applyStandardChrome: edges drawn above the container
+ * fills and below the leaf nodes): how tap_viz orders what Cytoscape draws. Cytoscape sorts by `z-compound-depth` first
+ * (bottom, auto, top), then, at the same depth, by `z-index-compare` (auto draws every node after every edge, whatever
+ * its z-index; manual compares the z-index of the two), then by `z-index`. applyStandardChrome gives every edge
+ * `z-compound-depth: top`, so every edge is drawn over every node, the load balancer and the internet gateway included.
+ * Here the edges go to `auto` depth with a z-index just above the highest container (nested-projection gives a container
+ * z-index = 10 x its depth), and nodes compare manually: the container fills stay below the edge, and every leaf node
+ * (an icon node, a person, GitHub) is lifted just above it, keeping its own depth order, so an edge passes behind the
+ * nodes on its way. Badges, stack cards and the stack chip keep the z-index the stylesheet gives them (999, 1000, the
+ * stack's own), which is above. A lifted edge added later takes the edge rule, so it needs nothing of its own.
+ */
+function _layerEdges(cy) {
+    const isParent = (n) => n.hasClass(VIEWPORT_PARENT_CLASS);
+    const isOwnLayer = (n) => n.data("_is_badge") || n.data("_is_status_badge") || n.data("_is_stack_card")
+        || n.data("_is_stack_chip") || n.data("_stack_front_id") !== undefined;
+    const z = (n) => Number(n.style("z-index")) || 0;
+    const containers = cy.nodes().filter(isParent);
+    const edgeZ = (containers.nonempty() ? Math.max(...containers.map(z)) : 0) + 1;
+    cy.style()
+        .selector("edge").style({"z-compound-depth": "auto", "z-index": edgeZ})
+        .selector("node").style({"z-index-compare": "manual"})
+        .update();
+    cy.batch(() => {
+        cy.nodes().forEach((n) => {
+            if (isParent(n) || isOwnLayer(n)) return;
+            n.style({"z-index": edgeZ + 1 + Math.round(z(n) / 10)});
+        });
+    });
 }
 
 /**

@@ -270,7 +270,7 @@ class TestPlaygroundException:
     def test_the_landing_spec_carries_the_new_requirements(self) -> None:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
-                    "govcloud-layout-14", "govcloud-layout-15"):
+                    "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -395,12 +395,45 @@ class TestApplicationFlow:
             ("APPLICATION_FLOW_SOURCE__computing_core", "customer a computer", "customer traffic"),
         ]
 
-    def test_the_flow_has_its_own_column_between_the_computer_and_the_boundary_and_stays_off_the_line(self) -> None:
+    def test_the_flow_is_a_half_size_dark_blue_circle_centred_in_the_gap_on_the_line_of_sight(self) -> None:
         source = _js()
-        assert "T.flow" in _list("SOLO_TYPES")
-        assert 'n.data("entity_type") !== T.flow' in source, "kept out of the line-of-sight row"
-        assert "_placeFlow(cy, shown([T.flow]), anchor);" in source
-        assert re.search(r"const FLOW_DROP = \d+;", source)
+        assert "applyIconNodes(cy, {members: shown([T.flow])" in source and "solo: true" in source
+        assert "const FLOW_SCALE = 0.5;" in source and 'const FLOW_BLUE = "#0B3D91";' in source
+        assert 'n.data("_stage") < flow.data("_stage")' in source, "centred between what is left of it and the product box"
+        assert "_centreFlow(cy, roots, productRoot, shown([T.flow]));" in source
+        assert '"target-arrow-shape": type === E.flowSource ? "none" : "triangle"' in source
+
+
+class TestEdgeLiftAndLayers:
+    """`req-rampart-20x-playground-govcloud-layout-16`: the flow's edge ends on the task at the account elevation and
+    is drawn above the container fills and below the leaf nodes."""
+
+    def test_the_edge_lift_is_data_relationships_and_the_interior_is_hidden_at_the_account_elevation(self) -> None:
+        source = _js()
+        assert "const LIFT_EDGE = [" in source and "liftEdge(cy, {relationships: LIFT_EDGE})" in source
+        assert "next.contained.addClass(ELEVATION_HIDDEN_CLASS);" in source
+        assert "const REVEAL_ON_ZOOM = false;" in source, "stays off until the scope-box recursion is fixed in tap_viz"
+
+    def test_edges_sit_between_the_container_fills_and_the_leaf_nodes(self) -> None:
+        source = _js()
+        body = source.split("function _layerEdges")[1].split("\n}\n")[0]
+        assert '"z-compound-depth": "auto"' in body, "not `top`, which draws over every node"
+        assert '"z-index-compare": "manual"' in body, "`auto` draws every node after every edge"
+        assert "edgeZ + 1" in body and "isParent(n) || isOwnLayer(n)" in body
+        assert "_layerEdges(cy);" in source
+        assert "Playground exception 13 (should become an `edge_layer` option of applyStandardChrome" in source
+
+
+class TestElevationFontScale:
+    """`req-rampart-20x-playground-govcloud-layout-17`: the interior is laid out and labelled at one scale, once."""
+
+    def test_the_interior_is_scaled_relative_to_the_account_so_the_task_box_never_resizes(self) -> None:
+        source = _js()
+        assert "const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;" in source
+        assert "parentFontSize: chrome.parentFontSize * INTERIOR_SCALE" in source
+        assert 'parents.filter(isInterior).style({"font-size"' in source
+        assert "const BADGE_SIZE = 24;" in source and "_pinBadgeSize(cy);" in source
+        assert "Playground exception 10" in source and "Playground exception 12" in source
 
 
 class TestFlowWindow:
