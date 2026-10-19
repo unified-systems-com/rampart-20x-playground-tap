@@ -6,6 +6,7 @@
  * account: the organization, the other accounts, the ECS cluster and service and the identity provider stay on
  * the grid and are not selected by the page's Searches. Containment comes only from edges aws_core declares:
  *
+ *   - boundary ⊃ the account      SCOPED_TO_COMPLIANCE_BOUNDARY (account → boundary; compliance_core declares it)
  *   - account ⊃ its members       BELONGS_TO_ACCOUNT (resource → account)
  *   - VPC ⊃ its subnets           PARTITIONED_INTO_SUBNET (VPC → subnet)
  *   - VPC ⊃ its internet gateway  ATTACHED_TO_VPC (gateway → VPC)
@@ -18,8 +19,9 @@
  * subnet carrying the count, with what runs in the first zone inside it (stack.js).
  * Every other edge in the scene is a line.
  *
- * Top level, left to right: the customer and their computer, the product account, GitHub, the developer's computer and the developer. The administrator and their computer
- * hang under the bottom-centre of the product account, the computer above the person. The line of sight is one horizontal line,
+ * Top level, left to right: the customer and their computer, the authorization boundary around the product account,
+ * GitHub, the developer's computer and the developer. The administrator and their computer hang under the
+ * bottom-centre of the boundary (the account's bottom-centre x), the computer above the person. The line of sight is one horizontal line,
  * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
  * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
  * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
@@ -44,7 +46,10 @@
  *      column can be centre-aligned to an anchor without a post-pass);
  *   3. a person and their computer as a close pair, and the administrator pair under the account (the spacing
  *      option of the align/distribute helpers);
- *   4. waiting for the scene to be shown before the scope box is drawn (a fix in the tap_viz scope-box helper).
+ *   4. waiting for the scene to be shown before the scope box is drawn (a fix in the tap_viz scope-box helper);
+ *   6. the boundary's look: transparent, a bold red line, its title above the box (a per-node display override);
+ *   5. the boundary growing with the account when the account grows for the row (the same `reserve` option as 1,
+ *      applied through the nesting: a parent follows the growth of its child).
  * None changes the Python, the vocabulary or the data rules.
  */
 
@@ -58,6 +63,7 @@ const T = {
     vpc: "aws_core__aws_vpc",
     subnet: "aws_core__aws_subnet",
     account: "aws_core__aws_account",
+    boundary: "compliance_core__compliance_boundary",
     igw: "aws_core__aws_internet_gateway",
     alb: "aws_core__aws_alb",
     rds: "aws_core__aws_rds_instance",
@@ -78,6 +84,7 @@ const T = {
 };
 const E = {
     belongs: "BELONGS_TO_ACCOUNT__aws_core",
+    scopedTo: "SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core",
     retrievesSecret: "RETRIEVES_SECRET_FROM__aws_core",
     partitioned: "PARTITIONED_INTO_SUBNET__aws_core",
     attachedToVpc: "ATTACHED_TO_VPC__aws_core",
@@ -90,7 +97,7 @@ const E = {
     publishesPackage: "PUBLISHES_PACKAGE__github_core",
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
 };
-const CONTAINERS = [T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
+const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
 const ICON_TYPES = [T.platform];
 const ICON = {width: 84, height: 84};
@@ -115,9 +122,15 @@ const DEPLOY_BOX_PADDING = 36;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
-//: Playground exception (same exit): the clear gap between the bottom edge of the account and the pair that hangs
-//: below it.
+//: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
+//: boundary) and the pair that hangs below it.
 const BELOW_ACCOUNT_GAP = 56;
+
+//: Playground exception (same exit as _styleBoundary): the boundary's line colour (a true red), its width and how far
+//: its title stands above the box.
+const BOUNDARY_RED = "#dc2626";
+const BOUNDARY_LINE_WIDTH = 4;
+const BOUNDARY_LABEL_RISE = 8;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -147,6 +160,7 @@ export async function execute(context) {
 
     const result = await projectNested(cy, {
         relationships: [
+            {name: "boundary-holds-account", gryphon: `(parent:${T.boundary})<-[:${E.scopedTo}]-(child:${T.account})`},
             {name: "account-holds", gryphon: `(parent:${T.account})<-[:${E.belongs}]-(child)`},
             {name: "vpc-holds-subnets", gryphon: `(parent:${T.vpc})-[:${E.partitioned}]->(child)`},
             {name: "vpc-holds-gateway", gryphon: `(parent:${T.vpc})<-[:${E.attachedToVpc}]-(child)`},
@@ -165,6 +179,7 @@ export async function execute(context) {
         innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
+            [T.boundary]: {name: "flow", gap: 12, sort: "label"},
             [T.platform]: {name: "flow", gap: 20, sort: "label"},
             [T.ghAccount]: {name: "flow", gap: 20, sort: "label"},
             [T.repo]: {name: "flow", gap: 12, sort: "label"},
@@ -190,14 +205,16 @@ export async function execute(context) {
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
 
     // Everything that stands outside the product's column already has its column; put it on the request
-    // path's line. What stands in the product's column besides the account (the administrator's computer
-    // and the administrator) goes under the account instead.
+    // path's line. What stands in the product's column besides the boundary around the account (the
+    // administrator's computer and the administrator) goes under the boundary instead. The product's column is
+    // the column of the account's outermost ancestor, found through the nesting, never by a type.
     if (cy.scratch("landing_row")) cy.scratch("landing_row").destroy();
     const anchor = shown([T.alb]).first();
     const account = shown([T.account]).first();
     const roots = cy.nodes().filter((n) => Number.isInteger(n.data("_stage")) && n.data("_viewport_parent") === undefined
         && !n.hasClass(ELEVATION_HIDDEN_CLASS));
-    const productStage = account.nonempty() ? account.data("_stage") : undefined;
+    const productRoot = account.nonempty() ? _outermost(cy, account) : account;
+    const productStage = productRoot.nonempty() ? productRoot.data("_stage") : undefined;
     if (anchor.nonempty()) {
         const row = roots.filter((n) => n.data("_stage") !== productStage);
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
@@ -214,8 +231,10 @@ export async function execute(context) {
     // Playground exception (deploy row room): the account grows downward for the row. The line of sight does not
     // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
     if (cy.scratch("landing_deploy")) cy.scratch("landing_deploy").destroy();
+    const accountBottom = account.nonempty() ? account.boundingBox({includeLabels: false, includeOverlays: false}).y2 : 0;
     cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
-    _closePairs(roots, account);
+    _growAncestors(cy, account, accountBottom);
+    _closePairs(roots, account, productRoot);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -226,8 +245,58 @@ export async function execute(context) {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
+    _styleBoundary(cy, shown([T.boundary]));
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
+}
+
+/**
+ * The outermost node of the nesting that holds `node`: itself when nothing holds it.
+ */
+function _outermost(cy, node) {
+    let top = node;
+    for (let parent = cy.getElementById(top.data("_viewport_parent") || ""); parent.nonempty();
+         parent = cy.getElementById(top.data("_viewport_parent") || "")) {
+        top = parent;
+    }
+    return top;
+}
+
+/**
+ * Playground exception (should become the same `reserve` option as the account's growth, applied through the
+ * nesting so a parent follows its child): when the account has grown downward for the deploy row, the boxes that hold
+ * it (the boundary) grow by the same amount, keeping their top edge.
+ */
+function _growAncestors(cy, node, oldBottom) {
+    const delta = node.boundingBox({includeLabels: false, includeOverlays: false}).y2 - oldBottom;
+    if (!(delta > 0)) return;
+    for (let parent = cy.getElementById(node.data("_viewport_parent") || ""); parent.nonempty();
+         parent = cy.getElementById(parent.data("_viewport_parent") || "")) {
+        parent.style({height: parent.height() + delta});
+        parent.position({x: parent.position("x"), y: parent.position("y") + delta / 2});
+    }
+}
+
+/**
+ * Playground exception (should become a per-node display override on the entity, or a `display` hint a plugin's
+ * default display can be given per instance in tap_viz; compliance_core's default for the type stays as it is, as
+ * other instances share it): the authorization boundary is drawn as a transparent box with a bold true-red line,
+ * and its title stands outside the box, above its top edge, centred. Applied after placeParentLabels, which anchors
+ * every container's label inside the box.
+ */
+function _styleBoundary(cy, boundary) {
+    boundary.forEach((n) => {
+        n.style({
+            "background-opacity": 0,
+            "border-width": BOUNDARY_LINE_WIDTH,
+            "border-color": BOUNDARY_RED,
+            "border-opacity": 1,
+            "color": BOUNDARY_RED,
+            "text-valign": "top", "text-halign": "center",
+            "text-margin-x": 0, "text-margin-y": -BOUNDARY_LABEL_RISE,
+            "text-wrap": "none", "text-max-width": `${n.width()}px`,
+        });
+    });
 }
 
 function _whenShown(cy, draw, tries = 600) {
@@ -306,19 +375,20 @@ function _placeDeployRow(cy, account, deploy, bottomPad) {
  * and so away from the account. The pair is read from the data: the `actor` dimension of a person and the `device`
  * dimension of a computer carry the same value (`customer`, `developer`, `administrator`). Two that stand in the
  * same column (the administrator's, beneath the account) are a vertical pair, the computer above the person; the
- * pair hangs under the account's bottom-centre. Otherwise the pair is horizontal and the computer moves along the
+ * pair hangs under the bottom-centre of the box that holds the account. Otherwise the pair is horizontal and the computer moves along the
  * line toward the person.
  */
-function _closePairs(roots, account) {
+function _closePairs(roots, account, productRoot) {
     const dim = (n, key) => (n.data("dimensions") || {})[key];
     const people = roots.filter((n) => n.data("entity_type") === T.human && dim(n, "actor") !== undefined);
     const computers = roots.filter((n) => n.data("entity_type") === T.host && dim(n, "device") !== undefined);
     people.forEach((person) => {
         computers.filter((c) => dim(c, "device") === dim(person, "actor")).forEach((computer) => {
             if (person.data("_stage") === computer.data("_stage")) {
-                // Hangs under the bottom-centre of the account: the computer first, the person below it.
+                // Hangs under the bottom-centre of the box that holds the account (the boundary), which is the
+                // account's bottom-centre x: the computer first, the person below it.
                 const x = account.position("x");
-                const bottom = account.boundingBox({includeLabels: false, includeOverlays: false}).y2;
+                const bottom = productRoot.boundingBox({includeLabels: false, includeOverlays: false}).y2;
                 const y = bottom + BELOW_ACCOUNT_GAP + computer.height() / 2;
                 computer.position({x, y});
                 person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
@@ -404,8 +474,9 @@ function _stampVpcColumns(cy) {
 
 /**
  * Stamp the top-level `ranked` columns, left to right. A person or a computer carries its place in the `column`
- * and `row` dimensions (their types have no tagging system); a type that has one (the account, GitHub) carries
- * `layout:column` and `layout:order` tags.
+ * and `row` dimensions (their types have no tagging system); a type that has one (GitHub) carries
+ * `layout:column` and `layout:order` tags. The boundary around the account is a compliance_core type with no tagging
+ * system, so it carries `column` and `row` dimensions like a person.
  */
 function _stampRootColumns(cy) {
     cy.nodes().forEach((n) => {

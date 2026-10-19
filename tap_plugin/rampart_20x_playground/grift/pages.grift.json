@@ -509,6 +509,27 @@
               ]
             }
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1557d-3938-760e-88bd-abe220ba6f2a",
+            "entity_type": "search",
+            "name": "playground \u2014 landing scoped",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing scoped",
+            "description": "Each shown resource and the compliance boundary it is scoped to.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a)-[:SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core]->(b:compliance_core__compliance_boundary)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
         }
       ],
       "edges": [
@@ -868,6 +889,20 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a13c04-5129-712f-bc05-5934e93e983b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1557d-3938-7112-b31c-6d0554602350",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-scoped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a1557d-3938-760e-88bd-abe220ba6f2a",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

@@ -88,7 +88,9 @@ class TestDeployRow:
     def test_the_administrator_pair_hangs_under_the_account_centre(self) -> None:
         source = _js()
         assert len(re.findall(r"const BELOW_ACCOUNT_GAP = \d+;", source)) == 1
-        assert "const x = account.position(\"x\");" in source.split("function _closePairs")[1]
+        pair = source.split("function _closePairs")[1]
+        assert "const x = account.position(\"x\");" in pair
+        assert "productRoot.boundingBox(" in pair, "the pair hangs under the boundary's bottom edge"
         assert "computer.position({x, y});" in source and "person.position({x, y: y +" in source
 
     def test_the_members_are_laid_out_by_align_distribute_with_a_label(self) -> None:
@@ -126,10 +128,12 @@ class TestLineOfSight:
             dims, tags = entity.get("dimensions", {}), node["node"].get("tags", {})
             raw = dims.get("column", tags.get("layout:column"))
             if raw is not None and entity["name"] in {
-                "customer a", "customer a computer", "git-serious", "github.com", "developer a laptop", "developer a",
+                "customer a", "customer a computer", "Authorization Boundary", "github.com",
+                "developer a laptop", "developer a",
             }:
                 columns[entity["name"]] = int(raw)
-        order = ["customer a", "customer a computer", "git-serious", "github.com", "developer a laptop", "developer a"]
+        order = ["customer a", "customer a computer", "Authorization Boundary", "github.com",
+                 "developer a laptop", "developer a"]
         assert [columns[n] for n in order] == sorted(columns[n] for n in order)
         assert len(set(columns.values())) == len(order)
 
@@ -145,6 +149,86 @@ class TestLineOfSight:
         assert not re.search(r"data\(\"label\"\)\s*===", source)
 
 
+class TestAuthorizationBoundary:
+    """`req-rampart-20x-playground-govcloud-layout-12`, `-nongoals-3`: C5 (Overview Wave 2)."""
+
+    def _boundary(self) -> dict:
+        (boundary,) = _by_type("compliance_core__compliance_boundary")
+        return boundary
+
+    def test_one_boundary_node_with_the_producers_natural_key(self) -> None:
+        boundary = self._boundary()
+        assert boundary["node"]["source"] == "rampart_20x_playground"
+        assert boundary["node"]["source_key"] == "git-serious"
+        assert boundary["node"]["name"] == boundary["entity"]["name"] == "Authorization Boundary"
+        assert "mock" not in boundary["node"]["description"].lower()
+        dims = boundary["entity"]["dimensions"]
+        assert dims["dcom"] == "design" and dims["overview"] == "shown"
+
+    def test_one_scoped_to_edge_from_the_account_only(self) -> None:
+        boundary = self._boundary()["entity"]["entity_id"]
+        edges = [e["edge"] for b in json.loads(MOCK.read_text(encoding="utf-8"))["batches"] for e in b["edges"]
+                 if e["edge"]["edge_type"] == "SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core"]
+        (account,) = [n for n in _by_type("aws_core__aws_account") if n["entity"]["name"] == "git-serious"]
+        assert [(e["from_entity_id"], e["to_entity_id"]) for e in edges] == [(account["entity"]["entity_id"], boundary)]
+
+    def test_the_boundary_carries_the_column_and_the_account_does_not(self) -> None:
+        """The layout tags move to the boundary: a type with no tagging system carries `column` and `row`."""
+        dims = self._boundary()["entity"]["dimensions"]
+        assert dims["column"] == "2" and dims["row"] == "0"
+        (account,) = [n for n in _by_type("aws_core__aws_account") if n["entity"]["name"] == "git-serious"]
+        assert "layout:column" not in account["node"].get("tags", {})
+        assert "column" not in account["entity"]["dimensions"]
+
+    def test_the_account_nests_in_the_boundary_by_a_configured_relationship(self) -> None:
+        source = _js()
+        assert re.search(r"name: \"boundary-holds-account\", gryphon: `\(parent:\$\{T\.boundary\}\)<-\[:\$\{E\.scopedTo\}\]-\(child:\$\{T\.account\}\)`", source)
+        assert 'boundary: "compliance_core__compliance_boundary"' in source
+        assert 'scopedTo: "SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core"' in source
+        assert "boundary" in _list("CONTAINERS")
+
+    def test_the_product_column_is_found_through_the_nesting_not_a_type(self) -> None:
+        source = _js()
+        assert "const productRoot = account.nonempty() ? _outermost(cy, account) : account;" in source
+        assert 'productRoot.data("_stage")' in source
+        assert "account.data(\"_stage\")" not in source
+
+    def test_the_boundary_grows_with_the_account_and_is_marked_an_exception(self) -> None:
+        source = _js()
+        assert "_growAncestors(cy, account, accountBottom);" in source
+        assert "Playground exception (should become the same `reserve` option" in source
+
+    def test_the_boundary_is_transparent_bold_red_with_its_title_above(self) -> None:
+        source = _js()
+        body = source.split("function _styleBoundary")[1].split("function _whenShown")[0]
+        assert '"background-opacity": 0' in body
+        assert '"border-opacity": 1' in body, "a true red, not the runtime's 0.6-opacity container border"
+        assert '"text-valign": "top"' in body and "-BOUNDARY_LABEL_RISE" in body
+        assert "_styleBoundary(cy, shown([T.boundary]));" in source
+        assert re.search(r'const BOUNDARY_RED = "#dc2626";', source)
+        assert int(re.search(r"const BOUNDARY_LINE_WIDTH = (\d+);", source).group(1)) >= 3
+        assert "should become a per-node display override" in source
+
+    def test_a_search_brings_the_scoped_to_edge_and_collides_with_no_other(self) -> None:
+        pages = json.loads((PACKAGE_ROOT / "grift" / "pages.grift.json").read_text(encoding="utf-8"))["batches"][0]
+        searches = {n["entity"]["name"]: " ".join(n["node"]["definition"]["query"])
+                    for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
+        scoped = [q for q in searches.values() if "SCOPED_TO_COMPLIANCE_BOUNDARY" in q]
+        assert len(scoped) == 1 and 'b.dimensions["overview"] = "shown"' in scoped[0]
+        assert "playground \u2014 landing scoped" in searches
+        (panel,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "panel"]
+        used = {e["edge"]["to_entity_id"] for e in pages["edges"]
+                if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]}
+        (search,) = [n for n in pages["nodes"] if n["entity"]["name"] == "playground \u2014 landing scoped"]
+        assert search["entity"]["entity_id"] in used
+
+    def test_the_specs_say_the_boundary_is_drawn(self) -> None:
+        v0 = (SPECS / "spec-rampart_20x_playground-v0.md").read_text(encoding="utf-8")
+        landing = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "| Mock Is Not A Boundary |" not in v0 and "Mock Data, One Drawn Boundary" in v0
+        assert "req-rampart-20x-playground-govcloud-layout-12" in landing
+
+
 class TestPersonComputerPairs:
     """`req-rampart-20x-playground-govcloud-layout-10`."""
 
@@ -153,7 +237,7 @@ class TestPersonComputerPairs:
         assert len(re.findall(r"const PAIR_GAP = \d+;", source)) == 1
         gap = int(re.search(r"const PAIR_GAP = (\d+);", source).group(1))
         assert 20 <= gap <= 32
-        assert "_closePairs(roots, account);" in source
+        assert "_closePairs(roots, account, productRoot);" in source
 
     def test_the_pair_is_read_from_the_actor_and_device_dimensions(self) -> None:
         source = _js()

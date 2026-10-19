@@ -35,9 +35,10 @@ configurations. When a VDR ranking process arrives it is expected to need its ow
 decided then, not now. Compliance vocabulary — exceptions in particular — is expected to grow in
 `compliance_core`; the playground consumes what lands there.
 
-The inventory and findings are **mock data**. They are never presented as collected, and never as an
-authorization boundary. The presenter says so; the pages and panels are not adjusted to say it (ruled
-2026-10-13).
+The inventory and findings are **mock data**. They are never presented as collected. The design draws one
+authorization boundary, around the git-serious account (ruled 2026-10-19; it supersedes the earlier "never an
+authorization boundary" wording); it is a drawn scope, and no authorization is claimed. The presenter says the data is
+mock; the pages and panels are not adjusted to say it (ruled 2026-10-13).
 
 **Provenance markers.**
 *Observed* (read from the named source on 2026-10-13, not run): `fedramp_20x_ksi` v0.3.1 `vdr_finding`
@@ -62,7 +63,7 @@ the demo boot record's passkey loading.
 
 | RID | Name | Status | Notes |
 | --- | --- | :---: | --- |
-| req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock is not a boundary |
+| req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock data, one drawn boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
 | req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Nineteen dimension nodes: ten `inventory` (the axis and nine categories) and nine `dataclass` (the axis, two branches and six classes) |
@@ -86,8 +87,8 @@ Status: `Proposed`
 
 The playground contributes no TAP-managed entity types: no models, no edges, no collectors, no panel
 types, and no Python beyond what the plugin package requires to install. It makes no AWS calls and holds no
-credential other than the local passkey login. It does not claim that its mocked design is, or models, a
-FedRAMP authorization boundary.
+credential other than the local passkey login. It draws one authorization boundary around the git-serious account,
+as data (a compliance_core boundary node and one scoped-to edge); it claims no authorization for it.
 
 #### Implementation
 
@@ -113,9 +114,9 @@ concepts settle; the tweaks then become runtime configuration and the markers ar
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-nongoals-1 | No Vocabulary | Proposed | `manage.py plugins` reports `models=0/0 edges=0/0` for the plugin. | |
 | req-rampart-20x-playground-nongoals-2 | No Network | Proposed | The plugin's `ci` record contains no collector and no credential, and boots offline. | |
-| req-rampart-20x-playground-nongoals-3 | Mock Is Not A Boundary | Proposed | The keystone description says the data is mock and the design is not an authorization boundary. | |
+| req-rampart-20x-playground-nongoals-3 | Mock Data, One Drawn Boundary | Proposed | The keystone description says the data is mock, that no authorization has been granted, and that the design draws one authorization boundary around the git-serious account; its `authorization_boundary` context flag is true. | Ruled 2026-10-19 (Overview Wave 2); replaces "Mock Is Not A Boundary". The boundary is a `compliance_core__compliance_boundary` node in the mock inventory (`req-rampart-20x-playground-govcloud-layout-12`). |
 | req-rampart-20x-playground-nongoals-4 | No Dcom On App Entities | Proposed | The keystone, page, panel and Searches seeded by this plugin carry no `dcom` key. | The axis describes the system under design, not the app showing it. |
-| req-rampart-20x-playground-nongoals-5 | Layout Tweaks Are A Marked Exception | Proposed | Custom geometry exists only in the playground's layout JavaScript, each tweak is marked "playground exception" with the runtime form it should become, and this spec records the exit: fold into tap_viz when the concepts settle. | Ruled 2026-10-19. Today: the deploy row's members and room, the gateway's alignment, the person-computer pairs and the wait before the scope box is drawn (`req-rampart-20x-playground-govcloud-layout-8`, `-9`). |
+| req-rampart-20x-playground-nongoals-5 | Layout Tweaks Are A Marked Exception | Proposed | Custom geometry exists only in the playground's layout JavaScript, each tweak is marked "playground exception" with the runtime form it should become, and this spec records the exit: fold into tap_viz when the concepts settle. | Ruled 2026-10-19. Today: the deploy row's members and room, the gateway's alignment, the person-computer pairs and the wait before the scope box is drawn and the boundary's growth with the account (`req-rampart-20x-playground-govcloud-layout-8`, `-9`, `-12`). |
 
 ### Boot Records
 ----

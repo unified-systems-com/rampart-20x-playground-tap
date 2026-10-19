@@ -28,12 +28,12 @@
           },
           "node": {
             "name": "rampart-20x-playground",
-            "description": "rampart-20x-playground is a quick-hit prototype that shows how a FedRAMP 20x Vulnerability Detection and Response (VDR) process, and later Key Security Indicators (KSI), can be a query over a graph instead of a spreadsheet. It carries a TAP deployment designed for AWS GovCloud, an inventory of that system in six categories, vulnerabilities organized by source (Dependabot first, then code scanning), and VDR reports that set vulnerabilities against their remediation SLAs. It is built for a podcast demo from existing plugins (identity_core, administrivia, dcom, aws_core, computing_core, github_core, compliance_core, fedramp_20x_ksi, rampart_20x) and holds data only. All inventory and findings here are MOCK DATA, never collected from a live system, and the design is NOT a FedRAMP authorization boundary. Every node seeded from the design carries the dcom `design` dimension.",
+            "description": "rampart-20x-playground is a quick-hit prototype that shows how a FedRAMP 20x Vulnerability Detection and Response (VDR) process, and later Key Security Indicators (KSI), can be a query over a graph instead of a spreadsheet. It carries a TAP deployment designed for AWS GovCloud, an inventory of that system in six categories, vulnerabilities organized by source (Dependabot first, then code scanning), and VDR reports that set vulnerabilities against their remediation SLAs. It is built for a podcast demo from existing plugins (identity_core, administrivia, dcom, aws_core, computing_core, github_core, compliance_core, fedramp_20x_ksi, rampart_20x) and holds data only. All inventory and findings here are MOCK DATA, never collected from a live system, and no FedRAMP authorization has been granted. The design draws one authorization boundary, around the git-serious account and everything in it (a compliance_core boundary node); GitHub and the people stand outside it. Every node seeded from the design carries the dcom `design` dimension.",
             "context_json": {
               "project": "rampart-20x-playground",
               "purpose": "Demonstrate FedRAMP 20x VDR, later KSI, on a mocked AWS GovCloud TAP deployment.",
               "data": "mock",
-              "authorization_boundary": false,
+              "authorization_boundary": true,
               "cloud": "aws-govcloud",
               "dimensions": {
                 "initial_design": "dcom=design",
@@ -61,7 +61,7 @@
                 },
                 "authorization_boundary": {
                   "type": "boolean",
-                  "description": "Whether the mocked design claims to be a FedRAMP authorization boundary. Always false."
+                  "description": "Whether the design draws an authorization boundary (a compliance_core boundary node around the git-serious account). It draws one; no authorization has been granted for it."
                 },
                 "cloud": {
                   "type": "string",
