@@ -114,11 +114,13 @@ The layout expresses the three flows as three directions meeting at the centre.
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-govcloud-layout-1 | Containers Are Central | Proposed | The git-serious containers sit at the centre of the view. | |
-| req-rampart-20x-playground-govcloud-layout-2 | Request Nodes Are Horizontal | Proposed | The nodes of the request path, from the customer computer to the containers, sit on a single horizontal line. | Placement only; lines follow `grid-true`. |
+| req-rampart-20x-playground-govcloud-layout-2 | Request Nodes Are Horizontal | Proposed | One horizontal line, left to right: the customer, the customer's computer, the internet gateway, the load balancer, the database (the last three inside the product account), then outside it, to the right of the database, GitHub, the developer's computer and the developer. The load balancer is the anchor (ruled 2026-10-19); the gateway is aligned to its line and the nodes outside the account are aligned to it, align-only. | Placement only; lines follow `grid-true`. The order outside the account is data: `column` and `row` dimensions on people and computers, `layout:column` and `layout:order` tags on the account and GitHub. A GitHub node whose tags a later collection batch has overwritten has no column and leaves the line; re-import the mock inventory. |
 | req-rampart-20x-playground-govcloud-layout-3 | Route53 Upper-Left | Proposed | Route53 is placed in the upper-left of the product account. | |
 | req-rampart-20x-playground-govcloud-layout-4 | Deployment Enters From The Right | Proposed | The deployment path enters the product account from the right. | |
 | req-rampart-20x-playground-govcloud-layout-5 | Support Row Along The Bottom | Proposed | The support accounts form one horizontal row along the bottom of the product account. | |
 | req-rampart-20x-playground-govcloud-layout-6 | Administrator Below | Proposed | The administrator and their computer sit below the support row. | |
+| req-rampart-20x-playground-govcloud-layout-8 | Deploy Icons Stand In One Column | Proposed | The AWS icons of the delivery path (the GitHub App token and runtime secrets, the ECR repository, the two S3 buckets, the pipeline, the source-puller Lambda and the apply and plan CodeBuild projects) stand in one column, all with the account's centre as their horizontal centre, at the bottom-middle of the product account, below the certificate and the key. The certificate stays directly under the load balancer and the key directly under the database. GitHub stays outside the account. | Ruled 2026-10-19. The account grows downward to hold the column. Playground exception (`req-rampart-20x-playground-nongoals-5`); should become a column tier of the `tiered-rows` natural layout. |
+| req-rampart-20x-playground-govcloud-layout-9 | Gateway On The Line | Proposed | The internet gateway's centre is on the load balancer's horizontal line to the pixel. | Ruled 2026-10-19. Playground exception (`req-rampart-20x-playground-nongoals-5`); should become an anchor-relative align of a nested node in the `ranked` natural layout. |
 | req-rampart-20x-playground-govcloud-layout-7 | Room For Agents | Proposed | A slot is left beside the developer and beside the administrator for agent actors, left empty for now. | See Deferred. |
 
 ### Product Account
@@ -354,9 +356,9 @@ GitHub Actions identity provider (`FEDERATES_VIA_PROVIDER`), which stands for th
 no edge from the package version to the ECR repository or from the deploy step to the service, so those hops
 are recorded gaps, not lines.
 
-At this view the internet gateway, the load balancer, the database, the people, their computers and GitHub are
-drawn as icon nodes (`spec-viz-icon-node.md` in `tap_viz`): the type icon is the card and the name is below
-it. An icon node is terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs
+At this view the internet gateway, the load balancer, the database, the people, their computers, the Route 53
+zone and the ECR repository are drawn as icon-centric-solo nodes (`spec-viz-icon-node.md` in `tap_viz`): the
+icon and the name below it, no card. GitHub is an icon node with a card. An icon node is terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs
 and packages are not drawn, and neither are the edges that end in them. They come back when the node is opened
 up, which is not built yet.
 
@@ -369,7 +371,7 @@ up, which is not built yet.
 | req-rampart-20x-playground-govcloud-actors-3 | Placement From Facts | Proposed | The row reads customer, the product account, GitHub, developer, with the administrator beneath the account. A person or a computer carries its place in the `column` and `row` dimensions (their types have no tagging system); a type that has tags (the account, GitHub) carries `layout:column` and `layout:order`. The layout holds no map from role or type to place. | No placement by label, id or type constant. |
 | req-rampart-20x-playground-govcloud-actors-4 | Deploy Path Is In The Data | Proposed | The repository, workflow, run and package version are in the mock inventory, and the repository is joined to the product account's identity provider; the page shows GitHub as one icon node. | Ruled 2026-10-14; the internals are hidden by the icon node, ruled 2026-10-14. |
 | req-rampart-20x-playground-govcloud-actors-5 | Mock Repository Is Not Observed | Proposed | The mock repository and accounts use names that no observed node uses, and the page selects only `dcom: design` nodes. | The observed `unified-systems-com/tap` repository stays off the page. |
-| req-rampart-20x-playground-govcloud-actors-6 | Top-Most Pieces Are Icon Nodes | Proposed | The internet gateway, the load balancer, the database instance, the people, their computers and GitHub are drawn as icon nodes, selected by entity type; nothing inside them is drawn. | Ruled 2026-10-14. |
+| req-rampart-20x-playground-govcloud-actors-6 | Top-Most Pieces Are Icon Nodes | Proposed | The internet gateway, the load balancer, the database instance, the people, their computers, the Route 53 zone and the ECR repository are drawn as icon-centric-solo nodes (`solo: true`: the icon and the name, no card), at unchanged positions; GitHub is an icon node with a card; all are selected by entity type and nothing inside them is drawn. | Ruled 2026-10-14; solo for the people, computers, Route 53 and ECR ruled 2026-10-19. |
 | req-rampart-20x-playground-govcloud-actors-7 | Running Parts Only | Proposed | The page is named Overview and shows the running parts of the system inside the product account, which stays as their parent: the organization, the other accounts, the ECS cluster and service and the identity provider are not selected by its Searches and stay on the grid. | Ruled 2026-10-14. The URL stays `/playground`. |
 | req-rampart-20x-playground-govcloud-actors-8 | What The Page Shows Is Data | Proposed | The Overview's node and edge Searches select on the `overview` dimension value `shown`, stamped on each entity the page draws, and hand-list no entity types. | Ruled 2026-10-14; the Searches that match typed relations keep their types. |
 

@@ -19,13 +19,28 @@
  * Every other edge in the scene is a line.
  *
  * Top level, left to right: the customer and their computer, the product account, GitHub, the developer's computer and the developer. The administrator and their computer
- * stand beneath the product account, the computer above the person. The people, computers and GitHub are
- * put on the load balancer's horizontal line (align-only).
+ * stand beneath the product account, the computer above the person. The line of sight is one horizontal line,
+ * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
+ * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
+ * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
  *
- * The gateway, load balancer, database, Lambda, buckets and secrets are icon-centric-solo nodes (icon-node.js):
- * the icon and its name, no card. The people, their computers and GitHub are icon nodes with a card. Icon nodes
- * are terminal, so a computer's local account and GitHub's accounts, repository, workflow, runs and packages
- * are not drawn.
+ * The people, their computers, the gateway, load balancer, database, Route 53 zone, ECR repository, Lambda,
+ * buckets, secrets, pipeline and CodeBuild projects are icon-centric-solo nodes (icon-node.js): the icon and
+ * its name, no card. GitHub is an icon node with a card. Icon nodes are terminal, so a computer's local account
+ * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
+ *
+ * Deploy path: the AWS icons of the delivery path (the secrets, the ECR repository, the buckets, the pipeline, the
+ * Lambda and the CodeBuild projects) stand in ONE column, centred at the bottom-middle of the account, under the
+ * certificate and the key.
+ *
+ * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
+ * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
+ * "playground exception" with the tap_viz runtime form it should become:
+ *   1. the deploy column (a `column` tier kind of the tiered-rows natural layout, or a `stack` arrangement that
+ *      reserves its own room in the container);
+ *   2. the gateway on the anchor's line (an `alignTo` of a nested node in the ranked natural layout, so a nested
+ *      column can be centre-aligned to an anchor without a post-pass).
+ * Neither changes the Python, the vocabulary or the data rules.
  */
 
 import {projectNested, ELEVATION_HIDDEN_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
@@ -73,11 +88,19 @@ const E = {
 };
 const CONTAINERS = [T.account, T.vpc, T.subnet, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
-const ICON_TYPES = [T.human, T.host, T.platform];
+const ICON_TYPES = [T.platform];
 const ICON = {width: 84, height: 84};
+//: Shown as icon-centric-solo nodes at the icon-node size (no card): the people and their computers. Same box as
+//: the carded icon nodes they were, so nothing moves.
+const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.rds, T.cert, T.key, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
+//: The deploy path inside the account: every AWS icon of the delivery path. The certificate and the key are not
+//: part of it (they stand under the load balancer and the database).
+const DEPLOY_TYPES = [T.secret, T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
+//: Distance between the centres of two icons in the deploy column: the icon, then room for a three-line name.
+const DEPLOY_PITCH = 120;
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -95,7 +118,13 @@ export async function execute(context) {
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception (deploy column; should become a column tier of tiered-rows): the deploy icons are out
+    // of the nesting while it runs, so the account is sized for its own rows; they are placed in one column below
+    // them afterwards, which grows the account.
+    const deploy = shown(DEPLOY_TYPES);
+    deploy.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
 
@@ -125,16 +154,13 @@ export async function execute(context) {
             [T.workflow]: {name: "flow", gap: 12, sort: "label"},
             [T.package]: {name: "flow", gap: 12, sort: "label"},
             //: Inside the account, by row: the DNS zone in the top-left corner, the VPC, the certificate and the
-            //: key (placed under the load balancer and the database), then the rest.
+            //: key (placed under the load balancer and the database). The deploy path is the column below them.
             [T.account]: {
                 name: "tiered-rows", rowGap: 44, itemGap: 40,
                 tiers: [
                     {name: "dns", entityTypes: [T.zone], align: "start"},
                     {name: "vpc", entityTypes: [T.vpc]},
                     {name: "protection", entityTypes: [T.cert, T.key]},
-                    {name: "secrets", entityTypes: [T.secret, T.ecr]},
-                    {name: "release", entityTypes: [T.bucket, T.pipeline, T.lambda]},
-                    {name: "builds", entityTypes: [T.codebuild]},
                 ],
             },
             [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
@@ -145,6 +171,7 @@ export async function execute(context) {
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
+    deploy.removeClass(ELEVATION_HIDDEN_CLASS);
 
     // Everything that stands outside the product's column already has its column; put it on the request
     // path's line. What stands in the product's column besides the account (the administrator's computer
@@ -160,6 +187,14 @@ export async function execute(context) {
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
 
+    // Playground exception (gateway on the line; should become an anchor-relative align of a nested node in the
+    // ranked natural layout): the internet gateway is the first column of the VPC and is top-aligned with it, so
+    // it sits above the line. Put it on the anchor's line, align-only.
+    const gateway = shown([T.igw]);
+    if (anchor.nonempty() && gateway.nonempty()) {
+        alignDistributeHorizontal(cy, {members: gateway, anchorNode: anchor, distribute: false, reactive: false});
+    }
+
     // The certificate stands directly under the load balancer, and the key directly under the database.
     [[T.cert, T.alb], [T.key, T.rds]].forEach(([type, above]) => {
         const member = shown([type]), anchorNode = shown([above]).first();
@@ -171,6 +206,10 @@ export async function execute(context) {
     // Under the account, top to bottom in their own order (the computer, then the person).
     const beneath = roots.filter((n) => n.data("_stage") === productStage && !n.same(account))
         .sort((a, b) => a.data("_order") - b.data("_order"));
+    // Playground exception (deploy column): the account grows downward for the column; what stands beneath it
+    // moves down by the same amount. The line of sight does not move (the anchor is above the growth).
+    const grown = _placeDeployColumn(cy, account, deploy, pad.bottom);
+    beneath.forEach((n) => n.position({x: n.position("x"), y: n.position("y") + grown}));
     if (beneath.length > 1) {
         alignDistributeVertical(cy, {members: beneath, sort: false, gap: 56});
     }
@@ -186,6 +225,41 @@ export async function execute(context) {
     });
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
+}
+
+/**
+ * Playground exception: stand the deploy-path icons in ONE column, centred on the account's own centre line, below
+ * the account's other contents, and grow the account (downward only) to hold them. Order within the column is by
+ * label (stable). Returns how far the account's bottom edge moved. Should become a `column` tier of the
+ * tiered-rows natural layout in tap_viz, which would size the container itself.
+ */
+function _placeDeployColumn(cy, account, deploy, bottomPad) {
+    if (account.empty() || deploy.empty()) return 0;
+    const box = account.boundingBox({includeLabels: false, includeOverlays: false});
+    const others = cy.nodes().filter((n) => n.data("_viewport_parent") === account.id() && !n.hasClass(ELEVATION_HIDDEN_CLASS)
+        && !deploy.anySame(n));
+    const above = others.nonempty() ? others.boundingBox({includeLabels: true, includeOverlays: false}).y2 : box.y1;
+    const iconHeight = (n) => Number(n.data("_icon_h")) || n.height();
+    const x = account.position("x");
+    const ordered = deploy.toArray().sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
+    let y = above + 44;
+    let last = y;
+    ordered.forEach((n, i) => {
+        const half = iconHeight(n) / 2;
+        const cyY = i === 0 ? y + half : last + DEPLOY_PITCH;
+        n.position({x, y: cyY});
+        // One layer above the account, as the nesting would have drawn a child of it.
+        n.style({"z-index": Number(account.style("z-index")) + 10});
+        n.data("_viewport_parent", account.id());
+        last = cyY;
+    });
+    const newBottom = last + iconHeight(ordered[ordered.length - 1]) / 2 + bottomPad;
+    const delta = Math.max(0, newBottom - box.y2);
+    if (delta > 0) {
+        account.style({height: box.h + delta});
+        account.position({x: account.position("x"), y: account.position("y") + delta / 2});
+    }
+    return delta;
 }
 
 function _edgeType(e) {
