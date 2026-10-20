@@ -22,7 +22,7 @@ RUNNER = "tap_plugin.compliance_core.searches.dimension_coverage:dimension-cover
 RUNNER_FIELDS = {"key", "description", "total", "values", "values_text", "breakdown_text"}
 # The keys of each element of the runner's `values` array that a table column may name.
 VALUE_FIELDS = {"value", "description", "declared", "count", "by_type"}
-KEYS = {"dataclass.customer", "dataclass.infra"}
+KEYS = {"dataclass.customer", "dataclass.infra", "dataclass.action"}
 
 
 def _batch() -> dict:
@@ -64,14 +64,14 @@ class TestDataClassificationPage:
         assert slots == set(wired)
         assert {self.by_id[i]["node"]["slug"] for i in wired.values()} == slots
 
-    def test_an_introduction_then_two_equal_columns_with_one_card_each_and_no_table(self) -> None:
+    def test_an_introduction_then_three_equal_columns_with_one_card_each_and_no_table(self) -> None:
         columns = self.page["node"]["layout"]["columns"]
         bands: dict[int, list[dict]] = {}
         for column in columns.values():
             bands.setdefault(column["band"], []).append(column)
         assert sorted(bands) == [1, 2]
-        assert len(bands[2]) == 2 and {c["width"] for c in bands[2]} == {"6fr"}
-        assert len(self.cards) == 2
+        assert len(bands[2]) == 3 and {c["width"] for c in bands[2]} == {"4fr"}
+        assert len(self.cards) == 3
         assert all(p["node"]["view"] in (TEXT, CARD) for p in self.panels.values())
         intro = self.panels[next(iter(r["panel-id"] for r in bands[1][0]["rows"].values()))]
         assert intro["node"]["view"] == TEXT
@@ -124,7 +124,7 @@ class TestDataClassificationPage:
     def test_no_value_is_named_and_nothing_says_mock(self) -> None:
         text = json.dumps(self.nodes).lower()
         assert "mock" not in text
-        assert not re.search(r"dataclass\.(customer|infra)\.", text)  # only the keys, never a key.value
+        assert not re.search(r"dataclass\.(customer|infra|action)\.", text)  # only the keys, never a key.value
 
     def test_ids_are_unique_version_7_uuids(self) -> None:
         ids = [self.batch["batch_entity"]["entity_id"]]

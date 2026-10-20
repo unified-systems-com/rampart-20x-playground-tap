@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-entities",
         "name": "rampart-20x-playground inventory entities v0.1.0",
-        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs, gunicorn and tap-web once per web task, plus PostgreSQL, and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges here: the RUNS_PROGRAM edges that join each task's container to its programs are in the application flow bundle; computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets). The PostgreSQL program is marked overview=shown (it is drawn inside the RDS instance when the Overview is zoomed in)."
+        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs, gunicorn and tap-web once per web task, plus PostgreSQL, and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges here: the RUNS_PROGRAM edges that join each task's container to its programs are in the application flow bundle; computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets). The PostgreSQL program is marked overview=shown (it is drawn inside the RDS instance when the Overview is zoomed in). Dimension pack v0.6.0 stamps dataclass.action=process on the five programs."
       },
       "nodes": [
         {
@@ -26,7 +26,8 @@
               "dcom": "design",
               "inventory": "applications",
               "overview": "shown",
-              "column": "1"
+              "column": "1",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -45,7 +46,8 @@
               "dcom": "design",
               "inventory": "applications",
               "overview": "shown",
-              "column": "0"
+              "column": "0",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -61,7 +63,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "column": "1"
+              "column": "1",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -77,7 +80,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "column": "0"
+              "column": "0",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -95,7 +99,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "overview": "shown"
+              "overview": "shown",
+              "dataclass.action": "process"
             }
           },
           "node": {

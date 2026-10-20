@@ -246,12 +246,12 @@ classification needs no vocabulary change; the entities stamped with a `dataclas
 
 **The `sanitized` value (ruled 2026-10-20, George).** `dataclass.customer.sanitized` is customer data that has been filtered to remove untrusted content, which matters for VDR processing later. It is a value of `dataclass.customer`, one of the existing single-valued kinds of data, not a dotted refinement such as `data.sanitized`. The only item stamped with it is the flow from the web application to the database, the one place the demo's customer data is filtered before storage.
 
-**Stamping (the `sanitized` stamp is ruled; the action stamps are proposed for review).** The mock data has no volume entity, so the RDS instance stands in for the
+**Stamping (ruled 2026-10-20, George).** The mock data has no volume entity, so the RDS instance stands in for the
 database's volume.
 
 | Item | Value |
 | --- | --- |
-| The six `computing_core__application_flow` rows | `dataclass.action: transmit` |
+| The five stamped `computing_core__application_flow` rows (customer data, database, administration, code, source pull; the retired administration flow stays unstamped) | `dataclass.action: transmit` |
 | The `database` application flow (web application to the PostgreSQL program) | `dataclass.customer: sanitized`, replacing its `data` stamp |
 | The five `computing_core__program` rows and the two `aws_core__aws_ecs_container` rows | `dataclass.action: process` |
 | The `aws_core__aws_rds_instance` and the two `aws_core__aws_s3_bucket` rows | `dataclass.action: store` |
@@ -276,7 +276,7 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 | req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the four value nodes `store`, `process`, `transmit` and `none`. | |
 | req-rampart-20x-playground-dimensions-7 | Role Values Removed | Proposed | No node named `dataclass.customer.reader`, `dataclass.customer.writer` or `dataclass.customer.storage` is in the bundle, and no entity in the seed data carries those values. | The three nodes are removed from this plugin's seed and purged from any live grid that holds them. Purge approved by George 2026-10-20 (relayed by rampart-pg); the importer cannot delete, so the purge is a separate sanctioned step. |
-| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The list is proposed for review; the RDS instance stands in for the database volume. |
+| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
 | req-rampart-20x-playground-dimensions-9 | One Action Per Entity | Proposed | No seed entity carries more than one `dataclass.action` value, and no seed entity carries a `dataclass.action.<value>` key. | The key is `dataclass.action`; the value is one of the three. |
 | req-rampart-20x-playground-dimensions-10 | Sanitized Value | Proposed | The bundle holds the node `dataclass.customer.sanitized` with the description in the table above, and the `database` application flow carries `dataclass.customer: sanitized` and no `data` stamp; the `customer` application flow still carries `data`. | Replaces the unspecced `data.filtered` idea. |
 | req-rampart-20x-playground-dimensions-11 | None Is A Declared Value | Proposed | `dataclass.action.none` is in the bundle with a description, so an entity stamped `dataclass.action = none` is counted as declared by `dimension-coverage`; no seed entity is stamped `none` yet. | The value exists so libraries and packages that do nothing with data can be marked. A missing key is still "not observed". |
@@ -495,7 +495,7 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values`) and every table column a key of its `values` elements (`value`, `description`, `count`). | |
 | req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, a description line placed in the card header directly under the title (`placement: header`), and a `table` line of `value`, `description`, `count` captioned `Inventory` above the table (`label_placement: above`). | Ruled 2026-10-20 (George, Q90). The card title is still the dimension key (`dataclass.customer`): the dictionary nodes carry no plain-English name, so the title is open for a ruling. |
 | req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
-| req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process` and `transmit` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
+| req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
 
 ### VDR Reports Page
 ----

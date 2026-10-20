@@ -430,7 +430,8 @@ class TestApplicationFlow:
         assert set(flow["node"]) == {"name", "description"}
         dims = flow["entity"]["dimensions"]
         assert dims["dataclass.customer"] == "data" and dims["dcom"] == "design" and dims["overview"] == "shown"
-        assert [k for k in dims if k.startswith("dataclass.")] == ["dataclass.customer"]
+        assert [k for k in dims if k.startswith("dataclass.")] == ["dataclass.customer", "dataclass.action"]
+        assert dims["dataclass.action"] == "transmit"
         assert re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", flow["entity"]["entity_id"])
 
     def test_the_flow_runs_from_the_customer_s_computer_to_the_tap_web_program_of_task_a(self) -> None:
@@ -615,12 +616,13 @@ class TestMoreApplicationFlows:
     def test_each_flow_is_keyless_shown_unranked_and_stamped_with_one_data_class(self) -> None:
         flows = self._flows()
         assert sorted(flows) == ["administration", "code", "customer data", "database", "source pull"]
-        expected = {"database": ("dataclass.customer", "data"), "administration": ("dataclass.infra", "admin"),
+        expected = {"database": ("dataclass.customer", "sanitized"), "administration": ("dataclass.infra", "admin"),
                     "code": ("dataclass.infra", "code"), "source pull": ("dataclass.infra", "code")}
         for name, (key, value) in expected.items():
             dims = flows[name]["entity"]["dimensions"]
             assert dims[key] == value and dims["overview"] == "shown" and "column" not in dims and "row" not in dims, name
-            assert [k for k in dims if k.startswith("dataclass.")] == [key]
+            assert [k for k in dims if k.startswith("dataclass.")] == [key, "dataclass.action"]
+            assert dims["dataclass.action"] == "transmit"
             assert set(flows[name]["node"]) == {"name", "description"} and flows[name]["node"]["description"]
             assert re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", flows[name]["entity"]["entity_id"])
 
