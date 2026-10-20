@@ -589,7 +589,19 @@
             "view": "tap_viz/panels/graph_panel.html",
             "config": {
               "height": "100%",
-              "hide_header": true
+              "hide_header": true,
+              "zoom_settle": {
+                "enabled": true,
+                "debounce_ms": 150,
+                "exponent": 0,
+                "classes": {
+                  "font": {"min_scale": 0.25, "max_scale": 4},
+                  "border": {"min_scale": 0.25, "max_scale": 4},
+                  "edge": {"min_scale": 0.25, "max_scale": 4},
+                  "arrow": {"min_scale": 0.25, "max_scale": 4},
+                  "icon": {"exponent": 1}
+                }
+              }
             }
           }
         },
