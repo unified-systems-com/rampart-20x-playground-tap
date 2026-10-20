@@ -389,7 +389,7 @@
           "node": {
             "name": "Severity by age",
             "slug": "playground-vulnerabilities-severity-age",
-            "description": "Each dot is a vulnerability with an open finding: when it was published, against its CVSS score; a bigger dot has more findings.",
+            "description": "Each dot is a vulnerability with an open finding: when it was published, against its CVSS score; a bigger dot has more findings, and its number is the count.",
             "view": "tap_web/panels/chart.html",
             "config": {
               "option": {
@@ -458,8 +458,8 @@
                     "seriesIndex": 0,
                     "inRange": {
                       "symbolSize": [
-                        10,
-                        30
+                        18,
+                        34
                       ]
                     }
                   }
@@ -467,6 +467,16 @@
                 "series": [
                   {
                     "type": "scatter",
+                    "label": {
+                      "show": true,
+                      "position": "inside",
+                      "formatter": "{@n}",
+                      "color": "#ffffff",
+                      "fontWeight": "bold",
+                      "fontSize": 11,
+                      "textBorderColor": "rgba(0,0,0,0.55)",
+                      "textBorderWidth": 2
+                    },
                     "encode": {
                       "x": "published",
                       "y": "cvss",

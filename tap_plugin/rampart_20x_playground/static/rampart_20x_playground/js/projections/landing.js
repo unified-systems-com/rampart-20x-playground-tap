@@ -102,6 +102,25 @@
  *      centre of the account's bottom row, in the same row as the delivery pile: the VPC holds its subnet and the subnet its solo-icon instance, sized
  *      from the same paddings, the account grown to hold the row (should become a `slot: bottom-center` of the nested layouts' tiered rows, a tier
  *      chosen by a dimension and not only by entity type).
+ *  31. a node's name hidden: the nodes that carry the dimension `label: hidden` (the Route 53 zone, the internet gateway, the load balancer, the
+ *      database at the account elevation, the source-puller Lambda) draw no name (`_hideLabels`; should become a `label: hidden` display hint of
+ *      a node, applied per instance, with the revealed form of a node type free to show it again);
+ *  32. a node's logo: a node that carries the dimension `icon: <app>/icons/<key>.svg` shows that static icon (the Teleport logo on the teleport
+ *      EC2 instance) in a bordered card like GitHub's, instead of its type's icon (`_logoNodes`; should become the instance-level icon override
+ *      `req-grid-icon-instance`, served as the node's `icon_url`, and a `card` form chosen by the display hint of the node);
+ *  33. the subnets' names are subtle: SUBNET_LABEL_FACTOR of the usual size and a normal weight (should become a `label_scale` and
+ *      `label_weight` of the subnet's display hint, the same hint as 25 and 22);
+ *  34. the scope box's title at the size of the container titles: the HTML title of tap_viz's scope box is a fixed 11 px of the model, so it is
+ *      resized on each zoom to the size the settle mode gives a container title (`_syncScopeTitle`; should become a `label_size` option of
+ *      the scope-box helper that follows the zoom_settle font class);
+ *  35. a reversed flow: the flow that carries the dimension `arrow: reversed` shows its arrowhead at the source end, so it points the way the
+ *      data travels (the puller's request goes to GitHub, the data comes back); the edges are unchanged (`_styleFlowEdges`; should become an
+ *      `arrow: reversed` display hint of the application-flow edge types);
+ *  36. the database's program on the line of sight at the revealed elevation: the PostgreSQL program is moved up inside the standard box, so
+ *      its centre is on the same horizontal line as gunicorn (`_alignDatabaseProgram`; should become an `align` of a nested member to the
+ *      anchor's line, as 17, with a title row that does not push a member down);
+ *  37. GitHub a little further right: the first node on the delivery line is moved right by GITHUB_SHIFT, so the source-pull arrow has room
+ *      (`_shiftGithub`; should become a `gap-before` of a named group in the ranked natural layout of the roots).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -198,6 +217,18 @@ const DEPLOY_LABEL = "Continuous Delivery";
 const DEPLOY_BOX_PADDING = 28;
 //: Room under the pile for the front icon's name (model units), inside the account.
 const PILE_NAME_ROOM = 90;
+//: Playground exceptions 31, 32 and 35: the dimensions that hide a node's name, give a node a logo and reverse a flow's arrowhead, and their values.
+const LABEL_KEY = "label";
+const LABEL_HIDDEN = "hidden";
+const ICON_KEY = "icon";
+const ICON_PATH = /^[a-z0-9_]+\/icons\/[a-z0-9-]+\.svg$/;
+const ARROW_KEY = "arrow";
+const ARROW_REVERSED = "reversed";
+//: Playground exception 33: the subnets' name size, as a share of the usual one, and its weight.
+const SUBNET_LABEL_FACTOR = 0.6;
+const SUBNET_LABEL_WEIGHT = "normal";
+//: Playground exception 37: how far right, in model units, the first node of the delivery line (GitHub) moves.
+const GITHUB_SHIFT = 70;
 //: Playground exception 29: the dimension (and the tag, on a node type that has a tagging system) that puts a node on the delivery line, and
 //: its value.
 const LINE_KEY = "line";
@@ -243,7 +274,8 @@ const FLOW_EDGE_WIDTH = 5;
 const FLOW_LABEL_GAP = 4;
 //: Playground exception 20 (should become a per-edge-type arrow-scale display hint): the data-flow arrowhead is twice the base
 //: arrow. The zoom_settle `arrow` class then holds that on screen.
-const FLOW_ARROW_SCALE = 2;
+//: Ruled 2026-10-20 (George: far too big, at most half): 1, half of the 2 it was.
+const FLOW_ARROW_SCALE = 1;
 //: Playground exception 19 (should become a `font_scale` option of the zoom_settle config, or a larger `normal` label tier): the
 //: factor on the runtime's base font of every label. zoom_settle writes base * clamp(z^a) / z from each element's own base, so
 //: doubling the base doubles the on-screen text at every zoom (its exponent is 0, so its band never cancels it).
@@ -316,10 +348,12 @@ export async function execute(context) {
     baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
-    applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    // Playground exception 32: a node with a logo is a bordered card like GitHub, with the logo as its icon.
+    const logos = _logoNodes(shown(SOLO_TYPES));
+    applyIconNodes(cy, {members: shown(ICON_TYPES).union(logos), ...ICON, iconNodeId: "landing"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     const deploy = _deployPath(cy, shown);
-    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     // Playground exception 28: the deploy icons are half size.
     applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
@@ -430,10 +464,12 @@ export async function execute(context) {
     // Playground exception 29: the delivery line runs through the pile.
     if (pile.lineY !== undefined) {
         alignDistributeHorizontal(cy, {members: roots.filter(_onDeliveryLine), anchor: {y: pile.lineY}, distribute: false, reactive: false});
+        _shiftGithub(roots.filter(_onDeliveryLine));
     }
     _closePairs(roots, account, productRoot);
     _centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));
     _alignInteriorToLine(cy, anchor);
+    _alignDatabaseProgram(cy, anchor);
     _placeFlows(cy, placed);
 
     // An empty container is still a box, not a leaf.
@@ -456,11 +492,16 @@ export async function execute(context) {
     // top-centre. aws_core's default puts them outside, above the box; the data override makes placeParentLabels treat them as
     // inside labels. Placed for the text FONT_SCALE times the base, which is what settle mode draws.
     const subnets = parents.filter(isSubnet);
-    subnets.forEach((n) => n.data("label_position", "inside"));
+    subnets.forEach((n) => {
+        n.data("label_position", "inside");
+        // Playground exception 33: subtle, smaller and not bold (`_scaleFont` reads the factor).
+        n.scratch("landingFontFactor", SUBNET_LABEL_FACTOR);
+    });
     placeParentLabels(_only(cy, subnets), {
         anchor: "top-center", inset: 16,
-        parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
+        parentFontSize: chrome.parentFontSize * FONT_SCALE * SUBNET_LABEL_FACTOR, parentFontWeight: SUBNET_LABEL_WEIGHT,
     });
+    subnets.style({"font-weight": SUBNET_LABEL_WEIGHT});
     _keepTaskLabel(cy);
     // Playground exception 26: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
     placeParentLabels(_only(cy, parents.filter(isDatabase)), {
@@ -477,6 +518,7 @@ export async function execute(context) {
     cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
     _keepDatabase(cy.nodes(`[entity_type = "${T.rds}"]`));
     _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
+    _hideLabels(cy);
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
@@ -627,7 +669,7 @@ function _whenShown(cy, draw, tries = 600, waited = false) {
  * the others' names would stand under the icons in front. The titled scope box (tap_viz's own) surrounds exactly the pile. The account
  * grows downward to hold it. The edges between two icons of the pile are hidden (they would run along and under the icons); edges that
  * leave it stay. Returns a handle whose destroy() removes the box and restores those edges, and whose `lineY` is the horizontal line
- * through the middle of the pile (the delivery line, exception 29).
+ * through the front icon of the pile (the delivery line, exception 29).
  */
 function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     const restore = () => {
@@ -676,7 +718,13 @@ function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     // projection is still revealing the scene (the graph element is hidden). Draw the box once the scene is shown.
     // Should become a fix in the tap_viz scope-box helper (observed 2026-10-19), after which this wait goes.
     _whenShown(cy, () => {
-        if (!destroyed) handle = applyScopeBoxes(cy, [{label: DEPLOY_LABEL, filter: (n) => ids.has(n.id()), style: {padding: DEPLOY_BOX_PADDING}}]);
+        if (destroyed) return;
+        const boxes = applyScopeBoxes(cy, [{label: DEPLOY_LABEL, filter: (n) => ids.has(n.id()), style: {padding: DEPLOY_BOX_PADDING}}]);
+        const title = _syncScopeTitle(cy);
+        handle = {destroy: () => {
+            title.destroy();
+            boxes.destroy();
+        }};
     });
     cy.edges().filter((e) => deploy.anySame(e.source()) && deploy.anySame(e.target())).forEach((e) => {
         e.data("_row_internal", true);
@@ -692,7 +740,8 @@ function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     }
     return {
         rowTop: above + 44,
-        lineY: top + (h + spread) / 2,
+        // Ruled 2026-10-20: the line through the FRONT icon of the pile (the source puller), not the middle of the pile.
+        lineY: top + h / 2 + spread,
         destroy: () => {
             destroyed = true;
             handle.destroy();
@@ -778,6 +827,84 @@ function _placeSlotted(cy, account, slotted, slotSize, pile, pad) {
         });
     });
     slotted.nodes.removeClass(ELEVATION_HIDDEN_CLASS);
+}
+
+/**
+ * Playground exception 31: whether a node's name is hidden, read from its `label` dimension.
+ */
+function _labelHidden(n) {
+    return (n.data("dimensions") || {})[LABEL_KEY] === LABEL_HIDDEN;
+}
+
+function _hideLabels(cy) {
+    cy.batch(() => cy.nodes().filter(_labelHidden).forEach((n) => n.style({"text-opacity": 0})));
+}
+
+/**
+ * Playground exception 32: the nodes among `candidates` that carry an `icon` dimension naming a static icon (`<app>/icons/<key>.svg`, the
+ * grid's icon convention): their `icon_url` is set to it. Anything that is not of that shape is ignored.
+ */
+function _logoNodes(candidates) {
+    const logos = candidates.filter((n) => ICON_PATH.test(String((n.data("dimensions") || {})[ICON_KEY] || "")));
+    logos.forEach((n) => n.data("icon_url", `/static/${n.data("dimensions")[ICON_KEY]}`));
+    return logos;
+}
+
+/**
+ * Playground exception 37: GitHub, the first node of the delivery line (the lowest column), moves GITHUB_SHIFT right.
+ */
+function _shiftGithub(members) {
+    const first = members.toArray().sort((a, b) => a.data("_stage") - b.data("_stage"))[0];
+    if (first) first.position({x: first.position("x") + GITHUB_SHIFT, y: first.position("y")});
+}
+
+/**
+ * Playground exception 36: the PostgreSQL program (what the database runs) is moved to the line of sight, so at the revealed
+ * elevation it is level with gunicorn. The box stays where the layout put it (centred on the line); only the program moves.
+ */
+function _alignDatabaseProgram(cy, anchor) {
+    if (anchor.empty()) return;
+    const {outermost} = containedNodes(cy, LIFT_EDGE);
+    outermost.forEach((top, id) => {
+        const n = cy.getElementById(id);
+        if (n.data("entity_type") !== T.program) return;
+        const holder = cy.getElementById(top);
+        if (holder.empty() || holder.data("entity_type") !== T.rds) return;
+        n.position({x: n.position("x"), y: anchor.position("y")});
+    });
+}
+
+function _settleConfig(cy) {
+    const host = cy.container() && cy.container().closest("[data-zoom-settle]");
+    try {
+        return host ? normalizeSettleConfig(JSON.parse(host.dataset.zoomSettle)) : null;
+    } catch (_err) {
+        return null;
+    }
+}
+
+/**
+ * Playground exception 34 (should become a `label_size` option of the scope-box helper): the scope box's title is an HTML element
+ * scaled with the canvas, 11 px of the model. Every zoom sets it to what the settle mode gives a container title: the doubled base
+ * times the font class's factor, so it is the same size on screen as the other container titles.
+ */
+function _syncScopeTitle(cy) {
+    const apply = () => {
+        const config = _settleConfig(cy);
+        const factor = config ? modelFactor(cy.zoom(), config.classes.font) : 1;
+        const size = `${BASE_FONT * FONT_SCALE * factor}px`;
+        const root = cy.container();
+        if (!root) return;
+        // Right-aligned to the box: the larger title then runs left over empty account space, not over the flow name beside the box.
+        root.querySelectorAll(".tap-scope-box__label").forEach((el) => {
+            el.style.fontSize = size;
+            el.style.left = "auto";
+            el.style.right = "12px";
+        });
+    };
+    cy.on("zoom", apply);
+    apply();
+    return {destroy: () => cy.off("zoom", apply)};
 }
 
 /**
@@ -1102,6 +1229,8 @@ function _formDatabase(cy, nodes, revealed) {
             n.addClass(VIEWPORT_PARENT_CLASS);
             const layers = n.scratch("landing_db_layers");
             if (layers) n.style({"z-index": layers.box});
+            // Playground exception 31: the revealed standard box shows its name again.
+            n.removeStyle("text-opacity");
             n.style({
                 "width": keep.w, "height": keep.h, "shape": "round-rectangle",
                 "background-color": RDS_FILL, "background-opacity": 1, "border-color": RDS_BORDER, "border-width": 3,
@@ -1115,6 +1244,7 @@ function _formDatabase(cy, nodes, revealed) {
             n.removeStyle("background-color background-opacity border-color border-width border-opacity color shape "
                 + Object.keys(keep.label).join(" "));
             n.scratch("landing_db_icons", applyIconNodes(cy, {members: n, ...SOLO, solo: true, iconNodeId: `landing-solo-db-${n.id()}`}));
+            if (_labelHidden(n)) n.style({"text-opacity": 0});
         }
         n.dirtyBoundingBoxCache();
     });
@@ -1217,8 +1347,8 @@ function _only(cy, nodes) {
 function _styleFlow(cy, flows) {
     flows.forEach((flow) => flow.style({
         "text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP, "color": FLOW_BLUE,
-        "text-background-color": "#ffffff", "text-background-opacity": 0.8, "text-background-padding": "2px",
-        "text-background-shape": "roundrectangle",
+        // Ruled 2026-10-20 (George): no fill behind a flow's name.
+        "text-background-opacity": 0,
     }));
     _styleFlowEdges(cy);
 }
@@ -1227,10 +1357,16 @@ function _styleFlowEdges(cy) {
     cy.edges().forEach((edge) => {
         const type = _edgeType(edge);
         if (type !== E.flowSource && type !== E.flowDestination) return;
+        // Playground exception 35: a reversed flow's arrowhead stands at the SOURCE end of its source line (at the puller),
+        // and its destination line has none; the edges themselves are unchanged.
+        const flow = type === E.flowSource ? edge.target() : edge.source();
+        const reversed = (flow.data("dimensions") || {})[ARROW_KEY] === ARROW_REVERSED;
+        const head = type === E.flowSource ? reversed : !reversed;
         edge.style({
-            "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE,
-            "target-arrow-shape": type === E.flowSource ? "none" : "triangle",
-            ...(type === E.flowSource ? {} : {"arrow-scale": FLOW_ARROW_SCALE}),
+            "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE, "source-arrow-color": FLOW_BLUE,
+            "target-arrow-shape": type === E.flowSource || !head ? "none" : "triangle",
+            "source-arrow-shape": type === E.flowSource && head ? "triangle" : "none",
+            ...(head ? {"arrow-scale": FLOW_ARROW_SCALE} : {}),
         });
     });
 }
@@ -1449,13 +1585,7 @@ function _followIconPolicy(cy) {
 }
 
 function _syncBadgeSizes(cy) {
-    const host = cy.container() && cy.container().closest("[data-zoom-settle]");
-    let config = null;
-    try {
-        config = host ? normalizeSettleConfig(JSON.parse(host.dataset.zoomSettle)) : null;
-    } catch (_err) {
-        config = null;
-    }
+    const config = _settleConfig(cy);
     const factor = config ? modelFactor(cy.zoom(), config.classes.icon) : 1;
     cy.batch(() => {
         cy.nodes("[?_is_badge], [?_is_status_badge]").forEach((n) => {

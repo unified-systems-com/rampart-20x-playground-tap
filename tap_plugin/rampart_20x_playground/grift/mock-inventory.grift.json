@@ -192,7 +192,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "label": "hidden"
             }
           },
           "node": {
@@ -251,7 +252,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "label": "hidden"
             }
           },
           "node": {
@@ -420,7 +422,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "label": "hidden"
             }
           },
           "node": {
@@ -522,7 +525,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "label": "hidden"
             }
           },
           "node": {
@@ -944,7 +948,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "overview": "shown"
+              "overview": "shown",
+              "label": "hidden"
             }
           },
           "node": {
@@ -1144,7 +1149,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "icon": "teleport/icons/teleport-cluster.svg"
             }
           },
           "node": {

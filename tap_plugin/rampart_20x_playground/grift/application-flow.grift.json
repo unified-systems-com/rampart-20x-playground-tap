@@ -134,6 +134,7 @@
             "dimensions": {
               "dcom": "design",
               "overview": "shown",
+              "arrow": "reversed",
               "dataclass.infra": "code"
             }
           },
