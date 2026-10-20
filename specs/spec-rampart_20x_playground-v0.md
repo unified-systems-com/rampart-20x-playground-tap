@@ -76,6 +76,10 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction and one card per data classification key, each describing the classification and its values and counting components by value and entity type |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
+| req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
+| req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members |
+| req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
+| req-rampart-20x-playground-ownership-coverage | [Ownership Coverage](#ownership-coverage) | Backlog | The share of entities with a `team.responsible` stamp, by the mapping runners |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -608,6 +612,112 @@ Each of the three entity tables has a quick filter and paging, because the unmap
 #### Future
 
 A coverage-over-time view: a table or chart reading the `compliance_search_snapshot` nodes of the summary Search, one row per snapshot. It reads `rows` through a `module` Search and is the reason the snapshots exist.
+
+### Teams And Responsibility
+----
+RID: `req-rampart-20x-playground-teams`
+
+Status: `Proposed`
+
+The vulnerability story needs its last link: a vulnerability sits on a component, the component belongs to a system, and a team answers for the system. This requirement seeds the teams, a roster of people in them, and the stamp that says which team is responsible for what. The vocabulary is identity_core's (`req-identity-core-team`, `req-identity-core-team-edges`, `req-identity-core-responsible`); this plugin seeds data only.
+
+#### Implementation
+
+`grift/teams.grift.json`, one batch.
+
+**Four teams**, `identity_core__team`, each with a description:
+
+| handle | name | description |
+| --- | --- | --- |
+| `git-serious` | `git-serious` | The whole git-serious product team; the other three belong to it. |
+| `devops` | `DevOps` | Continuous delivery: the build, the pipeline and the release of the product. |
+| `engineering` | `Engineering` | The code: the application and the libraries it ships. |
+| `infra` | `Infra` | The AWS infrastructure the product runs on, and access to it (Teleport). |
+
+`BELONGS_TO_TEAM` edges run from `devops`, `engineering` and `infra` to `git-serious`, and no other team-to-team edge.
+
+**The roster**, `identity_core__human`, generic names only. Each of `devops`, `engineering` and `infra` has one lead and three members; `git-serious` has a lead and no direct members.
+
+| handle | name |
+| --- | --- |
+| `<team>-lead` | `<Team Name> Team Lead` (for example `DevOps Team Lead`) |
+| `<team>-member-1`, `-2`, `-3` | `<Team Name> Member 1`, `2`, `3` (for example `DevOps Member 1`) |
+| `git-serious-lead` | `git-serious Team Lead` |
+
+Each lead has a `LEADS_TEAM` edge to their team and also a `BELONGS_TO_TEAM` edge to it, so the roster shows the whole team; each member has a `BELONGS_TO_TEAM` edge. That is thirteen people. No real person, email address or account appears in the bundle.
+
+**The stamp.** The key `team.responsible` has a dictionary node (`dimension`, name `team.responsible`, with a description) and no value nodes, because the values are team ids (`req-identity-core-responsible`). It is stamped on entities already in the seed, by type (proposed for review; a type listed carries the team's entity id on every instance unless noted):
+
+| team | types |
+| --- | --- |
+| `devops` | `github_core__github_workflow`, `github_core__github_actions_run`, `github_core__github_package`, `github_core__github_package_version`, `aws_core__aws_ecr_repository`, `aws_core__aws_lambda`, `aws_core__aws_s3_bucket`, `aws_core__aws_codepipeline_pipeline`, `aws_core__aws_codebuild_project`, `aws_core__aws_iam_oidc_provider`; the application flows `code` and `source pull` |
+| `engineering` | `github_core__github_repository`, `github_core__github_account`, `computing_core__program`, `computing_core__library`, `computing_core__package`, `computing_core__source_package`, `computing_core__sbom_document`, `computing_core__crypto_provider`, `computing_core__operating_system`, the container `computing_core__host` of the web image, the developer laptop; the application flows `customer data` and `database` |
+| `infra` | `aws_core__aws_organization`, `aws_core__aws_account`, `aws_core__aws_vpc`, `aws_core__aws_subnet`, `aws_core__aws_internet_gateway`, `aws_core__aws_alb`, `aws_core__aws_ecs_cluster`, `aws_core__aws_ecs_service`, `aws_core__aws_ecs_task`, `aws_core__aws_ecs_container`, `aws_core__aws_rds_instance`, `aws_core__aws_secrets_manager_secret`, `aws_core__aws_kms_key`, `aws_core__aws_route53_zone`, `aws_core__aws_acm_certificate`, `aws_core__aws_ec2_instance` (Teleport), the administrator workstation; the two `administration` application flows |
+| `git-serious` | `compliance_core__compliance_boundary` |
+
+The customer's computer, the operating-system users and the three people are not stamped: the customer's machine is outside what the team answers for, and a person is not a system. Those, and anything not listed, stay unstamped, which means not yet assigned.
+
+#### Development
+
+A system is stamped by its type here because the demo's questions are about systems; the packages an image carries follow the image they are installed on, and a later traversal can derive a package's team from its host rather than stamping every package. The software types are stamped to `engineering` for the demo so the coverage table has a complete column, and a real deployment would stamp the image and derive the rest.
+
+The generic roster is deliberate: the page must read as a demonstration of the structure, and a plausible name invites a question about who the person is.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-teams-1 | Four Teams | Proposed | The bundle holds four `identity_core__team` nodes with the handles, names and descriptions above. | |
+| req-rampart-20x-playground-teams-2 | Nesting | Proposed | `devops`, `engineering` and `infra` each have one `BELONGS_TO_TEAM` edge to `git-serious`, and the bundle holds no other team-to-team edge. | |
+| req-rampart-20x-playground-teams-3 | Thirteen People | Proposed | The bundle holds thirteen `identity_core__human` nodes with the handles and names above; each lead has a `LEADS_TEAM` and a `BELONGS_TO_TEAM` edge to their team and each member a `BELONGS_TO_TEAM` edge. | |
+| req-rampart-20x-playground-teams-4 | Generic Only | Proposed | No node in the bundle carries a real person's name, an email address or an account name. | |
+| req-rampart-20x-playground-teams-5 | Key Documented, Values Open | Proposed | A `dimension` node named `team.responsible` with a description is seeded, and no node named `team.responsible.<value>` is. | `req-identity-core-responsible`. |
+| req-rampart-20x-playground-teams-6 | Stamps By Type | Proposed | Every instance of a type in the table carries `team.responsible` equal to the entity id of that row's team, and no other seed entity carries the key. | The customer's computer is left unstamped on purpose. |
+| req-rampart-20x-playground-teams-7 | Ids Are Team Ids | Proposed | Every `team.responsible` value in the seed equals the entity id of one of the four seeded teams. | |
+| req-rampart-20x-playground-teams-8 | Dependency Floor | Proposed | The `identity_core` entry in `depends_on` names the first release that ships `team`, `BELONGS_TO_TEAM` and `LEADS_TEAM`, and the manifest lists the bundle. | |
+
+### Teams Page
+----
+RID: `req-rampart-20x-playground-page-teams`
+
+Status: `Proposed`
+
+Route `/playground/teams`; the page is named `Teams`, which is also its breadcrumb. It shows the teams and who is in them, under a title, with no explanatory prose.
+
+#### Implementation
+
+Three table panels under the title panel, each bound by `USES_SEARCH` to its own Gryphon Search:
+
+1. `Teams`: one row per team: `name`, `description` and the name of the team it belongs to (blank for `git-serious`).
+2. `Leaders`: one row per `LEADS_TEAM` edge: the team name and the leader's name.
+3. `Members`: one row per `BELONGS_TO_TEAM` edge from a human: the team name and the member's name.
+
+The name cell of each row is a link to the entity's page. Each table has a quick filter.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-teams-1 | Route Serves | Proposed | `GET /playground/teams` returns 200 and is in navigation. | |
+| req-rampart-20x-playground-page-teams-2 | Title Then Three Tables | Proposed | Under the title panel the page holds the Teams, Leaders and Members tables in that order. | |
+| req-rampart-20x-playground-page-teams-3 | Rows Match The Seed | Proposed | On a booted `demo` stack the Teams table has four rows, Leaders has four and Members has thirteen: every person, leaders included, has one `BELONGS_TO_TEAM` edge to their team. | |
+| req-rampart-20x-playground-page-teams-4 | No Prose | Proposed | The page carries a title and tables only. | `no-explanatory-text-on-pages`. |
+
+### Findings By Responsible Team
+----
+RID: `req-rampart-20x-playground-teams-findings`
+
+Status: `Backlog`
+
+The payoff of the stamp: for each team, the open findings on the components it answers for, with the count of those that have a fix available. A team reaches its systems through the stamp, not an edge, so the existing `findings-reached-*` runners (which follow edges from a root) do not give the answer; it needs a runner that starts from the entities carrying a team's id and follows the carrier edges from there. Not specified until the stamps exist and a design is chosen.
+
+### Ownership Coverage
+----
+RID: `req-rampart-20x-playground-ownership-coverage`
+
+Status: `Backlog`
+
+How many entities carry a `team.responsible` stamp, by the mapping runners (`req-compliance-core-dimension-mapping`). Two limits to resolve first: a mapping row takes a fixed list of allowed values, so "points at a live team" cannot be written until the allowed list can come from nodes; and covering every entity means one row per type or a wildcard type in the runner.
 
 ### VDR Reports Page
 ----
