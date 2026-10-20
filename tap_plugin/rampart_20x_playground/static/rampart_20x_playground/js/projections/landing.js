@@ -81,7 +81,8 @@ import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
 import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
-import {liftEdge, containedNodes} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
+import {applyBadgeNodes} from "/static/tap_viz/js/runtime/badge-nodes.js";
+import {liftEdge, containedNodes, LIFTED_EDGE_CLASS} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
 
 const T = {
@@ -188,6 +189,11 @@ const REVEAL_ON_ZOOM = true;
 //: size, in model units. The runtime derives it from the smallest host drawn (0.35 of its shorter side, 24 at least), and
 //: hiding the small interior made it 31 and more.
 const BADGE_SIZE = 24;
+//: Playground exception 17: room, in model units, added above the task's contents. The container is moved up onto the line of
+//: sight (_alignInteriorToLine), and without this it would stand against the task's title and its type badge.
+const TASK_TOP_ROOM = 36;
+//: Playground exception 15: how long the interior fades in and out (milliseconds).
+const FADE_MS = 450;
 const ELEVATION_ZOOM_RATIO = 2;
 const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;
 //: The `lift_edge` section: containment-style relationships (the shape of projectNested's), saying what the task holds,
@@ -265,7 +271,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.ecsContainer]: interiorPad},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad},
         innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -329,6 +335,7 @@ export async function execute(context) {
     _growAncestors(cy, account, accountBottom);
     _closePairs(roots, account, productRoot);
     _centreFlow(cy, roots, productRoot, shown([T.flow]));
+    _alignInteriorToLine(cy, anchor);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -353,9 +360,10 @@ export async function execute(context) {
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
+    _styleContainer(cy, cy.nodes(`[entity_type = "${T.ecsContainer}"]`));
     // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
     // past ELEVATION_REVEAL_ZOOM shows the interior and destroys the lift. The layout itself never changes between the two.
-    _watchElevation(cy);
+    _watchElevation(cy, context);
     _bindFlowWindow(cy);
     _pinBadgeSize(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
@@ -442,6 +450,21 @@ function _styleBoundary(cy, boundary) {
             "text-wrap": "none", "text-max-width": `${n.width()}px`,
         });
     });
+}
+
+/**
+ * Playground exception 18 (same exit as _styleBoundary, a per-node display override): the ECS container is a darker orange than the
+ * task around it (aws_core's default for the type is the task's own peach, #F9D7B7, so a container does not stand out inside it).
+ * Its type icon is the aws_core badge, drawn when the interior is shown (_refreshBadges).
+ */
+const CONTAINER_FILL = "#F29B38";
+const CONTAINER_BORDER = "#B45309";
+const CONTAINER_LABEL = "#3B1A00";
+function _styleContainer(cy, containers) {
+    containers.forEach((n) => n.style({
+        "background-color": CONTAINER_FILL, "background-opacity": 1,
+        "border-color": CONTAINER_BORDER, "border-width": 3, "color": CONTAINER_LABEL,
+    }));
 }
 
 function _boundaryLabelShift(node) {
@@ -851,36 +874,107 @@ function _centreFlow(cy, roots, productRoot, flows) {
  * stacks) are not yet safe to run twice): applies the elevation the zoom is in now, and again whenever the zoom crosses
  * the reveal zoom. Nothing is laid out again, so nothing outside the interior can move or resize.
  */
-function _watchElevation(cy) {
+function _watchElevation(cy, context) {
     const previous = cy.scratch("landing_elevation_watch");
     if (previous) cy.off("zoom", previous);
     let revealed = null;
+    let epoch = 0;
+    const interiorOf = () => {
+        const interior = cy.collection();
+        containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => interior.merge(cy.getElementById(id)));
+        // What belongs to the interior: its nodes, their type badges and the edges that touch them (not the lifted edge).
+        const badges = cy.nodes("[?_is_badge]").filter((n) => interior.some((h) => h.id() === n.data("_badge_host")));
+        return interior.union(badges).union(interior.connectedEdges().not("." + LIFTED_EDGE_CLASS));
+    };
+    const hide = () => {
+        const next = liftEdge(cy, {relationships: LIFT_EDGE});
+        next.contained.addClass(ELEVATION_HIDDEN_CLASS);
+        cy.scratch("landing_lift", next);
+        _styleFlowEdges(cy);
+    };
     const apply = () => {
         const now = cy.zoom() >= ELEVATION_REVEAL_ZOOM;
         if (now === revealed) return;
+        const first = revealed === null;
         revealed = now;
+        epoch += 1;
+        const mine = epoch;
+        // Playground exception 15 (should become a `fade` option of an Elevation: its newly shown nodes and edges fade in over
+        // the given milliseconds, and out on the way back): a Cytoscape style animation of opacity, never a snap.
+        cy.elements().stop(true);
         // In one batch: the scope box of the deploy row measures its members on every change, and would recurse otherwise.
-        cy.batch(() => {
-            const lift = cy.scratch("landing_lift");
-            if (lift) lift.destroy();
-            cy.removeScratch("landing_lift");
-            if (now) {
-                const interior = cy.collection();
-                containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => interior.merge(cy.getElementById(id)));
+        if (now) {
+            // The lift goes first: the containment is read from the edges, and the lift hides the original ones.
+            cy.batch(() => {
+                const lift = cy.scratch("landing_lift");
+                if (lift) lift.destroy();
+                cy.removeScratch("landing_lift");
+                const interior = interiorOf();
+                // Shown first (a badge is drawn for what is visible), then faded in from nothing below.
+                interior.style("opacity", 1);
                 interior.removeClass(ELEVATION_HIDDEN_CLASS);
-                // The cascade reveal of the first load faded in only what was shown then (the interior was hidden).
-                interior.union(interior.connectedEdges()).style("opacity", 1);
-            } else {
-                const next = liftEdge(cy, {relationships: LIFT_EDGE});
-                next.contained.addClass(ELEVATION_HIDDEN_CLASS);
-                cy.scratch("landing_lift", next);
-                _styleFlowEdges(cy);
-            }
-        });
+            });
+            // The container's own type badge: badges are drawn for what is shown when they are applied, and the interior was not.
+            _refreshBadges(cy, context);
+            const shownNow = interiorOf();
+            cy.batch(() => shownNow.style("opacity", 0));
+            shownNow.animate({style: {opacity: 1}, duration: FADE_MS, easing: "ease-in-out"});
+        } else if (first) {
+            hide();
+        } else {
+            const interior = interiorOf();
+            let done = false;
+            // The animation ends on every element at the same time; the hide runs once.
+            const finish = () => {
+                if (done || mine !== epoch) return;
+                done = true;
+                cy.batch(hide);
+                _refreshBadges(cy, context);
+                interior.style("opacity", 1);
+            };
+            interior.animate({style: {opacity: 0}, duration: FADE_MS, easing: "ease-in-out", complete: finish});
+            if (!interior.length) finish();
+        }
     };
     cy.scratch("landing_elevation_watch", apply);
     if (REVEAL_ON_ZOOM) cy.on("zoom", apply);
     apply();
+}
+
+/**
+ * Playground exception 17 (should become an `align` of a nested layout's member to the anchor's line, the `alignTo` of
+ * exception 2 applied to the member the application flow ends on): the program the application flow's destination line ends on
+ * stands ON the line of sight, so the arrow from the load balancer is horizontal at every elevation (at the account elevation
+ * it ends on the task, whose centre is already on the line). The interior (the container and its programs) moves as one by the
+ * distance the program is off the line; no box is resized, and the task keeps its centre.
+ */
+function _alignInteriorToLine(cy, anchor) {
+    if (anchor.empty()) return;
+    const target = cy.edges().filter((e) => _edgeType(e) === E.flowDestination).map((e) => e.target())
+        .find((n) => n.data("entity_type") === T.program);
+    if (!target) return;
+    const dy = anchor.position("y") - target.position("y");
+    if (!dy) return;
+    containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => {
+        const n = cy.getElementById(id);
+        n.position({x: n.position("x"), y: n.position("y") + dy});
+    });
+}
+
+/**
+ * Playground exception 16 (should become: the type badges of a projection follow its elevations, applied again when an elevation
+ * shows nodes that were hidden when they were first applied): applyBadgeNodes is the runtime's own pass and is safe to run again;
+ * it badges what is shown now, and skips the types the projection excludes (the types whose badges it flagged on its first pass).
+ */
+function _refreshBadges(cy, context) {
+    let exclude = cy.scratch("landing_badge_exclude");
+    if (!exclude) {
+        exclude = [...new Set(cy.nodes("[?_badge_excluded]").map((n) => n.data("entity_type")))];
+        cy.scratch("landing_badge_exclude", exclude);
+    }
+    const previous = cy.scratch("landing_badge_handle");
+    if (previous) previous.destroy();
+    cy.scratch("landing_badge_handle", applyBadgeNodes(cy, {excludeTypes: exclude}));
 }
 
 /**

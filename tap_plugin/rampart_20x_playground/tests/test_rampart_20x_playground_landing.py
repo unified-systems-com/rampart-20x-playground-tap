@@ -277,7 +277,7 @@ class TestPlaygroundException:
     def test_the_landing_spec_carries_the_new_requirements(self) -> None:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
-                    "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17"):
+                    "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -326,24 +326,24 @@ class TestRunningParts:
         assert sorted(by_type["RUNS_CONTAINER__aws_core"]) == [
             ("web task a", "web task a container"), ("web task b", "web task b container")]
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
-            ("gunicorn (web task a)", "tap-web (web task a)"), ("gunicorn (web task b)", "tap-web (web task b)"),
-            ("web task a container", "gunicorn (web task a)"), ("web task b container", "gunicorn (web task b)")]
+            ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
+            ("web task a container", "gunicorn"), ("web task b container", "gunicorn (web task b)")]
         assert sorted(by_type["RUNS_IMAGE__computing_core"]) == [
             ("web task a container", "git-serious web image"), ("web task b container", "git-serious web image")]
 
     def test_the_programs_are_one_set_per_container_and_postgres_stays(self) -> None:
         programs = {n["entity"]["name"]: n for n in _batch_nodes(ENTITIES) if n["entity"]["entity_type"] == "computing_core__program"}
         assert sorted(programs) == [
-            "PostgreSQL database instance", "gunicorn (web task a)", "gunicorn (web task b)",
-            "tap-web (web task a)", "tap-web (web task b)"]
-        assert programs["tap-web (web task a)"]["node"]["program_name"] == programs["tap-web (web task b)"]["node"]["program_name"] == "tap-web"
+            "PostgreSQL database instance", "gunicorn", "gunicorn (web task b)",
+            "tap-web", "tap-web (web task b)"]
+        assert programs["tap-web"]["node"]["program_name"] == programs["tap-web (web task b)"]["node"]["program_name"] == "tap-web"
         for node in programs.values():
             assert node["entity"]["dimensions"]["inventory"] == "applications"
 
     def test_only_web_task_a_s_interior_and_the_flow_are_on_the_overview(self) -> None:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown == {"web task a container", "customer traffic", "gunicorn (web task a)", "tap-web (web task a)"}
+        assert shown == {"web task a container", "customer traffic", "gunicorn", "tap-web"}
 
     def test_the_nesting_is_three_configured_relationships_not_type_tests(self) -> None:
         source = _js()
@@ -406,7 +406,7 @@ class TestApplicationFlow:
         flow_id = self._flow()["entity"]["entity_id"]
         edges = [e for e in _batch_edges(APPLICATION_FLOW) if flow_id in (e["from_entity_id"], e["to_entity_id"])]
         assert sorted((e["edge_type"], _name(e["from_entity_id"]), _name(e["to_entity_id"])) for e in edges) == [
-            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer traffic", "tap-web (web task a)"),
+            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer traffic", "tap-web"),
             ("APPLICATION_FLOW_SOURCE__computing_core", "customer a computer", "customer traffic"),
         ]
 
@@ -437,6 +437,49 @@ class TestEdgeLiftAndLayers:
         assert "edgeZ + 1" in body and "isParent(n) || isOwnLayer(n)" in body
         assert "_layerEdges(cy);" in source
         assert "Playground exception 13 (should become an `edge_layer` option of applyStandardChrome" in source
+
+
+class TestZoomPolish:
+    """`req-rampart-20x-playground-govcloud-layout-18`: the revealed interior (Overview Wave 9)."""
+
+    def _program(self, name: str) -> dict:
+        return next(n for n in _batch_nodes(ENTITIES) if n["entity"]["name"] == name)
+
+    def test_gunicorn_stands_left_of_tap_web_and_the_titles_carry_no_task_suffix(self) -> None:
+        gunicorn, tap_web = self._program("gunicorn"), self._program("tap-web")
+        assert int(gunicorn["entity"]["dimensions"]["column"]) < int(tap_web["entity"]["dimensions"]["column"])
+        assert gunicorn["node"]["name"] == "gunicorn" and tap_web["node"]["name"] == "tap-web"
+        assert tap_web["node"]["program_name"] == "tap-web"
+        # Identity is the fixed entity id, never the name: the ids did not move.
+        assert gunicorn["entity"]["entity_id"] == "01a13be3-0373-79d4-9ae8-be13c2e3bfd5"
+        assert tap_web["entity"]["entity_id"] == "01a13be3-0373-7afc-8d07-441072bee2eb"
+
+    def test_the_container_takes_its_type_badge_because_it_is_no_longer_excluded(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))
+        projection = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["entity_type"] == "projection")
+        excluded = projection["node"]["definition"]["node_style"]["exclude_types"]
+        assert excluded == ["computing_core__program"]
+        source = _js()
+        assert "applyBadgeNodes(cy, {excludeTypes: exclude})" in source and "_refreshBadges(cy, context);" in source
+
+    def test_the_container_is_a_darker_orange_than_the_task(self) -> None:
+        source = _js()
+        assert 'const CONTAINER_FILL = "#F29B38";' in source and 'const CONTAINER_BORDER = "#B45309";' in source
+        assert "_styleContainer(cy, cy.nodes(" in source
+        assert "Playground exception 18" in source
+
+    def test_the_program_the_flow_ends_on_stands_on_the_line_of_sight(self) -> None:
+        source = _js()
+        body = source.split("function _alignInteriorToLine")[1].split("\n}\n")[0]
+        assert "E.flowDestination" in body and 'anchor.position("y") - target.position("y")' in body
+        assert "_alignInteriorToLine(cy, anchor);" in source
+        assert "const TASK_TOP_ROOM = " in source and "Playground exception 17" in source
+
+    def test_the_interior_fades_in_and_out_and_the_font_sizes_are_unchanged(self) -> None:
+        source = _js()
+        assert "const FADE_MS = " in source and "animate({style: {opacity: 1}" in source and "animate({style: {opacity: 0}" in source
+        assert "Playground exception 15" in source and "Playground exception 16" in source
+        assert "const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;" in source
 
 
 class TestElevationFontScale:
