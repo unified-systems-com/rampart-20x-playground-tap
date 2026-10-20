@@ -253,7 +253,6 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
-              "label": "hidden",
               "icon": "rampart_20x_playground/icons/internet-gateway-card.svg",
               "icon_form": "solo"
             }
@@ -424,8 +423,7 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown",
-              "label": "hidden"
+              "overview": "shown"
             }
           },
           "node": {
@@ -527,8 +525,7 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown",
-              "label": "hidden"
+              "overview": "shown"
             }
           },
           "node": {

@@ -305,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25", "govcloud-layout-27", "govcloud-layout-28"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25", "govcloud-layout-27", "govcloud-layout-28", "govcloud-layout-29"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -865,10 +865,11 @@ class TestOverviewTweaksTwo:
         assert 'const LABEL_KEY = "label";' in source and 'const LABEL_HIDDEN = "hidden";' in source
         assert "_hideLabels(cy);" in source and '"text-opacity": 0' in source
         reveal = source.split("if (revealed) {")[1].split("} else {")[0]
-        assert 'n.removeStyle("text-opacity");' in reveal
+        assert 'n.removeStyle("text-opacity font-weight");' in reveal
         hidden = {n["entity"]["entity_type"].split("__")[1] for n in _nodes()
                   if n["entity"]["dimensions"].get("label") == "hidden"}
-        assert hidden == {"aws_route53_zone", "aws_internet_gateway", "aws_alb", "aws_rds_instance", "aws_lambda", "aws_ec2_instance"}
+        assert hidden == {"aws_route53_zone", "aws_lambda", "aws_ec2_instance"}, "the gateway, the load balancer and the database show their names"
+        assert "const NAMED_ICON_TYPES = [T.igw, T.alb, T.rds];" in source and "Playground exception 47" in source
 
     def test_the_teleport_instance_has_a_logo_card_by_dimension_and_stays_an_ec2(self) -> None:
         source = _js()
@@ -956,7 +957,9 @@ class TestOverviewNitsThree:
         source = _js()
         assert 'const ICON_ANGLE_KEY = "icon_angle";' in source and "const FLOW_ICON_ANGLE = 90;" in source
         assert "ARROW_REVERSED" not in source and "function _flowAngle" in source and "function _rotateFlowIcons" in source
-        assert "_destinationAhead(flow)" in source and "Playground exception 38" in source
+        assert "_destinationAhead" not in source and "Playground exception 38" in source
+        edges = source.split("function _styleFlowEdges")[1].split("\n}\n")[0]
+        assert 'const head = type === E.flowDestination;' in edges and '"source-arrow-shape": "none"' in edges, "the arrowhead is always on the destination end"
 
     def test_the_convention_is_in_the_spec_and_the_readme(self) -> None:
         for path in (SPECS / "spec-rampart_20x_playground-govcloud-landing.md", PACKAGE_ROOT.parents[1] / "README.md"):
