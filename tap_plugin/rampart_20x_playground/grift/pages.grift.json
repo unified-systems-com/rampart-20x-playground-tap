@@ -659,6 +659,7 @@
             "definition": {
               "query": [
                 "MATCH (a:aws_core__aws_codepipeline_pipeline)-[:RETRIEVES_SOURCE_FROM__aws_core]->(b:aws_core__aws_s3_bucket)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -679,6 +680,7 @@
             "definition": {
               "query": [
                 "MATCH (a:aws_core__aws_codepipeline_pipeline)-[:RUNS_BUILD__aws_core]->(b:aws_core__aws_codebuild_project)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -699,6 +701,7 @@
             "definition": {
               "query": [
                 "MATCH (a:aws_core__aws_lambda)-[:WRITES_OBJECT__aws_core]->(b:aws_core__aws_s3_bucket)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
@@ -719,6 +722,7 @@
             "definition": {
               "query": [
                 "MATCH (a:aws_core__aws_lambda)-[:RETRIEVES_SECRET_FROM__aws_core]->(b:aws_core__aws_secrets_manager_secret)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
             }
