@@ -868,7 +868,7 @@ class TestOverviewTweaksTwo:
         assert 'n.removeStyle("text-opacity");' in reveal
         hidden = {n["entity"]["entity_type"].split("__")[1] for n in _nodes()
                   if n["entity"]["dimensions"].get("label") == "hidden"}
-        assert hidden == {"aws_route53_zone", "aws_internet_gateway", "aws_alb", "aws_rds_instance", "aws_lambda"}
+        assert hidden == {"aws_route53_zone", "aws_internet_gateway", "aws_alb", "aws_rds_instance", "aws_lambda", "aws_ec2_instance"}
 
     def test_the_teleport_instance_has_a_logo_card_by_dimension_and_stays_an_ec2(self) -> None:
         source = _js()
@@ -877,7 +877,9 @@ class TestOverviewTweaksTwo:
         assert teleport[0]["entity"]["dimensions"]["icon"] == "teleport/icons/teleport-cluster.svg"
         assert not [n for n in _nodes() if n["entity"]["entity_type"].startswith("teleport__")]
         assert "const logos = _logoNodes(shown(SOLO_TYPES));" in source
-        assert "shown(ICON_TYPES).union(logos)" in source and "shown(SOLO_TYPES).not(deploy).not(logos)" in source
+        assert "shown(ICON_TYPES).union(logos)" not in source and "shown(SOLO_TYPES).not(deploy).not(logos)" in source
+        assert teleport[0]["entity"]["dimensions"]["label"] == "hidden"
+        assert "members: logos, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE" in source, "exception 44: the logo card is a delivery icon's size"
         assert "const ICON_PATH = " in source, "only the grid's icons/<key>.svg convention is accepted"
 
     def test_the_subnet_names_are_small_and_not_bold(self) -> None:
@@ -935,6 +937,7 @@ class TestOverviewNitsThree:
         assert old["entity"]["entity_id"] == "01a15a28-7763-727d-9425-a57a6568592e", "the old flow keeps its id and its edges"
         assert new["entity"]["entity_id"] != old["entity"]["entity_id"]
         assert new["entity"]["dimensions"]["dataclass.infra"] == "admin"
+        assert not [k for k in old["entity"]["dimensions"] if k.startswith("dataclass.")], "one admin flow counts on the Data Classification page"
         (teleport,) = [n for n in _by_type("aws_core__aws_ec2_instance") if n["entity"]["name"] == "teleport"]
         ends = {e["edge_type"]: e for e in _batch_edges(APPLICATION_FLOW)
                 if new["entity"]["entity_id"] in (e["from_entity_id"], e["to_entity_id"])}
@@ -988,3 +991,9 @@ class TestOverviewNitsThree:
         source = _js()
         assert re.search(r"const SLOT_PADDING = ([0-9]+);", source) and int(re.search(r"const SLOT_PADDING = ([0-9]+);", source).group(1)) <= 16
         assert "const height = SLOT_TOP + subnetBoxes" in source
+
+    def test_the_admin_access_boxes_shrink_to_the_small_nameless_logo_card(self) -> None:
+        source = _js()
+        assert "Playground exception 44" in source and "SLOT_SUBNET_WIDTH" in source and "SLOT_NAMELESS_BOTTOM" in source
+        assert "held.every(_labelHidden)" in source, "the room for a name is dropped only when every resident's name is hidden"
+        assert int(re.search(r"const SLOT_SUBNET_WIDTH = ([0-9]+);", source).group(1)) < 230, "narrower than a standard subnet"

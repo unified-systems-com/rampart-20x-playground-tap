@@ -103,7 +103,7 @@
  *      from the same paddings, the account grown to hold the row (should become a `slot: bottom-center` of the nested layouts' tiered rows, a tier
  *      chosen by a dimension and not only by entity type).
  *  31. a node's name hidden: the nodes that carry the dimension `label: hidden` (the Route 53 zone, the internet gateway, the load balancer, the
- *      database at the account elevation, the source-puller Lambda) draw no name (`_hideLabels`; should become a `label: hidden` display hint of
+ *      database at the account elevation, the source-puller Lambda, the teleport EC2 instance) draw no name (`_hideLabels`; should become a `label: hidden` display hint of
  *      a node, applied per instance, with the revealed form of a node type free to show it again);
  *  32. a node's logo: a node that carries the dimension `icon: <app>/icons/<key>.svg` shows that static icon (the Teleport logo on the teleport
  *      EC2 instance) in a bordered card like GitHub's, instead of its type's icon (`_logoNodes`; should become the instance-level icon override
@@ -137,6 +137,9 @@
  *      balancer's purple card with a white glyph) keep the solo form with that icon, not the bordered logo card of 32 (`_logoNodes`; same exit as 32,
  *      the instance-level icon override, whose form is chosen by the display hint of the node).
  *  43. the Admin Access VPC snug around its subnet: SLOT_PADDING is the room on all sides of the slotted VPC (exception 30; same exit).
+ *  44. the Admin Access VPC and its logo card are compact: the logo card (exception 32) is drawn at DEPLOY_SCALE of the solo icon size, like the
+ *      Continuous Delivery icons, its name is hidden by `label: hidden` (exception 31), and the slotted subnet and VPC shrink to it
+ *      (SLOT_SUBNET_WIDTH, SLOT_NAMELESS_BOTTOM; exceptions 30 and 43, same exit as 32 for the size, 31 for the name, 30 for the boxes).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -268,6 +271,11 @@ const PLACE_BOTTOM_CENTER = "bottom-center";
 const SLOT_PADDING = 12;
 //: Playground exception 43: the room above the subnet, so the VPC's type badge (at its corner) and the subnet's (at its own) do not overlap.
 const SLOT_TOP = 28;
+//: Playground exception 44: the slotted subnet's least width (it holds one small icon; its title is short), and the room under a resident
+//: whose name is hidden (`label: hidden`; a resident with a name keeps the usual top and bottom room), so the boxes are snug around the small icon.
+const SLOT_SUBNET_WIDTH = 120;
+const SLOT_SUBNET_TOP = 56;
+const SLOT_NAMELESS_BOTTOM = 10;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
@@ -381,7 +389,9 @@ export async function execute(context) {
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     // Playground exception 32: a node with a logo is a bordered card like GitHub, with the logo as its icon.
     const logos = _logoNodes(shown(SOLO_TYPES));
-    applyIconNodes(cy, {members: shown(ICON_TYPES).union(logos), ...ICON, iconNodeId: "landing"});
+    applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
+    // Playground exception 44: a logo card is drawn at the size of the delivery icons, not the standard card size.
+    applyIconNodes(cy, {members: logos, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, iconNodeId: "landing-logo"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     const deploy = _deployPath(cy, shown);
     applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos), ...SOLO, solo: true, iconNodeId: "landing-solo"});
@@ -824,7 +834,11 @@ function _slotSize(slotted, pad) {
             const held = residents.filter((r) => r.subnet.same(subnet)).map((r) => r.node);
             const iconW = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_w")) || n.width())) : 0;
             const iconH = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_h")) || n.height())) : 0;
-            return {subnet, held, width: Math.max(SUBNET.width, iconW + pad.left + pad.right), height: pad.top + iconH + pad.bottom, iconH};
+            // Playground exception 44: a small resident with no name needs neither the subnet's usual width nor the room for its name.
+            const nameless = held.length && held.every(_labelHidden);
+            const bottom = nameless ? SLOT_NAMELESS_BOTTOM : pad.bottom;
+            const top = nameless ? Math.min(pad.top, SLOT_SUBNET_TOP) : pad.top;
+            return {subnet, held, width: Math.max(SLOT_SUBNET_WIDTH, iconW + pad.left + pad.right), height: top + iconH + bottom, top, iconH};
         });
         const width = Math.max(...subnetBoxes.map((b) => b.width), 0) + 2 * SLOT_PADDING;
         const height = SLOT_TOP + subnetBoxes.reduce((sum, b) => sum + b.height, 0) + SLOT_PADDING;
@@ -851,14 +865,14 @@ function _placeSlotted(cy, account, slotted, slotSize, pile, pad) {
         vpc.addClass(VIEWPORT_PARENT_CLASS);
         // The subnets stand under the VPC's title room, one above the other.
         let y = top + height - SLOT_PADDING - subnetBoxes.reduce((sum, b) => sum + b.height, 0);
-        subnetBoxes.forEach(({subnet, held, width: sw, height: sh}) => {
+        subnetBoxes.forEach(({subnet, held, top: st, width: sw, height: sh}) => {
             subnet.style({width: sw, height: sh, "z-index": baseZ + 10});
             subnet.position({x, y: y + sh / 2});
             subnet.data("_viewport_parent", vpc.id());
             subnet.addClass(VIEWPORT_PARENT_CLASS);
             // A resident stands under the subnet's title room, its name below it inside the bottom room.
             held.forEach((n) => {
-                n.position({x, y: y + pad.top + (Number(n.data("_icon_h")) || n.height()) / 2});
+                n.position({x, y: y + st + (Number(n.data("_icon_h")) || n.height()) / 2});
                 n.data("_viewport_parent", subnet.id());
             });
             y += sh;
