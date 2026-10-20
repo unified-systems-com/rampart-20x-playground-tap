@@ -536,8 +536,7 @@
               "node_style": {
                 "mode": "icon-badge",
                 "exclude_types": [
-                  "computing_core__program",
-                  "aws_core__aws_ecs_container"
+                  "computing_core__program"
                 ]
               },
               "elevations": [
