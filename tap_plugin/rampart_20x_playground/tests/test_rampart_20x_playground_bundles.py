@@ -148,7 +148,7 @@ class TestDataclassActionStamping:
         assert counts == {"transmit": 5, "process": 7, "store": 3}
 
     def test_the_retired_administration_flow_is_unstamped(self) -> None:
-        old = [e for e in self._stamped() if e["entity_id"] == "01a15a28-7763-727d-9425-a57a6568592e"]
+        old = [e for e in self._stamped() if e.get("entity_id") == "01a15a28-7763-727d-9425-a57a6568592e"]
         assert len(old) == 1 and not [k for k in old[0]["dimensions"] if k.startswith("dataclass")]
 
     def test_the_database_flow_is_sanitized_and_the_customer_flow_keeps_data(self) -> None:
