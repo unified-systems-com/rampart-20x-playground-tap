@@ -563,7 +563,8 @@
                       "columns": [
                         {"field": "id", "label": "ID", "link": true},
                         {"field": "cvss", "label": "CVSS", "format": "number", "align": "right"},
-                        {"field": "title", "label": "Title"}
+                        {"field": "title", "label": "Title"},
+                        {"field": "component", "label": "Component"}
                       ]
                     }
                   }
