@@ -16,7 +16,7 @@ pytestmark = pytest.mark.django_db(databases=["default", "search_readonly"])
 
 INVENTORY = ("applications", "libraries", "packages", "os", "containers", "crypto", "secrets", "cloud", "saas")
 DATACLASS = (
-    "customer.data", "customer.creds", "customer.logs", "infra.code", "infra.secrets", "infra.logs",
+    "customer.data", "customer.creds", "customer.logs", "infra.code", "infra.secrets", "infra.logs", "infra.admin",
 )
 
 
@@ -34,7 +34,7 @@ def _import(path: Path) -> None:
 class TestDimensions:
     """`req-rampart-20x-playground-dimensions-1`."""
 
-    def test_nineteen_dimension_nodes(self) -> None:
+    def test_twenty_dimension_nodes(self) -> None:
         from tap_grid.models import Dimension
 
         _import(DIMENSIONS)
@@ -42,7 +42,15 @@ class TestDimensions:
         expected = ["inventory", *(f"inventory.{v}" for v in INVENTORY), "dataclass", "dataclass.customer",
                     "dataclass.infra", *(f"dataclass.{v}" for v in DATACLASS)]
         assert names == sorted(expected)
-        assert len(names) == 19
+        assert len(names) == 20
+
+    def test_dataclass_descriptions_are_plain_words_with_no_backticks(self) -> None:
+        """The Data classification cards render a value's description literally, so a backtick would show."""
+        nodes = _load(DIMENSIONS)["batches"][0]["nodes"]
+        described = [n for n in nodes if n["entity"]["name"].startswith("dataclass")]
+        assert len(described) == 10
+        for node in described:
+            assert "`" not in node["node"]["description"], node["entity"]["name"]
 
     def test_dictionary_nodes_carry_no_dcom_value(self) -> None:
         """Dictionary entries are not entries (`req-dcom-stamping`)."""

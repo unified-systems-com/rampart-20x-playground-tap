@@ -6,15 +6,15 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a13c39-3f6d-7525-a4f4-041485d4c5d5",
+        "entity_id": "01a15a20-57eb-772b-b937-365007903f3b",
         "entity_type": "batch",
-        "name": "rampart-20x-playground Dimension Pack v0.3.0",
+        "name": "rampart-20x-playground Dimension Pack v0.4.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.dimensions",
-        "name": "rampart-20x-playground Dimension Pack v0.3.0",
-        "description": "Two dimension axes as nineteen dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus nine categories) and `dataclass` (the axis, its customer and infra sub-axes, and six classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension). v0.3.0 adds `inventory.packages` and `inventory.crypto` (req-rampart-20x-playground-inventory-software)."
+        "name": "rampart-20x-playground Dimension Pack v0.4.0",
+        "description": "Two dimension axes as twenty dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus nine categories) and `dataclass` (the axis, its customer and infra sub-axes, and seven classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension). v0.3.0 adds `inventory.packages` and `inventory.crypto` (req-rampart-20x-playground-inventory-software). v0.4.0 adds `dataclass.infra.admin` and rewrites every dataclass description in plain words with no backticks, because the Data classification cards render them literally."
       },
       "nodes": [
         {
@@ -168,7 +168,7 @@
           },
           "node": {
             "name": "dataclass",
-            "description": "The class of data an item holds or handles. Two sub-axes, `dataclass.customer` and `dataclass.infra`, each take one value per entity. Nothing is stamped with a `dataclass` value in v0; the nodes exist so classification can start without a vocabulary change."
+            "description": "The class of data an item holds or handles. Two sub-axes, dataclass.customer and dataclass.infra, each take one value per entity. Entities are stamped as they are classified; the nodes exist so classification needs no vocabulary change."
           }
         },
         {
@@ -182,7 +182,7 @@
           },
           "node": {
             "name": "dataclass.customer",
-            "description": "The customer sub-axis of `dataclass`: data that belongs to customers. Its values are `dataclass.customer.data`, `dataclass.customer.creds` and `dataclass.customer.logs`."
+            "description": "The customer sub-axis of dataclass: data that belongs to customers. Its values are dataclass.customer.data, dataclass.customer.creds and dataclass.customer.logs."
           }
         },
         {
@@ -196,7 +196,7 @@
           },
           "node": {
             "name": "dataclass.infra",
-            "description": "The infrastructure sub-axis of `dataclass`: data that belongs to running the infrastructure. Its values are `dataclass.infra.code`, `dataclass.infra.secrets` and `dataclass.infra.logs`."
+            "description": "The infrastructure sub-axis of dataclass: data that belongs to running the infrastructure. Its values are dataclass.infra.code, dataclass.infra.secrets, dataclass.infra.logs and dataclass.infra.admin."
           }
         },
         {
@@ -210,7 +210,7 @@
           },
           "node": {
             "name": "dataclass.customer.data",
-            "description": "The `data` value on the `dataclass.customer` sub-axis: customer data."
+            "description": "Customer data."
           }
         },
         {
@@ -224,7 +224,7 @@
           },
           "node": {
             "name": "dataclass.customer.creds",
-            "description": "The `creds` value on the `dataclass.customer` sub-axis: customer credentials."
+            "description": "Customer credentials."
           }
         },
         {
@@ -238,7 +238,7 @@
           },
           "node": {
             "name": "dataclass.customer.logs",
-            "description": "The `logs` value on the `dataclass.customer` sub-axis: customer logs."
+            "description": "Customer logs."
           }
         },
         {
@@ -252,7 +252,7 @@
           },
           "node": {
             "name": "dataclass.infra.code",
-            "description": "The `code` value on the `dataclass.infra` sub-axis: infrastructure code."
+            "description": "Infrastructure code."
           }
         },
         {
@@ -266,7 +266,7 @@
           },
           "node": {
             "name": "dataclass.infra.secrets",
-            "description": "The `secrets` value on the `dataclass.infra` sub-axis: infrastructure secrets."
+            "description": "Infrastructure secrets."
           }
         },
         {
@@ -280,7 +280,21 @@
           },
           "node": {
             "name": "dataclass.infra.logs",
-            "description": "The `logs` value on the `dataclass.infra` sub-axis: infrastructure logs."
+            "description": "Infrastructure logs."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a20-57eb-772b-b937-365197904553",
+            "entity_type": "dimension",
+            "name": "dataclass.infra.admin",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.infra.admin",
+            "description": "Infrastructure administration: administrator access to the infrastructure."
           }
         },
         {
