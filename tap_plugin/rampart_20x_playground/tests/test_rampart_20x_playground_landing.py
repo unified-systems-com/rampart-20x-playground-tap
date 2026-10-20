@@ -447,7 +447,9 @@ class TestApplicationFlow:
         assert "const FLOW_SCALE = 0.5;" in source and 'const FLOW_BLUE = "#0B3D91";' in source
         assert 'n.data("_stage") < flow.data("_stage")' in source, "centred between what is left of it and the product box"
         assert "_centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));" in source
-        assert '"target-arrow-shape": type === E.flowSource || !head ? "none" : "triangle"' in source
+        edges = source.split("function _styleFlowEdges")[1].split("\n}\n")[0]
+        assert 'const head = type === E.flowDestination;' in edges, "the one arrowhead is on the destination line"
+        assert '"target-arrow-shape": head ? "triangle" : "none"' in edges and '"source-arrow-shape": "none"' in edges
 
 
 class TestEdgeLiftAndLayers:
@@ -780,7 +782,7 @@ class TestTeleportVpc:
 
     def test_the_row_is_as_tall_as_the_taller_of_the_pile_and_the_vpc_and_the_vpc_is_centred(self) -> None:
         source = _js()
-        assert "Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom" in source
+        assert "Math.max(top + h + spread + DEPLOY_BOX_PADDING + nameRoom, above + 44 + slotHeight) + pad.bottom" in source, "the row is as tall as the taller of the pile (with the room for its front name) and the VPC"
         body = source.split("function _placeSlotted")[1].split("\n}\n")[0]
         assert 'const x = account.position("x");' in body and "pile.rowTop" in body
 
