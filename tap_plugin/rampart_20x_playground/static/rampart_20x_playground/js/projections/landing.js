@@ -65,6 +65,16 @@
  *      zoom, and the task box never changes size (a per-elevation label and size scale of the Elevation definition);
  *  11. tap-web and gunicorn as siblings in the container: a derived containment (`_deriveContainment`, should become a
  *      `flatten` option of a projectNested relationship), ordered by the `column` dimension.
+ *  19. the text base size: every label is FONT_SCALE (2) times the runtime's base font, so the settle mode's constant on-screen
+ *      size is twice as large (`_scaleFont`; should become a `font_scale` option of the zoom_settle config, or a larger
+ *      `normal` label-size tier in tap_viz's label sizing);
+ *  20. the data-flow arrowhead at FLOW_ARROW_SCALE (2) times the base arrow (should become a per-edge-type arrow-scale display hint);
+ *  21. the web task's own label at the two elevations: centred in the box at the account elevation, upper-left once the interior
+ *      is shown (`_placeTaskLabel`; should become a per-elevation label anchor of the Elevation definition);
+ *  22. the subnets' labels inside the box, top-centre (should become a `label_position: inside` of the subnet's display hint, overriding the
+ *      aws_core default of an outside label, applied here as a data override before placeParentLabels);
+ *  23. the badges (the open-findings bubble and the type badges) follow the zoom_settle `icon` class (`_followIconPolicy`;
+ *      should become a `badge` class of zoom_settle, which sizes the status and type badges as it sizes the icon cards).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -84,6 +94,7 @@ import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
 import {applyBadgeNodes} from "/static/tap_viz/js/runtime/badge-nodes.js";
 import {liftEdge, containedNodes, LIFTED_EDGE_CLASS} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
+import {normalizeSettleConfig, modelFactor} from "/static/tap_viz/js/runtime/zoom-settle.js";
 
 const T = {
     vpc: "aws_core__aws_vpc",
@@ -175,6 +186,16 @@ const FLOW_SCALE = 0.5;
 const FLOW_BLUE = "#0B3D91";
 const FLOW_EDGE_WIDTH = 5;
 const FLOW_LABEL_GAP = 4;
+//: Playground exception 20 (should become a per-edge-type arrow-scale display hint): the data-flow arrowhead is twice the base
+//: arrow. The zoom_settle `arrow` class then holds that on screen.
+const FLOW_ARROW_SCALE = 2;
+//: Playground exception 19 (should become a `font_scale` option of the zoom_settle config, or a larger `normal` label tier): the
+//: factor on the runtime's base font of every label. zoom_settle writes base * clamp(z^a) / z from each element's own base, so
+//: doubling the base doubles the on-screen text at every zoom (its exponent is 0, so its band never cancels it).
+const FONT_SCALE = 2;
+//: The font size, in px, the panel's stylesheet gives a node (panel-graph.js, `node`: 11px). The settle mode starts from it, because the
+//: standard chrome's 14px and 15px do not survive the projection's later stylesheet pass; the doubled size is written over it.
+const BASE_FONT = 11;
 //: Playground exceptions 9 and 10 (should become the second Elevation of the projection and its per-elevation scale).
 //: The projection has two elevations: the account (the initial one) and the interior, which the zoom watcher activates at
 //: ELEVATION_REVEAL_ZOOM (the `zoom` of the second elevation in pages.grift.json, pinned by a test). The reveal zoom is
@@ -347,16 +368,29 @@ export async function execute(context) {
     const interior = containedNodes(cy, LIFT_EDGE).outermost;
     const isInterior = (n) => interior.has(n.id());
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
-    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n))), {
+    const isSubnet = (n) => n.data("entity_type") === T.subnet;
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
+    // Playground exception 22 (a `label_position: inside` of the subnet's display hint): the subnets' labels stand inside the box,
+    // top-centre. aws_core's default puts them outside, above the box; the data override makes placeParentLabels treat them as
+    // inside labels. Placed for the text FONT_SCALE times the base, which is what settle mode draws.
+    const subnets = parents.filter(isSubnet);
+    subnets.forEach((n) => n.data("label_position", "inside"));
+    placeParentLabels(_only(cy, subnets), {
+        anchor: "top-center", inset: 16,
+        parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
+    });
+    _keepTaskLabel(cy);
     placeParentLabels(_only(cy, parents.filter(isInterior)), {
         anchor: "upper-left", inset: interiorInset,
         parentFontSize: interiorChrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
+    // Playground exception 19: after every label's size is set, so the doubled size is the base the settle mode starts from.
+    cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
@@ -366,6 +400,7 @@ export async function execute(context) {
     _watchElevation(cy, context);
     _bindFlowWindow(cy);
     _pinBadgeSize(cy);
+    _followIconPolicy(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
 }
@@ -849,6 +884,7 @@ function _styleFlowEdges(cy) {
         edge.style({
             "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE,
             "target-arrow-shape": type === E.flowSource ? "none" : "triangle",
+            ...(type === E.flowSource ? {} : {"arrow-scale": FLOW_ARROW_SCALE}),
         });
     });
 }
@@ -902,6 +938,7 @@ function _watchElevation(cy, context) {
         // Playground exception 15 (should become a `fade` option of an Elevation: its newly shown nodes and edges fade in over
         // the given milliseconds, and out on the way back): a Cytoscape style animation of opacity, never a snap.
         cy.elements().stop(true);
+        _placeTaskLabel(cy, now, !first);
         // In one batch: the scope box of the deploy row measures its members on every change, and would recurse otherwise.
         if (now) {
             // The lift goes first: the containment is read from the edges, and the lift hides the original ones.
@@ -979,20 +1016,99 @@ function _refreshBadges(cy, context) {
 
 /**
  * Playground exception 12: the projection adds the type badges after this layout, with a size it derives; once they stand,
- * give them all BADGE_SIZE. A badge is centred on its host's corner, so resizing it keeps it on the corner.
+ * give them all BADGE_SIZE. A badge is centred on its host's corner, so resizing it keeps it on the corner. The open-findings
+ * bubble (a status badge, added later still) is given FONT_SCALE times its font here too (exception 19), and both kinds are
+ * sized by the zoom_settle icon class (`_followIconPolicy`, exception 23).
  */
 function _pinBadgeSize(cy) {
     const previous = cy.scratch("landing_badge_pin");
     if (previous) cy.off("add", "node", previous);
     let queued = false;
     const handler = (evt) => {
-        if (!evt.target.data("_is_badge") || queued) return;
+        if (!(evt.target.data("_is_badge") || evt.target.data("_is_status_badge")) || queued) return;
         queued = true;
         setTimeout(() => {
             queued = false;
-            cy.nodes("[?_is_badge]").style({width: BADGE_SIZE, height: BADGE_SIZE});
+            cy.nodes("[?_is_status_badge]").forEach(_scaleFont);
+            cy.nodes("[?_is_badge]").forEach((n) => n.scratch("landingBadgeBase", BADGE_SIZE));
+            _syncBadgeSizes(cy);
         }, 0);
     };
     cy.scratch("landing_badge_pin", handler);
     cy.on("add", "node", handler);
+}
+
+/**
+ * Playground exception 19 (should become a `font_scale` option of the zoom_settle config, or a larger `normal` label tier):
+ * a node's font base is FONT_SCALE times what the runtime gave it. The first size seen is kept in the node's scratch, so a second
+ * run of the layout never doubles it again; zoom_settle then takes the doubled size as the element's own base.
+ */
+function _scaleFont(n, given) {
+    if (n.data("_is_badge")) return;
+    let base = n.scratch("landingFontBase");
+    if (base === undefined) {
+        base = given === undefined ? n.numericStyle("font-size") : given;
+        if (!(base > 0)) return;
+        n.scratch("landingFontBase", base);
+    }
+    n.style({"font-size": `${base * FONT_SCALE}px`});
+    n.dirtyBoundingBoxCache();
+}
+
+/**
+ * Playground exception 21 (should become a per-elevation label anchor of the Elevation definition): remember where the layout
+ * put each web task's label (upper-left, like every container's); the elevation watcher moves it.
+ */
+function _keepTaskLabel(cy) {
+    cy.nodes(`[entity_type = "${T.task}"]`).forEach((n) => n.scratch("landing_task_label",
+        {mx: n.numericStyle("text-margin-x"), my: n.numericStyle("text-margin-y")}));
+}
+
+/**
+ * Playground exception 21: the web task's label is centred in its box at the account elevation (no margin from the centre) and
+ * stands upper-left once the interior is shown; it glides between the two over FADE_MS on a change of elevation.
+ */
+function _placeTaskLabel(cy, revealed, animate) {
+    cy.nodes(`[entity_type = "${T.task}"]`).forEach((n) => {
+        const upperLeft = n.scratch("landing_task_label");
+        if (!upperLeft) return;
+        const to = revealed ? upperLeft : {mx: 0, my: 0};
+        const style = {"text-margin-x": to.mx, "text-margin-y": to.my};
+        if (animate) n.animate({style, duration: FADE_MS, easing: "ease-in-out"});
+        else n.style(style);
+    });
+}
+
+/**
+ * Playground exception 23 (should become a `badge` class of the zoom_settle config: status and type badges sized as the icon
+ * cards are): the badges are not icon nodes, so zoom_settle leaves their size alone. This sizes them by the same `icon` class
+ * (the panel's own band, read from its zoom_settle config) each time the settle mode has written, and when a badge is added.
+ */
+function _followIconPolicy(cy) {
+    const previous = cy.scratch("landing_badge_follow");
+    if (previous) cy.off("tapzoomsettled", previous);
+    const handler = () => _syncBadgeSizes(cy);
+    cy.scratch("landing_badge_follow", handler);
+    cy.on("tapzoomsettled", handler);
+}
+
+function _syncBadgeSizes(cy) {
+    const host = cy.container() && cy.container().closest("[data-zoom-settle]");
+    let config = null;
+    try {
+        config = host ? normalizeSettleConfig(JSON.parse(host.dataset.zoomSettle)) : null;
+    } catch (_err) {
+        config = null;
+    }
+    const factor = config ? modelFactor(cy.zoom(), config.classes.icon) : 1;
+    cy.batch(() => {
+        cy.nodes("[?_is_badge], [?_is_status_badge]").forEach((n) => {
+            let base = n.scratch("landingBadgeBase");
+            if (base === undefined) {
+                base = n.width();
+                n.scratch("landingBadgeBase", base);
+            }
+            n.style({width: base * factor, height: base * factor});
+        });
+    });
 }
