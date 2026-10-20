@@ -305,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25", "govcloud-layout-27"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -373,7 +373,7 @@ class TestRunningParts:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
         assert shown == {"web task a container", "customer data", "gunicorn", "tap-web", "PostgreSQL database instance",
-                         "database", "administration", "developer source code", "source pull"}
+                         "database", "administration", "code", "source pull"}
 
     def test_the_nesting_is_three_configured_relationships_not_type_tests(self) -> None:
         source = _js()
@@ -612,9 +612,9 @@ class TestMoreApplicationFlows:
 
     def test_each_flow_is_keyless_shown_unranked_and_stamped_with_one_data_class(self) -> None:
         flows = self._flows()
-        assert sorted(flows) == ["administration", "customer data", "database", "developer source code", "source pull"]
+        assert sorted(flows) == ["administration", "code", "customer data", "database", "source pull"]
         expected = {"database": ("dataclass.customer", "data"), "administration": ("dataclass.infra", "admin"),
-                    "developer source code": ("dataclass.infra", "code"), "source pull": ("dataclass.infra", "code")}
+                    "code": ("dataclass.infra", "code"), "source pull": ("dataclass.infra", "code")}
         for name, (key, value) in expected.items():
             dims = flows[name]["entity"]["dimensions"]
             assert dims[key] == value and dims["overview"] == "shown" and "column" not in dims and "row" not in dims, name
@@ -634,7 +634,7 @@ class TestMoreApplicationFlows:
             ends[name] = (source, dest)
         assert ends["database"] == (["tap-web"], ["PostgreSQL database instance"])
         assert ends["administration"] == (["administrator workstation"], ["teleport"])
-        assert ends["developer source code"] == (["developer laptop"], ["github.com"])
+        assert ends["code"] == (["developer laptop"], ["github.com"])
         assert ends["source pull"] == (["terraform source puller"], ["github.com"])
 
     def test_the_database_program_is_joined_to_the_rds_instance_by_runs_program_and_shown(self) -> None:
@@ -717,7 +717,7 @@ class TestDeliveryLine:
 
     def test_the_two_flows_to_github_are_drawn_between_their_ends(self) -> None:
         names = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW)}
-        assert {"developer source code", "source pull"} <= names
+        assert {"code", "source pull"} <= names
 
     def test_the_specs_record_it(self) -> None:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
@@ -951,7 +951,7 @@ class TestOverviewNitsThree:
         angles = {n["entity"]["name"]: n["entity"]["dimensions"].get("icon_angle") for n in self._all_flows()
                   if n["entity"]["dimensions"].get("overview") == "shown"}
         assert angles == {"customer data": "90", "database": "90", "administration": "0",
-                          "developer source code": "270", "source pull": "270"}
+                          "code": "270", "source pull": "270"}
         assert not [n for n in self._all_flows() if "arrow" in n["entity"]["dimensions"]]
         source = _js()
         assert 'const ICON_ANGLE_KEY = "icon_angle";' in source and "const FLOW_ICON_ANGLE = 90;" in source
@@ -986,6 +986,19 @@ class TestOverviewNitsThree:
         source = _js()
         assert "!== ICON_FORM_SOLO" in source and "Playground exception 42" in source
         assert "n.style({\"z-index\": edgeZ + 1" in source, "every leaf node, the gateway included, is above the edge layer"
+
+    def test_the_gateway_card_is_a_circle_only(self) -> None:
+        svg = (PACKAGE_ROOT / "static" / "rampart_20x_playground" / "icons" / "internet-gateway-card.svg").read_text(encoding="utf-8")
+        assert "<circle" in svg and "<rect" not in svg, "nothing square around the circle"
+
+    def test_overview_nits_four(self) -> None:
+        source = _js()
+        assert "Playground exception 45" in source
+        assert float(re.search(r"const VPC_TITLE_FACTOR = ([0-9.]+);", source).group(1)) > float(re.search(r"const SUBNET_LABEL_FACTOR = ([0-9.]+);", source).group(1))
+        assert float(re.search(r"const VPC_TITLE_FACTOR = ([0-9.]+);", source).group(1)) < 1
+        assert "_labelHidden(ordered[ordered.length - 1]) ? PILE_NAMELESS_ROOM : PILE_NAME_ROOM" in source
+        assert 'el.style.background = "transparent"' in source
+        assert '"text-wrap": "none",\n    }));\n    _styleFlowEdges' in source, "a flow's name is one line"
 
     def test_the_admin_access_vpc_is_snug(self) -> None:
         source = _js()

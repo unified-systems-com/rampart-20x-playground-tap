@@ -140,6 +140,10 @@
  *  44. the Admin Access VPC and its logo card are compact: the logo card (exception 32) is drawn at DEPLOY_SCALE of the solo icon size, like the
  *      Continuous Delivery icons, its name is hidden by `label: hidden` (exception 31), and the slotted subnet and VPC shrink to it
  *      (SLOT_SUBNET_WIDTH, SLOT_NAMELESS_BOTTOM; exceptions 30 and 43, same exit as 32 for the size, 31 for the name, 30 for the boxes).
+ *  45. overview nits, round four: the VPCs' titles are VPC_TITLE_FACTOR of the usual size (`_scaleFont` reads the factor; should become a
+ *      `label_scale` display hint of the VPC type, the hint of 25 and 33); the account hugs the delivery pile and the slotted VPC when the
+ *      front icon's name is hidden (PILE_NAMELESS_ROOM; same exit as 28); the scope box's title has no background (same exit as 34);
+ *      a flow's name is one line (`text-wrap: none` in `_styleFlow`; same exit as 40, a `label_wrap` of the display hint).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -236,6 +240,8 @@ const DEPLOY_LABEL = "Continuous Delivery";
 const DEPLOY_BOX_PADDING = 28;
 //: Room under the pile for the front icon's name (model units), inside the account.
 const PILE_NAME_ROOM = 90;
+//: Playground exception 45: the room under a front icon whose name is hidden (`label: hidden`), so the account hugs the pile.
+const PILE_NAMELESS_ROOM = 0;
 //: Playground exceptions 31, 32 and 42: the dimensions that hide a node's name, give a node an icon of its own and say that icon is a whole card, and their values.
 const LABEL_KEY = "label";
 const LABEL_HIDDEN = "hidden";
@@ -257,6 +263,8 @@ const DB_TITLE_FACTOR = 0.6;
 //: Playground exception 33: the subnets' name size, as a share of the usual one, and its weight.
 const SUBNET_LABEL_FACTOR = 0.6;
 const SUBNET_LABEL_WEIGHT = "normal";
+//: Playground exception 45: the VPCs' title size, as a share of the usual (account) one: between the subnets' (SUBNET_LABEL_FACTOR) and the account's.
+const VPC_TITLE_FACTOR = 0.8;
 //: Playground exception 37: how far right, in model units, the first node of the delivery line (GitHub) moves.
 const GITHUB_SHIFT = 70;
 //: Playground exception 29: the dimension (and the tag, on a node type that has a tagging system) that puts a node on the delivery line, and
@@ -527,9 +535,16 @@ export async function execute(context) {
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
     const isSubnet = (n) => n.data("entity_type") === T.subnet;
     const isDatabase = (n) => n.data("entity_type") === T.rds;
-    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n))), {
+    const isVpc = (n) => n.data("entity_type") === T.vpc;
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n) && !isVpc(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
+    });
+    // Playground exception 45: the VPCs' titles are VPC_TITLE_FACTOR of the usual size (`_scaleFont` reads the factor), bold as before.
+    parents.filter((n) => isVpc(n) && !isInterior(n)).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR));
+    placeParentLabels(_only(cy, parents.filter((n) => isVpc(n) && !isInterior(n))), {
+        anchor: "upper-left", inset: 16,
+        parentFontSize: chrome.parentFontSize * VPC_TITLE_FACTOR, parentFontWeight: chrome.parentFontWeight,
     });
     // Playground exception 22 (a `label_position: inside` of the subnet's display hint): the subnets' labels stand inside the box,
     // top-centre. aws_core's default puts them outside, above the box; the data override makes placeParentLabels treat them as
@@ -780,7 +795,9 @@ function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     });
     // Bottom of the box: the pile, the room for the front name, then the account's own bottom padding.
     // The slotted VPC (exception 30) stands in the same row, from the row's top; the row is as tall as the taller of the two.
-    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom;
+    // Playground exception 45: no room for a front name that is hidden.
+    const nameRoom = _labelHidden(ordered[ordered.length - 1]) ? PILE_NAMELESS_ROOM : PILE_NAME_ROOM;
+    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + nameRoom, above + 44 + slotHeight) + pad.bottom;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
@@ -953,6 +970,8 @@ function _syncScopeTitle(cy) {
             el.style.fontSize = size;
             el.style.left = "auto";
             el.style.right = "12px";
+            // Playground exception 45: no fill behind the title.
+            el.style.background = "transparent";
         });
     };
     cy.on("zoom", apply);
@@ -1409,6 +1428,8 @@ function _styleFlow(cy, flows) {
         "color": FLOW_BLUE,
         // Ruled 2026-10-20 (George): no fill behind a flow's name.
         "text-background-opacity": 0,
+        // Playground exception 45: a flow's name is one line, never wrapped.
+        "text-wrap": "none",
     }));
     _styleFlowEdges(cy);
 }
