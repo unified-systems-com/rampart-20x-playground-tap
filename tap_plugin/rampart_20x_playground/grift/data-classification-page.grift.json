@@ -1,0 +1,351 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a15a04-3f79-7492-bc6a-b3d5a589b964",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground data classification page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.data-classification-page",
+        "name": "rampart-20x-playground data classification page v0.1.0",
+        "description": "The /playground/data-classification page: an introduction and one card per data classification key, each counting the components that carry each value, by entity type. Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "entity_type": "page",
+            "name": "Data classification",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Data classification",
+            "slug": "/playground/data-classification",
+            "description": "What kinds of data the deployment holds: the two data classifications, what each value means, and which components carry each.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-data-classification-intro",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-data-classification-customer",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-data-classification-infra",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-4006-7295-9c5a-3a6a5f248259",
+            "entity_type": "panel",
+            "name": "Data classification introduction",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Data classification introduction",
+            "slug": "playground-data-classification-intro",
+            "description": "Explains the two data classifications and how to read the cards.",
+            "view": "tap_web/panels/text_panel.html",
+            "editor_view": "tap_web/panels/text_panel_editor.html",
+            "config": {
+              "text": "Every component can carry a data classification: a label saying what kind of data it holds or handles. There are two classifications. dataclass.customer is about data that belongs to customers; dataclass.infra is about data that belongs to running the infrastructure. Each takes one value per component, and each card below describes its classification, describes every value it can take, counts the components that carry one, and breaks that count down by the kind of component, value by value. A value no component carries is shown with none, not hidden.",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-4034-73ae-9b71-92682400e6dc",
+            "entity_type": "panel",
+            "name": "Customer data classification",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Customer data classification",
+            "slug": "playground-data-classification-customer",
+            "description": "One card for the dataclass.customer classification.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title_field": "key",
+              "value_field": "total",
+              "value_formatter": "integer",
+              "unit": "component(s)",
+              "hide_header": true,
+              "lines": [
+                {
+                  "label": "What it classifies",
+                  "field": "description",
+                  "formatter": "longtext",
+                  "max_lines": 6
+                },
+                {
+                  "label": "Values",
+                  "field": "values_text",
+                  "formatter": "longtext",
+                  "max_lines": 12
+                },
+                {
+                  "label": "Components by type",
+                  "field": "breakdown_text",
+                  "formatter": "longtext",
+                  "max_lines": 12
+                }
+              ],
+              "null_text": "not observed",
+              "empty_text": "No classification is declared for this key."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-4062-74d4-8fe2-e964cef86462",
+            "entity_type": "panel",
+            "name": "Infrastructure data classification",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Infrastructure data classification",
+            "slug": "playground-data-classification-infra",
+            "description": "One card for the dataclass.infra classification.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title_field": "key",
+              "value_field": "total",
+              "value_formatter": "integer",
+              "unit": "component(s)",
+              "hide_header": true,
+              "lines": [
+                {
+                  "label": "What it classifies",
+                  "field": "description",
+                  "formatter": "longtext",
+                  "max_lines": 6
+                },
+                {
+                  "label": "Values",
+                  "field": "values_text",
+                  "formatter": "longtext",
+                  "max_lines": 12
+                },
+                {
+                  "label": "Components by type",
+                  "field": "breakdown_text",
+                  "formatter": "longtext",
+                  "max_lines": 12
+                }
+              ],
+              "null_text": "not observed",
+              "empty_text": "No classification is declared for this key."
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-409c-7784-9a3f-f63c17f80440",
+            "entity_type": "search",
+            "name": "playground — data classification customer",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — data classification customer",
+            "description": "The components carrying each value of dataclass.customer, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_coverage:dimension-coverage"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Which dimension key to cover, and which spine rows are not components.",
+              "properties": {
+                "dimension_key": {
+                  "type": "string",
+                  "default": "dataclass.customer",
+                  "description": "The dimension whose values are counted."
+                },
+                "exclude_types": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "edge",
+                    "batch"
+                  ],
+                  "description": "Entity types that are not counted: the spine rows of edges and batches."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-40ce-772d-b7c9-56d270efb6ae",
+            "entity_type": "search",
+            "name": "playground — data classification infra",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — data classification infra",
+            "description": "The components carrying each value of dataclass.infra, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_coverage:dimension-coverage"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Which dimension key to cover, and which spine rows are not components.",
+              "properties": {
+                "dimension_key": {
+                  "type": "string",
+                  "default": "dataclass.infra",
+                  "description": "The dimension whose values are counted."
+                },
+                "exclude_types": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "edge",
+                    "batch"
+                  ],
+                  "description": "Entity types that are not counted: the spine rows of edges and batches."
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a15a04-4101-7017-bdd9-242f60a2f72c",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL intro",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15a04-4006-7295-9c5a-3a6a5f248259",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-data-classification-intro"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-412e-746a-a0b4-85b2ba48a7e7",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL customer",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15a04-4034-73ae-9b71-92682400e6dc",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-data-classification-customer"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-4159-73f6-9649-b6d24a01e1be",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL infra",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15a04-4062-74d4-8fe2-e964cef86462",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-data-classification-infra"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-4184-7082-95b9-8aeac15199e5",
+            "entity_type": "edge",
+            "name": "Customer card USES_SEARCH customer",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-4034-73ae-9b71-92682400e6dc",
+            "to_entity_id": "01a15a04-409c-7784-9a3f-f63c17f80440",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a04-41af-7639-b438-5a1d103d8073",
+            "entity_type": "edge",
+            "name": "Infra card USES_SEARCH infra",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-4062-74d4-8fe2-e964cef86462",
+            "to_entity_id": "01a15a04-40ce-772d-b7c9-56d270efb6ae",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}
