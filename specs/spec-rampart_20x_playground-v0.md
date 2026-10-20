@@ -66,7 +66,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock data, one drawn boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty-three dimension nodes: ten `inventory` (the axis and nine categories) and thirteen `dataclass` (the axis, two branches and ten classes) |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty-six dimension nodes: ten `inventory` (the axis and nine categories) and sixteen `dataclass` (the axis, three branches and twelve values) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -214,23 +214,53 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `dataclass.customer.data` | `dataclass.customer: data` | Customer data. |
 | `dataclass.customer.creds` | `dataclass.customer: creds` | Customer credentials. |
 | `dataclass.customer.logs` | `dataclass.customer: logs` | Customer logs. |
+| `dataclass.customer.sanitized` | `dataclass.customer: sanitized` | Customer data that has been filtered to remove untrusted content. |
 | `dataclass.infra.code` | `dataclass.infra: code` | Infrastructure code. |
 | `dataclass.infra.secrets` | `dataclass.infra: secrets` | Infrastructure secrets. |
 | `dataclass.infra.logs` | `dataclass.infra: logs` | Infrastructure logs. |
 | `dataclass.infra.admin` | `dataclass.infra: admin` | Infrastructure administration: administrator access to the infrastructure. |
-| `dataclass.customer.reader` | `dataclass.customer: reader` | A component that reads customer data. |
-| `dataclass.customer.writer` | `dataclass.customer: writer` | A component that writes customer data. |
-| `dataclass.customer.storage` | `dataclass.customer: storage` | A component that stores customer data. |
+| `dataclass.action` | axis (child) | What an item does with data: holds it at rest, works on it, or moves it. |
+| `dataclass.action.store` | `dataclass.action: store` | Data at rest: the item persists data (a volume, an instance's storage, a bucket). |
+| `dataclass.action.process` | `dataclass.action: process` | Data in process: the item computes on data (a program, a container, a function). |
+| `dataclass.action.transmit` | `dataclass.action: transmit` | Data in flight: the item carries data between places (an application flow). |
+| `dataclass.action.none` | `dataclass.action: none` | The item is present but does nothing with data: it neither holds, works on nor moves it. |
+
+**The `dataclass.action` axis (ruled 2026-10-20, George).** `customer` and `infra` say *what kind* of data; `action`
+says *what the item does with it*, in the three states data can be in: at rest (`store`), in process (`process`) and in
+flight (`transmit`). It replaces the earlier `dataclass.customer.reader`, `.writer` and `.storage` values, which mixed a
+component's role into the kind-of-data axis; those three nodes are removed. The axis is independent of the other two and
+takes **one value per entity**: nothing is both a processor and a store. A fourth value, `none`, is the acknowledged "nothing": a component that is on the host but does not touch data (a text editor installed on a server, where a cryptographic library is `process`). It is a stamp like the others, `dataclass.action = none`, and it is different from an entity with no `dataclass.action` key at all, which means not yet observed. (Ruled 2026-10-20, George.) The rule that makes this hold is that persistence
+belongs to the thing that persists, not to the program in front of it. A cache is a program that `process`es; the disk
+holding its output `store`s. A database is a program that `process`es; its volume `store`s. So an item that stores and
+computes is modeled as two items, or carries the value of what it is, never both. `transmit` applies to application flows
+and any other flow where data is in transit. `read` and `write` were not kept: they are directions of a flow, not states of
+data.
 
 By `req-dcom-naming` the label a value node defines is everything before its last dot as the key, and the last
-segment as the value, so an entity can carry one `dataclass.customer` value and one `dataclass.infra` value.
+segment as the value, so an entity can carry one `dataclass.customer` value, one `dataclass.infra` value and one
+`dataclass.action` value.
 That rule says names deeper than axis-and-value "carry no defined meaning"; `dataclass` is two levels deep, so
-it leans on that undefined territory. That is flagged for the `dcom` owner's review and is not decided here. In v0 nothing is stamped with a `dataclass` value:
-the nodes exist so classification can start without a vocabulary change.
+it leans on that undefined territory. That is flagged for the `dcom` owner's review and is not decided here. The nodes exist so
+classification needs no vocabulary change; the entities stamped with a `dataclass` value are those named in
+`req-rampart-20x-playground-dimensions-8` and the application flows' existing `customer` and `infra` stamps.
+
+**The `sanitized` value (ruled 2026-10-20, George).** `dataclass.customer.sanitized` is customer data that has been filtered to remove untrusted content, which matters for VDR processing later. It is a value of `dataclass.customer`, one of the existing single-valued kinds of data, not a dotted refinement such as `data.sanitized`. The only item stamped with it is the flow from the web application to the database, the one place the demo's customer data is filtered before storage.
+
+**Stamping (ruled 2026-10-20, George).** The mock data has no volume entity, so the RDS instance stands in for the
+database's volume.
+
+| Item | Value |
+| --- | --- |
+| The five stamped `computing_core__application_flow` rows (customer data, database, administration, code, source pull; the retired administration flow stays unstamped) | `dataclass.action: transmit` |
+| The `database` application flow (web application to the PostgreSQL program) | `dataclass.customer: sanitized`, replacing its `data` stamp |
+| The five `computing_core__program` rows and the two `aws_core__aws_ecs_container` rows | `dataclass.action: process` |
+| The `aws_core__aws_rds_instance` and the two `aws_core__aws_s3_bucket` rows | `dataclass.action: store` |
+
+Anything not listed stays unstamped, which is "not observed", not a claim of `none`.
 
 #### Implementation
 
-`grift/dimensions.grift.json`, one batch of twenty-three `inventory` and `dataclass` `dimension` nodes (ten `inventory`, thirteen `dataclass`),
+`grift/dimensions.grift.json`, one batch of twenty-six `inventory` and `dataclass` `dimension` nodes (ten `inventory`, sixteen `dataclass`),
 no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
 `req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
 the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
@@ -239,11 +269,17 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dimensions-1 | Twenty-Three Nodes | Proposed | Importing the bundle yields exactly twenty-three `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | |
+| req-rampart-20x-playground-dimensions-1 | Twenty-Six Nodes | Proposed | Importing the bundle yields exactly twenty-six `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | Was twenty-three: the action axis (five nodes: the branch and four values) and `sanitized` (one) were added and the reader, writer and storage values (three) removed. |
 | req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the nine category nodes. | |
 | req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
-| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty-three nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty-six nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
+| req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the four value nodes `store`, `process`, `transmit` and `none`. | |
+| req-rampart-20x-playground-dimensions-7 | Role Values Removed | Proposed | No node named `dataclass.customer.reader`, `dataclass.customer.writer` or `dataclass.customer.storage` is in the bundle, and no entity in the seed data carries those values. | The three nodes are removed from this plugin's seed and purged from any live grid that holds them. Purge approved by George 2026-10-20 (relayed by rampart-pg); the importer cannot delete, so the purge is a separate sanctioned step. |
+| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
+| req-rampart-20x-playground-dimensions-9 | One Action Per Entity | Proposed | No seed entity carries more than one `dataclass.action` value, and no seed entity carries a `dataclass.action.<value>` key. | The key is `dataclass.action`; the value is one of the three. |
+| req-rampart-20x-playground-dimensions-10 | Sanitized Value | Proposed | The bundle holds the node `dataclass.customer.sanitized` with the description in the table above, and the `database` application flow carries `dataclass.customer: sanitized` and no `data` stamp; the `customer` application flow still carries `data`. | Replaces the unspecced `data.filtered` idea. |
+| req-rampart-20x-playground-dimensions-11 | None Is A Declared Value | Proposed | `dataclass.action.none` is in the bundle with a description, so an entity stamped `dataclass.action = none` is counted as declared by `dimension-coverage`; no seed entity is stamped `none` yet. | The value exists so libraries and packages that do nothing with data can be marked. A missing key is still "not observed". |
 
 ### Mock Inventory
 ----
@@ -431,13 +467,13 @@ Status: `Proposed`
 
 The page answers "what kinds of data does this deployment hold, and where?". Route `/playground/data-classification`;
 the page is named `Data Classification`, which is also its breadcrumb. It starts with that title and carries no
-explanatory prose. Under the title, two equal columns hold one stat card each, one card per classification key. Each
+explanatory prose. Under the title, three equal columns hold one stat card each, one card per classification key (`dataclass.customer`, `dataclass.infra` and `dataclass.action`). Each
 card has the key in bold at the top left and the number of components carrying any value of it at the top right, large,
 with `components` under the number; then the classification's description as plain text with no caption; then a
 borderless table with one row per value it can take: the value, its description, and the number of components
 carrying it (0 when none does). There is no breakdown by entity type.
 
-Both cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
+All three cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
 `req-compliance-core-dimension-coverage`); the Search's input `dimension_key` is the only thing that differs. Gryphon
 cannot write the query (a labelless aggregate grouped by entity type and by a dimension value taken from a Search
 input), which each Search's description records. The values come from the dimension dictionary rows, so a value added to
@@ -453,12 +489,13 @@ Search, so it cannot be reused here.
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-data-classification-1 | Route Serves | Proposed | `GET /playground/data-classification` returns 200 and is in navigation. | |
-| req-rampart-20x-playground-page-data-classification-2 | Title Then One Card Per Key | Proposed | Band one is a text panel whose header is the page title and whose text is empty; band two is two equal columns, one stat card per classification key. | |
+| req-rampart-20x-playground-page-data-classification-2 | Title Then One Card Per Key | Proposed | Band one is a text panel whose header is the page title and whose text is empty; band two is three equal columns, one stat card per classification key. | Was two columns before the action axis. |
 | req-rampart-20x-playground-page-data-classification-3 | Each Card Reads A Module Search | Proposed | Each card is bound by `USES_SEARCH` to a `module` Search whose runner is `dimension-coverage` and whose `dimension_key` default is its key; the Search description names the missing Gryphon capability. | |
 | req-rampart-20x-playground-page-data-classification-4 | Values From The Dictionary | Proposed | No panel, Search or test names a classification value; the values table reads the runner's `values` array, so an added value renders unchanged. | |
 | req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values`) and every table column a key of its `values` elements (`value`, `description`, `count`). | |
 | req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, a description line placed in the card header directly under the title (`placement: header`), and a `table` line of `value`, `description`, `count` captioned `Inventory` above the table (`label_placement: above`). | Ruled 2026-10-20 (George, Q90). The card title is still the dimension key (`dataclass.customer`): the dictionary nodes carry no plain-English name, so the title is open for a ruling. |
 | req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
+| req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
 
 ### VDR Reports Page
 ----
@@ -608,5 +645,5 @@ in the first cleanup by mistake and are pulled again.
 | `grift/security-alerts.grift.json` | Captured batch: the `tap` code scanning and Dependabot alerts (all states), their generic findings and the `tap` repository, from a live `github_core` run of 2026-10-14. Not yet registered in `[grift]`: it needs `github_core` and `compliance_core` in `depends_on` first | `req-rampart-20x-playground-dependabot-pull` |
 | `grift/pages.grift.json` | The four pages, their Searches and panel edges | the four `page` requirements |
 | `grift/inventory-entities.grift.json` | The programs and the container's certificate and key halves the inventory tables need beyond the mock inventory | `req-rampart-20x-playground-inventory-tables` |
-| `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass` value) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
+| `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass.customer` or `dataclass.infra` value, and with `dataclass.action: transmit`) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
 | `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |

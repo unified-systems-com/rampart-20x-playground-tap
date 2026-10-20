@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.mock-inventory",
         "name": "rampart-20x-playground mock inventory",
-        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges, the people and computers around it (identity_core, computing_core) and the GitHub side of its deploy path (github_core). Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5). GitHub, the developer and the developer's laptop carry the delivery-line marker (dimension `line`, or the `layout:line` tag on GitHub): the Overview draws them on the line through the Continuous Delivery pile, not on the line of sight. Teleport is not an account: it is a VPC named teleport inside the git-serious account (one public subnet, one EC2 instance named teleport; mock instance id, no teleport__ node: the teleport plugin is vocabulary only), drawn at the centre-bottom of the account (dimension `place: bottom-center` on the VPC)."
+        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges, the people and computers around it (identity_core, computing_core) and the GitHub side of its deploy path (github_core). Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5). GitHub, the developer and the developer's laptop carry the delivery-line marker (dimension `line`, or the `layout:line` tag on GitHub): the Overview draws them on the line through the Continuous Delivery pile, not on the line of sight. Teleport is not an account: it is a VPC named teleport inside the git-serious account (one public subnet, one EC2 instance named teleport; mock instance id, no teleport__ node: the teleport plugin is vocabulary only), drawn at the centre-bottom of the account (dimension `place: bottom-center` on the VPC). Dimension pack v0.6.0 stamps dataclass.action=store on the RDS instance (it stands in for the database volume) and the two S3 buckets."
       },
       "nodes": [
         {
@@ -525,7 +525,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown"
+              "overview": "shown",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -985,7 +986,8 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1"
+              "aws_region": "us-gov-west-1",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -1003,7 +1005,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "overview": "shown"
+              "overview": "shown",
+              "dataclass.action": "store"
             }
           },
           "node": {

@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.data-classification-page",
         "name": "rampart-20x-playground data classification page v0.1.0",
-        "description": "The /playground/data-classification page: a title and one card per data classification key, each listing its values and the components that carry each. Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
+        "description": "The /playground/data-classification page: a title and one card per data classification key (customer, infra and action), each listing its values and the components that carry each. Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
       },
       "nodes": [
         {
@@ -29,7 +29,7 @@
           "node": {
             "name": "Data Classification",
             "slug": "/playground/data-classification",
-            "description": "What kinds of data the deployment holds: the two data classifications, what each value means, and which components carry each.",
+            "description": "What kinds of data the deployment holds: the three data classifications, what each value means, and which components carry each.",
             "layout": {
               "columns": {
                 "col-1": {
@@ -43,7 +43,7 @@
                   }
                 },
                 "col-2": {
-                  "width": "6fr",
+                  "width": "4fr",
                   "band": 2,
                   "rows": {
                     "row-1": {
@@ -53,11 +53,21 @@
                   }
                 },
                 "col-3": {
-                  "width": "6fr",
+                  "width": "4fr",
                   "band": 2,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-data-classification-infra",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "4fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-data-classification-action",
                       "height": "auto"
                     }
                   }
@@ -201,6 +211,62 @@
         },
         {
           "entity": {
+            "entity_id": "01a15b54-ff23-7168-8e2c-29b704edf2b1",
+            "entity_type": "panel",
+            "name": "Action data classification",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Action data classification",
+            "slug": "playground-data-classification-action",
+            "description": "One card for the dataclass.action classification.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title_field": "key",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "total",
+              "value_formatter": "integer",
+              "unit": "components",
+              "hide_header": true,
+              "lines": [
+                {
+                  "field": "description",
+                  "formatter": "longtext",
+                  "max_lines": 6,
+                  "placement": "header"
+                },
+                {
+                  "label": "Inventory",
+                  "label_placement": "above",
+                  "field": "values",
+                  "formatter": "table",
+                  "empty_text": "No values.",
+                  "columns": [
+                    {
+                      "field": "value",
+                      "bold": true
+                    },
+                    {
+                      "field": "description"
+                    },
+                    {
+                      "field": "count",
+                      "formatter": "integer",
+                      "align": "right"
+                    }
+                  ]
+                }
+              ],
+              "null_text": "not observed",
+              "empty_text": "No classification is declared for this key."
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a15a04-409c-7784-9a3f-f63c17f80440",
             "entity_type": "search",
             "name": "playground \u2014 data classification customer",
@@ -260,6 +326,45 @@
                 "dimension_key": {
                   "type": "string",
                   "default": "dataclass.infra",
+                  "description": "The dimension whose values are counted."
+                },
+                "exclude_types": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "edge",
+                    "batch"
+                  ],
+                  "description": "Entity types that are not counted: the spine rows of edges and batches."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15b54-fff0-750a-b436-fc7e32812147",
+            "entity_type": "search",
+            "name": "playground \u2014 data classification action",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 data classification action",
+            "description": "The components carrying each value of dataclass.action, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_coverage:dimension-coverage"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Which dimension key to cover, and which spine rows are not components.",
+              "properties": {
+                "dimension_key": {
+                  "type": "string",
+                  "default": "dataclass.action",
                   "description": "The dimension whose values are counted."
                 },
                 "exclude_types": {
@@ -341,6 +446,26 @@
         },
         {
           "entity": {
+            "entity_id": "01a15b55-00b1-7248-bdea-5357c85fffab",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL action",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15b54-ff23-7168-8e2c-29b704edf2b1",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-data-classification-action"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a15a04-4184-7082-95b9-8aeac15199e5",
             "entity_type": "edge",
             "name": "Customer card USES_SEARCH customer",
@@ -363,6 +488,20 @@
           "edge": {
             "from_entity_id": "01a15a04-4062-74d4-8fe2-e964cef86462",
             "to_entity_id": "01a15a04-40ce-772d-b7c9-56d270efb6ae",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15b55-017c-7790-bcca-871b9b5053fa",
+            "entity_type": "edge",
+            "name": "Action card USES_SEARCH action",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15b54-ff23-7168-8e2c-29b704edf2b1",
+            "to_entity_id": "01a15b54-fff0-750a-b436-fc7e32812147",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
