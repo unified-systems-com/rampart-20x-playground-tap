@@ -22,9 +22,10 @@
  * Top level, left to right: the customer and their computer, the authorization boundary around the product account,
  * GitHub, the developer's computer and the developer. The administrator and their computer hang under the
  * bottom-centre of the boundary (the account's bottom-centre x), the computer above the person. The line of sight is one horizontal line,
- * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
- * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
- * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
+ * left to right: the customer, their computer, the internet gateway, the load balancer, the database. The load balancer is the anchor: the roots
+ * outside the account and the gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
+ * GitHub, the developer's computer and the developer are NOT on it: they stand, in that order after the boundary, on the delivery line
+ * through the Continuous Delivery pile (exception 29).
  *
  * The people, their computers, the gateway, load balancer, database, Route 53 zone, ECR repository, Lambda,
  * buckets, secrets, pipeline and CodeBuild projects are icon-centric-solo nodes (icon-node.js): the icon and
@@ -32,10 +33,9 @@
  * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
  *
  * Deploy path: the AWS icons of the delivery path (the secret a deploy Lambda retrieves, the ECR repository, the
- * buckets, the pipeline, the Lambda and the CodeBuild projects) stand in ONE tightly packed horizontal row, centred at
- * the bottom-middle of the account under the VPC, and a titled scope box, "Continuous Delivery", marks them as one
- * collection. The row is the tap_viz align-distribute helper with its `label` option (as samsite's Deploy & Bootstrap
- * row); the account is grown to hold it.
+ * buckets, the pipeline, the Lambda and the CodeBuild projects) are half size and stand as ONE card pile at the bottom-right of the
+ * account under the VPC, and a titled scope box, "Continuous Delivery", marks them as one collection (exception 28); the account
+ * is grown to hold it.
  *
  * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
  * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
@@ -90,6 +90,13 @@
  *      account or a subnet), so it is hidden while the nesting runs and stood afterwards in the gap between the two boxes its
  *      lines end on, on the line that joins their centres (`_placeFlows`; should become a `place: between-endpoints` option of
  *      the nested layouts, which centres an edge-defined node in the gap between the siblings of the lowest common ancestor).
+ *  28. the delivery pile: the Continuous Delivery icons are half size and stand as a card pile (each icon offset down and right of the
+ *      one behind it, in `layout:order` from the back to the front) at the bottom-right of the account, with the titled scope box around
+ *      the pile; only the front icon keeps its name (`_placeDeployPile`; should become a `pile` arrangement of the align/distribute
+ *      helpers, a `corner: bottom-right` of the nested layouts' reserved row, and a `label_scope: front` of the pile);
+ *  29. the delivery line: the nodes that carry `line: delivery` (the `layout:line` tag on a node type that has tags) leave the line of sight
+ *      and are put on the horizontal line through the pile, in their own column order (`_onDeliveryLine`; should become an
+ *      `align-to-line` of a named group in the ranked natural layout of the roots).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -109,6 +116,7 @@ import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
 import {applyBadgeNodes} from "/static/tap_viz/js/runtime/badge-nodes.js";
 import {liftEdge, containedNodes, LIFTED_EDGE_CLASS} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
+import {applyScopeBoxes} from "/static/tap_viz/js/runtime/layout-scope-boxes.js";
 import {normalizeSettleConfig, modelFactor} from "/static/tap_viz/js/runtime/zoom-settle.js";
 
 const T = {
@@ -174,13 +182,21 @@ const SOLO = {width: 72, height: 72};
 //: retrieves would not be part of it).
 const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
 const DEPLOY_SECRET_READERS = [T.lambda];
-//: The gap between two icons of the deploy row (model units): fairly tight, but wide enough that the names under
-//: neighbouring icons (wrapped at 104 units) do not run together.
-const DEPLOY_GAP = 28;
-//: The title of the scope box around the deploy row.
+//: Playground exception 28: the deploy icons are DEPLOY_SCALE of the solo icon size, and stand as a pile: each is offset PILE_STEP (model
+//: units) right and down of the one behind it.
+const DEPLOY_SCALE = 0.5;
+const PILE_STEP = 22;
+//: The title of the scope box around the deploy pile.
 const DEPLOY_LABEL = "Continuous Delivery";
-//: Room the scope box takes around its icons, on all sides: it must contain the names under the icons.
-const DEPLOY_BOX_PADDING = 36;
+//: Room the scope box takes around its icons, on all sides.
+const DEPLOY_BOX_PADDING = 28;
+//: Room under the pile for the front icon's name (model units), inside the account.
+const PILE_NAME_ROOM = 90;
+//: Playground exception 29: the dimension (and the tag, on a node type that has a tagging system) that puts a node on the delivery line, and
+//: its value.
+const LINE_KEY = "line";
+const LINE_TAG = "layout:line";
+const LINE_DELIVERY = "delivery";
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
@@ -291,13 +307,15 @@ export async function execute(context) {
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
-    applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    const deploy = _deployPath(cy, shown);
+    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception 28: the deploy icons are half size.
+    applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
     _noBorder(cy.nodes().filter((n) => n.data("_icon_solo")));
-    // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
-    // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
+    // Playground exception (deploy pile room; should become a reserve option of the nested layouts): the deploy icons
+    // are out of the nesting while it runs, so the account is sized for its own rows; they are placed as a pile below
     // them afterwards, which grows the account.
-    const deploy = _deployPath(cy, shown);
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
     // Playground exception 27: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
     const placed = _placedFlows(shown([T.flow]));
@@ -373,7 +391,7 @@ export async function execute(context) {
     const productRoot = account.nonempty() ? _outermost(cy, account) : account;
     const productStage = productRoot.nonempty() ? productRoot.data("_stage") : undefined;
     if (anchor.nonempty()) {
-        const row = roots.filter((n) => n.data("_stage") !== productStage);
+        const row = roots.filter((n) => n.data("_stage") !== productStage && !_onDeliveryLine(n));
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
 
@@ -385,12 +403,17 @@ export async function execute(context) {
         alignDistributeHorizontal(cy, {members: gateway, anchorNode: anchor, distribute: false, reactive: false});
     }
 
-    // Playground exception (deploy row room): the account grows downward for the row. The line of sight does not
+    // Playground exception (deploy pile room): the account grows downward for the pile. The line of sight does not
     // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
     if (cy.scratch("landing_deploy")) cy.scratch("landing_deploy").destroy();
     const accountBottom = account.nonempty() ? account.boundingBox({includeLabels: false, includeOverlays: false}).y2 : 0;
-    cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
+    const pile = _placeDeployPile(cy, account, deploy, pad);
+    cy.scratch("landing_deploy", pile);
     _growAncestors(cy, account, accountBottom);
+    // Playground exception 29: the delivery line runs through the pile.
+    if (pile.lineY !== undefined) {
+        alignDistributeHorizontal(cy, {members: roots.filter(_onDeliveryLine), anchor: {y: pile.lineY}, distribute: false, reactive: false});
+    }
     _closePairs(roots, account, productRoot);
     _centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));
     _alignInteriorToLine(cy, anchor);
@@ -580,24 +603,33 @@ function _whenShown(cy, draw, tries = 600, waited = false) {
 }
 
 /**
- * Stand the deploy-path icons in one row, left to right, DEPLOY_GAP apart (the tap_viz align-distribute helper, with
- * its `label` option drawing the titled scope box), the row centred on the account's centre line below the account's
- * other contents. Playground exception: the account grows downward to hold the row, and the members and their order
- * are chosen here: the `layout:order` tag when a node has one, then label (a stable key, never a place). The edges
- * between two icons of the row are hidden (they would run along and under the icons); edges that leave it stay.
- * Returns a handle whose destroy() removes the row's box and restores those edges.
+ * Playground exception 28 (should become a `pile` arrangement of the align/distribute helpers, a bottom-right corner of the nested layouts'
+ * reserved row, and a front-only name): stand the deploy-path icons as a card pile at the bottom-right of the account, below the account's
+ * other contents. The members are put in order from the back to the front (the `layout:order` tag when a node has one, then label, a stable
+ * key and never a place), each PILE_STEP right and down of the one behind it, the last in front; only the front icon keeps its name, since
+ * the others' names would stand under the icons in front. The titled scope box (tap_viz's own) surrounds exactly the pile. The account
+ * grows downward to hold it. The edges between two icons of the pile are hidden (they would run along and under the icons); edges that
+ * leave it stay. Returns a handle whose destroy() removes the box and restores those edges, and whose `lineY` is the horizontal line
+ * through the middle of the pile (the delivery line, exception 29).
  */
-function _placeDeployRow(cy, account, deploy, bottomPad) {
-    const restore = () => cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
-        e.removeData("_row_internal");
-        e.removeStyle("display");
-    });
+function _placeDeployPile(cy, account, deploy, pad) {
+    const restore = () => {
+        cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
+            e.removeData("_row_internal");
+            e.removeStyle("display");
+        });
+        cy.nodes().filter((n) => n.scratch("landing_pile_hidden_name")).forEach((n) => {
+            n.removeScratch("landing_pile_hidden_name");
+            n.removeStyle("text-opacity");
+        });
+    };
     restore();
     if (account.empty() || deploy.empty()) return {destroy: restore};
     const box = account.boundingBox({includeLabels: false, includeOverlays: false});
     const others = cy.nodes().filter((n) => n.data("_viewport_parent") === account.id() && !n.hasClass(ELEVATION_HIDDEN_CLASS)
         && !deploy.anySame(n));
     const above = others.nonempty() ? others.boundingBox({includeLabels: true, includeOverlays: false}).y2 : box.y1;
+    const iconWidth = (n) => Number(n.data("_icon_w")) || n.width();
     const iconHeight = (n) => Number(n.data("_icon_h")) || n.height();
     const tagOrder = (n) => Number((n.data("tags") || {})["layout:order"]);
     const ordered = deploy.toArray().sort((a, b) => {
@@ -605,41 +637,58 @@ function _placeDeployRow(cy, account, deploy, bottomPad) {
         if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
         return String(a.data("label")).localeCompare(String(b.data("label")));
     });
-    const half = iconHeight(ordered[0]) / 2;
-    // The scope box starts DEPLOY_BOX_PADDING above the icons; keep it clear of what is above.
-    const y = above + 44 + DEPLOY_BOX_PADDING + half;
+    const w = iconWidth(ordered[0]), h = iconHeight(ordered[0]);
+    const spread = PILE_STEP * (ordered.length - 1);
+    // The scope box starts DEPLOY_BOX_PADDING above the icons (and 44 clear of what is above) and its right edge stands DEPLOY_BOX_PADDING
+    // inside the account's padding.
+    const top = above + 44 + DEPLOY_BOX_PADDING;
+    const left = box.x2 - pad.right - DEPLOY_BOX_PADDING - (w + spread);
     const baseZ = Number(account.style("z-index")) + 10;
-    ordered.forEach((n) => {
-        n.style({"z-index": baseZ});
+    ordered.forEach((n, i) => {
+        n.style({"z-index": baseZ + i});
+        n.position({x: left + w / 2 + PILE_STEP * i, y: top + h / 2 + PILE_STEP * i});
         n.data("_viewport_parent", account.id());
+        if (i < ordered.length - 1) {
+            n.style({"text-opacity": 0});
+            n.scratch("landing_pile_hidden_name", true);
+        }
     });
-    const row = {members: ordered, anchor: {x: account.position("x"), y}, anchorMode: "center", gap: DEPLOY_GAP, sort: false};
-    // Its reactive anchor (the account) is released by destroy(), so a re-run of the layout (the second elevation) does not fight it.
-    const rowHandle = alignDistributeHorizontal(cy, row);
     let handle = {destroy: () => {}}, destroyed = false;
+    const ids = new Set(ordered.map((n) => n.id()));
     // Playground exception: the scope box tracks its members' bounds, and cytoscape recurses computing them while the
     // projection is still revealing the scene (the graph element is hidden). Draw the box once the scene is shown.
     // Should become a fix in the tap_viz scope-box helper (observed 2026-10-19), after which this wait goes.
     _whenShown(cy, () => {
-        if (!destroyed) handle = alignDistributeHorizontal(cy, {...row, label: DEPLOY_LABEL, style: {padding: DEPLOY_BOX_PADDING}});
+        if (!destroyed) handle = applyScopeBoxes(cy, [{label: DEPLOY_LABEL, filter: (n) => ids.has(n.id()), style: {padding: DEPLOY_BOX_PADDING}}]);
     });
     cy.edges().filter((e) => deploy.anySame(e.source()) && deploy.anySame(e.target())).forEach((e) => {
         e.data("_row_internal", true);
         e.style("display", "none");
     });
-    // Bottom of the box: the icons, the room for their names, then the account's own bottom padding.
-    const newBottom = y + half + DEPLOY_BOX_PADDING + bottomPad;
+    // Bottom of the box: the pile, the room for the front name, then the account's own bottom padding.
+    const newBottom = top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM + pad.bottom;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
         account.position({x: account.position("x"), y: account.position("y") + delta / 2});
     }
-    return {destroy: () => {
-        destroyed = true;
-        rowHandle.destroy();
-        handle.destroy();
-        restore();
-    }};
+    return {
+        lineY: top + (h + spread) / 2,
+        destroy: () => {
+            destroyed = true;
+            handle.destroy();
+            restore();
+        },
+    };
+}
+
+/**
+ * Playground exception 29 (should become an `align-to-line` of a named group in the ranked natural layout of the roots): whether a node
+ * stands on the delivery line, read from its data: the dimension `line` (people and computers, which have no tagging system) or the tag
+ * `layout:line` (a type that has one, GitHub) is `delivery`. Never a type, a name or an id.
+ */
+function _onDeliveryLine(n) {
+    return (n.data("dimensions") || {})[LINE_KEY] === LINE_DELIVERY || (n.data("tags") || {})[LINE_TAG] === LINE_DELIVERY;
 }
 
 /**

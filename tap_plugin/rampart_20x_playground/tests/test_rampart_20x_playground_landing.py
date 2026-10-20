@@ -49,7 +49,7 @@ class TestSoloIcons:
 
 
 class TestDeployRow:
-    """`req-rampart-20x-playground-govcloud-layout-8`: C3 (one titled row)."""
+    """`req-rampart-20x-playground-govcloud-layout-8`: C3 (one titled collection; a half-size card pile since Overview Wave 10)."""
 
     def test_the_deploy_types_are_the_delivery_path(self) -> None:
         assert sorted(_list("DEPLOY_TYPES")) == ["bucket", "codebuild", "ecr", "lambda", "pipeline"]
@@ -111,20 +111,29 @@ class TestDeployRow:
         assert "productRoot.boundingBox(" in pair, "the pair hangs under the boundary's bottom edge"
         assert "computer.position({x, y});" in source and "person.position({x, y: y +" in source
 
-    def test_the_members_are_laid_out_by_align_distribute_with_a_label(self) -> None:
+    def test_the_members_stay_in_a_titled_scope_box(self) -> None:
         source = _js()
-        assert "alignDistributeHorizontal(cy, {...row, label: DEPLOY_LABEL" in source
+        assert "applyScopeBoxes(cy, [{label: DEPLOY_LABEL, filter: (n) => ids.has(n.id())" in source
         assert re.search(r'const DEPLOY_LABEL = "Continuous Delivery";', source)
-        assert "anchorMode: \"center\"" in source and "x: account.position(\"x\")" in source
-        assert "sort: false" in source and "gap: DEPLOY_GAP" in source
+        assert 'import {applyScopeBoxes} from "/static/tap_viz/js/runtime/layout-scope-boxes.js";' in source
 
-    def test_one_small_named_gap(self) -> None:
+    def test_the_icons_are_half_size_and_stand_as_a_card_pile_at_the_bottom_right(self) -> None:
+        """George 2026-10-20: 'shrink the CD icons by half size, keep them in a stacked pile [a card pile] and place the set at the
+        bottom-right of the account, keep the Continuous Delivery grouping'. The pile is back to front in `layout:order`."""
         source = _js()
-        assert len(re.findall(r"const DEPLOY_GAP = \d+;", source)) == 1
-        assert 20 <= int(re.search(r"const DEPLOY_GAP = (\d+);", source).group(1)) <= 40
+        assert "const DEPLOY_SCALE = 0.5;" in source and "width: SOLO.width * DEPLOY_SCALE" in source
+        assert 10 <= int(re.search(r"const PILE_STEP = (\d+);", source).group(1)) <= 40
+        body = source.split("function _placeDeployPile")[1].split("\n}\n")[0]
+        assert "const left = box.x2 - pad.right - DEPLOY_BOX_PADDING - (w + spread);" in body, "the right edge, inside the account"
+        assert "left + w / 2 + PILE_STEP * i" in body and "top + h / 2 + PILE_STEP * i" in body
+        assert "baseZ + i" in body, "the last is in front"
+        assert 'tagOrder(a)' in body and "layout:order" in body
+        assert "lineY: " in body
+        assert "const pile = _placeDeployPile(cy, account, deploy, pad);" in source and "_growAncestors(cy, account, accountBottom);" in source
+        assert "Playground exception 28 (should become a `pile` arrangement" in source
 
-    def test_the_old_pile_code_is_gone(self) -> None:
-        assert "PILE_STEP" not in _js() and "_placeDeployPile" not in _js()
+    def test_the_old_row_code_is_gone(self) -> None:
+        assert "DEPLOY_GAP" not in _js() and "_placeDeployRow" not in _js()
 
     def test_edges_inside_the_row_are_hidden_and_the_others_stay(self) -> None:
         assert "deploy.anySame(e.source()) && deploy.anySame(e.target())" in _js()
@@ -296,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -670,14 +679,54 @@ class TestMoreApplicationFlows:
         assert "outermost.get(target.id())" in body and "top !== holder" in body
 
 
+class TestDeliveryLine:
+    """`req-rampart-20x-playground-govcloud-layout-22`: GitHub, the developer's laptop and the developer stand on the delivery line."""
+
+    def test_the_marker_is_data_on_the_three_nodes_and_nowhere_else(self) -> None:
+        marked = []
+        for node in _nodes():
+            dims, tags = node["entity"]["dimensions"], node["node"].get("tags", {})
+            if dims.get("line") == "delivery" or tags.get("layout:line") == "delivery":
+                marked.append(node["entity"]["name"])
+        assert sorted(marked) == ["developer a", "developer a laptop", "github.com"]
+        (github,) = _by_type("github_core__github_platform")
+        assert github["node"]["tags"]["layout:line"] == "delivery" and "line" not in github["entity"]["dimensions"]
+
+    def test_the_order_after_the_boundary_is_github_laptop_developer_and_is_unchanged(self) -> None:
+        github = _by_type("github_core__github_platform")[0]
+        laptop = next(n for n in _by_type("computing_core__host") if n["entity"]["name"] == "developer a laptop")
+        person = next(n for n in _by_type("identity_core__human") if n["entity"]["name"] == "developer a")
+        assert int(github["node"]["tags"]["layout:column"]) < int(laptop["entity"]["dimensions"]["column"]) \
+            < int(person["entity"]["dimensions"]["column"])
+        assert laptop["entity"]["dimensions"]["row"] == person["entity"]["dimensions"]["row"] == "0", "a horizontal pair"
+
+    def test_the_layout_reads_the_marker_not_a_type_or_a_name_and_keeps_them_off_the_line_of_sight(self) -> None:
+        source = _js()
+        body = source.split("function _onDeliveryLine")[1].split("\n}\n")[0]
+        assert "LINE_KEY" in body and "LINE_TAG" in body and "LINE_DELIVERY" in body
+        assert 'T.' not in body and 'data("label")' not in body
+        assert 'const LINE_TAG = "layout:line";' in source and 'const LINE_KEY = "line";' in source
+        assert '!_onDeliveryLine(n)' in source, "off the load balancer's line"
+        assert "anchor: {y: pile.lineY}, distribute: false" in source, "onto the pile's line, align-only"
+        assert "roots.filter(_onDeliveryLine)" in source
+
+    def test_the_two_flows_to_github_are_drawn_between_their_ends(self) -> None:
+        names = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW)}
+        assert {"developer source code", "source pull"} <= names
+
+    def test_the_specs_record_it(self) -> None:
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-govcloud-layout-22" in text and "card pile" in text
+
+
 class TestOverviewZoomPolish:
     """`req-rampart-20x-playground-govcloud-layout-19`: Overview zoom polish."""
 
     def test_each_new_exception_names_its_runtime_form(self) -> None:
         source = _js()
-        for n in range(19, 28):
+        for n in range(19, 30):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 27 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 29 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
 
     def test_the_text_base_is_doubled_once(self) -> None:
