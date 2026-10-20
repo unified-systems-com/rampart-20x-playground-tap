@@ -567,5 +567,6 @@ class TestVulnerabilityWindowColumns:
         columns = windows[0]["columns"]
         assert [(c["field"], c["label"]) for c in columns] == [("id", "ID"), ("cvss", "CVSS"), ("title", "Title"), ("component", "Component")]
         assert columns[0]["link"] is True
+        assert columns[0]["nowrap"] is True, "a CVE id stays on one line"
         assert columns[1]["format"] == "number" and columns[1]["align"] == "right"
         assert windows[0]["row_url_template"].endswith("vuln_id={id}")
