@@ -561,7 +561,7 @@
                       "search_id": "01a1c6a1-7b2f-7d52-8e4b-6f1a2b3c4d5e",
                       "row_url_template": "/playground/vulnerabilities/vulnerability?vuln_id={id}",
                       "columns": [
-                        {"field": "id", "label": "ID", "link": true},
+                        {"field": "id", "label": "ID", "link": true, "nowrap": true},
                         {"field": "cvss", "label": "CVSS", "format": "number", "align": "right"},
                         {"field": "title", "label": "Title"},
                         {"field": "component", "label": "Component"}
