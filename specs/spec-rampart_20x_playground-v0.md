@@ -73,6 +73,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
+| req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction and one card per data classification key, each describing the classification and its values and counting components by value and entity type |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -416,6 +417,39 @@ delivers enriched vulnerabilities.
 | req-rampart-20x-playground-page-vulnerabilities-14 | Whole Description And Weakness | Proposed | The description is shown whole as a card line, never as a clipped table cell; the CWE weakness types are a one-row list. | CWE ids are plain text: a link needs the number alone, which the record keeps as `CWE-n`. |
 | req-rampart-20x-playground-page-vulnerabilities-15 | Components And Systems On The CVE Page | Proposed | The components table (linked to the component pages) and the systems table moved from the older vulnerability page to the CVE page with their Searches unchanged. | |
 | req-rampart-20x-playground-page-vulnerabilities-16 | Missing Data Reads As Not Recorded | Proposed | Every answer card carries a `not recorded` null text and an empty text saying the vulnerability is not in the grid; none draws a blank. | |
+
+### Data Classification Page
+
+RID: `req-rampart-20x-playground-page-data-classification`
+
+Status: `Proposed`
+
+The page answers "what kinds of data does this deployment hold, and where?". Route `/playground/data-classification`. An
+introduction explains that a component can carry a data classification and that there are two (`dataclass.customer`,
+`dataclass.infra`). Under it, two equal columns hold one stat card each, one card per classification key. Each card
+shows the key as its title, the number of components carrying any value of it, the classification's description, the
+description of every value it can take, and the components by entity type, value by value. There are no tables.
+
+Both cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
+`req-compliance-core-dimension-coverage`); the Search's input `dimension_key` is the only thing that differs. Gryphon
+cannot write the query (a labelless aggregate grouped by entity type and by a dimension value taken from a Search
+input), which each Search's description records. The values come from the dimension dictionary rows, so a value added to
+the dictionary appears on its card with no change to this page.
+
+The cards are the standard Stat Cards panel (`tap_web`). The product-and-plugin cards of `git-serious-double-tap`
+(a coloured left edge, title, outlined pill, status sentence, compact table) were examined: that is the plugin-private
+panel type `double-tap-demo-strip`, which runs inline Gryphon queries for pull requests and checks and is not bound to a
+Search, so it cannot be reused here.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-data-classification-1 | Route Serves | Proposed | `GET /playground/data-classification` returns 200 and is in navigation. | |
+| req-rampart-20x-playground-page-data-classification-2 | Introduction Then One Card Per Key | Proposed | Band one is a text panel; band two is two equal columns, one stat card per classification key; no table. | |
+| req-rampart-20x-playground-page-data-classification-3 | Each Card Reads A Module Search | Proposed | Each card is bound by `USES_SEARCH` to a `module` Search whose runner is `dimension-coverage` and whose `dimension_key` default is its key; the Search description names the missing Gryphon capability. | |
+| req-rampart-20x-playground-page-data-classification-4 | Values From The Dictionary | Proposed | No panel, Search or test names a classification value; the card lines print the runner's `values_text` and `breakdown_text`, so an added value renders unchanged. | |
+| req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values_text`, `breakdown_text`). | |
 
 ### VDR Reports Page
 ----
