@@ -66,7 +66,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock data, one drawn boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty-five dimension nodes: ten `inventory` (the axis and nine categories) and fifteen `dataclass` (the axis, three branches and eleven values) |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty-six dimension nodes: ten `inventory` (the axis and nine categories) and sixteen `dataclass` (the axis, three branches and twelve values) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -223,12 +223,13 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `dataclass.action.store` | `dataclass.action: store` | Data at rest: the item persists data (a volume, an instance's storage, a bucket). |
 | `dataclass.action.process` | `dataclass.action: process` | Data in process: the item computes on data (a program, a container, a function). |
 | `dataclass.action.transmit` | `dataclass.action: transmit` | Data in flight: the item carries data between places (an application flow). |
+| `dataclass.action.none` | `dataclass.action: none` | The item is present but does nothing with data: it neither holds, works on nor moves it. |
 
 **The `dataclass.action` axis (ruled 2026-10-20, George).** `customer` and `infra` say *what kind* of data; `action`
 says *what the item does with it*, in the three states data can be in: at rest (`store`), in process (`process`) and in
 flight (`transmit`). It replaces the earlier `dataclass.customer.reader`, `.writer` and `.storage` values, which mixed a
 component's role into the kind-of-data axis; those three nodes are removed. The axis is independent of the other two and
-takes **one value per entity**: nothing is both a processor and a store. The rule that makes this hold is that persistence
+takes **one value per entity**: nothing is both a processor and a store. A fourth value, `none`, is the acknowledged "nothing": a component that is on the host but does not touch data (a text editor installed on a server, where a cryptographic library is `process`). It is a stamp like the others, `dataclass.action = none`, and it is different from an entity with no `dataclass.action` key at all, which means not yet observed. (Ruled 2026-10-20, George.) The rule that makes this hold is that persistence
 belongs to the thing that persists, not to the program in front of it. A cache is a program that `process`es; the disk
 holding its output `store`s. A database is a program that `process`es; its volume `store`s. So an item that stores and
 computes is modeled as two items, or carries the value of what it is, never both. `transmit` applies to application flows
@@ -259,7 +260,7 @@ Anything not listed stays unstamped, which is "not observed", not a claim of `no
 
 #### Implementation
 
-`grift/dimensions.grift.json`, one batch of twenty-five `inventory` and `dataclass` `dimension` nodes (ten `inventory`, fifteen `dataclass`),
+`grift/dimensions.grift.json`, one batch of twenty-six `inventory` and `dataclass` `dimension` nodes (ten `inventory`, sixteen `dataclass`),
 no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
 `req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
 the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
@@ -268,16 +269,17 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dimensions-1 | Twenty-Five Nodes | Proposed | Importing the bundle yields exactly twenty-five `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | Was twenty-three: the action axis (four nodes) and `sanitized` (one) were added and the reader, writer and storage values (three) removed. |
+| req-rampart-20x-playground-dimensions-1 | Twenty-Six Nodes | Proposed | Importing the bundle yields exactly twenty-six `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | Was twenty-three: the action axis (five nodes: the branch and four values) and `sanitized` (one) were added and the reader, writer and storage values (three) removed. |
 | req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the nine category nodes. | |
 | req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
-| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty-five nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty-six nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
-| req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the three value nodes `store`, `process` and `transmit`. | |
+| req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the four value nodes `store`, `process`, `transmit` and `none`. | |
 | req-rampart-20x-playground-dimensions-7 | Role Values Removed | Proposed | No node named `dataclass.customer.reader`, `dataclass.customer.writer` or `dataclass.customer.storage` is in the bundle, and no entity in the seed data carries those values. | The three nodes are removed from this plugin's seed and purged from any live grid that holds them. Purge approved by George 2026-10-20 (relayed by rampart-pg); the importer cannot delete, so the purge is a separate sanctioned step. |
 | req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The list is proposed for review; the RDS instance stands in for the database volume. |
 | req-rampart-20x-playground-dimensions-9 | One Action Per Entity | Proposed | No seed entity carries more than one `dataclass.action` value, and no seed entity carries a `dataclass.action.<value>` key. | The key is `dataclass.action`; the value is one of the three. |
 | req-rampart-20x-playground-dimensions-10 | Sanitized Value | Proposed | The bundle holds the node `dataclass.customer.sanitized` with the description in the table above, and the `database` application flow carries `dataclass.customer: sanitized` and no `data` stamp; the `customer` application flow still carries `data`. | Replaces the unspecced `data.filtered` idea. |
+| req-rampart-20x-playground-dimensions-11 | None Is A Declared Value | Proposed | `dataclass.action.none` is in the bundle with a description, so an entity stamped `dataclass.action = none` is counted as declared by `dimension-coverage`; no seed entity is stamped `none` yet. | The value exists so libraries and packages that do nothing with data can be marked. A missing key is still "not observed". |
 
 ### Mock Inventory
 ----
