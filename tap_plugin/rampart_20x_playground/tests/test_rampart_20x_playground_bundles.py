@@ -109,7 +109,7 @@ class TestOverviewMembership:
     def test_shown_entities_are_stamped_and_the_organization_and_other_accounts_are_not(self) -> None:
         nodes = _load(PACKAGE_ROOT / "grift" / "mock-inventory.grift.json")["batches"][0]["nodes"]
         by_name = {n["entity"]["name"]: n["entity"] for n in nodes}
-        assert by_name["organization"]["dimensions"].get("overview") is None
+        assert by_name["AWS"]["dimensions"].get("overview") is None
         assert by_name["git-serious"]["dimensions"].get("overview") == "shown"
         for node in nodes:
             if node["entity"]["entity_type"] == "aws_core__aws_account" and node["entity"]["name"] != "git-serious":
@@ -144,8 +144,9 @@ class TestDataclassActionStamping:
                 continue
             assert action == self.EXPECTED[entity["entity_type"]], entity["name"]
             counts[action] = counts.get(action, 0) + 1
-        # five flows, five programs plus two containers, the RDS instance plus two buckets
-        assert counts == {"transmit": 5, "process": 7, "store": 3}
+        # five flows, eight programs (the five web ones and the three teleport ones) plus two containers,
+        # the RDS instance plus two buckets
+        assert counts == {"transmit": 5, "process": 10, "store": 3}
 
     def test_the_retired_administration_flow_is_unstamped(self) -> None:
         old = [e for e in self._stamped() if e.get("entity_id") == "01a15a28-7763-727d-9425-a57a6568592e"]

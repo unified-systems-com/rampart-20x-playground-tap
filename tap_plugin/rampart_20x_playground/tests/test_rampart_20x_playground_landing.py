@@ -356,6 +356,7 @@ class TestRunningParts:
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
             ("RDS A", "PostgreSQL database instance"),
             ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
+            ("teleport", "teleport auth"), ("teleport", "teleport proxy"), ("teleport", "teleport ssh"),
             ("web task a container", "gunicorn"), ("web task b container", "gunicorn (web task b)")]
         assert sorted(by_type["RUNS_IMAGE__computing_core"]) == [
             ("web task a container", "git-serious web image"), ("web task b container", "git-serious web image")]
@@ -364,10 +365,22 @@ class TestRunningParts:
         programs = {n["entity"]["name"]: n for n in _batch_nodes(ENTITIES) if n["entity"]["entity_type"] == "computing_core__program"}
         assert sorted(programs) == [
             "PostgreSQL database instance", "gunicorn", "gunicorn (web task b)",
-            "tap-web", "tap-web (web task b)"]
+            "tap-web", "tap-web (web task b)", "teleport auth", "teleport proxy", "teleport ssh"]
         assert programs["tap-web"]["node"]["program_name"] == programs["tap-web (web task b)"]["node"]["program_name"] == "tap-web"
         for node in programs.values():
             assert node["entity"]["dimensions"]["inventory"] == "applications"
+
+    def test_the_three_teleport_programs_run_on_the_teleport_instance_and_are_not_on_the_overview(self) -> None:
+        names = ("teleport proxy", "teleport auth", "teleport ssh")
+        programs = {n["entity"]["name"]: n for n in _batch_nodes(ENTITIES) if n["entity"]["name"] in names}
+        assert sorted(programs) == sorted(names)
+        for node in programs.values():
+            dims = node["entity"]["dimensions"]
+            assert dims["inventory"] == "applications" and dims["dataclass.action"] == "process"
+            assert "overview" not in dims
+        ends = [(_name(e["from_entity_id"]), _name(e["to_entity_id"])) for e in _batch_edges(APPLICATION_FLOW)
+                if e["edge_type"] == "RUNS_PROGRAM__computing_core" and _name(e["from_entity_id"]) == "teleport"]
+        assert sorted(ends) == sorted(("teleport", n) for n in names)
 
     def test_only_web_task_a_s_interior_the_flows_and_the_database_program_are_on_the_overview(self) -> None:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
