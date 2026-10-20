@@ -75,12 +75,18 @@
  *      aws_core default of an outside label, applied here as a data override before placeParentLabels);
  *  23. the badges (the open-findings bubble and the type badges) follow the zoom_settle `icon` class (`_followIconPolicy`;
  *      should become a `badge` class of zoom_settle, which sizes the status and type badges as it sizes the icon cards).
- *  24. the database's two forms: at the account elevation the RDS instance is a solo icon; past the reveal zoom it becomes a standard
+ *  24. the solo icons carry no border: a bypass `border-width: 0` after applyIconNodes (`_noBorder`), because the settle mode can read the
+ *      stylesheet's border (the `node[fill_color]` rule's 2 px) before the solo rule applies, write it scaled as a bypass, and so
+ *      override the solo rule for good (should become: zoom_settle skips a node whose `_icon_solo` is set, or applyIconNodes writing
+ *      `border-width: 0` itself for a solo node);
+ *  25. the label of a person and of their computer in a horizontal pair is PAIR_FONT_FACTOR of the usual size, so the two names do not touch
+ *      (`_closePairs` marks them and `_scaleFont` reads the mark; should become a per-node `label_scale` display hint).
+ *  26. the database's two forms: at the account elevation the RDS instance is a solo icon; past the reveal zoom it becomes a standard
  *      box (the type icon as a badge at its top-right, its name upper-left) with the PostgreSQL program drawn inside, laid out
  *      once at the box's size and restyled on the elevation change (should become a per-elevation `form` of a node type in the
  *      Elevation definition: `icon-solo` at one elevation, `standard` at the next, its interior shown with it; and a
  *      `badge_corner` option of the badge nodes);
- *  25. the other application flows: a flow that carries no `column` dimension is not in the nesting (a flow cannot nest in an
+ *  27. the other application flows: a flow that carries no `column` dimension is not in the nesting (a flow cannot nest in an
  *      account or a subnet), so it is hidden while the nesting runs and stood afterwards in the gap between the two boxes its
  *      lines end on, on the line that joins their centres (`_placeFlows`; should become a `place: between-endpoints` option of
  *      the nested layouts, which centres an edge-defined node in the gap between the siblings of the lowest common ancestor).
@@ -178,17 +184,20 @@ const DEPLOY_BOX_PADDING = 36;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
+//: Playground exception 25 (same exit): the label size of a person and of their computer in a horizontal pair, as a share of the usual
+//: one. The names are wider than the icon at twice the base font, and the two touch across PAIR_GAP.
+const PAIR_FONT_FACTOR = 0.7;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
 //: boundary) and the pair that hangs below it. Wide enough for the administration flow's circle and its name in between.
 const BELOW_ACCOUNT_GAP = 220;
-//: Playground exception 24: the box of the database when it is a standard node (model units at the account scale): the layout reserves
+//: Playground exception 26: the box of the database when it is a standard node (model units at the account scale): the layout reserves
 //: it, the solo icon (SOLO) stands at its centre at the account elevation. The interior program is laid out at INTERIOR_SCALE inside it.
 const RDS_BOX = {width: 200, height: 120};
-//: Playground exception 24: the box's fill when it is a standard node, a light blue so the program inside stands out, and its border.
+//: Playground exception 26: the box's fill when it is a standard node, a light blue so the program inside stands out, and its border.
 const RDS_FILL = "#BFD4F2";
 const RDS_BORDER = "#2E5C99";
 const RDS_LABEL = "#0F2A4F";
-//: Playground exception 25: the horizontal gap between two columns of the VPC. Wide enough for a flow's circle between the private
+//: Playground exception 27: the horizontal gap between two columns of the VPC. Wide enough for a flow's circle between the private
 //: and the database tier (the circle is half an icon; its name stands above it).
 const VPC_COLUMN_GAP = 130;
 
@@ -284,12 +293,13 @@ export async function execute(context) {
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
+    _noBorder(cy.nodes().filter((n) => n.data("_icon_solo")));
     // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
     // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
     // them afterwards, which grows the account.
     const deploy = _deployPath(cy, shown);
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
-    // Playground exception 25: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
+    // Playground exception 27: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
     const placed = _placedFlows(shown([T.flow]));
     placed.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
@@ -412,7 +422,7 @@ export async function execute(context) {
         parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
     });
     _keepTaskLabel(cy);
-    // Playground exception 24: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
+    // Playground exception 26: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
     placeParentLabels(_only(cy, parents.filter(isDatabase)), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
@@ -442,6 +452,16 @@ export async function execute(context) {
 }
 
 /**
+ * Playground exception 24 (should become: zoom_settle leaves a solo icon's border alone, or applyIconNodes writes the zero itself): a solo
+ * icon draws no border. The stylesheet says so (`node[?_icon_solo]`), but a bypass style wins over it, and the settle mode writes one
+ * (the border it read, scaled) if it reads the node before the solo data is set. An explicit zero is read as the base, and zero is
+ * never scaled.
+ */
+function _noBorder(nodes) {
+    nodes.forEach((n) => n.style({"border-width": 0}));
+}
+
+/**
  * Playground exception 13 (should become an `edge_layer` option of applyStandardChrome: edges drawn above the container
  * fills and below the leaf nodes): how tap_viz orders what Cytoscape draws. Cytoscape sorts by `z-compound-depth` first
  * (bottom, auto, top), then, at the same depth, by `z-index-compare` (auto draws every node after every edge, whatever
@@ -468,7 +488,7 @@ function _layerEdges(cy) {
         cy.nodes().forEach((n) => {
             if (isParent(n) || isOwnLayer(n)) return;
             n.style({"z-index": edgeZ + 1 + Math.round(z(n) / 10)});
-            // Playground exception 24: the database's solo form is a leaf (above the edges) and its box form a container (below them).
+            // Playground exception 26: the database's solo form is a leaf (above the edges) and its box form a container (below them).
             if (n.data("entity_type") === T.rds) n.scratch("landing_db_layers", {box: edgeZ - 1, solo: edgeZ + 1 + Math.round(z(n) / 10)});
         });
     });
@@ -646,6 +666,8 @@ function _closePairs(roots, account, productRoot) {
                 computer.position({x, y});
                 person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
             } else {
+                person.scratch("landingFontFactor", PAIR_FONT_FACTOR);
+                computer.scratch("landingFontFactor", PAIR_FONT_FACTOR);
                 const toward = Math.sign(account.position("x") - person.position("x"));
                 computer.position({y: computer.position("y"),
                     x: person.position("x") + toward * ((person.width() + computer.width()) / 2 + PAIR_GAP)});
@@ -851,7 +873,7 @@ function _openFlowWindow(cy, node) {
 }
 
 /**
- * Playground exception 25: the flows that are not ranked among the roots, those with no `column` dimension (the customer's flow
+ * Playground exception 27: the flows that are not ranked among the roots, those with no `column` dimension (the customer's flow
  * carries one and is placed by `_centreFlow`).
  */
 function _placedFlows(flows) {
@@ -867,7 +889,7 @@ function _holders(cy, node) {
 }
 
 /**
- * Playground exception 25 (should become a `place: between-endpoints` option of the nested layouts): each flow stands in the gap
+ * Playground exception 27 (should become a `place: between-endpoints` option of the nested layouts): each flow stands in the gap
  * between the two boxes its lines end on. The ends are the nodes drawn at the account elevation (the outermost holder in the
  * `lift_edge` relationships, so the web task and not the program inside it). Each end is taken up to the box that is a child of
  * the lowest holder the two share (a subnet, the authorization boundary, a root), and the flow stands midway between the facing
@@ -902,7 +924,7 @@ function _placeFlows(cy, flows) {
 }
 
 /**
- * Playground exception 24: remember the database's box and the label style the layout gave it (upper-left), before it is
+ * Playground exception 26: remember the database's box and the label style the layout gave it (upper-left), before it is
  * made a solo icon, for the reveal.
  */
 function _keepDatabase(nodes) {
@@ -916,7 +938,7 @@ function _keepDatabase(nodes) {
 }
 
 /**
- * Playground exception 24 (should become the `icon-solo` / `standard` forms of a node type in the Elevation definition): the
+ * Playground exception 26 (should become the `icon-solo` / `standard` forms of a node type in the Elevation definition): the
  * database is a solo icon at the account elevation and a standard box (light blue, its name upper-left, its type badge at the
  * top-right, the program drawn inside) once the interior is shown. The box is the size the layout reserved; the solo icon
  * stands at its centre.
@@ -952,7 +974,7 @@ function _formDatabase(cy, nodes, revealed) {
 }
 
 /**
- * Playground exception 24 (should become a `badge_corner` option of the badge nodes): the database's type badge stands at the
+ * Playground exception 26 (should become a `badge_corner` option of the badge nodes): the database's type badge stands at the
  * top-right corner of its box, not the upper-left the runtime gives every other node. Runs after the badge pass and again on
  * each move of the box, after the runtime's own handler.
  */
@@ -1000,7 +1022,7 @@ function _resetElevation(cy) {
     });
     containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => cy.getElementById(id).removeClass(ELEVATION_HIDDEN_CLASS));
     cy.edges().filter((e) => _edgeType(e) === E.containsProgram).remove();
-    // Playground exception 24: the nesting sizes the database as a box, so its solo form is taken off first.
+    // Playground exception 26: the nesting sizes the database as a box, so its solo form is taken off first.
     _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
 }
 
@@ -1237,7 +1259,8 @@ function _scaleFont(n, given) {
         if (!(base > 0)) return;
         n.scratch("landingFontBase", base);
     }
-    n.style({"font-size": `${base * FONT_SCALE}px`});
+    const factor = n.scratch("landingFontFactor") || 1;
+    n.style({"font-size": `${base * FONT_SCALE * factor}px`});
     n.dirtyBoundingBoxCache();
 }
 

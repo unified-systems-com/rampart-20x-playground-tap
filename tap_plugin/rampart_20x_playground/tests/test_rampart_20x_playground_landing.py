@@ -647,7 +647,7 @@ class TestMoreApplicationFlows:
         assert "_formDatabase(cy, cy.nodes(`[entity_type = \"${T.rds}\"]`), true);" in source
         assert "_formDatabase(cy, cy.nodes(`[entity_type = \"${T.rds}\"]`), false);" in source
         assert "badge.position({x: bb.x2, y: bb.y1});" in source
-        assert "Playground exception 24 (should become the `icon-solo` / `standard` forms" in source
+        assert "Playground exception 26 (should become the `icon-solo` / `standard` forms" in source
         assert "const RDS_BOX = " in source
 
     def test_a_flow_with_no_column_is_hidden_during_the_nesting_and_placed_between_its_ends(self) -> None:
@@ -675,9 +675,9 @@ class TestOverviewZoomPolish:
 
     def test_each_new_exception_names_its_runtime_form(self) -> None:
         source = _js()
-        for n in range(19, 26):
+        for n in range(19, 28):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 25 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 27 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
 
     def test_the_text_base_is_doubled_once(self) -> None:
@@ -711,3 +711,26 @@ class TestOverviewZoomPolish:
         panel = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["name"] == "Playground landing graph")
         classes = panel["node"]["config"]["zoom_settle"]["classes"]
         assert classes["font"]["exponent"] == 0.5 and classes["icon"]["exponent"] == 0.75
+        assert classes["arrow"]["exponent"] == 1, "the arrowhead follows the zoom, so it is not huge at the fit zoom"
+
+
+class TestArrowPeoplePolish:
+    """Overview polish: the arrow follows the zoom, solo icons carry no border, a horizontal pair's names do not touch."""
+
+    def test_solo_icons_get_an_explicit_zero_border(self) -> None:
+        source = _js()
+        assert "_noBorder(cy.nodes().filter((n) => n.data(\"_icon_solo\")));" in source
+        body = source.split("function _noBorder")[1].split("\n}\n")[0]
+        assert '"border-width": 0' in body
+        assert "Playground exception 24 (should become: zoom_settle leaves a solo icon's border alone" in source
+        # After every pass that makes solo icons, so none is missed.
+        assert source.index("iconNodeId: \"landing-solo-flow\"") < source.index("_noBorder(cy.nodes()")
+
+    def test_a_horizontal_pair_s_labels_are_smaller_and_the_vertical_pair_is_left_alone(self) -> None:
+        source = _js()
+        factor = float(re.search(r"const PAIR_FONT_FACTOR = ([0-9.]+);", source).group(1))
+        assert 0.5 <= factor < 1
+        pair = source.split("function _closePairs")[1].split("\n}\n")[0]
+        horizontal = pair.split("} else {")[1]
+        assert pair.count("landingFontFactor") == 2 and horizontal.count("landingFontFactor") == 2
+        assert 'n.scratch("landingFontFactor") || 1' in source and "base * FONT_SCALE * factor" in source
