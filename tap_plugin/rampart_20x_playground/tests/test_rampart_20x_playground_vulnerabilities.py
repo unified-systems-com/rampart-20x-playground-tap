@@ -232,11 +232,12 @@ class TestVulnerabilityPages:
         for panel in self.panels:
             if panel["node"]["view"] != CHART:
                 continue
-            series = panel["node"]["config"]["option"]["series"][0]
-            used = {v for v in series.get("encode", {}).values() if isinstance(v, str)}
-            for v in series.get("encode", {}).values():
-                if isinstance(v, list):
-                    used |= set(v)
+            used: set[str] = set()
+            for series in panel["node"]["config"]["option"]["series"]:
+                used |= {v for v in series.get("encode", {}).values() if isinstance(v, str)}
+                for v in series.get("encode", {}).values():
+                    if isinstance(v, list):
+                        used |= set(v)
             assert used <= self._returned(panel), panel["entity"]["name"]
 
     def test_the_component_and_severity_charts_click_through_to_their_drill_in_pages(self) -> None:
@@ -251,6 +252,53 @@ class TestVulnerabilityPages:
         others = [p for p in self.panels if p["node"]["view"] == CHART and p["node"]["slug"] not in expect]
         assert all("click" not in p["node"]["config"] for p in others)
 
+    def test_the_most_open_findings_chart_is_stacked_by_cvss_band(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-20"""
+        panel = self.by_slug["playground-vulnerabilities-top-components"]
+        config = panel["node"]["config"]
+        series = config["option"]["series"]
+        assert [(s["name"], s["encode"]["x"], s["itemStyle"]["color"]) for s in series] == [
+            ("High", "high", "#c0392b"), ("Medium", "medium", "#d9a400"), ("Low", "low", "#2f9e6b"),
+        ]
+        assert {s["stack"] for s in series} == {"findings"} and all(s["type"] == "bar" for s in series)
+        assert config["option"]["legend"]["data"] == ["High", "Medium", "Low"]
+        assert config["sort"] == {"field": "total", "order": "desc"} and config["limit"] == 10
+        assert self._query(panel) == RUNNER_PREFIX + "component-severity"
+        assert self.by_slug["playground-vulnerabilities-cvss"]["node"]["config"]["option"]["visualMap"]["pieces"][0]["color"] == "#2f9e6b"
+
+    def test_the_bubble_counts_are_white_with_no_outline(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-19"""
+        label = self.by_slug["playground-vulnerabilities-severity-age"]["node"]["config"]["option"]["series"][0]["label"]
+        assert label["color"] == "#ffffff" and label["fontWeight"] == "bold"
+        assert label["textBorderWidth"] == 0 and "textBorderColor" not in label
+
+    def test_the_overview_tables_are_striped_with_plain_links(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-18"""
+        for slug in ("open-vulnerabilities", "open-components"):
+            config = self.by_slug[f"playground-vulnerabilities-{slug}"]["node"]["config"]
+            assert config["striped"] is True, slug
+            links = [c for c in config["columns"] if c.get("formatter") in ("link", "linkList")]
+            assert links and all(c["formatter_params"]["style"] == "plain" for c in links), slug
+
+    def test_every_name_and_title_is_in_title_case(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-17"""
+        def title_case(text: str) -> bool:
+            words = [w for w in re.split(r"[ -]", text) if w[:1].isalpha()]
+            return all(w[0].isupper() for w in words)
+
+        for node in self.nodes:
+            if node["entity"]["entity_type"] not in ("panel", "page"):
+                continue
+            config = node["node"].get("config") or {}
+            texts = [node["node"]["name"], config.get("title", "")]
+            texts += [c["title"] for c in config.get("columns", [])]
+            option = config.get("option", {})
+            texts += [option[a]["name"] for a in ("xAxis", "yAxis") if isinstance(option.get(a), dict) and "name" in option[a]]
+            for text in texts:
+                assert title_case(text), (node["node"]["name"], text)
+        names = {p["node"]["name"] for p in self.panels}
+        assert {"CVSS Score", "Most Open Findings", "Severity By Age"} <= names
+
     def test_the_two_overview_tables_search_and_page(self) -> None:
         (column,) = self._of(self._bands(OVERVIEW)[2])
         assert len(column) == 2
@@ -264,7 +312,7 @@ class TestVulnerabilityPages:
         assert config["row_url_template"] == CVE + "?vuln_id={id}"
         (column,) = [c for c in config["columns"] if c["field"] == "id"]
         assert column["formatter"] == "link"
-        assert column["formatter_params"] == {"href_template": CVE + "?vuln_id={id}", "external": False}
+        assert column["formatter_params"] == {"href_template": CVE + "?vuln_id={id}", "external": False, "style": "plain"}
 
     def test_the_component_table_says_what_kind_of_thing_each_row_is_and_counts_by_band(self) -> None:
         table = self.by_slug["playground-vulnerabilities-open-components"]
@@ -285,7 +333,7 @@ class TestVulnerabilityPages:
     def test_a_module_search_records_the_gryphon_capability_it_lacks_and_leaves_out_systems(self) -> None:
         """`req-grid-search-canonical-read-3`: the reason sits in the description; the repository is excluded by an input."""
         modules = [p for p in self.panels if self._is_module(p)]
-        assert len(modules) == 2
+        assert len(modules) == 3
         for panel in modules:
             search = self._search_of(panel)["node"]
             assert "Gryphon has no" in search["description"] and "missing capability" in search["description"]
@@ -374,7 +422,7 @@ class TestVulnerabilityPages:
     def test_the_section_headings_name_the_bands_they_head_and_say_how_to_read_them(self) -> None:
         names = [h["node"]["name"] for h in self.headings]
         assert sorted(names) == sorted(
-            ["How bad and how urgent", "What it is", "Where it affects us", "Details and sources"]
+            ["How Bad And How Urgent", "What It Is", "Where It Affects Us", "Details And Sources"]
         )
         for heading in self.headings:
             config = heading["node"]["config"]
@@ -383,7 +431,7 @@ class TestVulnerabilityPages:
             assert not [e for e in self.edges if e["edge"]["from_entity_id"] == heading["entity"]["entity_id"]]
         by_band = {band: slugs for band, _, slugs in self._cve_rows()}
         assert [by_band[b][0] for b in (2, 4, 6, 8)] == [
-            h["node"]["slug"] for n in ("How bad and how urgent", "What it is", "Where it affects us", "Details and sources")
+            h["node"]["slug"] for n in ("How Bad And How Urgent", "What It Is", "Where It Affects Us", "Details And Sources")
             for h in self.headings if h["node"]["name"] == n
         ]
 
