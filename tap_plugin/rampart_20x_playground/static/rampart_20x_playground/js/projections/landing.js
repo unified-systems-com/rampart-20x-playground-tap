@@ -113,14 +113,30 @@
  *  34. the scope box's title at the size of the container titles: the HTML title of tap_viz's scope box is a fixed 11 px of the model, so it is
  *      resized on each zoom to the size the settle mode gives a container title (`_syncScopeTitle`; should become a `label_size` option of
  *      the scope-box helper that follows the zoom_settle font class);
- *  35. a reversed flow: the flow that carries the dimension `arrow: reversed` shows its arrowhead at the source end, so it points the way the
- *      data travels (the puller's request goes to GitHub, the data comes back); the edges are unchanged (`_styleFlowEdges`; should become an
- *      `arrow: reversed` display hint of the application-flow edge types);
+ *  35. (superseded by 38; should become the per-node `icon_angle` hint) a reversed flow: the `arrow: reversed` dimension is gone; the direction of
+ *      every flow is its `icon_angle`.
  *  36. the database's program on the line of sight at the revealed elevation: the PostgreSQL program is moved up inside the standard box, so
  *      its centre is on the same horizontal line as gunicorn (`_alignDatabaseProgram`; should become an `align` of a nested member to the
  *      anchor's line, as 17, with a title row that does not push a member down);
  *  37. GitHub a little further right: the first node on the delivery line is moved right by GITHUB_SHIFT, so the source-pull arrow has room
  *      (`_shiftGithub`; should become a `gap-before` of a named group in the ranked natural layout of the roots).
+ *  38. a flow's direction: the dimension `icon_angle` of an application flow (degrees; 0 = north / up, 90 = east, 180 = south, 270 = west;
+ *      default 90) turns the flow's circle icon (the icon's own arrow points east at 90, so the icon file is rewrapped in a rotation) and puts
+ *      the one arrowhead on the end of the flow's lines that the angle points to: on the destination line's target end when the destination
+ *      lies on the angle's side of the flow, else on the source line's source end (`_flowAngle`, `_rotateFlowIcons`, `_styleFlowEdges`;
+ *      should become a per-node `icon_angle` display hint of the application-flow type, which the node's icon and its edge types'
+ *      arrow shape both read).
+ *  39. the interior programs' names inside their boxes: centred in the box, wrapped to the box's width, FLOW_FONT_FACTOR-like smaller
+ *      (`_labelProgramsInside`; should become a `label_position: inside` display hint of the program type's revealed form, with a
+ *      `label_scale`, the same hints as 22 and 33).
+ *  40. the flows' names are FLOW_FONT_FACTOR of the usual size (`_scaleFont` reads the mark; should become a `label_scale` display hint of the
+ *      application-flow type, the hint of 25 and 33).
+ *  41. the database's revealed box title: top-centre and DB_TITLE_FACTOR of the usual size (should become a `label_position: top-center` and a
+ *      `label_scale` of the standard form of the RDS type, the hints of 22 and 33, in the Elevation definition of 26).
+ *  42. a node's icon drawn as its own card: the nodes with `icon_form: solo` beside an `icon` dimension (the internet gateway, as the load
+ *      balancer's purple card with a white glyph) keep the solo form with that icon, not the bordered logo card of 32 (`_logoNodes`; same exit as 32,
+ *      the instance-level icon override, whose form is chosen by the display hint of the node).
+ *  43. the Admin Access VPC snug around its subnet: SLOT_PADDING is the room on all sides of the slotted VPC (exception 30; same exit).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -217,13 +233,24 @@ const DEPLOY_LABEL = "Continuous Delivery";
 const DEPLOY_BOX_PADDING = 28;
 //: Room under the pile for the front icon's name (model units), inside the account.
 const PILE_NAME_ROOM = 90;
-//: Playground exceptions 31, 32 and 35: the dimensions that hide a node's name, give a node a logo and reverse a flow's arrowhead, and their values.
+//: Playground exceptions 31, 32 and 42: the dimensions that hide a node's name, give a node an icon of its own and say that icon is a whole card, and their values.
 const LABEL_KEY = "label";
 const LABEL_HIDDEN = "hidden";
 const ICON_KEY = "icon";
 const ICON_PATH = /^[a-z0-9_]+\/icons\/[a-z0-9-]+\.svg$/;
-const ARROW_KEY = "arrow";
-const ARROW_REVERSED = "reversed";
+const ICON_FORM_KEY = "icon_form";
+const ICON_FORM_SOLO = "solo";
+//: Playground exception 38: the dimension that says which way a flow points (degrees, 0 = north, 90 = east, 180 = south, 270 = west), the
+//: direction the flow's icon file already points, and the direction a flow without one points.
+const ICON_ANGLE_KEY = "icon_angle";
+const FLOW_ICON_ANGLE = 90;
+//: Playground exception 40: the size of a flow's name, as a share of the usual one.
+const FLOW_FONT_FACTOR = 0.7;
+//: Playground exception 39: a program's name inside its box takes this share of the box's width, at PROGRAM_FONT_FACTOR of the usual size.
+const PROGRAM_LABEL_FIT = 0.92;
+const PROGRAM_FONT_FACTOR = 0.8;
+//: Playground exception 41: the revealed database box's title size, as a share of the usual one.
+const DB_TITLE_FACTOR = 0.6;
 //: Playground exception 33: the subnets' name size, as a share of the usual one, and its weight.
 const SUBNET_LABEL_FACTOR = 0.6;
 const SUBNET_LABEL_WEIGHT = "normal";
@@ -237,8 +264,10 @@ const LINE_DELIVERY = "delivery";
 //: Playground exception 30: the dimension that gives a VPC a slot of its own, and the slot.
 const PLACE_KEY = "place";
 const PLACE_BOTTOM_CENTER = "bottom-center";
-//: Playground exception 30: the room, in model units, between a slotted VPC's edge and the subnet it holds.
-const SLOT_PADDING = 24;
+//: Playground exceptions 30 and 43: the room, in model units, between a slotted VPC's edge and the subnet it holds, on every side.
+const SLOT_PADDING = 12;
+//: Playground exception 43: the room above the subnet, so the VPC's type badge (at its corner) and the subnet's (at its own) do not overlap.
+const SLOT_TOP = 28;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
@@ -248,6 +277,8 @@ const PAIR_FONT_FACTOR = 0.65;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
 //: boundary) and the pair that hangs below it. Wide enough for the administration flow's circle and its name in between.
 const BELOW_ACCOUNT_GAP = 220;
+//: Playground exception (same exit): the extra room between the administrator pair's computer and person for the computer's two-line name.
+const PAIR_NAME_ROOM = 30;
 //: Playground exception 26: the box of the database when it is a standard node (model units at the account scale): the layout reserves
 //: it, the solo icon (SOLO) stands at its centre at the account elevation. The interior program is laid out at INTERIOR_SCALE inside it.
 const RDS_BOX = {width: 200, height: 120};
@@ -356,6 +387,8 @@ export async function execute(context) {
     applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     // Playground exception 28: the deploy icons are half size.
     applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
+    // Playground exception 38: a flow's circle is turned to the way its data goes.
+    await _rotateFlowIcons(shown([T.flow]));
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
     _noBorder(cy.nodes().filter((n) => n.data("_icon_solo")));
     // Playground exception (deploy pile room; should become a reserve option of the nested layouts): the deploy icons
@@ -504,9 +537,11 @@ export async function execute(context) {
     subnets.style({"font-weight": SUBNET_LABEL_WEIGHT});
     _keepTaskLabel(cy);
     // Playground exception 26: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
+    // Playground exception 41: its title is top-centre and smaller (`_scaleFont` reads the factor).
+    parents.filter(isDatabase).forEach((n) => n.scratch("landingFontFactor", DB_TITLE_FACTOR));
     placeParentLabels(_only(cy, parents.filter(isDatabase)), {
-        anchor: "upper-left", inset: 16,
-        parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
+        anchor: "top-center", inset: 16,
+        parentFontSize: chrome.parentFontSize * FONT_SCALE * DB_TITLE_FACTOR, parentFontWeight: chrome.parentFontWeight,
     });
     placeParentLabels(_only(cy, parents.filter(isInterior)), {
         anchor: "upper-left", inset: interiorInset,
@@ -514,6 +549,9 @@ export async function execute(context) {
     });
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
+    // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
+    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && n.data("entity_type") === T.program));
+    shown([T.flow]).forEach((n) => n.scratch("landingFontFactor", FLOW_FONT_FACTOR));
     // Playground exception 19: after every label's size is set, so the doubled size is the base the settle mode starts from.
     cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
     _keepDatabase(cy.nodes(`[entity_type = "${T.rds}"]`));
@@ -789,7 +827,7 @@ function _slotSize(slotted, pad) {
             return {subnet, held, width: Math.max(SUBNET.width, iconW + pad.left + pad.right), height: pad.top + iconH + pad.bottom, iconH};
         });
         const width = Math.max(...subnetBoxes.map((b) => b.width), 0) + 2 * SLOT_PADDING;
-        const height = pad.top + subnetBoxes.reduce((sum, b) => sum + b.height, 0) + SLOT_PADDING;
+        const height = SLOT_TOP + subnetBoxes.reduce((sum, b) => sum + b.height, 0) + SLOT_PADDING;
         return {vpc, subnetBoxes, width, height};
     });
     return {sizes, height: Math.max(0, ...sizes.map((b) => b.height))};
@@ -845,9 +883,10 @@ function _hideLabels(cy) {
  * grid's icon convention): their `icon_url` is set to it. Anything that is not of that shape is ignored.
  */
 function _logoNodes(candidates) {
-    const logos = candidates.filter((n) => ICON_PATH.test(String((n.data("dimensions") || {})[ICON_KEY] || "")));
-    logos.forEach((n) => n.data("icon_url", `/static/${n.data("dimensions")[ICON_KEY]}`));
-    return logos;
+    const withIcon = candidates.filter((n) => ICON_PATH.test(String((n.data("dimensions") || {})[ICON_KEY] || "")));
+    withIcon.forEach((n) => n.data("icon_url", `/static/${n.data("dimensions")[ICON_KEY]}`));
+    // Playground exception 42: an icon that is a whole card of its own stays a solo icon (it is the card).
+    return withIcon.filter((n) => (n.data("dimensions") || {})[ICON_FORM_KEY] !== ICON_FORM_SOLO);
 }
 
 /**
@@ -938,7 +977,10 @@ function _closePairs(roots, account, productRoot) {
                 const bottom = productRoot.boundingBox({includeLabels: false, includeOverlays: false}).y2;
                 const y = bottom + BELOW_ACCOUNT_GAP + computer.height() / 2;
                 computer.position({x, y});
-                person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
+                person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP + PAIR_NAME_ROOM});
+                // Playground exception 25: the vertical pair's names are as small as the horizontal pairs'.
+                person.scratch("landingFontFactor", PAIR_FONT_FACTOR);
+                computer.scratch("landingFontFactor", PAIR_FONT_FACTOR);
             } else {
                 person.scratch("landingFontFactor", PAIR_FONT_FACTOR);
                 computer.scratch("landingFontFactor", PAIR_FONT_FACTOR);
@@ -1346,7 +1388,11 @@ function _only(cy, nodes) {
  */
 function _styleFlow(cy, flows) {
     flows.forEach((flow) => flow.style({
-        "text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP, "color": FLOW_BLUE,
+        // Playground exception 38: a flow that points up or down has its name beside the circle, so its vertical line does not run through it.
+        ...(_flowAngle(flow) % 180 === 0
+            ? {"text-valign": "center", "text-halign": "right", "text-margin-x": FLOW_LABEL_GAP, "text-margin-y": 0}
+            : {"text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP}),
+        "color": FLOW_BLUE,
         // Ruled 2026-10-20 (George): no fill behind a flow's name.
         "text-background-opacity": 0,
     }));
@@ -1357,16 +1403,90 @@ function _styleFlowEdges(cy) {
     cy.edges().forEach((edge) => {
         const type = _edgeType(edge);
         if (type !== E.flowSource && type !== E.flowDestination) return;
-        // Playground exception 35: a reversed flow's arrowhead stands at the SOURCE end of its source line (at the puller),
-        // and its destination line has none; the edges themselves are unchanged.
+        // Playground exception 38: a flow carries ONE arrowhead, on the end its `icon_angle` points to: the destination line's target end
+        // when the destination lies on the angle's side of the flow, else the source line's source end (the data comes back to the source).
         const flow = type === E.flowSource ? edge.target() : edge.source();
-        const reversed = (flow.data("dimensions") || {})[ARROW_KEY] === ARROW_REVERSED;
-        const head = type === E.flowSource ? reversed : !reversed;
+        const onDestination = _destinationAhead(flow);
+        const head = type === E.flowSource ? !onDestination : onDestination;
         edge.style({
             "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE, "source-arrow-color": FLOW_BLUE,
             "target-arrow-shape": type === E.flowSource || !head ? "none" : "triangle",
             "source-arrow-shape": type === E.flowSource && head ? "triangle" : "none",
             ...(head ? {"arrow-scale": FLOW_ARROW_SCALE} : {}),
+        });
+    });
+}
+
+/**
+ * Playground exception 38: the angle a flow points, in degrees (0 = north, 90 = east, 180 = south, 270 = west), from its `icon_angle`
+ * dimension; FLOW_ICON_ANGLE when it has none or it is not a number.
+ */
+function _flowAngle(flow) {
+    const value = Number((flow.data("dimensions") || {})[ICON_ANGLE_KEY]);
+    const given = Number.isFinite(value) && (flow.data("dimensions") || {})[ICON_ANGLE_KEY] !== "" ? value : FLOW_ICON_ANGLE;
+    return ((given % 360) + 360) % 360;
+}
+
+/**
+ * Playground exception 38: whether the flow's destination lies on the side of the flow its angle points to (the dot product of the
+ * destination's offset from the flow and the angle's unit vector, screen y down, is not negative).
+ */
+function _destinationAhead(flow) {
+    const edge = flow.connectedEdges().filter((e) => _edgeType(e) === E.flowDestination && e.source().same(flow)).first();
+    if (edge.empty()) return true;
+    const angle = _flowAngle(flow) * Math.PI / 180;
+    const from = flow.position(), to = edge.target().position();
+    return (to.x - from.x) * Math.sin(angle) + (to.y - from.y) * -Math.cos(angle) >= 0;
+}
+
+const _flowIconSource = new Map();
+
+/**
+ * Playground exception 38: turn each flow's icon to its angle. The icon file points east; the file is read once and wrapped in a rotation
+ * about its centre (an SVG used as an image cannot load another file, so the wrapper holds the original's shapes), and the node's `icon_url`
+ * becomes that data URI. The original URL is kept in the node's scratch so a second run starts from it. A flow at the default angle, or whose
+ * icon cannot be read, keeps its file.
+ */
+async function _rotateFlowIcons(flows) {
+    for (const flow of flows.toArray()) {
+        const url = flow.scratch("landingFlowIconUrl") || flow.data("icon_url");
+        if (!url || String(url).startsWith("data:")) continue;
+        flow.scratch("landingFlowIconUrl", url);
+        const turn = _flowAngle(flow) - FLOW_ICON_ANGLE;
+        if (turn === 0) {
+            flow.data("icon_url", url);
+            continue;
+        }
+        try {
+            if (!_flowIconSource.has(url)) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(String(response.status));
+                _flowIconSource.set(url, await response.text());
+            }
+            const text = _flowIconSource.get(url);
+            const open = text.match(/<svg[^>]*>/);
+            const inner = open ? text.slice(open.index + open[0].length, text.lastIndexOf("</svg>")) : "";
+            const box = open && open[0].match(/viewBox="([^"]+)"/);
+            const [x, y, w, h] = box ? box[1].split(/[\s,]+/).map(Number) : [0, 0, 80, 80];
+            const wrapped = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${x} ${y} ${w} ${h}">`
+                + `<g transform="rotate(${turn} ${x + w / 2} ${y + h / 2})">${inner}</g></svg>`;
+            flow.data("icon_url", `data:image/svg+xml;charset=utf-8,${encodeURIComponent(wrapped)}`);
+        } catch (_err) {
+            flow.data("icon_url", url);
+        }
+    }
+}
+
+/**
+ * Playground exception 39 (should become a `label_position: inside` display hint of the program type's revealed form): a program's name is
+ * centred inside its box, wrapped to the box's width, at PROGRAM_FONT_FACTOR of the usual size (`_scaleFont` reads the factor).
+ */
+function _labelProgramsInside(programs) {
+    programs.forEach((n) => {
+        n.scratch("landingFontFactor", PROGRAM_FONT_FACTOR);
+        n.style({
+            "text-valign": "center", "text-halign": "center", "text-margin-x": 0, "text-margin-y": 0,
+            "text-wrap": "wrap", "text-max-width": `${n.width() * PROGRAM_LABEL_FIT}px`,
         });
     });
 }
