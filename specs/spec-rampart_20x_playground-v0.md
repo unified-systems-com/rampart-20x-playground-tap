@@ -572,6 +572,7 @@ Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is 
 | req-rampart-20x-playground-classification-mapping-7 | Dependencies Declared | Proposed | `depends_on` gains `fedramp_20x_vdr`, the `demo` record installs it, and the `compliance_core` floor names the release that ships the mapping runners and the snapshot base class. | |
 | req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
 | req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package and crypto-provider counts follow the inventory-software batch. |
+| req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
 
 ### Classification Mapping Page
 ----
