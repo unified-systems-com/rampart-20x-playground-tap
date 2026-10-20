@@ -871,6 +871,9 @@ class TestOverviewTweaksTwo:
         hidden = {n["entity"]["entity_type"].split("__")[1] for n in _nodes()
                   if n["entity"]["dimensions"].get("label") == "hidden"}
         assert hidden == {"aws_route53_zone", "aws_lambda", "aws_ec2_instance"}, "the gateway, the load balancer and the database show their names"
+        names = {n["entity"]["entity_type"].split("__")[1]: n["entity"]["name"] for n in _nodes()
+                 if n["entity"]["entity_type"].split("__")[1] in ("aws_internet_gateway", "aws_alb", "aws_rds_instance")}
+        assert names == {"aws_internet_gateway": "IGW", "aws_alb": "ALB", "aws_rds_instance": "RDS A"}
         assert "const NAMED_ICON_TYPES = [T.igw, T.alb, T.rds];" in source and "Playground exception 47" in source
 
     def test_the_teleport_instance_has_a_logo_card_by_dimension_and_stays_an_ec2(self) -> None:
