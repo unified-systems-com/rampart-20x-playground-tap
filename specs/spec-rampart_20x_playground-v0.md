@@ -72,7 +72,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
-| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a vulnerability or component page |
+| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -363,6 +363,22 @@ the `computing_core` components they concern. Each row drills in: a vulnerabilit
 the grid holds, the components that carry it and the systems where it was found; a component page shows its
 type and every vulnerability it carries.
 
+The CVE page explains one vulnerability to two readers: an analyst deciding how urgent it is and an engineer
+deciding what to change. It reads top to bottom in the order those readers ask: a headline card (the CVE id large,
+the plain-language title, the CVSS score and who assigned it, the publication time, and the CISA KEV state as the
+card's tone word); then four answer cards, CVSS score first and widest (the severity word and tone follow the score
+band), whether CISA lists it as exploited (the tone word is the answer; the figure is CISA's fix-by date; the lines
+add the date added, ransomware use and the required action), how likely exploitation is (the EPSS probability, its
+percentile spelled out in the line label, and CISA's SSVC exploitation, automatable and technical-impact
+assessments) and the exposure here (open findings on components); then what it is (the full description in a card
+line and the CWE weakness types); then where it affects us (the components that carry a finding, linked to their
+pages, and the systems that install them); then, last, the vuln-mosaic dashboard as "Details and sources" for the
+affected version ranges and fixed versions, the references and the data freshness. Each band after the first sits
+under a short heading panel. To be narrowed to `sections: [...]` once vuln-mosaic ships that config key: the panel
+then stops drawing its own header, cards and CVSS row, which this page now draws; until then it is mounted with its
+current config and repeats them. The spelled-out CVSS metric explanation (attack vector and the like) is vuln-mosaic's
+and is not built here.
+
 #### Implementation
 
 Route `/playground/vulnerabilities`, two bands. The first band is three equal columns, each a Stat Cards card
@@ -390,10 +406,16 @@ delivers enriched vulnerabilities.
 | req-rampart-20x-playground-page-vulnerabilities-4 | Standard Vocabulary Only | Proposed | The Searches read only `compliance_core`, `computing_core` and `github_core` types. | |
 | req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a column, chart or row link names is a RETURN alias of its Search; every `$parameter` a Search uses is declared in its input schema. | |
 | req-rampart-20x-playground-page-vulnerabilities-6 | Charts Describe Themselves | Proposed | The three charts share a height; each carries an accessible label and says what an empty result means; the score chart prints its counts. | |
-| req-rampart-20x-playground-page-vulnerabilities-7 | Two Searchable Paged Tables | Proposed | A full-width band holds the open-vulnerability table and the per-component table, each with a quick filter, paging and a row link to its drill-in. The open-vulnerability table's id cell is a link and its row click goes to the CVE dashboard (`/playground/vulnerabilities/cve?vuln_id={id}`), as does a click on the severity-age chart; nothing on the overview opens the older vulnerability page. | The CVE dashboard replaces the vulnerability links on the overview; the older page stays reachable from the component page. |
-| req-rampart-20x-playground-page-vulnerabilities-8 | Vulnerability Drill-In | Proposed | The vulnerability page shows its score, vector, KEV and exploitation signals, publication time, CWE, description, the components that carry it and the hosts that install them. | |
-| req-rampart-20x-playground-page-vulnerabilities-9 | Component Drill-In | Proposed | The component page shows its type, open findings, highest CVSS, every vulnerability it carries and the hosts that install it. | |
-| req-rampart-20x-playground-page-vulnerabilities-10 | CVE Record Page Names Itself | Proposed | The CVE page is named `CVE record`, its description says what it shows (the record, KEV status, EPSS, CVSS vector, affected products, references and data freshness for one vulnerability) and where it is opened from, and it renders a text panel carrying that sentence under the same name, above the vuln-mosaic dashboard panel. | A page's description is not rendered, so the visible title and sentence are the text panel. The dashboard panel keeps its own header hidden and is not recoloured here. |
+| req-rampart-20x-playground-page-vulnerabilities-7 | Two Searchable Paged Tables | Proposed | A full-width band holds the open-vulnerability table and the per-component table, each with a quick filter, paging and a row link to its drill-in. The open-vulnerability table's id cell is a link and its row click goes to the CVE dashboard (`/playground/vulnerabilities/cve?vuln_id={id}`), as does a click on the severity-age chart; nothing on the overview opens the older vulnerability page. | The CVE page replaces the vulnerability links on the overview. |
+| req-rampart-20x-playground-page-vulnerabilities-8 | Older Vulnerability Page | Proposed | The older vulnerability page shows its score, vector, KEV and exploitation signals, publication time and description in two tables; its components and systems tables moved to the CVE page, and nothing links to it. | The page is a retirement candidate; it stays until that is decided. |
+| req-rampart-20x-playground-page-vulnerabilities-9 | Component Drill-In | Proposed | The component page shows its type, open findings, highest CVSS, every vulnerability it carries and the hosts that install it; a vulnerability's id link and row click open the CVE page. | |
+| req-rampart-20x-playground-page-vulnerabilities-10 | CVE Page Names Itself | Proposed | The CVE page node is named exactly `CVE` (the breadcrumb shows it) and is hidden from navigation; its description says what it explains and where it is opened from. The visible heading is the headline card: the CVE id and the plain-language title, not the page name. | A page's description is not rendered. |
+| req-rampart-20x-playground-page-vulnerabilities-11 | CVE Page Reading Order | Proposed | The CVE page runs in nine bands: headline card; heading and four answer cards; heading, description and weakness; heading, components and systems; heading and the vuln-mosaic panel last, with its current config. Each band after the first sits under a heading panel of its own. | The vuln-mosaic panel is to be narrowed to `sections: [...]` once it ships that key. |
+| req-rampart-20x-playground-page-vulnerabilities-12 | CVSS Is The First, Widest Card | Proposed | The first answer card is the CVSS score, wider than the other three, out of 10; its tone and word (Low, Medium, High or critical) follow the score band (below 4, 4 to 6.9, 7 and up) for every score of one decimal; an unscored vulnerability is neutral with no word. | Critical folds into High because a stat card has three words (good, warn, bad). |
+| req-rampart-20x-playground-page-vulnerabilities-13 | Exploited, Likely, Exposed | Proposed | The exploited card's tone word answers yes, no or not checked from the CISA KEV flag and its figure is the CISA fix-by date; the likelihood card shows the EPSS probability with the percentile and the SSVC exploitation, automatable and technical impact; the exposure card counts open findings on components and is green at zero. | |
+| req-rampart-20x-playground-page-vulnerabilities-14 | Whole Description And Weakness | Proposed | The description is shown whole as a card line, never as a clipped table cell; the CWE weakness types are a one-row list. | CWE ids are plain text: a link needs the number alone, which the record keeps as `CWE-n`. |
+| req-rampart-20x-playground-page-vulnerabilities-15 | Components And Systems On The CVE Page | Proposed | The components table (linked to the component pages) and the systems table moved from the older vulnerability page to the CVE page with their Searches unchanged. | |
+| req-rampart-20x-playground-page-vulnerabilities-16 | Missing Data Reads As Not Recorded | Proposed | Every answer card carries a `not recorded` null text and an empty text saying the vulnerability is not in the grid; none draws a blank. | |
 
 ### VDR Reports Page
 ----
