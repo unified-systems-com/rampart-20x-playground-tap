@@ -47,10 +47,10 @@ class TestVulnerabilityPages:
         self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
         self.pages = {n["node"]["slug"]: n for n in self.nodes if n["entity"]["entity_type"] == "page"}
         every = [n for n in self.nodes if n["entity"]["entity_type"] == "panel"]
-        # the CVE dashboard panel belongs to vuln-mosaic and the CVE page's title is a text panel; neither reads a
-        # Search, and every other panel reads exactly one
+        # the CVE dashboard panel belongs to vuln-mosaic and the CVE page's section headings are text panels; neither
+        # reads a Search, and every other panel reads exactly one
         self.mosaic = [p for p in every if p["node"]["view"] == MOSAIC]
-        self.titles = [p for p in every if p["node"]["view"] == TEXT]
+        self.headings = [p for p in every if p["node"]["view"] == TEXT]
         self.panels = [p for p in every if p["node"]["view"] not in (MOSAIC, TEXT)]
         self.by_slug = {p["node"]["slug"]: p for p in every}
 
@@ -168,14 +168,12 @@ class TestVulnerabilityPages:
         }
         assert links
         for slug, link in links.items():
-            assert link.startswith((CVE + "?vuln_id=", VULNERABILITY + "?vuln_id=", COMPONENT + "?component_id=")), slug
+            assert link.startswith((CVE + "?vuln_id=", COMPONENT + "?component_id=")), slug
 
-    def test_nothing_on_the_overview_opens_the_older_vulnerability_page(self) -> None:
-        """The CVE dashboard replaces the vulnerability links on the main page; the older drill-in stays reachable
-        from the component page, which keeps its own links."""
-        overview = {s for s in self._slots(OVERVIEW)}
-        assert overview
-        for slug in overview:
+    def test_nothing_opens_the_older_vulnerability_page(self) -> None:
+        """The CVE page replaces the vulnerability links on the overview and on the component page; the older
+        drill-in is reachable by its address only."""
+        for slug in self._slots(OVERVIEW) + self._slots(COMPONENT) + self._slots(CVE):
             assert VULNERABILITY not in json.dumps(self.by_slug[slug]["node"]["config"]), slug
 
     def test_the_drill_in_pages_are_hidden_from_navigation_and_the_overview_is_not(self) -> None:
@@ -209,7 +207,7 @@ class TestVulnerabilityPages:
 
     def test_the_cards_say_a_number_and_nothing_else(self) -> None:
         """No unit, no secondary lines, no tone words and no header or description: the figure and the tone's left edge."""
-        cards = [p for p in self.panels if p["node"]["view"] == CARD]
+        cards = [self.by_slug[s] for s in self._slots(OVERVIEW) if self.by_slug[s]["node"]["view"] == CARD]
         assert len(cards) == 3
         for card in cards:
             config = card["node"]["config"]
@@ -300,13 +298,13 @@ class TestVulnerabilityPages:
 
     # -- the drill-ins ---------------------------------------------------------------------------------------
 
-    def test_the_vulnerability_page_shows_its_context_its_components_and_its_systems(self) -> None:
-        slots = set(self._slots(VULNERABILITY))
-        for need in ("vuln-identity", "vuln-description", "vuln-components", "vuln-systems"):
-            assert f"playground-vulnerabilities-{need}" in slots, need
-        systems = self.by_slug["playground-vulnerabilities-vuln-systems"]
-        assert "computing_core__host" in self._query(systems)
-        assert "$vuln_id" in self._query(systems)
+    def test_the_older_vulnerability_page_keeps_its_two_tables_and_gives_up_the_components_and_systems(self) -> None:
+        assert self._slots(VULNERABILITY) == [
+            "playground-vulnerabilities-vuln-identity", "playground-vulnerabilities-vuln-description",
+        ]
+        description = self.pages[VULNERABILITY]["node"]["description"]
+        assert "components" not in description.replace("components and systems too", "")
+        assert "nothing links here" in description
 
     def test_the_component_page_lists_the_vulnerabilities_of_one_component(self) -> None:
         slots = set(self._slots(COMPONENT))
@@ -314,27 +312,179 @@ class TestVulnerabilityPages:
             assert f"playground-vulnerabilities-{need}" in slots, need
         assert "$component_id" in self._query(self.by_slug["playground-vulnerabilities-component-vulnerabilities"])
 
-    def test_the_cve_page_is_a_title_then_one_vuln_mosaic_panel_that_writes_nothing(self) -> None:
+    def test_the_component_page_opens_the_cve_page_by_row_and_by_id_link(self) -> None:
+        config = self.by_slug["playground-vulnerabilities-component-vulnerabilities"]["node"]["config"]
+        assert config["row_url_template"] == CVE + "?vuln_id={id}"
+        (column,) = [c for c in config["columns"] if c["field"] == "id"]
+        assert column["formatter_params"] == {"href_template": CVE + "?vuln_id={id}", "external": False}
+
+    # -- the CVE page: answer first, then how bad, what it is, where it affects us, details and sources ---------
+
+    def _cve_rows(self) -> list[tuple[int, str, list[str]]]:
+        """(band, width, [panel slugs]) per column, in reading order."""
+        columns = self.pages[CVE]["node"]["layout"]["columns"]
+        ordered = sorted(columns, key=lambda k: int(k.split("-")[1]))
+        return [
+            (columns[k]["band"], columns[k]["width"], [r["panel-id"] for r in columns[k]["rows"].values()])
+            for k in ordered
+        ]
+
+    def _stat_fields(self, panel: dict) -> set[str]:
+        """Every row field a stat card's config names: figure, title, lines and the field its tone follows."""
+        config = panel["node"]["config"]
+        fields = {config["value_field"]}
+        fields |= {config[k] for k in ("title_field",) if k in config}
+        fields |= {line["field"] for line in config.get("lines", [])}
+        if isinstance(config.get("tone"), dict):
+            fields.add(config["tone"]["field"])
+        return fields
+
+    def test_the_cve_page_reads_top_to_bottom_in_nine_bands(self) -> None:
+        slug = lambda s: f"playground-vulnerabilities-{s}"  # noqa: E731
+        assert self._cve_rows() == [
+            (1, "12fr", [slug("cve-headline")]),
+            (2, "12fr", [slug("cve-h-urgency")]),
+            (3, "6fr", [slug("cve-cvss")]), (3, "5fr", [slug("cve-exploited")]),
+            (3, "5fr", [slug("cve-likelihood")]), (3, "5fr", [slug("cve-exposure")]),
+            (4, "12fr", [slug("cve-h-what")]),
+            (5, "8fr", [slug("cve-description")]), (5, "4fr", [slug("cve-weakness")]),
+            (6, "12fr", [slug("cve-h-where")]),
+            (7, "7fr", [slug("vuln-components")]), (7, "5fr", [slug("vuln-systems")]),
+            (8, "12fr", [slug("cve-h-details")]),
+            (9, "12fr", [slug("cve")]),
+        ]
+
+    def test_the_cve_page_is_named_cve_and_has_the_vuln_mosaic_panel_last_and_unchanged(self) -> None:
+        page = self.pages[CVE]["node"]
+        assert page["name"] == "CVE" == self.pages[CVE]["entity"]["name"]
         (panel,) = self.mosaic
-        (title,) = self.titles
-        assert self._slots(CVE) == [title["node"]["slug"], panel["node"]["slug"]]
+        assert self._slots(CVE)[-1] == panel["node"]["slug"]
+        # the panel keeps its current config until vuln-mosaic ships a `sections` key (see the spec)
         assert panel["node"]["config"] == {
             "vuln_id_var": "vuln_id", "hide_header": True, "queue_misses": False, "max_references_per_tag": 8,
         }
-        for node in (panel, title):
-            assert not [e for e in self.edges if e["edge"]["from_entity_id"] == node["entity"]["entity_id"]]
+        assert not [e for e in self.edges if e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]]
 
-    def test_the_cve_page_has_a_name_and_says_what_it_shows(self) -> None:
-        page = self.pages[CVE]["node"]
-        (title,) = self.titles
-        assert page["name"] == "CVE record" == title["node"]["name"]
-        assert title["node"]["config"]["hide_header"] is False
-        text = title["node"]["config"]["text"]
-        assert text == page["description"] and text.count(". ") == 0 and text.endswith(".")
-        for word in ("KEV", "EPSS", "CVSS", "products", "references", "freshness"):
-            assert word in page["description"], word
-        assert "Vulnerabilities page" in page["description"]
-        assert self.mosaic[0]["node"]["name"] != page["name"]
+    def test_the_cve_page_description_says_what_it_explains_and_where_it_is_opened_from(self) -> None:
+        description = self.pages[CVE]["node"]["description"]
+        for phrase in ("how bad it scores", "exploited", "what it is", "components and systems", "details and sources",
+                       "Vulnerabilities or Component page"):
+            assert phrase in description, phrase
+
+    def test_the_section_headings_name_the_bands_they_head_and_say_how_to_read_them(self) -> None:
+        names = [h["node"]["name"] for h in self.headings]
+        assert sorted(names) == sorted(
+            ["How bad and how urgent", "What it is", "Where it affects us", "Details and sources"]
+        )
+        for heading in self.headings:
+            config = heading["node"]["config"]
+            assert config["hide_header"] is False
+            assert config["text"].endswith(".") and len(config["text"]) > 40, heading["node"]["name"]
+            assert not [e for e in self.edges if e["edge"]["from_entity_id"] == heading["entity"]["entity_id"]]
+        by_band = {band: slugs for band, _, slugs in self._cve_rows()}
+        assert [by_band[b][0] for b in (2, 4, 6, 8)] == [
+            h["node"]["slug"] for n in ("How bad and how urgent", "What it is", "Where it affects us", "Details and sources")
+            for h in self.headings if h["node"]["name"] == n
+        ]
+
+    def test_the_headline_card_puts_the_id_and_the_title_first_with_severity_and_kev_state(self) -> None:
+        panel = self.by_slug["playground-vulnerabilities-cve-headline"]
+        config = panel["node"]["config"]
+        assert panel["node"]["view"] == CARD
+        assert config["value_field"] == "id" and config["title_field"] == "title"
+        assert {line["field"] for line in config["lines"]} == {"cvss", "version", "scored_by", "published"}
+        assert config["tone"]["field"] == "kev" and config["tone_text"] is True
+        assert config["tone"]["map"] == {"True": "bad", "true": "bad", "False": "good", "false": "good"}
+        assert config["tone_labels"]["bad"].startswith("On the CISA exploited list")
+        assert config["tone_labels"]["good"].startswith("Not on the CISA exploited list")
+        assert config["tone_labels"]["neutral"]
+        assert self._stat_fields(panel) <= self._returned(panel)
+
+    def test_the_four_answer_cards_run_cvss_exploited_likelihood_exposure_with_cvss_the_widest(self) -> None:
+        band = [(w, slugs[0]) for b, w, slugs in self._cve_rows() if b == 3]
+        assert [s for _, s in band] == [f"playground-vulnerabilities-cve-{s}" for s in ("cvss", "exploited", "likelihood", "exposure")]
+        widths = [int(w.removesuffix("fr")) for w, _ in band]
+        assert widths[0] > max(widths[1:]) and len(set(widths[1:])) == 1
+        for _, slug in band:
+            panel = self.by_slug[slug]
+            config = panel["node"]["config"]
+            assert panel["node"]["view"] == CARD and config["hide_header"] is True and config["tone_text"] is True, slug
+            assert config["title"] and config["empty_text"] and config["null_text"] == "not recorded", slug
+
+    def test_every_stat_card_on_the_cve_page_names_only_fields_its_search_returns(self) -> None:
+        cards = [self.by_slug[s] for s in self._slots(CVE) if self.by_slug[s]["node"]["view"] == CARD]
+        assert len(cards) == 6
+        for card in cards:
+            assert self._stat_fields(card) <= self._returned(card), card["entity"]["name"]
+            assert "$vuln_id" in self._query(card), card["entity"]["name"]
+
+    def test_the_cvss_card_words_and_colours_every_score_by_its_band(self) -> None:
+        config = self.by_slug["playground-vulnerabilities-cve-cvss"]["node"]["config"]
+        assert config["value_field"] == "cvss" and config["unit"] == "out of 10"
+        assert config["tone_labels"] == {"good": "Low", "warn": "Medium", "bad": "High or critical", "neutral": ""}
+        tones = config["tone"]["map"]
+        for tenth in range(0, 101):
+            score = tenth / 10
+            expect = "neutral" if tenth == 0 else "good" if tenth < 40 else "warn" if tenth < 70 else "bad"
+            assert tones[f"{score:.1f}"] == expect, score
+            if tenth % 10 == 0:
+                assert tones[str(tenth // 10)] == expect, score
+        assert len(tones) == 101 + 11
+        assert {"vector", "version", "scored_by"} == {line["field"] for line in config["lines"]}
+
+    def test_the_exploited_card_answers_in_words_and_carries_the_kev_facts(self) -> None:
+        config = self.by_slug["playground-vulnerabilities-cve-exploited"]["node"]["config"]
+        assert config["tone"]["field"] == "kev"
+        assert config["tone_labels"]["bad"].startswith("Yes") and config["tone_labels"]["good"].startswith("No")
+        assert config["value_field"] == "due" and config["unit"] == "CISA fix-by date"
+        assert [line["field"] for line in config["lines"]] == ["added", "ransomware", "action"]
+
+    def test_the_likelihood_card_shows_epss_and_spells_out_the_ssvc_assessment(self) -> None:
+        config = self.by_slug["playground-vulnerabilities-cve-likelihood"]["node"]["config"]
+        assert config["value_field"] == "epss" and config["value_formatter"] == "number"
+        assert config["tone"]["map"] == {"none": "good", "poc": "warn", "active": "bad"}
+        assert all(label.startswith("CISA SSVC") for k, label in config["tone_labels"].items() if label)
+        fields = [line["field"] for line in config["lines"]]
+        assert fields == ["percentile", "as_of", "exploitation", "automatable", "impact"]
+        percentile = config["lines"][0]["label"]
+        assert "0.31" in percentile and "higher than 31% of vulnerabilities" in percentile
+
+    def test_the_exposure_card_counts_open_findings_on_components_and_goes_green_at_zero(self) -> None:
+        panel = self.by_slug["playground-vulnerabilities-cve-exposure"]
+        config = panel["node"]["config"]
+        assert (config["tone"], config["zero_tone"]) == ("warn", "good")
+        assert config["value_formatter"] == "integer" and config["unit"] == "open findings"
+        query = self._query(panel)
+        assert 'f.data.status = "open"' in query and "COUNT(f) AS findings" in query
+        assert 'c.entity_type != "github_core__github_repository"' in query
+
+    def test_the_description_is_whole_in_a_card_line_not_a_clipped_table_cell(self) -> None:
+        panel = self.by_slug["playground-vulnerabilities-cve-description"]
+        assert panel["node"]["view"] == CARD
+        assert {"label": "Description", "field": "description"} in panel["node"]["config"]["lines"]
+        assert "description" in self._returned(panel)
+        assert "SUBSTRING" not in self._query(panel).upper() and "LEFT(" not in self._query(panel).upper()
+        assert panel["node"]["config"]["value_field"] == "published"
+        assert panel["node"]["config"]["value_formatter"] == "age"
+
+    def test_the_weakness_types_are_a_one_row_list_cell(self) -> None:
+        panel = self.by_slug["playground-vulnerabilities-cve-weakness"]
+        config = panel["node"]["config"]
+        assert panel["node"]["view"] == TABLE and config["chrome"] == "minimal"
+        (column,) = config["columns"]
+        assert column["field"] == "cwes" and column["formatter"] == "linkList"
+        assert "cwes" in self._returned(panel)
+
+    def test_the_components_and_systems_tables_moved_to_the_cve_page_with_their_searches_unchanged(self) -> None:
+        slots = set(self._slots(CVE))
+        assert {"playground-vulnerabilities-vuln-components", "playground-vulnerabilities-vuln-systems"} <= slots
+        components = self.by_slug["playground-vulnerabilities-vuln-components"]
+        systems = self.by_slug["playground-vulnerabilities-vuln-systems"]
+        assert "$vuln_id" in self._query(components) and "$vuln_id" in self._query(systems)
+        assert "computing_core__host" in self._query(systems)
+        assert components["node"]["config"]["row_url_template"] == COMPONENT + "?component_id={cid}"
+        assert {c["field"] for c in components["node"]["config"]["columns"]} == {"component", "type", "status", "findings"}
+        assert {c["field"] for c in systems["node"]["config"]["columns"]} == {"system", "packages"}
 
     def test_the_vulnerability_page_opens_the_cve_page_by_the_id_it_carries(self) -> None:
         identity = self.by_slug["playground-vulnerabilities-vuln-identity"]
