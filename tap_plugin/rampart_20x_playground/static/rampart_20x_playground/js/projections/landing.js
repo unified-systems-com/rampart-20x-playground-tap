@@ -186,7 +186,7 @@ const DEPLOY_BOX_PADDING = 36;
 const PAIR_GAP = 28;
 //: Playground exception 25 (same exit): the label size of a person and of their computer in a horizontal pair, as a share of the usual
 //: one. The names are wider than the icon at twice the base font, and the two touch across PAIR_GAP.
-const PAIR_FONT_FACTOR = 0.6;
+const PAIR_FONT_FACTOR = 0.65;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
 //: boundary) and the pair that hangs below it. Wide enough for the administration flow's circle and its name in between.
 const BELOW_ACCOUNT_GAP = 220;
