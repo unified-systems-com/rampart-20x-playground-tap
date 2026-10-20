@@ -296,7 +296,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -345,6 +345,7 @@ class TestRunningParts:
         assert sorted(by_type["RUNS_CONTAINER__aws_core"]) == [
             ("web task a", "web task a container"), ("web task b", "web task b container")]
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
+            ("database", "PostgreSQL database instance"),
             ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
             ("web task a container", "gunicorn"), ("web task b container", "gunicorn (web task b)")]
         assert sorted(by_type["RUNS_IMAGE__computing_core"]) == [
@@ -359,10 +360,11 @@ class TestRunningParts:
         for node in programs.values():
             assert node["entity"]["dimensions"]["inventory"] == "applications"
 
-    def test_only_web_task_a_s_interior_and_the_flow_are_on_the_overview(self) -> None:
+    def test_only_web_task_a_s_interior_the_flows_and_the_database_program_are_on_the_overview(self) -> None:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown == {"web task a container", "customer traffic", "gunicorn", "tap-web"}
+        assert shown == {"web task a container", "customer traffic", "gunicorn", "tap-web", "PostgreSQL database instance",
+                         "database traffic", "administration", "developer source code", "source pull"}
 
     def test_the_nesting_is_three_configured_relationships_not_type_tests(self) -> None:
         source = _js()
@@ -409,7 +411,8 @@ class TestApplicationFlow:
     """`req-rampart-20x-playground-govcloud-layout-14`: one flow, keyless, with its two edges and one data class."""
 
     def _flow(self) -> dict:
-        (flow,) = [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "computing_core__application_flow"]
+        (flow,) = [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "computing_core__application_flow"
+                   and n["entity"]["name"] == "customer traffic"]
         return flow
 
     def test_one_flow_with_a_name_a_description_and_one_data_class(self) -> None:
@@ -434,7 +437,7 @@ class TestApplicationFlow:
         assert "applyIconNodes(cy, {members: shown([T.flow])" in source and "solo: true" in source
         assert "const FLOW_SCALE = 0.5;" in source and 'const FLOW_BLUE = "#0B3D91";' in source
         assert 'n.data("_stage") < flow.data("_stage")' in source, "centred between what is left of it and the product box"
-        assert "_centreFlow(cy, roots, productRoot, shown([T.flow]));" in source
+        assert "_centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));" in source
         assert '"target-arrow-shape": type === E.flowSource ? "none" : "triangle"' in source
 
 
@@ -591,14 +594,90 @@ class TestVulnerabilityWindowColumns:
         assert windows[0]["row_url_template"].endswith("vuln_id={id}")
 
 
+class TestMoreApplicationFlows:
+    """`req-rampart-20x-playground-govcloud-layout-20`, `-21`: the four flows after the customer's, and the database's two forms."""
+
+    def _flows(self) -> dict[str, dict]:
+        return {n["entity"]["name"]: n for n in _batch_nodes(APPLICATION_FLOW)
+                if n["entity"]["entity_type"] == "computing_core__application_flow"}
+
+    def test_each_flow_is_keyless_shown_unranked_and_stamped_with_one_data_class(self) -> None:
+        flows = self._flows()
+        assert sorted(flows) == ["administration", "customer traffic", "database traffic", "developer source code", "source pull"]
+        expected = {"database traffic": ("dataclass.customer", "data"), "administration": ("dataclass.infra", "admin"),
+                    "developer source code": ("dataclass.infra", "code"), "source pull": ("dataclass.infra", "code")}
+        for name, (key, value) in expected.items():
+            dims = flows[name]["entity"]["dimensions"]
+            assert dims[key] == value and dims["overview"] == "shown" and "column" not in dims and "row" not in dims, name
+            assert [k for k in dims if k.startswith("dataclass.")] == [key]
+            assert set(flows[name]["node"]) == {"name", "description"} and flows[name]["node"]["description"]
+            assert re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", flows[name]["entity"]["entity_id"])
+
+    def test_each_flow_runs_between_the_named_ends(self) -> None:
+        edges = _batch_edges(APPLICATION_FLOW)
+        ends = {}
+        for name, node in self._flows().items():
+            fid = node["entity"]["entity_id"]
+            source = [_name(e["from_entity_id"]) for e in edges
+                      if e["to_entity_id"] == fid and e["edge_type"] == "APPLICATION_FLOW_SOURCE__computing_core"]
+            dest = [_name(e["to_entity_id"]) for e in edges
+                    if e["from_entity_id"] == fid and e["edge_type"] == "APPLICATION_FLOW_DESTINATION__computing_core"]
+            ends[name] = (source, dest)
+        assert ends["database traffic"] == (["tap-web"], ["PostgreSQL database instance"])
+        assert ends["administration"] == (["administrator a workstation"], ["Authorization Boundary"])
+        assert ends["developer source code"] == (["developer a laptop"], ["github.com"])
+        assert ends["source pull"] == (["terraform source puller"], ["github.com"])
+
+    def test_the_database_program_is_joined_to_the_rds_instance_by_runs_program_and_shown(self) -> None:
+        (rds,) = [n for n in _by_type("aws_core__aws_rds_instance")]
+        (pg,) = [n for n in _batch_nodes(ENTITIES) if n["entity"]["name"] == "PostgreSQL database instance"]
+        assert pg["entity"]["dimensions"]["overview"] == "shown"
+        wired = [e for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "RUNS_PROGRAM__computing_core"
+                 and e["from_entity_id"] == rds["entity"]["entity_id"]]
+        assert [e["to_entity_id"] for e in wired] == [pg["entity"]["entity_id"]]
+
+    def test_the_database_nests_and_lifts_by_configured_relationships(self) -> None:
+        source = _js()
+        assert source.count('name: "database-holds-program"') == 2, "once in the nesting and once in the lift"
+        assert "(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})" in source
+        assert "rds" not in _list("SOLO_TYPES"), "the database is a solo icon only through _formDatabase"
+
+    def test_the_two_forms_and_the_top_right_badge_are_one_marked_exception(self) -> None:
+        source = _js()
+        assert "_formDatabase(cy, cy.nodes(`[entity_type = \"${T.rds}\"]`), true);" in source
+        assert "_formDatabase(cy, cy.nodes(`[entity_type = \"${T.rds}\"]`), false);" in source
+        assert "badge.position({x: bb.x2, y: bb.y1});" in source
+        assert "Playground exception 24 (should become the `icon-solo` / `standard` forms" in source
+        assert "const RDS_BOX = " in source
+
+    def test_a_flow_with_no_column_is_hidden_during_the_nesting_and_placed_between_its_ends(self) -> None:
+        source = _js()
+        assert "const placed = _placedFlows(shown([T.flow]));" in source
+        assert "placed.addClass(ELEVATION_HIDDEN_CLASS);" in source and "placed.removeClass(ELEVATION_HIDDEN_CLASS);" in source
+        assert "_placeFlows(cy, placed);" in source
+        body = source.split("function _placeFlows")[1].split("\n}\n")[0]
+        assert "E.flowSource" in body and "E.flowDestination" in body and "outermost" in body
+        assert not re.search(r"[0-9a-f]{8}-[0-9a-f]{4}", body) and 'data("label")' not in body
+
+    def test_the_gaps_that_hold_a_flow_are_named_constants(self) -> None:
+        source = _js()
+        assert int(re.search(r"const VPC_COLUMN_GAP = (\d+);", source).group(1)) >= 100
+        assert int(re.search(r"const BELOW_ACCOUNT_GAP = (\d+);", source).group(1)) >= 150
+        assert "columnGap: VPC_COLUMN_GAP" in source
+
+    def test_the_interior_alignment_moves_only_what_the_same_node_holds(self) -> None:
+        body = _js().split("function _alignInteriorToLine")[1].split("\n}\n")[0]
+        assert "outermost.get(target.id())" in body and "top !== holder" in body
+
+
 class TestOverviewZoomPolish:
     """`req-rampart-20x-playground-govcloud-layout-19`: Overview zoom polish."""
 
     def test_each_new_exception_names_its_runtime_form(self) -> None:
         source = _js()
-        for n in range(19, 24):
+        for n in range(19, 26):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 23 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 25 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
 
     def test_the_text_base_is_doubled_once(self) -> None:

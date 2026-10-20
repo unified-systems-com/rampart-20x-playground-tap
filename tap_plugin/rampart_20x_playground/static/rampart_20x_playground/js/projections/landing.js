@@ -75,6 +75,15 @@
  *      aws_core default of an outside label, applied here as a data override before placeParentLabels);
  *  23. the badges (the open-findings bubble and the type badges) follow the zoom_settle `icon` class (`_followIconPolicy`;
  *      should become a `badge` class of zoom_settle, which sizes the status and type badges as it sizes the icon cards).
+ *  24. the database's two forms: at the account elevation the RDS instance is a solo icon; past the reveal zoom it becomes a standard
+ *      box (the type icon as a badge at its top-right, its name upper-left) with the PostgreSQL program drawn inside, laid out
+ *      once at the box's size and restyled on the elevation change (should become a per-elevation `form` of a node type in the
+ *      Elevation definition: `icon-solo` at one elevation, `standard` at the next, its interior shown with it; and a
+ *      `badge_corner` option of the badge nodes);
+ *  25. the other application flows: a flow that carries no `column` dimension is not in the nesting (a flow cannot nest in an
+ *      account or a subnet), so it is hidden while the nesting runs and stood afterwards in the gap between the two boxes its
+ *      lines end on, on the line that joins their centres (`_placeFlows`; should become a `place: between-endpoints` option of
+ *      the nested layouts, which centres an edge-defined node in the gap between the siblings of the lowest common ancestor).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -152,7 +161,7 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
 //: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
 //: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
@@ -170,8 +179,18 @@ const DEPLOY_BOX_PADDING = 36;
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
-//: boundary) and the pair that hangs below it.
-const BELOW_ACCOUNT_GAP = 56;
+//: boundary) and the pair that hangs below it. Wide enough for the administration flow's circle and its name in between.
+const BELOW_ACCOUNT_GAP = 220;
+//: Playground exception 24: the box of the database when it is a standard node (model units at the account scale): the layout reserves
+//: it, the solo icon (SOLO) stands at its centre at the account elevation. The interior program is laid out at INTERIOR_SCALE inside it.
+const RDS_BOX = {width: 200, height: 120};
+//: Playground exception 24: the box's fill when it is a standard node, a light blue so the program inside stands out, and its border.
+const RDS_FILL = "#BFD4F2";
+const RDS_BORDER = "#2E5C99";
+const RDS_LABEL = "#0F2A4F";
+//: Playground exception 25: the horizontal gap between two columns of the VPC. Wide enough for a flow's circle between the private
+//: and the database tier (the circle is half an icon; its name stands above it).
+const VPC_COLUMN_GAP = 130;
 
 //: Playground exception (same exit as _styleBoundary): the boundary's line colour (a true red), its width and how far
 //: its title stands above the box.
@@ -223,6 +242,7 @@ const LIFT_EDGE = [
     {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
     {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
     {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
+    {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exception 11: what a container holds besides what it runs directly: the programs those run, drawn beside
 //: them (siblings) and not inside them. `via` is the edge walked, `from` the holder.
@@ -256,6 +276,7 @@ export async function execute(context) {
     // The interior is sized at INTERIOR_SCALE (a leaf program, and the container's floor); the circle of the flow is half an icon.
     baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
     baseSizes[T.ecsContainer] = {width: 0, height: 0};
+    baseSizes[T.rds] = RDS_BOX;
     baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
@@ -268,6 +289,9 @@ export async function execute(context) {
     // them afterwards, which grows the account.
     const deploy = _deployPath(cy, shown);
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
+    // Playground exception 25: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
+    const placed = _placedFlows(shown([T.flow]));
+    placed.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
     _deriveContainment(cy, DERIVED_CONTAINMENT);
@@ -282,6 +306,7 @@ export async function execute(context) {
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
             {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "container-holds-derived-program", gryphon: `(parent:${T.ecsContainer})-[:${E.containsProgram}]->(child:${T.program})`},
+            {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
             {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
@@ -292,8 +317,8 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad},
-        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 140, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
             [T.boundary]: {name: "flow", gap: 12, sort: "label"},
@@ -311,7 +336,8 @@ export async function execute(context) {
                     {name: "vpc", entityTypes: [T.vpc]},
                 ],
             },
-            [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
+            [T.vpc]: {name: "ranked", sort: "order", columnGap: VPC_COLUMN_GAP, rowGap: 12},
+            [T.rds]: {name: "flow", gap: 12 * INTERIOR_SCALE, sort: "label"},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
             [T.task]: {name: "flow", gap: 12, sort: "label"},
             //: tap-web left, gunicorn right: the `column` dimension (read by _stampRootColumns) orders the siblings.
@@ -323,6 +349,7 @@ export async function execute(context) {
         applyStack(cy, pile);
     });
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
+    placed.removeClass(ELEVATION_HIDDEN_CLASS);
 
     // Everything that stands outside the product's column already has its column; put it on the request
     // path's line. What stands in the product's column besides the boundary around the account (the
@@ -355,8 +382,9 @@ export async function execute(context) {
     cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
     _growAncestors(cy, account, accountBottom);
     _closePairs(roots, account, productRoot);
-    _centreFlow(cy, roots, productRoot, shown([T.flow]));
+    _centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));
     _alignInteriorToLine(cy, anchor);
+    _placeFlows(cy, placed);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -369,7 +397,8 @@ export async function execute(context) {
     const isInterior = (n) => interior.has(n.id());
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
     const isSubnet = (n) => n.data("entity_type") === T.subnet;
-    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n))), {
+    const isDatabase = (n) => n.data("entity_type") === T.rds;
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
@@ -383,6 +412,11 @@ export async function execute(context) {
         parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
     });
     _keepTaskLabel(cy);
+    // Playground exception 24: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
+    placeParentLabels(_only(cy, parents.filter(isDatabase)), {
+        anchor: "upper-left", inset: 16,
+        parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
+    });
     placeParentLabels(_only(cy, parents.filter(isInterior)), {
         anchor: "upper-left", inset: interiorInset,
         parentFontSize: interiorChrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
@@ -391,6 +425,8 @@ export async function execute(context) {
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
     // Playground exception 19: after every label's size is set, so the doubled size is the base the settle mode starts from.
     cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
+    _keepDatabase(cy.nodes(`[entity_type = "${T.rds}"]`));
+    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
@@ -432,6 +468,8 @@ function _layerEdges(cy) {
         cy.nodes().forEach((n) => {
             if (isParent(n) || isOwnLayer(n)) return;
             n.style({"z-index": edgeZ + 1 + Math.round(z(n) / 10)});
+            // Playground exception 24: the database's solo form is a leaf (above the edges) and its box form a container (below them).
+            if (n.data("entity_type") === T.rds) n.scratch("landing_db_layers", {box: edgeZ - 1, solo: edgeZ + 1 + Math.round(z(n) / 10)});
         });
     });
 }
@@ -813,6 +851,141 @@ function _openFlowWindow(cy, node) {
 }
 
 /**
+ * Playground exception 25: the flows that are not ranked among the roots, those with no `column` dimension (the customer's flow
+ * carries one and is placed by `_centreFlow`).
+ */
+function _placedFlows(flows) {
+    return flows.filter((flow) => (flow.data("dimensions") || {}).column === undefined);
+}
+
+/** The chain of nodes that hold `node`, innermost first, read from the nesting the layout stamped. */
+function _holders(cy, node) {
+    const chain = [];
+    for (let up = cy.getElementById(node.data("_viewport_parent") || ""); up.nonempty();
+         up = cy.getElementById(up.data("_viewport_parent") || "")) chain.push(up);
+    return chain;
+}
+
+/**
+ * Playground exception 25 (should become a `place: between-endpoints` option of the nested layouts): each flow stands in the gap
+ * between the two boxes its lines end on. The ends are the nodes drawn at the account elevation (the outermost holder in the
+ * `lift_edge` relationships, so the web task and not the program inside it). Each end is taken up to the box that is a child of
+ * the lowest holder the two share (a subnet, the authorization boundary, a root), and the flow stands midway between the facing
+ * edges of those two boxes, on the line that joins the ends' centres: horizontally when they are further apart across than down,
+ * vertically when not. Two boxes that overlap on that axis put it at the middle of their centres.
+ */
+function _placeFlows(cy, flows) {
+    const {outermost} = containedNodes(cy, LIFT_EDGE);
+    const drawn = (n) => cy.getElementById(outermost.get(n.id()) || n.id());
+    const box = (n) => n.boundingBox({includeLabels: false, includeOverlays: false});
+    flows.forEach((flow) => {
+        const from = cy.edges().filter((e) => _edgeType(e) === E.flowSource && e.target().same(flow)).map((e) => e.source())[0];
+        const to = cy.edges().filter((e) => _edgeType(e) === E.flowDestination && e.source().same(flow)).map((e) => e.target())[0];
+        if (!from || !to) return;
+        const a = drawn(from), b = drawn(to);
+        const chainA = [a, ..._holders(cy, a)], chainB = [b, ..._holders(cy, b)];
+        const shared = chainA.find((n) => chainB.some((m) => m.same(n)));
+        const upTo = (chain) => (shared ? chain.slice(0, chain.findIndex((n) => n.same(shared))) : chain).pop() || chain[0];
+        const outerA = upTo(chainA), outerB = upTo(chainB);
+        const pa = a.position(), pb = b.position();
+        const ba = box(outerA), bb = box(outerB);
+        let x = (pa.x + pb.x) / 2, y = (pa.y + pb.y) / 2;
+        if (Math.abs(pa.x - pb.x) >= Math.abs(pa.y - pb.y)) {
+            const [left, right] = pa.x <= pb.x ? [ba, bb] : [bb, ba];
+            if (right.x1 > left.x2) x = (left.x2 + right.x1) / 2;
+        } else {
+            const [top, bottom] = pa.y <= pb.y ? [ba, bb] : [bb, ba];
+            if (bottom.y1 > top.y2) y = (top.y2 + bottom.y1) / 2;
+        }
+        flow.position({x, y});
+    });
+}
+
+/**
+ * Playground exception 24: remember the database's box and the label style the layout gave it (upper-left), before it is
+ * made a solo icon, for the reveal.
+ */
+function _keepDatabase(nodes) {
+    nodes.forEach((n) => {
+        const label = {};
+        ["text-valign", "text-halign", "text-margin-x", "text-margin-y", "text-wrap", "text-max-width"].forEach((prop) => {
+            label[prop] = n.style(prop);
+        });
+        n.scratch("landing_db", {w: n.width(), h: n.height(), label});
+    });
+}
+
+/**
+ * Playground exception 24 (should become the `icon-solo` / `standard` forms of a node type in the Elevation definition): the
+ * database is a solo icon at the account elevation and a standard box (light blue, its name upper-left, its type badge at the
+ * top-right, the program drawn inside) once the interior is shown. The box is the size the layout reserved; the solo icon
+ * stands at its centre.
+ */
+function _formDatabase(cy, nodes, revealed) {
+    nodes.forEach((n) => {
+        const keep = n.scratch("landing_db");
+        const icons = n.scratch("landing_db_icons");
+        if (icons) icons.destroy();
+        n.removeScratch("landing_db_icons");
+        if (!keep) return;
+        if (revealed) {
+            // The container class draws the box's own look (and suppresses the type icon, which the badge shows).
+            n.addClass(VIEWPORT_PARENT_CLASS);
+            const layers = n.scratch("landing_db_layers");
+            if (layers) n.style({"z-index": layers.box});
+            n.style({
+                "width": keep.w, "height": keep.h, "shape": "round-rectangle",
+                "background-color": RDS_FILL, "background-opacity": 1, "border-color": RDS_BORDER, "border-width": 3,
+                "border-opacity": 1, "color": RDS_LABEL, ...keep.label,
+            });
+        } else {
+            // The container class would hide the icon the solo form is made of.
+            n.removeClass(VIEWPORT_PARENT_CLASS);
+            const layers = n.scratch("landing_db_layers");
+            if (layers) n.style({"z-index": layers.solo});
+            n.removeStyle("background-color background-opacity border-color border-width border-opacity color shape "
+                + Object.keys(keep.label).join(" "));
+            n.scratch("landing_db_icons", applyIconNodes(cy, {members: n, ...SOLO, solo: true, iconNodeId: `landing-solo-db-${n.id()}`}));
+        }
+        n.dirtyBoundingBoxCache();
+    });
+}
+
+/**
+ * Playground exception 24 (should become a `badge_corner` option of the badge nodes): the database's type badge stands at the
+ * top-right corner of its box, not the upper-left the runtime gives every other node. Runs after the badge pass and again on
+ * each move of the box, after the runtime's own handler.
+ */
+function _moveDatabaseBadge(cy) {
+    const previous = cy.scratch("landing_db_badge");
+    if (previous) cy.off("position bounds", "node[_badge_active]", previous);
+    // Re-entrancy guard (the tap#289 class): reading the host's box can emit `bounds` on it again.
+    const placing = new Set();
+    const place = (host) => {
+        const badge = cy.getElementById(`badge:${host.id()}`);
+        if (badge.empty() || placing.has(host.id())) return;
+        placing.add(host.id());
+        try {
+            const bb = host.boundingBox({includeLabels: false});
+            const pos = badge.position();
+            if (pos.x !== bb.x2 || pos.y !== bb.y1) {
+                badge.unlock();
+                badge.position({x: bb.x2, y: bb.y1});
+                badge.lock();
+            }
+        } finally {
+            placing.delete(host.id());
+        }
+    };
+    const handler = (evt) => {
+        if (evt.target.data("entity_type") === T.rds) place(evt.target);
+    };
+    cy.scratch("landing_db_badge", handler);
+    cy.on("position bounds", "node[_badge_active]", handler);
+    cy.nodes(`[entity_type = "${T.rds}"][?_badge_active]`).forEach(place);
+}
+
+/**
  * Playground exception 9: undo the previous run's elevation state, so the layout always sizes the whole interior: the lift
  * is destroyed (the original edges come back), the interior is shown, the derived containment edges are removed.
  */
@@ -827,6 +1000,8 @@ function _resetElevation(cy) {
     });
     containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => cy.getElementById(id).removeClass(ELEVATION_HIDDEN_CLASS));
     cy.edges().filter((e) => _edgeType(e) === E.containsProgram).remove();
+    // Playground exception 24: the nesting sizes the database as a box, so its solo form is taken off first.
+    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
 }
 
 /**
@@ -873,6 +1048,8 @@ function _only(cy, nodes) {
 function _styleFlow(cy, flows) {
     flows.forEach((flow) => flow.style({
         "text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP, "color": FLOW_BLUE,
+        "text-background-color": "#ffffff", "text-background-opacity": 0.8, "text-background-padding": "2px",
+        "text-background-shape": "roundrectangle",
     }));
     _styleFlowEdges(cy);
 }
@@ -950,6 +1127,7 @@ function _watchElevation(cy, context) {
                 // Shown first (a badge is drawn for what is visible), then faded in from nothing below.
                 interior.style("opacity", 1);
                 interior.removeClass(ELEVATION_HIDDEN_CLASS);
+                _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
             });
             // The container's own type badge: badges are drawn for what is shown when they are applied, and the interior was not.
             _refreshBadges(cy, context);
@@ -965,7 +1143,10 @@ function _watchElevation(cy, context) {
             const finish = () => {
                 if (done || mine !== epoch) return;
                 done = true;
-                cy.batch(hide);
+                cy.batch(() => {
+                    hide();
+                    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
+                });
                 _refreshBadges(cy, context);
                 interior.style("opacity", 1);
             };
@@ -992,7 +1173,11 @@ function _alignInteriorToLine(cy, anchor) {
     if (!target) return;
     const dy = anchor.position("y") - target.position("y");
     if (!dy) return;
-    containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => {
+    const {outermost} = containedNodes(cy, LIFT_EDGE);
+    // Only what the same node holds moves with it: the database's program is not the web task's.
+    const holder = outermost.get(target.id());
+    outermost.forEach((top, id) => {
+        if (top !== holder) return;
         const n = cy.getElementById(id);
         n.position({x: n.position("x"), y: n.position("y") + dy});
     });
@@ -1012,6 +1197,7 @@ function _refreshBadges(cy, context) {
     const previous = cy.scratch("landing_badge_handle");
     if (previous) previous.destroy();
     cy.scratch("landing_badge_handle", applyBadgeNodes(cy, {excludeTypes: exclude}));
+    _moveDatabaseBadge(cy);
 }
 
 /**
