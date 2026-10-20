@@ -113,9 +113,12 @@
                 {
                   "field": "description",
                   "formatter": "longtext",
-                  "max_lines": 6
+                  "max_lines": 6,
+                  "placement": "header"
                 },
                 {
+                  "label": "Inventory",
+                  "label_placement": "above",
                   "field": "values",
                   "formatter": "table",
                   "empty_text": "No values.",
@@ -166,9 +169,12 @@
                 {
                   "field": "description",
                   "formatter": "longtext",
-                  "max_lines": 6
+                  "max_lines": 6,
+                  "placement": "header"
                 },
                 {
+                  "label": "Inventory",
+                  "label_placement": "above",
                   "field": "values",
                   "formatter": "table",
                   "empty_text": "No values.",

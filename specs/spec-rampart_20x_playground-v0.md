@@ -354,6 +354,7 @@ Route `/playground/inventory`; seven Searches, one per `inventory` value, each f
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders seven sections, one per `inventory` category. | |
 | req-rampart-20x-playground-page-inventory-2 | Section Matches Dimension | Proposed | Each section lists exactly the entities whose `inventory` value is that section's category. | |
+| req-rampart-20x-playground-page-inventory-3 | Data Classification Columns | Proposed | Every table on the page ends with two columns that read the node's `dataclass.customer` and `dataclass.infra` dimensions by `field_path` (`["dimensions", "dataclass.customer"]`, titled `Customer data`, and `["dimensions", "dataclass.infra"]`, titled `Infra data`), each with `empty_text: not classified`, so no cell is blank. | Ruled 2026-10-20 (George, Q90a). Uses the Table panel's `field_path` and `empty_text` column options (`req-web-stdpanel-table-config-22`, `-23`). |
 
 ### Vulnerabilities Page
 ----
@@ -456,8 +457,8 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-3 | Each Card Reads A Module Search | Proposed | Each card is bound by `USES_SEARCH` to a `module` Search whose runner is `dimension-coverage` and whose `dimension_key` default is its key; the Search description names the missing Gryphon capability. | |
 | req-rampart-20x-playground-page-data-classification-4 | Values From The Dictionary | Proposed | No panel, Search or test names a classification value; the values table reads the runner's `values` array, so an added value renders unchanged. | |
 | req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values`) and every table column a key of its `values` elements (`value`, `description`, `count`). | |
-| req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, an unlabelled description line, and a `table` line of `value`, `description`, `count`. | |
-| req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose or a caption. | |
+| req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, a description line placed in the card header directly under the title (`placement: header`), and a `table` line of `value`, `description`, `count` captioned `Inventory` above the table (`label_placement: above`). | Ruled 2026-10-20 (George, Q90). The card title is still the dimension key (`dataclass.customer`): the dictionary nodes carry no plain-English name, so the title is open for a ruling. |
+| req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
 
 ### VDR Reports Page
 ----

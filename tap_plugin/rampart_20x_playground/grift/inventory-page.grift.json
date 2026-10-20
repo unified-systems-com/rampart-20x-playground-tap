@@ -87,6 +87,26 @@
                   "title": "Runs from",
                   "widthGrow": 1,
                   "header_tooltip": "The path the program runs from."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -189,6 +209,26 @@
                   "widthGrow": 2,
                   "tooltip": "full_value",
                   "header_tooltip": "The CPE 2.3 name that lets a vulnerability feed match the library."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -283,6 +323,26 @@
                   "widthGrow": 2,
                   "tooltip": "full_value",
                   "header_tooltip": "The package URL, built from the ecosystem, name and version."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -381,6 +441,26 @@
                   "formatter": "ellipsisSuffix",
                   "tooltip": "full_value",
                   "header_tooltip": "The container image reference, with digest, the operating system came from."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -480,6 +560,26 @@
                   "title": "Owner",
                   "widthGrow": 1,
                   "header_tooltip": "The GitHub account that owns the package."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -582,6 +682,26 @@
                   "widthGrow": 4,
                   "tooltip": "full_value",
                   "header_tooltip": "Why the boundary was decided, as the registry's reviewed sentence."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -686,6 +806,26 @@
                   "title": "Region",
                   "width": 120,
                   "header_tooltip": "The AWS region the entity is stamped with. Blank for entities outside AWS."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -787,6 +927,26 @@
                   "align": "center",
                   "formatter": "tickCross",
                   "header_tooltip": "Whether the database spans availability zones. A dash means the resource type does not report it."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
@@ -867,6 +1027,26 @@
                   "widthGrow": 2,
                   "formatter": "externalLink",
                   "header_tooltip": "The system's web address."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.customer"
+                  ],
+                  "title": "Customer data",
+                  "width": 150,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
+                },
+                {
+                  "field_path": [
+                    "dimensions",
+                    "dataclass.infra"
+                  ],
+                  "title": "Infra data",
+                  "width": 130,
+                  "empty_text": "not classified",
+                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
                 }
               ]
             }
