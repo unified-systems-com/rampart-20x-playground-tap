@@ -447,7 +447,7 @@ class TestApplicationFlow:
         assert "const FLOW_SCALE = 0.5;" in source and 'const FLOW_BLUE = "#0B3D91";' in source
         assert 'n.data("_stage") < flow.data("_stage")' in source, "centred between what is left of it and the product box"
         assert "_centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));" in source
-        assert '"target-arrow-shape": type === E.flowSource ? "none" : "triangle"' in source
+        assert '"target-arrow-shape": type === E.flowSource || !head ? "none" : "triangle"' in source
 
 
 class TestEdgeLiftAndLayers:
@@ -785,16 +785,16 @@ class TestOverviewZoomPolish:
 
     def test_each_new_exception_names_its_runtime_form(self) -> None:
         source = _js()
-        for n in range(19, 31):
+        for n in range(19, 38):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 30 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 37 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
 
     def test_the_text_base_is_doubled_once(self) -> None:
         source = _js()
         assert "const FONT_SCALE = 2;" in source and "const BASE_FONT = 11;" in source
         assert 'n.scratch("landingFontBase")' in source, "the base is kept, so a second layout run never doubles again"
-        assert "const FLOW_ARROW_SCALE = 2;" in source
+        assert "const FLOW_ARROW_SCALE = 1;" in source, "half the 2 it was"
 
     def test_the_subnet_labels_are_inside_top_centre(self) -> None:
         source = _js()
@@ -844,3 +844,62 @@ class TestArrowPeoplePolish:
         horizontal = pair.split("} else {")[1]
         assert pair.count("landingFontFactor") == 2 and horizontal.count("landingFontFactor") == 2
         assert 'n.scratch("landingFontFactor") || 1' in source and "base * FONT_SCALE * factor" in source
+
+
+class TestOverviewTweaksTwo:
+    """`req-rampart-20x-playground-govcloud-layout-24`: Overview tweaks, round two (playground exceptions 31 to 37)."""
+
+    def test_the_delivery_line_runs_through_the_front_icon_of_the_pile(self) -> None:
+        source = _js()
+        assert "lineY: top + h / 2 + spread," in source
+        assert "_shiftGithub(roots.filter(_onDeliveryLine));" in source
+        assert re.search(r"const GITHUB_SHIFT = [1-9][0-9]*;", source)
+
+    def test_a_name_is_hidden_by_the_label_dimension_and_the_revealed_database_shows_it_again(self) -> None:
+        source = _js()
+        assert 'const LABEL_KEY = "label";' in source and 'const LABEL_HIDDEN = "hidden";' in source
+        assert "_hideLabels(cy);" in source and '"text-opacity": 0' in source
+        reveal = source.split("if (revealed) {")[1].split("} else {")[0]
+        assert 'n.removeStyle("text-opacity");' in reveal
+        hidden = {n["entity"]["entity_type"].split("__")[1] for n in _nodes()
+                  if n["entity"]["dimensions"].get("label") == "hidden"}
+        assert hidden == {"aws_route53_zone", "aws_internet_gateway", "aws_alb", "aws_rds_instance", "aws_lambda"}
+
+    def test_the_teleport_instance_has_a_logo_card_by_dimension_and_stays_an_ec2(self) -> None:
+        source = _js()
+        teleport = [n for n in _by_type("aws_core__aws_ec2_instance") if n["entity"]["name"] == "teleport"]
+        assert len(teleport) == 1
+        assert teleport[0]["entity"]["dimensions"]["icon"] == "teleport/icons/teleport-cluster.svg"
+        assert not [n for n in _nodes() if n["entity"]["entity_type"].startswith("teleport__")]
+        assert "const logos = _logoNodes(shown(SOLO_TYPES));" in source
+        assert "shown(ICON_TYPES).union(logos)" in source and "shown(SOLO_TYPES).not(deploy).not(logos)" in source
+        assert "const ICON_PATH = " in source, "only the grid's icons/<key>.svg convention is accepted"
+
+    def test_the_subnet_names_are_small_and_not_bold(self) -> None:
+        source = _js()
+        assert 'const SUBNET_LABEL_WEIGHT = "normal";' in source
+        factor = float(re.search(r"const SUBNET_LABEL_FACTOR = ([0-9.]+);", source).group(1))
+        assert 0.4 <= factor < 1
+        assert 'n.scratch("landingFontFactor", SUBNET_LABEL_FACTOR);' in source
+
+    def test_a_flow_name_has_no_fill(self) -> None:
+        body = _js().split("function _styleFlow(")[1].split("\n}\n")[0]
+        assert '"text-background-opacity": 0' in body and "text-background-color" not in body
+
+    def test_the_source_pull_arrow_is_reversed_by_data_and_the_scope_title_follows_the_font_class(self) -> None:
+        source = _js()
+        flows = {n["entity"]["name"]: n["entity"]["dimensions"] for n in _batch_nodes(APPLICATION_FLOW)
+                 if n["entity"]["entity_type"] == "computing_core__application_flow"}
+        assert [k for k, v in flows.items() if v.get("arrow") == "reversed"] == ["source pull"]
+        assert '"source-arrow-shape": type === E.flowSource && head ? "triangle" : "none"' in source
+        assert "function _syncScopeTitle" in source and "config.classes.font" in source
+
+    def test_the_database_program_is_moved_to_the_line_of_sight(self) -> None:
+        source = _js()
+        assert "_alignDatabaseProgram(cy, anchor);" in source
+        body = source.split("function _alignDatabaseProgram")[1].split("\n}\n")[0]
+        assert "anchor.position(\"y\")" in body
+
+    def test_the_new_requirement_is_in_the_landing_spec(self) -> None:
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-govcloud-layout-24" in text

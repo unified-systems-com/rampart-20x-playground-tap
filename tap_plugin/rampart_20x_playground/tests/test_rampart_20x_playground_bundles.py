@@ -17,6 +17,7 @@ pytestmark = pytest.mark.django_db(databases=["default", "search_readonly"])
 INVENTORY = ("applications", "libraries", "packages", "os", "containers", "crypto", "secrets", "cloud", "saas")
 DATACLASS = (
     "customer.data", "customer.creds", "customer.logs", "infra.code", "infra.secrets", "infra.logs", "infra.admin",
+    "customer.reader", "customer.writer", "customer.storage",
 )
 
 
@@ -34,7 +35,7 @@ def _import(path: Path) -> None:
 class TestDimensions:
     """`req-rampart-20x-playground-dimensions-1`."""
 
-    def test_twenty_dimension_nodes(self) -> None:
+    def test_twenty_three_dimension_nodes(self) -> None:
         from tap_grid.models import Dimension
 
         _import(DIMENSIONS)
@@ -42,13 +43,13 @@ class TestDimensions:
         expected = ["inventory", *(f"inventory.{v}" for v in INVENTORY), "dataclass", "dataclass.customer",
                     "dataclass.infra", *(f"dataclass.{v}" for v in DATACLASS)]
         assert names == sorted(expected)
-        assert len(names) == 20
+        assert len(names) == 23
 
     def test_dataclass_descriptions_are_plain_words_with_no_backticks(self) -> None:
         """The Data classification cards render a value's description literally, so a backtick would show."""
         nodes = _load(DIMENSIONS)["batches"][0]["nodes"]
         described = [n for n in nodes if n["entity"]["name"].startswith("dataclass")]
-        assert len(described) == 10
+        assert len(described) == 13
         for node in described:
             assert "`" not in node["node"]["description"], node["entity"]["name"]
 

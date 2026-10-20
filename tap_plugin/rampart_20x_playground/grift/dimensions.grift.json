@@ -6,15 +6,15 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a15a20-57eb-772b-b937-365007903f3b",
+        "entity_id": "01a15a62-3ac3-7302-9db6-80cf92b419bf",
         "entity_type": "batch",
-        "name": "rampart-20x-playground Dimension Pack v0.4.0",
+        "name": "rampart-20x-playground Dimension Pack v0.5.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.dimensions",
-        "name": "rampart-20x-playground Dimension Pack v0.4.0",
-        "description": "Two dimension axes as twenty dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus nine categories) and `dataclass` (the axis, its customer and infra sub-axes, and seven classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension). v0.3.0 adds `inventory.packages` and `inventory.crypto` (req-rampart-20x-playground-inventory-software). v0.4.0 adds `dataclass.infra.admin` and rewrites every dataclass description in plain words with no backticks, because the Data classification cards render them literally."
+        "name": "rampart-20x-playground Dimension Pack v0.5.0",
+        "description": "Two dimension axes as twenty-three dimension nodes (req-rampart-20x-playground-dimensions): `inventory` (the axis plus nine categories) and `dataclass` (the axis, its customer and infra sub-axes, and ten classes). No edges: the hierarchy is carried by the dotted name (req-dcom-naming). Each node carries `tap.meta: dimension` (core's default for the type) and NO `dcom` value: the pack is a dictionary, and dictionary entries are not entries in themselves. Node entity ids are minted once and never change; revising descriptions means a new batch id and a bumped batch name, with the node ids stable. v0.2.0 splits `inventory.os` into operating systems only and adds `inventory.containers` (req-rampart-20x-playground-inventory-dimension). v0.3.0 adds `inventory.packages` and `inventory.crypto` (req-rampart-20x-playground-inventory-software). v0.4.0 adds `dataclass.infra.admin` and rewrites every dataclass description in plain words with no backticks, because the Data classification cards render them literally. v0.5.0 adds `dataclass.customer.reader`, `dataclass.customer.writer` and `dataclass.customer.storage`."
       },
       "nodes": [
         {
@@ -239,6 +239,48 @@
           "node": {
             "name": "dataclass.customer.logs",
             "description": "Customer logs."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a62-1813-752e-bea4-160559fbc175",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.reader",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.reader",
+            "description": "A component that reads customer data."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a62-183f-704b-8462-6420ddbfdce1",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.writer",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.writer",
+            "description": "A component that writes customer data."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a62-1869-71c3-a378-4ab19048d93c",
+            "entity_type": "dimension",
+            "name": "dataclass.customer.storage",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "dataclass.customer.storage",
+            "description": "A component that stores customer data."
           }
         },
         {

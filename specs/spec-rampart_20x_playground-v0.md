@@ -66,7 +66,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-nongoals | [v0 Non-Goals](#v0-non-goals) | Proposed | No models, edges, collectors or code; no live AWS; mock data, one drawn boundary |
 | req-rampart-20x-playground-boot | [Boot Records](#boot-records) | Proposed | The in-package `ci` record and a demo record, every plugin pinned by commit SHA, local passkeys |
 | req-rampart-20x-playground-keystone | [Keystone](#keystone) | Proposed | One keystone node: project name and description |
-| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty dimension nodes: ten `inventory` (the axis and nine categories) and ten `dataclass` (the axis, two branches and seven classes) |
+| req-rampart-20x-playground-dimensions | [Dimensions](#dimensions) | Proposed | Twenty-three dimension nodes: ten `inventory` (the axis and nine categories) and thirteen `dataclass` (the axis, two branches and ten classes) |
 | req-rampart-20x-playground-mock-inventory | [Mock Inventory](#mock-inventory) | Proposed | Mocked GovCloud resources from existing `aws_core` / `computing_core` types, on the `design` position |
 | req-rampart-20x-playground-mock-findings | [Mock Findings](#mock-findings) | Proposed | Mocked `vdr_finding` and `vdr_report` rows carrying PAIN, SLA and due date |
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
@@ -218,6 +218,9 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `dataclass.infra.secrets` | `dataclass.infra: secrets` | Infrastructure secrets. |
 | `dataclass.infra.logs` | `dataclass.infra: logs` | Infrastructure logs. |
 | `dataclass.infra.admin` | `dataclass.infra: admin` | Infrastructure administration: administrator access to the infrastructure. |
+| `dataclass.customer.reader` | `dataclass.customer: reader` | A component that reads customer data. |
+| `dataclass.customer.writer` | `dataclass.customer: writer` | A component that writes customer data. |
+| `dataclass.customer.storage` | `dataclass.customer: storage` | A component that stores customer data. |
 
 By `req-dcom-naming` the label a value node defines is everything before its last dot as the key, and the last
 segment as the value, so an entity can carry one `dataclass.customer` value and one `dataclass.infra` value.
@@ -227,7 +230,7 @@ the nodes exist so classification can start without a vocabulary change.
 
 #### Implementation
 
-`grift/dimensions.grift.json`, one batch of twenty `inventory` and `dataclass` `dimension` nodes (ten `inventory`, ten `dataclass`),
+`grift/dimensions.grift.json`, one batch of twenty-three `inventory` and `dataclass` `dimension` nodes (ten `inventory`, thirteen `dataclass`),
 no edges. Each carries `tap.meta: dimension` and no `dcom` value (dictionary nodes carry no axis value,
 `req-dcom-stamping` rule 6). Entity ids are minted once with `scripts/uuid7` and never change. Every node and
 the batch carry a description. Queries use the bracketed key form, `n.dimensions["inventory"]`.
@@ -236,10 +239,10 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-dimensions-1 | Twenty Nodes | Proposed | Importing the bundle yields exactly twenty `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | |
+| req-rampart-20x-playground-dimensions-1 | Twenty-Three Nodes | Proposed | Importing the bundle yields exactly twenty-three `inventory` and `dataclass` `dimension` nodes, with the names in the two tables above. | |
 | req-rampart-20x-playground-dimensions-2 | Inventory Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "inventory." RETURN d` returns exactly the nine category nodes. | |
 | req-rampart-20x-playground-dimensions-3 | No Dot In A Value | Proposed | No value node's last segment contains a dot. | Same constraint as `req-dcom-naming-3`. |
-| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
+| req-rampart-20x-playground-dimensions-4 | Dictionary Carries No Axis Value | Proposed | None of the twenty-three nodes carries an `inventory`, `dataclass` or `dcom` key; each carries `tap.meta: dimension`. | |
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 
 ### Mock Inventory
