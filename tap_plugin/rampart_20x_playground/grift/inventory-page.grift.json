@@ -57,12 +57,20 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__program": "/static/computing_core/icons/program.svg"
+                    },
+                    "labels": {
+                      "computing_core__program": "Program"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -84,29 +92,30 @@
                 },
                 {
                   "field": "data.path",
-                  "title": "Runs from",
+                  "title": "Runs From",
                   "widthGrow": 1,
                   "header_tooltip": "The path the program runs from."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -152,12 +161,20 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__library": "/static/computing_core/icons/library.svg"
+                    },
+                    "labels": {
+                      "computing_core__library": "Library"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -179,13 +196,13 @@
                 },
                 {
                   "field": "data.source_kind",
-                  "title": "How it was built",
+                  "title": "How It Was Built",
                   "widthGrow": 1,
                   "header_tooltip": "How the library entered the image without a package manager: self-built from a pinned tarball, or source-built from a registry source distribution."
                 },
                 {
                   "field": "data.source_url",
-                  "title": "Built from",
+                  "title": "Built From",
                   "widthGrow": 2,
                   "tooltip": "full_value",
                   "header_tooltip": "Where the source it was built from was fetched."
@@ -211,24 +228,25 @@
                   "header_tooltip": "The CPE 2.3 name that lets a vulnerability feed match the library."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -274,12 +292,20 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__package": "/static/computing_core/icons/package.svg"
+                    },
+                    "labels": {
+                      "computing_core__package": "Package"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -325,24 +351,25 @@
                   "header_tooltip": "The package URL, built from the ecosystem, name and version."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -373,13 +400,13 @@
           "entity": {
             "entity_id": "01a13be3-0373-7fd0-80f6-21fcc289db61",
             "entity_type": "panel",
-            "name": "Operating systems",
+            "name": "Operating Systems",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Operating systems",
+            "name": "Operating Systems",
             "slug": "playground-inventory-operating-systems",
             "description": "Operating systems, one row per build. Wolfi is a rolling distribution: its os-release version is a fixed placeholder, so the build column holds the pinned base-image digest that identifies the build.",
             "view": "tap_web/panels/table_panel.html",
@@ -388,12 +415,20 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__operating_system": "/static/computing_core/icons/operating-system.svg"
+                    },
+                    "labels": {
+                      "computing_core__operating_system": "Operating System"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -436,31 +471,32 @@
                 },
                 {
                   "field": "data.base_image",
-                  "title": "Base image",
+                  "title": "Base Image",
                   "widthGrow": 2,
                   "formatter": "ellipsisSuffix",
                   "tooltip": "full_value",
                   "header_tooltip": "The container image reference, with digest, the operating system came from."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -506,12 +542,24 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__host": "/static/computing_core/icons/host.svg",
+                      "github_core__github_package_version": "/static/github_core/icons/github-package-version.svg",
+                      "github_core__github_package": "/static/github_core/icons/github-package.svg"
+                    },
+                    "labels": {
+                      "computing_core__host": "Host",
+                      "github_core__github_package_version": "GitHub Package Version",
+                      "github_core__github_package": "GitHub Package"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -523,21 +571,30 @@
                   "field": "entity_type",
                   "title": "Kind",
                   "widthGrow": 2,
-                  "formatter": "tailSegment",
+                  "formatter": "toneBadge",
                   "formatter_params": {
-                    "sep": "__"
+                    "tones": {
+                      "computing_core__host": "muted",
+                      "github_core__github_package_version": "muted",
+                      "github_core__github_package": "muted"
+                    },
+                    "labels": {
+                      "computing_core__host": "Host",
+                      "github_core__github_package_version": "GitHub Package Version",
+                      "github_core__github_package": "GitHub Package"
+                    }
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
                 {
                   "field": "data.kind",
-                  "title": "Host kind",
+                  "title": "Host Kind",
                   "width": 100,
                   "header_tooltip": "The kind of host, for a host row: a container, a server, a workstation."
                 },
                 {
                   "field": "data.version",
-                  "title": "Image digest",
+                  "title": "Image Digest",
                   "widthGrow": 2,
                   "tooltip": "full_value",
                   "header_tooltip": "The image digest, as the registry reports it."
@@ -562,24 +619,25 @@
                   "header_tooltip": "The GitHub account that owns the package."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -625,12 +683,20 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__crypto_provider": "/static/computing_core/icons/crypto-provider.svg"
+                    },
+                    "labels": {
+                      "computing_core__crypto_provider": "Crypto Provider"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -646,7 +712,7 @@
                 },
                 {
                   "field": "data.provider_kind",
-                  "title": "Provider kind",
+                  "title": "Provider Kind",
                   "widthGrow": 1,
                   "header_tooltip": "What kind of implementation it is: the FIPS module itself, the system OpenSSL, an embedded OpenSSL or a non-OpenSSL library."
                 },
@@ -665,7 +731,7 @@
                 },
                 {
                   "field": "data.fips_validation",
-                  "title": "FIPS validation",
+                  "title": "FIPS Validation",
                   "widthGrow": 2,
                   "tooltip": "full_value",
                   "header_tooltip": "The validation status of the module as shipped."
@@ -684,24 +750,25 @@
                   "header_tooltip": "Why the boundary was decided, as the registry's reviewed sentence."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -747,12 +814,26 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "computing_core__file": "/static/computing_core/icons/file.svg",
+                      "computing_core__public_key": "/static/computing_core/icons/public-key.svg",
+                      "computing_core__private_key": "/static/computing_core/icons/private-key.svg",
+                      "aws_core__aws_acm_certificate": "/static/aws_core/icons/aws-acm.svg"
+                    },
+                    "labels": {
+                      "computing_core__file": "File",
+                      "computing_core__public_key": "Public Key",
+                      "computing_core__private_key": "Private Key",
+                      "aws_core__aws_acm_certificate": "ACM Certificate"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -764,9 +845,20 @@
                   "field": "entity_type",
                   "title": "Kind",
                   "widthGrow": 2,
-                  "formatter": "tailSegment",
+                  "formatter": "toneBadge",
                   "formatter_params": {
-                    "sep": "__"
+                    "tones": {
+                      "computing_core__file": "muted",
+                      "computing_core__public_key": "muted",
+                      "computing_core__private_key": "muted",
+                      "aws_core__aws_acm_certificate": "muted"
+                    },
+                    "labels": {
+                      "computing_core__file": "File",
+                      "computing_core__public_key": "Public Key",
+                      "computing_core__private_key": "Private Key",
+                      "aws_core__aws_acm_certificate": "ACM Certificate"
+                    }
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -778,14 +870,14 @@
                 },
                 {
                   "field": "data.key_size",
-                  "title": "Key size",
+                  "title": "Key Size",
                   "width": 90,
                   "align": "right",
                   "header_tooltip": "The key size in bits. Blank where the entity is not a key."
                 },
                 {
                   "field": "data.file_path",
-                  "title": "Held in file",
+                  "title": "Held In File",
                   "widthGrow": 2,
                   "header_tooltip": "The path of the file that holds the certificate."
                 },
@@ -808,24 +900,25 @@
                   "header_tooltip": "The AWS region the entity is stamped with. Blank for entities outside AWS."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -856,13 +949,13 @@
           "entity": {
             "entity_id": "01a13be3-0373-7ddd-bcbe-82b91c481e56",
             "entity_type": "panel",
-            "name": "Cloud services",
+            "name": "Cloud Services",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Cloud services",
+            "name": "Cloud Services",
             "slug": "playground-inventory-cloud-services",
             "description": "The AWS resources of the deployment that are neither application, library nor operating system, one row per resource. Subnets and the VPC are conceptual containers and have no row; the ECS tasks are instances of the product image and are not listed. Scheme, encryption and Multi-AZ show only where the resource type has the field; a dash means not observed. ARN or ID, FIPS endpoint, who manages it and open findings are not shown: the ARN lives in a differently named field on each type, and nothing holds the rest.",
             "view": "tap_web/panels/table_panel.html",
@@ -871,12 +964,44 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "aws_core__aws_alb": "/static/aws_core/icons/aws-alb.svg",
+                      "aws_core__aws_codebuild_project": "/static/aws_core/icons/aws-codebuild.svg",
+                      "aws_core__aws_codepipeline_pipeline": "/static/aws_core/icons/aws-codepipeline.svg",
+                      "aws_core__aws_ec2_instance": "/static/aws_core/icons/aws-ec2.svg",
+                      "aws_core__aws_ecr_repository": "/static/aws_core/icons/aws-ecr.svg",
+                      "aws_core__aws_ecs_cluster": "/static/aws_core/icons/aws-ecs.svg",
+                      "aws_core__aws_ecs_service": "/static/aws_core/icons/aws-ecs.svg",
+                      "aws_core__aws_iam_oidc_provider": "/static/aws_core/icons/aws-iam.svg",
+                      "aws_core__aws_internet_gateway": "/static/aws_core/icons/aws-internet-gateway.svg",
+                      "aws_core__aws_kms_key": "/static/aws_core/icons/aws-kms.svg",
+                      "aws_core__aws_rds_instance": "/static/aws_core/icons/aws-rds.svg",
+                      "aws_core__aws_route53_zone": "/static/aws_core/icons/aws-route53.svg",
+                      "aws_core__aws_secrets_manager_secret": "/static/aws_core/icons/aws-secrets-manager.svg"
+                    },
+                    "labels": {
+                      "aws_core__aws_alb": "Application Load Balancer",
+                      "aws_core__aws_codebuild_project": "CodeBuild",
+                      "aws_core__aws_codepipeline_pipeline": "CodePipeline",
+                      "aws_core__aws_ec2_instance": "EC2",
+                      "aws_core__aws_ecr_repository": "ECR",
+                      "aws_core__aws_ecs_cluster": "ECS Cluster",
+                      "aws_core__aws_ecs_service": "ECS Service",
+                      "aws_core__aws_iam_oidc_provider": "IAM OIDC Provider",
+                      "aws_core__aws_internet_gateway": "Internet Gateway",
+                      "aws_core__aws_kms_key": "KMS",
+                      "aws_core__aws_rds_instance": "RDS",
+                      "aws_core__aws_route53_zone": "Route 53",
+                      "aws_core__aws_secrets_manager_secret": "Secrets Manager"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -888,9 +1013,38 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "tailSegment",
+                  "formatter": "toneBadge",
                   "formatter_params": {
-                    "sep": "__"
+                    "tones": {
+                      "aws_core__aws_alb": "muted",
+                      "aws_core__aws_codebuild_project": "muted",
+                      "aws_core__aws_codepipeline_pipeline": "muted",
+                      "aws_core__aws_ec2_instance": "muted",
+                      "aws_core__aws_ecr_repository": "muted",
+                      "aws_core__aws_ecs_cluster": "muted",
+                      "aws_core__aws_ecs_service": "muted",
+                      "aws_core__aws_iam_oidc_provider": "muted",
+                      "aws_core__aws_internet_gateway": "muted",
+                      "aws_core__aws_kms_key": "muted",
+                      "aws_core__aws_rds_instance": "muted",
+                      "aws_core__aws_route53_zone": "muted",
+                      "aws_core__aws_secrets_manager_secret": "muted"
+                    },
+                    "labels": {
+                      "aws_core__aws_alb": "Application Load Balancer",
+                      "aws_core__aws_codebuild_project": "CodeBuild",
+                      "aws_core__aws_codepipeline_pipeline": "CodePipeline",
+                      "aws_core__aws_ec2_instance": "EC2",
+                      "aws_core__aws_ecr_repository": "ECR",
+                      "aws_core__aws_ecs_cluster": "ECS Cluster",
+                      "aws_core__aws_ecs_service": "ECS Service",
+                      "aws_core__aws_iam_oidc_provider": "IAM OIDC Provider",
+                      "aws_core__aws_internet_gateway": "Internet Gateway",
+                      "aws_core__aws_kms_key": "KMS",
+                      "aws_core__aws_rds_instance": "RDS",
+                      "aws_core__aws_route53_zone": "Route 53",
+                      "aws_core__aws_secrets_manager_secret": "Secrets Manager"
+                    }
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -905,12 +1059,6 @@
                   "title": "Region",
                   "width": 120,
                   "header_tooltip": "The AWS region the entity is stamped with. Blank for entities outside AWS."
-                },
-                {
-                  "field": "data.scheme",
-                  "title": "Scheme",
-                  "width": 130,
-                  "header_tooltip": "A load balancer's scheme: internet-facing or internal. Blank for other services."
                 },
                 {
                   "field": "data.encrypted",
@@ -929,24 +1077,25 @@
                   "header_tooltip": "Whether the database spans availability zones. A dash means the resource type does not report it."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }
@@ -977,13 +1126,13 @@
           "entity": {
             "entity_id": "01a13be3-0373-7901-adcd-b2e05141fa82",
             "entity_type": "panel",
-            "name": "Third-party SaaS",
+            "name": "Third-Party SaaS",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Third-party SaaS",
+            "name": "Third-Party SaaS",
             "slug": "playground-inventory-saas",
             "description": "Outside systems the deployment depends on: GitHub.com where the code comes from, the GHCR package that holds the product image, and AWS where it is hosted. Purpose, data shared, how it authenticates, the vendor's authorization status and what it connects to are not shown: no field holds them.",
             "view": "tap_web/panels/table_panel.html",
@@ -992,12 +1141,22 @@
               "chrome": "minimal",
               "columns": [
                 {
-                  "field": "entity_id",
-                  "title": "ID",
-                  "width": 100,
-                  "formatter": "ellipsisSuffix",
-                  "tooltip": "full_value",
-                  "header_tooltip": "The unique asset identifier: the entity's grid id. The last eight characters show; hover for the whole id."
+                  "field": "entity_type",
+                  "title": "Icon",
+                  "width": 80,
+                  "align": "center",
+                  "formatter": "iconMap",
+                  "formatter_params": {
+                    "icons": {
+                      "aws_core__aws_organization": "/static/aws_core/icons/aws-organizations.svg",
+                      "github_core__github_platform": "/static/github_core/icons/github-platform.svg"
+                    },
+                    "labels": {
+                      "aws_core__aws_organization": "AWS Organization",
+                      "github_core__github_platform": "GitHub"
+                    }
+                  },
+                  "header_tooltip": "The icon of the entity's type."
                 },
                 {
                   "field": "name",
@@ -1009,9 +1168,16 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "tailSegment",
+                  "formatter": "toneBadge",
                   "formatter_params": {
-                    "sep": "__"
+                    "tones": {
+                      "aws_core__aws_organization": "muted",
+                      "github_core__github_platform": "muted"
+                    },
+                    "labels": {
+                      "aws_core__aws_organization": "AWS Organization",
+                      "github_core__github_platform": "GitHub"
+                    }
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -1029,24 +1195,25 @@
                   "header_tooltip": "The system's web address."
                 },
                 {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.customer"
-                  ],
-                  "title": "Customer data",
-                  "width": 150,
+                  "title": "Data Classification",
+                  "width": 200,
                   "empty_text": "not classified",
-                  "header_tooltip": "The customer data classification (the dataclass.customer dimension) the component carries: what kind of customer data it creates, reads, writes or stores."
-                },
-                {
-                  "field_path": [
-                    "dimensions",
-                    "dataclass.infra"
+                  "field_paths": [
+                    [
+                      "dimensions",
+                      "dataclass.customer"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.infra"
+                    ],
+                    [
+                      "dimensions",
+                      "dataclass.action"
+                    ]
                   ],
-                  "title": "Infra data",
-                  "width": 130,
-                  "empty_text": "not classified",
-                  "header_tooltip": "The infrastructure data classification (the dataclass.infra dimension) the component carries: what kind of infrastructure data it holds."
+                  "joiner": ", ",
+                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
                 }
               ]
             }

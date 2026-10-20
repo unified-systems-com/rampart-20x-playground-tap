@@ -21,7 +21,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d215cb853325",
             "entity_type": "aws_core__aws_organization",
-            "name": "organization",
+            "name": "AWS",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -32,7 +32,7 @@
             "organization_id": "o-mockgitserious",
             "management_account_id": "100000000000",
             "partition": "aws-us-gov",
-            "name": "organization",
+            "name": "AWS",
             "tags": {
               "layout:column": "2",
               "layout:order": "0"
@@ -904,7 +904,7 @@
             "name": "ghcr.io git-serious image",
             "dimensions": {
               "dcom": "design",
-              "inventory": "saas",
+              "inventory": "containers",
               "overview": "shown"
             }
           },

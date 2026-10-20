@@ -7,6 +7,7 @@ secret material is recorded. What a table shows once imported is checked in the 
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from pathlib import Path
 
@@ -132,6 +133,7 @@ class TestStamps:
         containers = [n for n in _stamped() if n["entity"]["dimensions"].get("inventory") == "containers"]
         assert sorted(n["entity"]["entity_type"] for n in containers) == [
             "computing_core__host",
+            "github_core__github_package",
             "github_core__github_package_version",
         ]
 
@@ -380,25 +382,56 @@ class TestInventoryPage:
     def test_common_columns_on_every_table(self) -> None:
         for panel in self._of("panel"):
             fields = [c["field"] for c in panel["node"]["config"]["columns"] if "field" in c]
-            assert fields[:2] == ["entity_id", "name"], panel["entity"]["name"]
+            assert fields[:2] == ["entity_type", "name"], panel["entity"]["name"]
+            assert "entity_id" not in fields, panel["entity"]["name"]
             # No description column: the entity types hold no description field (a recorded gap in the spec).
             assert "data.description" not in fields, panel["entity"]["name"]
 
-    def test_every_table_ends_with_the_two_data_classification_columns(self) -> None:
-        """Q90a: the customer and infra data classifications, read by path from the node's dimensions; never blank."""
+    def test_every_table_ends_with_the_joined_data_classification_column(self) -> None:
+        """One joined column read by path from the node's dimensions (customer, infra, action); never blank."""
         for panel in self._of("panel"):
-            customer, infra = panel["node"]["config"]["columns"][-2:]
-            assert customer["field_path"] == ["dimensions", "dataclass.customer"] and customer["title"] == "Customer data"
-            assert infra["field_path"] == ["dimensions", "dataclass.infra"] and infra["title"] == "Infra data"
-            for column in (customer, infra):
-                assert "field" not in column and column["empty_text"] == "not classified", panel["entity"]["name"]
+            titles = [c["title"] for c in panel["node"]["config"]["columns"]]
+            assert titles.count("Data Classification") == 1, panel["entity"]["name"]
+            column = panel["node"]["config"]["columns"][-1]
+            assert column["title"] == "Data Classification" and column["width"] == 200, panel["entity"]["name"]
+            assert column["field_paths"] == [
+                ["dimensions", "dataclass.customer"], ["dimensions", "dataclass.infra"], ["dimensions", "dataclass.action"],
+            ] and column["joiner"] == ", ", panel["entity"]["name"]
+            assert "field" not in column and column["empty_text"] == "not classified", panel["entity"]["name"]
 
-    def test_entity_type_columns_use_the_tail_segment_formatter(self) -> None:
+    def test_the_first_column_is_the_type_icon_and_no_table_has_an_id_column(self) -> None:
         for panel in self._of("panel"):
-            for column in panel["node"]["config"]["columns"]:
+            icon = panel["node"]["config"]["columns"][0]
+            assert icon["field"] == "entity_type" and icon["formatter"] == "iconMap", panel["entity"]["name"]
+            icons = icon["formatter_params"]["icons"]
+            assert icons and all(re.fullmatch(r"/static/\w+/icons/[\w-]+\.svg", u) for u in icons.values()), panel["entity"]["name"]
+            assert set(icon["formatter_params"]["labels"]) == set(icons), panel["entity"]["name"]
+            assert "ID" not in [c["title"] for c in panel["node"]["config"]["columns"]], panel["entity"]["name"]
+
+    def test_entity_type_columns_say_the_standard_service_name(self) -> None:
+        for panel in self._of("panel"):
+            for column in panel["node"]["config"]["columns"][1:]:
                 if column.get("field") == "entity_type":
-                    assert column["formatter"] == "tailSegment", panel["entity"]["name"]
-                    assert column["formatter_params"] == {"sep": "__"}, panel["entity"]["name"]
+                    assert column["formatter"] == "toneBadge", panel["entity"]["name"]
+                    labels = column["formatter_params"]["labels"]
+                    assert labels and not any(v.startswith(("aws_", "github_", "computing_")) for v in labels.values())
+        cloud = next(p for p in self._of("panel") if p["entity"]["name"] == "Cloud Services")
+        labels = next(c for c in cloud["node"]["config"]["columns"] if c["title"] == "Service")["formatter_params"]["labels"]
+        assert labels["aws_core__aws_alb"] == "Application Load Balancer" and labels["aws_core__aws_rds_instance"] == "RDS"
+        assert labels["aws_core__aws_route53_zone"] == "Route 53" and labels["aws_core__aws_kms_key"] == "KMS"
+        assert "Scheme" not in [c["title"] for c in cloud["node"]["config"]["columns"]]
+
+    def test_every_name_and_title_is_in_title_case(self) -> None:
+        for panel in self._of("panel"):
+            texts = [panel["node"]["name"]] + [c["title"] for c in panel["node"]["config"]["columns"]]
+            for text in texts:
+                words = [w for w in re.split(r"[ -]", text) if w[:1].isalpha()]
+                assert all(w[0].isupper() for w in words), (panel["entity"]["name"], text)
+        assert {"Cloud Services", "Operating Systems", "Third-Party SaaS"} <= {p["node"]["name"] for p in self._of("panel")}
+
+    def test_the_saas_table_holds_aws_and_github_only(self) -> None:
+        rows = {n["entity"]["name"] for n in _stamped() if n["entity"]["dimensions"].get("inventory") == "saas"}
+        assert rows == {"AWS", "github.com"}
 
     def test_no_header_tooltip_frames_the_data_as_mock(self) -> None:
         for panel in self._of("panel"):
@@ -418,7 +451,7 @@ class TestInventoryPage:
     def test_no_free_text_comments_column_and_no_secret_columns(self) -> None:
         for panel in self._of("panel"):
             for column in panel["node"]["config"]["columns"]:
-                name = column["field"] if "field" in column else ".".join(column["field_path"])
+                name = column["field"] if "field" in column else ".".join(p for path in column["field_paths"] for p in path)
                 assert "comment" not in name.lower() and "comment" not in column["title"].lower()
                 assert "fingerprint" not in name.lower()
 
