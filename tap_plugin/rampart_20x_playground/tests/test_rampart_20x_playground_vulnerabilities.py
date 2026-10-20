@@ -525,3 +525,30 @@ class TestVulnerabilityPages:
                 other |= {n["entity"]["entity_id"] for n in batch["nodes"] if "entity_id" in n["entity"]}
                 other |= {e["entity"]["entity_id"] for e in batch["edges"] if "entity_id" in e["entity"]}
         assert not other & set(ids)
+
+
+class TestStatCardTextLimits:
+    """The core stat-card schema caps `unit` and each `tone_labels` entry at 40 characters, `null_text` and the like at 80,
+    `empty_text` at 200; a longer string makes the whole card show 'Invalid stat-card config' (seen live on the CVE page)."""
+
+    def test_no_stat_card_string_exceeds_the_core_limits(self) -> None:
+        import json
+
+        batch = json.loads(
+            (PACKAGE_ROOT / "grift" / "vulnerabilities-page.grift.json").read_text(encoding="utf-8")
+        )["batches"][0]
+        too_long: list[str] = []
+        for node in batch["nodes"]:
+            config = node["node"].get("config") or {}
+            if not isinstance(config, dict):
+                continue
+            slug = node["node"].get("slug")
+            if len(config.get("unit", "")) > 40:
+                too_long.append(f"{slug}: unit")
+            for tone, text in (config.get("tone_labels") or {}).items():
+                if len(text) > 40:
+                    too_long.append(f"{slug}: tone_labels.{tone}")
+            for key, limit in (("null_text", 80), ("missing_text", 80), ("blank_text", 80), ("empty_text", 200)):
+                if len(config.get(key, "")) > limit:
+                    too_long.append(f"{slug}: {key}")
+        assert not too_long, too_long
