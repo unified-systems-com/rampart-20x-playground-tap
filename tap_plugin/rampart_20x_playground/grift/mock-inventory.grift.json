@@ -363,7 +363,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d22e8bdcb73f",
             "entity_type": "aws_core__aws_subnet",
-            "name": "isolated-a",
+            "name": "database-a",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -377,9 +377,9 @@
             "cidr_block": "10.20.4.0/24",
             "availability_zone": "us-gov-west-1a",
             "public": false,
-            "name": "isolated-a",
+            "name": "database-a",
             "tags": {
-              "tier": "isolated",
+              "tier": "database",
               "layout:order": "2"
             }
           }
@@ -388,7 +388,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2304ba140e8",
             "entity_type": "aws_core__aws_subnet",
-            "name": "isolated-b",
+            "name": "database-b",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -402,9 +402,9 @@
             "cidr_block": "10.20.5.0/24",
             "availability_zone": "us-gov-west-1b",
             "public": false,
-            "name": "isolated-b",
+            "name": "database-b",
             "tags": {
-              "tier": "isolated",
+              "tier": "database",
               "layout:order": "2"
             }
           }

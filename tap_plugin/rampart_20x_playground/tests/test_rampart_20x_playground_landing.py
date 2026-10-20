@@ -295,7 +295,8 @@ class TestPlaygroundException:
     def test_the_landing_spec_carries_the_new_requirements(self) -> None:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
-                    "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18"):
+                    "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
+                    "govcloud-layout-19"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -588,3 +589,46 @@ class TestVulnerabilityWindowColumns:
         assert columns[0]["nowrap"] is True, "a CVE id stays on one line"
         assert columns[1]["format"] == "number" and columns[1]["align"] == "right"
         assert windows[0]["row_url_template"].endswith("vuln_id={id}")
+
+
+class TestOverviewZoomPolish:
+    """`req-rampart-20x-playground-govcloud-layout-19`: Overview zoom polish."""
+
+    def test_each_new_exception_names_its_runtime_form(self) -> None:
+        source = _js()
+        for n in range(19, 24):
+            start = source.index(f" *  {n}. ")
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 23 else source.index("\n * None changes", start)
+            assert "should become" in source[start:end], n
+
+    def test_the_text_base_is_doubled_once(self) -> None:
+        source = _js()
+        assert "const FONT_SCALE = 2;" in source and "const BASE_FONT = 11;" in source
+        assert 'n.scratch("landingFontBase")' in source, "the base is kept, so a second layout run never doubles again"
+        assert "const FLOW_ARROW_SCALE = 2;" in source
+
+    def test_the_subnet_labels_are_inside_top_centre(self) -> None:
+        source = _js()
+        assert 'n.data("label_position", "inside")' in source and 'anchor: "top-center"' in source
+
+    def test_the_task_label_is_centred_at_the_account_elevation(self) -> None:
+        source = _js()
+        body = source.split("function _placeTaskLabel")[1].split("\n}\n")[0]
+        assert "revealed ? upperLeft : {mx: 0, my: 0}" in body
+        assert "_placeTaskLabel(cy, now, !first);" in source
+
+    def test_the_badges_follow_the_icon_class(self) -> None:
+        source = _js()
+        assert '"tapzoomsettled"' in source and "config.classes.icon" in source
+
+    def test_the_isolated_subnets_are_the_database_tier(self) -> None:
+        subnets = _by_type("aws_core__aws_subnet")
+        tiers = sorted((n["node"]["tags"]["tier"], n["node"]["name"]) for n in subnets)
+        assert [t for t, _ in tiers].count("database") == 2 and "isolated" not in {t for t, _ in tiers}
+        assert {n for t, n in tiers if t == "database"} == {"database-a", "database-b"}
+
+    def test_the_panel_settles_fonts_and_icons_on_their_own_exponents(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))
+        panel = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["name"] == "Playground landing graph")
+        classes = panel["node"]["config"]["zoom_settle"]["classes"]
+        assert classes["font"]["exponent"] == 0.5 and classes["icon"]["exponent"] == 0.75
