@@ -102,8 +102,7 @@
             "entity_type": "computing_core__application_flow",
             "name": "administration",
             "dimensions": {
-              "dcom": "design",
-              "dataclass.infra": "admin"
+              "dcom": "design"
             }
           },
           "node": {

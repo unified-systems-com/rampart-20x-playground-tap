@@ -1152,6 +1152,7 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
+              "label": "hidden",
               "icon": "teleport/icons/teleport-cluster.svg"
             }
           },
