@@ -437,7 +437,7 @@ class TestApplicationFlow:
         flow_id = self._flow()["entity"]["entity_id"]
         edges = [e for e in _batch_edges(APPLICATION_FLOW) if flow_id in (e["from_entity_id"], e["to_entity_id"])]
         assert sorted((e["edge_type"], _name(e["from_entity_id"]), _name(e["to_entity_id"])) for e in edges) == [
-            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer traffic", "tap-web"),
+            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer traffic", "gunicorn"),
             ("APPLICATION_FLOW_SOURCE__computing_core", "customer a computer", "customer traffic"),
         ]
 
