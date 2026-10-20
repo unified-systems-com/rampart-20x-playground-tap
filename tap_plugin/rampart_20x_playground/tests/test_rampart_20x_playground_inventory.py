@@ -379,26 +379,35 @@ class TestInventoryPage:
 
     def test_common_columns_on_every_table(self) -> None:
         for panel in self._of("panel"):
-            fields = [c["field"] for c in panel["node"]["config"]["columns"]]
+            fields = [c["field"] for c in panel["node"]["config"]["columns"] if "field" in c]
             assert fields[:2] == ["entity_id", "name"], panel["entity"]["name"]
             # No description column: the entity types hold no description field (a recorded gap in the spec).
             assert "data.description" not in fields, panel["entity"]["name"]
 
+    def test_every_table_ends_with_the_two_data_classification_columns(self) -> None:
+        """Q90a: the customer and infra data classifications, read by path from the node's dimensions; never blank."""
+        for panel in self._of("panel"):
+            customer, infra = panel["node"]["config"]["columns"][-2:]
+            assert customer["field_path"] == ["dimensions", "dataclass.customer"] and customer["title"] == "Customer data"
+            assert infra["field_path"] == ["dimensions", "dataclass.infra"] and infra["title"] == "Infra data"
+            for column in (customer, infra):
+                assert "field" not in column and column["empty_text"] == "not classified", panel["entity"]["name"]
+
     def test_entity_type_columns_use_the_tail_segment_formatter(self) -> None:
         for panel in self._of("panel"):
             for column in panel["node"]["config"]["columns"]:
-                if column["field"] == "entity_type":
+                if column.get("field") == "entity_type":
                     assert column["formatter"] == "tailSegment", panel["entity"]["name"]
                     assert column["formatter_params"] == {"sep": "__"}, panel["entity"]["name"]
 
     def test_no_header_tooltip_frames_the_data_as_mock(self) -> None:
         for panel in self._of("panel"):
             for column in panel["node"]["config"]["columns"]:
-                assert "mock" not in column["header_tooltip"].lower(), (panel["entity"]["name"], column["field"])
+                assert "mock" not in column["header_tooltip"].lower(), (panel["entity"]["name"], column["title"])
 
     def test_software_tables_show_their_columns(self) -> None:
         fields = {
-            panel["entity"]["name"]: [c["field"] for c in panel["node"]["config"]["columns"]]
+            panel["entity"]["name"]: [c["field"] for c in panel["node"]["config"]["columns"] if "field" in c]
             for panel in self._of("panel")
         }
         for field in ("data.version", "data.ecosystem", "data.source_document", "data.architecture", "data.license", "data.purl"):
@@ -409,8 +418,9 @@ class TestInventoryPage:
     def test_no_free_text_comments_column_and_no_secret_columns(self) -> None:
         for panel in self._of("panel"):
             for column in panel["node"]["config"]["columns"]:
-                assert "comment" not in column["field"].lower() and "comment" not in column["title"].lower()
-                assert "fingerprint" not in column["field"].lower()
+                name = column["field"] if "field" in column else ".".join(column["field_path"])
+                assert "comment" not in name.lower() and "comment" not in column["title"].lower()
+                assert "fingerprint" not in name.lower()
 
     def test_app_entities_carry_no_dcom_value(self) -> None:
         """`req-rampart-20x-playground-nongoals-4`: the page, panels, Searches and edges are the app, not the system."""

@@ -95,15 +95,17 @@ class TestDataClassificationPage:
                 columns = {c["field"] for c in line.get("columns", [])}
                 assert columns <= VALUE_FIELDS, columns - VALUE_FIELDS
 
-    def test_each_card_is_title_and_figure_then_a_plain_description_then_the_values_table(self) -> None:
+    def test_each_card_is_title_and_figure_then_the_header_description_then_the_inventory_table(self) -> None:
         for card in self.cards:
             config = card["node"]["config"]
             assert config["layout"] == "figure_right" and config["title_style"] == "bold"
             assert config["title_field"] == "key" and config["value_field"] == "total"
             assert config["unit"] == "components"
             description, table = config["lines"]
-            assert description["field"] == "description" and "label" not in description
-            assert table["field"] == "values" and table["formatter"] == "table" and "label" not in table
+            # George, Q90: the description stands in the header directly under the title, and "Inventory" is a caption above the table.
+            assert description["field"] == "description" and "label" not in description and description["placement"] == "header"
+            assert table["field"] == "values" and table["formatter"] == "table"
+            assert table["label"] == "Inventory" and table["label_placement"] == "above"
             assert [c["field"] for c in table["columns"]] == ["value", "description", "count"]
             assert table["columns"][2]["formatter"] == "integer"  # a zero count shows 0
 
@@ -116,7 +118,7 @@ class TestDataClassificationPage:
         assert first["node"]["name"] == first["entity"]["name"] == "Data Classification"
         assert first["node"]["config"] == {"text": "", "hide_header": False}  # the header IS the title
         shown = json.dumps([p["node"]["config"] for p in self.cards])
-        for caption in ("What it classifies", "Components by type", '"label"', "values_text", "breakdown_text"):
+        for caption in ("What it classifies", "Components by type", "values_text", "breakdown_text"):
             assert caption not in shown, caption
 
     def test_no_value_is_named_and_nothing_says_mock(self) -> None:
