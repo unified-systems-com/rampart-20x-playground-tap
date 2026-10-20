@@ -15,3 +15,10 @@ for a podcast demo. It composes existing plugins; it ships no models, edges or c
   `--dev-plugins rampart_20x_playground`. Login is by the local passkey that spawn replays.
 - **Status:** scaffold. The keystone and dimensions bundles exist; the pages and mock bundles are
   later requirements in the spec.
+
+## Display data the Overview reads
+
+- **`icon_angle`** (dimension of an application flow, degrees): the way the flow points. **0 = north / up, 90 = east, 180 = south, 270 = west**
+  (default 90). The Overview turns the flow's circle icon to it and puts its arrowhead on the end the angle points to. Today: `source pull` 270,
+  `developer source code` 270, `administration` 0, `customer data` and `database` 90. It is a marked playground exception in `landing.js`
+  (exception 38) that becomes a per-node `icon_angle` display hint in tap_viz.

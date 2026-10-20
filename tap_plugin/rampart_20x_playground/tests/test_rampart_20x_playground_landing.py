@@ -155,12 +155,12 @@ class TestLineOfSight:
             dims, tags = entity.get("dimensions", {}), node["node"].get("tags", {})
             raw = dims.get("column", tags.get("layout:column"))
             if raw is not None and entity["name"] in {
-                "customer a", "customer a computer", "Authorization Boundary", "github.com",
-                "developer a laptop", "developer a",
+                "customer", "customer computer", "Authorization Boundary", "github.com",
+                "developer laptop", "developer",
             }:
                 columns[entity["name"]] = int(raw)
-        order = ["customer a", "customer a computer", "Authorization Boundary", "github.com",
-                 "developer a laptop", "developer a"]
+        order = ["customer", "customer computer", "Authorization Boundary", "github.com",
+                 "developer laptop", "developer"]
         assert [columns[n] for n in order] == sorted(columns[n] for n in order)
         assert len(set(columns.values())) == len(order)
 
@@ -305,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -354,7 +354,7 @@ class TestRunningParts:
         assert sorted(by_type["RUNS_CONTAINER__aws_core"]) == [
             ("web task a", "web task a container"), ("web task b", "web task b container")]
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
-            ("database", "PostgreSQL database instance"),
+            ("RDS A", "PostgreSQL database instance"),
             ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
             ("web task a container", "gunicorn"), ("web task b container", "gunicorn (web task b)")]
         assert sorted(by_type["RUNS_IMAGE__computing_core"]) == [
@@ -372,8 +372,8 @@ class TestRunningParts:
     def test_only_web_task_a_s_interior_the_flows_and_the_database_program_are_on_the_overview(self) -> None:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown == {"web task a container", "customer traffic", "gunicorn", "tap-web", "PostgreSQL database instance",
-                         "database traffic", "administration", "developer source code", "source pull"}
+        assert shown == {"web task a container", "customer data", "gunicorn", "tap-web", "PostgreSQL database instance",
+                         "database", "administration", "developer source code", "source pull"}
 
     def test_the_nesting_is_three_configured_relationships_not_type_tests(self) -> None:
         source = _js()
@@ -421,7 +421,7 @@ class TestApplicationFlow:
 
     def _flow(self) -> dict:
         (flow,) = [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "computing_core__application_flow"
-                   and n["entity"]["name"] == "customer traffic"]
+                   and n["entity"]["name"] == "customer data"]
         return flow
 
     def test_one_flow_with_a_name_a_description_and_one_data_class(self) -> None:
@@ -437,8 +437,8 @@ class TestApplicationFlow:
         flow_id = self._flow()["entity"]["entity_id"]
         edges = [e for e in _batch_edges(APPLICATION_FLOW) if flow_id in (e["from_entity_id"], e["to_entity_id"])]
         assert sorted((e["edge_type"], _name(e["from_entity_id"]), _name(e["to_entity_id"])) for e in edges) == [
-            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer traffic", "gunicorn"),
-            ("APPLICATION_FLOW_SOURCE__computing_core", "customer a computer", "customer traffic"),
+            ("APPLICATION_FLOW_DESTINATION__computing_core", "customer data", "gunicorn"),
+            ("APPLICATION_FLOW_SOURCE__computing_core", "customer computer", "customer data"),
         ]
 
     def test_the_flow_is_a_half_size_dark_blue_circle_centred_in_the_gap_on_the_line_of_sight(self) -> None:
@@ -535,7 +535,7 @@ class TestFlowWindow:
 
     def test_it_reads_the_node_s_own_data_and_makes_no_network_call(self) -> None:
         source = _js()
-        body = source.split("function _bindFlowWindow")[1]
+        body = source.split("function _bindFlowWindow")[1].split("function _placedFlows")[0]
         assert 'node.data("dimensions")' in body and 'node.data("fields")' in body and 'node.data("label")' in body
         assert 'const FLOW_DIMENSION_PREFIX = "dataclass.";' in source
         for call in ("fetch(", "XMLHttpRequest", "sendBeacon", "import("):
@@ -608,12 +608,12 @@ class TestMoreApplicationFlows:
 
     def _flows(self) -> dict[str, dict]:
         return {n["entity"]["name"]: n for n in _batch_nodes(APPLICATION_FLOW)
-                if n["entity"]["entity_type"] == "computing_core__application_flow"}
+                if n["entity"]["entity_type"] == "computing_core__application_flow" and n["entity"]["dimensions"].get("overview") == "shown"}
 
     def test_each_flow_is_keyless_shown_unranked_and_stamped_with_one_data_class(self) -> None:
         flows = self._flows()
-        assert sorted(flows) == ["administration", "customer traffic", "database traffic", "developer source code", "source pull"]
-        expected = {"database traffic": ("dataclass.customer", "data"), "administration": ("dataclass.infra", "admin"),
+        assert sorted(flows) == ["administration", "customer data", "database", "developer source code", "source pull"]
+        expected = {"database": ("dataclass.customer", "data"), "administration": ("dataclass.infra", "admin"),
                     "developer source code": ("dataclass.infra", "code"), "source pull": ("dataclass.infra", "code")}
         for name, (key, value) in expected.items():
             dims = flows[name]["entity"]["dimensions"]
@@ -632,9 +632,9 @@ class TestMoreApplicationFlows:
             dest = [_name(e["to_entity_id"]) for e in edges
                     if e["from_entity_id"] == fid and e["edge_type"] == "APPLICATION_FLOW_DESTINATION__computing_core"]
             ends[name] = (source, dest)
-        assert ends["database traffic"] == (["tap-web"], ["PostgreSQL database instance"])
-        assert ends["administration"] == (["administrator a workstation"], ["Authorization Boundary"])
-        assert ends["developer source code"] == (["developer a laptop"], ["github.com"])
+        assert ends["database"] == (["tap-web"], ["PostgreSQL database instance"])
+        assert ends["administration"] == (["administrator workstation"], ["teleport"])
+        assert ends["developer source code"] == (["developer laptop"], ["github.com"])
         assert ends["source pull"] == (["terraform source puller"], ["github.com"])
 
     def test_the_database_program_is_joined_to_the_rds_instance_by_runs_program_and_shown(self) -> None:
@@ -650,6 +650,11 @@ class TestMoreApplicationFlows:
         assert source.count('name: "database-holds-program"') == 2, "once in the nesting and once in the lift"
         assert "(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})" in source
         assert "rds" not in _list("SOLO_TYPES"), "the database is a solo icon only through _formDatabase"
+
+    def test_the_rds_instance_is_named_rds_a_and_its_other_identity_is_unchanged(self) -> None:
+        (rds,) = _by_type("aws_core__aws_rds_instance")
+        assert rds["entity"]["name"] == rds["node"]["name"] == "RDS A"
+        assert rds["node"]["db_instance_id"] == "git-serious" and rds["entity"]["entity_id"] == "01a13b2b-a806-70ab-bec7-d24211bfdd43"
 
     def test_the_two_forms_and_the_top_right_badge_are_one_marked_exception(self) -> None:
         source = _js()
@@ -688,14 +693,14 @@ class TestDeliveryLine:
             dims, tags = node["entity"]["dimensions"], node["node"].get("tags", {})
             if dims.get("line") == "delivery" or tags.get("layout:line") == "delivery":
                 marked.append(node["entity"]["name"])
-        assert sorted(marked) == ["developer a", "developer a laptop", "github.com"]
+        assert sorted(marked) == ["developer", "developer laptop", "github.com"]
         (github,) = _by_type("github_core__github_platform")
         assert github["node"]["tags"]["layout:line"] == "delivery" and "line" not in github["entity"]["dimensions"]
 
     def test_the_order_after_the_boundary_is_github_laptop_developer_and_is_unchanged(self) -> None:
         github = _by_type("github_core__github_platform")[0]
-        laptop = next(n for n in _by_type("computing_core__host") if n["entity"]["name"] == "developer a laptop")
-        person = next(n for n in _by_type("identity_core__human") if n["entity"]["name"] == "developer a")
+        laptop = next(n for n in _by_type("computing_core__host") if n["entity"]["name"] == "developer laptop")
+        person = next(n for n in _by_type("identity_core__human") if n["entity"]["name"] == "developer")
         assert int(github["node"]["tags"]["layout:column"]) < int(laptop["entity"]["dimensions"]["column"]) \
             < int(person["entity"]["dimensions"]["column"])
         assert laptop["entity"]["dimensions"]["row"] == person["entity"]["dimensions"]["row"] == "0", "a horizontal pair"
@@ -727,7 +732,7 @@ class TestTeleportVpc:
         return node
 
     def test_the_vpc_the_subnet_and_the_instance_exist_with_their_siblings_dimensions(self) -> None:
-        vpc = self._named("aws_core__aws_vpc", "teleport")
+        vpc = self._named("aws_core__aws_vpc", "Admin Access")
         subnet = self._named("aws_core__aws_subnet", "public")
         instance = self._named("aws_core__aws_ec2_instance", "teleport")
         production = self._named("aws_core__aws_vpc", "Production")
@@ -745,15 +750,15 @@ class TestTeleportVpc:
         edges = [e["edge"] for b in json.loads(MOCK.read_text(encoding="utf-8"))["batches"] for e in b["edges"]]
         names = {n["entity"]["entity_id"]: n["entity"]["name"] for n in _nodes()}
         types = {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in _nodes()}
-        mine = {n["entity"]["entity_id"] for n in _nodes() if n["entity"]["name"] in {"teleport", "public"}
+        mine = {n["entity"]["entity_id"] for n in _nodes() if n["entity"]["name"] in {"Admin Access", "teleport", "public"}
                 and types[n["entity"]["entity_id"]] in {"aws_core__aws_vpc", "aws_core__aws_ec2_instance"}
                 or (n["entity"]["name"] == "public" and types[n["entity"]["entity_id"]] == "aws_core__aws_subnet"
                     and n["node"]["subnet_id"] == "subnet-mockteleportpublic")}
         joined = sorted((e["edge_type"], types[e["from_entity_id"]].split("__")[1], names[e["from_entity_id"]], names[e["to_entity_id"]])
                         for e in edges if e["from_entity_id"] in mine or e["to_entity_id"] in mine)
         assert joined == [
-            ("BELONGS_TO_ACCOUNT__aws_core", "aws_vpc", "teleport", "git-serious"),
-            ("PARTITIONED_INTO_SUBNET__aws_core", "aws_vpc", "teleport", "public"),
+            ("BELONGS_TO_ACCOUNT__aws_core", "aws_vpc", "Admin Access", "git-serious"),
+            ("PARTITIONED_INTO_SUBNET__aws_core", "aws_vpc", "Admin Access", "public"),
             ("RESIDES_IN_SUBNET__aws_core", "aws_ec2_instance", "teleport", "public"),
         ]
         assert not any(t.startswith("teleport__") for t in types.values())
@@ -836,13 +841,13 @@ class TestArrowPeoplePolish:
         # After every pass that makes solo icons, so none is missed.
         assert source.index("iconNodeId: \"landing-solo-flow\"") < source.index("_noBorder(cy.nodes()")
 
-    def test_a_horizontal_pair_s_labels_are_smaller_and_the_vertical_pair_is_left_alone(self) -> None:
+    def test_both_kinds_of_pair_have_smaller_labels(self) -> None:
         source = _js()
         factor = float(re.search(r"const PAIR_FONT_FACTOR = ([0-9.]+);", source).group(1))
         assert 0.5 <= factor < 1
         pair = source.split("function _closePairs")[1].split("\n}\n")[0]
         horizontal = pair.split("} else {")[1]
-        assert pair.count("landingFontFactor") == 2 and horizontal.count("landingFontFactor") == 2
+        assert pair.count("landingFontFactor") == 4 and horizontal.count("landingFontFactor") == 2
         assert 'n.scratch("landingFontFactor") || 1' in source and "base * FONT_SCALE * factor" in source
 
 
@@ -886,12 +891,8 @@ class TestOverviewTweaksTwo:
         body = _js().split("function _styleFlow(")[1].split("\n}\n")[0]
         assert '"text-background-opacity": 0' in body and "text-background-color" not in body
 
-    def test_the_source_pull_arrow_is_reversed_by_data_and_the_scope_title_follows_the_font_class(self) -> None:
+    def test_the_scope_title_follows_the_font_class(self) -> None:
         source = _js()
-        flows = {n["entity"]["name"]: n["entity"]["dimensions"] for n in _batch_nodes(APPLICATION_FLOW)
-                 if n["entity"]["entity_type"] == "computing_core__application_flow"}
-        assert [k for k, v in flows.items() if v.get("arrow") == "reversed"] == ["source pull"]
-        assert '"source-arrow-shape": type === E.flowSource && head ? "triangle" : "none"' in source
         assert "function _syncScopeTitle" in source and "config.classes.font" in source
 
     def test_the_database_program_is_moved_to_the_line_of_sight(self) -> None:
@@ -903,3 +904,87 @@ class TestOverviewTweaksTwo:
     def test_the_new_requirement_is_in_the_landing_spec(self) -> None:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         assert "req-rampart-20x-playground-govcloud-layout-24" in text
+
+
+class TestOverviewNitsThree:
+    """`req-rampart-20x-playground-govcloud-layout-25`: Overview nits, round three (playground exceptions 38 to 43)."""
+
+    def _all_flows(self) -> list[dict]:
+        return [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "computing_core__application_flow"]
+
+    def test_the_names_lost_their_a_and_the_flows_lost_traffic(self) -> None:
+        names = {n["entity"]["name"] for n in _nodes()}
+        assert {"customer", "customer computer", "developer", "developer laptop", "administrator", "administrator workstation"} <= names
+        assert not {n for n in names if re.fullmatch(r"(customer|developer|administrator) a( .*)?", n)}
+        assert not [n for n in self._all_flows() if "traffic" in n["entity"]["name"]]
+        for node in _nodes():
+            assert node["entity"]["name"] == node["node"].get("name", node["entity"]["name"])
+
+    def test_renamed_people_keep_their_identity_columns(self) -> None:
+        people = {n["entity"]["name"]: n for n in _by_type("identity_core__human")}
+        assert people["customer"]["node"]["handle"] == "customer-a" and people["developer"]["node"]["handle"] == "developer-a"
+        assert people["administrator"]["node"]["handle"] == "admin-a"
+        computers = {n["entity"]["name"]: n["node"]["stable_id"] for n in _by_type("computing_core__host")}
+        assert computers["customer computer"] == "customer-a-computer" and computers["administrator workstation"] == "admin-a-computer"
+
+    def test_the_old_administration_flow_is_retired_and_a_new_one_ends_on_the_teleport_instance(self) -> None:
+        admin = [n for n in self._all_flows() if n["entity"]["name"] == "administration"]
+        assert len(admin) == 2
+        (old,) = [n for n in admin if "overview" not in n["entity"]["dimensions"]]
+        (new,) = [n for n in admin if n["entity"]["dimensions"].get("overview") == "shown"]
+        assert old["entity"]["entity_id"] == "01a15a28-7763-727d-9425-a57a6568592e", "the old flow keeps its id and its edges"
+        assert new["entity"]["entity_id"] != old["entity"]["entity_id"]
+        assert new["entity"]["dimensions"]["dataclass.infra"] == "admin"
+        (teleport,) = [n for n in _by_type("aws_core__aws_ec2_instance") if n["entity"]["name"] == "teleport"]
+        ends = {e["edge_type"]: e for e in _batch_edges(APPLICATION_FLOW)
+                if new["entity"]["entity_id"] in (e["from_entity_id"], e["to_entity_id"])}
+        assert ends["APPLICATION_FLOW_DESTINATION__computing_core"]["to_entity_id"] == teleport["entity"]["entity_id"]
+        assert _name(ends["APPLICATION_FLOW_SOURCE__computing_core"]["from_entity_id"]) == "administrator workstation"
+        old_dest = [e for e in _batch_edges(APPLICATION_FLOW) if e["from_entity_id"] == old["entity"]["entity_id"]
+                    and e["edge_type"] == "APPLICATION_FLOW_DESTINATION__computing_core"]
+        assert [_name(e["to_entity_id"]) for e in old_dest] == ["Authorization Boundary"], "endpoints are immutable on upsert"
+
+    def test_icon_angle_is_a_dimension_in_degrees_and_replaces_the_reversed_arrow(self) -> None:
+        angles = {n["entity"]["name"]: n["entity"]["dimensions"].get("icon_angle") for n in self._all_flows()
+                  if n["entity"]["dimensions"].get("overview") == "shown"}
+        assert angles == {"customer data": "90", "database": "90", "administration": "0",
+                          "developer source code": "270", "source pull": "270"}
+        assert not [n for n in self._all_flows() if "arrow" in n["entity"]["dimensions"]]
+        source = _js()
+        assert 'const ICON_ANGLE_KEY = "icon_angle";' in source and "const FLOW_ICON_ANGLE = 90;" in source
+        assert "ARROW_REVERSED" not in source and "function _flowAngle" in source and "function _rotateFlowIcons" in source
+        assert "_destinationAhead(flow)" in source and "Playground exception 38" in source
+
+    def test_the_convention_is_in_the_spec_and_the_readme(self) -> None:
+        for path in (SPECS / "spec-rampart_20x_playground-govcloud-landing.md", PACKAGE_ROOT.parents[1] / "README.md"):
+            text = path.read_text(encoding="utf-8")
+            assert "icon_angle" in text and "0 = north" in text and "270 = west" in text, path.name
+
+    def test_the_new_exceptions_are_marked_with_their_runtime_form(self) -> None:
+        header = _js().split("None changes the Python, the vocabulary or the data rules.")[0]
+        for number in range(38, 44):
+            entry = header.split(f" *  {number}. ")[1].split("\n *  4")[0].split("\n * None")[0]
+            assert "should become" in entry or "same exit" in entry, number
+    def test_the_labels_are_smaller_inside_and_centred(self) -> None:
+        source = _js()
+        assert re.search(r"const FLOW_FONT_FACTOR = 0\.[0-9]+;", source) and re.search(r"const DB_TITLE_FACTOR = 0\.[0-9]+;", source)
+        body = source.split("function _labelProgramsInside")[1].split("\n}\n")[0]
+        assert '"text-valign": "center"' in body and "n.width() * PROGRAM_LABEL_FIT" in body
+        assert 'anchor: "top-center", inset: 16,\n        parentFontSize: chrome.parentFontSize * FONT_SCALE * DB_TITLE_FACTOR' in source
+        pair = source.split("function _closePairs")[1].split("\n}\n")[0]
+        assert pair.count("PAIR_FONT_FACTOR") == 4, "both pairs' names are the same small size"
+
+    def test_the_gateway_is_the_load_balancers_card_drawn_solo_above_the_flow_line(self) -> None:
+        (igw,) = _by_type("aws_core__aws_internet_gateway")
+        dims = igw["entity"]["dimensions"]
+        assert dims["icon"] == "rampart_20x_playground/icons/internet-gateway-card.svg" and dims["icon_form"] == "solo"
+        svg = (PACKAGE_ROOT / "static" / "rampart_20x_playground" / "icons" / "internet-gateway-card.svg").read_text(encoding="utf-8")
+        assert 'fill="#7B5EA7"' in svg and 'fill="#FFFFFF"' in svg, "the ALB's purple card and a white glyph"
+        source = _js()
+        assert "!== ICON_FORM_SOLO" in source and "Playground exception 42" in source
+        assert "n.style({\"z-index\": edgeZ + 1" in source, "every leaf node, the gateway included, is above the edge layer"
+
+    def test_the_admin_access_vpc_is_snug(self) -> None:
+        source = _js()
+        assert re.search(r"const SLOT_PADDING = ([0-9]+);", source) and int(re.search(r"const SLOT_PADDING = ([0-9]+);", source).group(1)) <= 16
+        assert "const height = SLOT_TOP + subnetBoxes" in source

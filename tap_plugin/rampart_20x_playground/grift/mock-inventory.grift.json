@@ -253,7 +253,9 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
-              "label": "hidden"
+              "label": "hidden",
+              "icon": "rampart_20x_playground/icons/internet-gateway-card.svg",
+              "icon_form": "solo"
             }
           },
           "node": {
@@ -518,7 +520,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d24211bfdd43",
             "entity_type": "aws_core__aws_rds_instance",
-            "name": "database",
+            "name": "RDS A",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -535,7 +537,7 @@
             "db_instance_id": "git-serious",
             "multi_az": true,
             "encrypted": true,
-            "name": "database"
+            "name": "RDS A"
           }
         },
         {
@@ -615,7 +617,7 @@
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d089f8463a23",
             "entity_type": "identity_core__human",
-            "name": "customer a",
+            "name": "customer",
             "dimensions": {
               "actor": "customer",
               "dcom": "design",
@@ -626,14 +628,14 @@
           },
           "node": {
             "handle": "customer-a",
-            "name": "customer a"
+            "name": "customer"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d08a12acd38f",
             "entity_type": "computing_core__host",
-            "name": "customer a computer",
+            "name": "customer computer",
             "dimensions": {
               "device": "customer",
               "dcom": "design",
@@ -647,7 +649,7 @@
             "stable_id": "customer-a-computer",
             "kind": "workstation",
             "os": "Windows",
-            "name": "customer a computer"
+            "name": "customer computer"
           }
         },
         {
@@ -673,7 +675,7 @@
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d0938084edbe",
             "entity_type": "identity_core__human",
-            "name": "developer a",
+            "name": "developer",
             "dimensions": {
               "actor": "developer",
               "dcom": "design",
@@ -685,14 +687,14 @@
           },
           "node": {
             "handle": "developer-a",
-            "name": "developer a"
+            "name": "developer"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d094a2e288d5",
             "entity_type": "computing_core__host",
-            "name": "developer a laptop",
+            "name": "developer laptop",
             "dimensions": {
               "device": "developer",
               "dcom": "design",
@@ -707,7 +709,7 @@
             "stable_id": "developer-a-computer",
             "kind": "workstation",
             "os": "macOS",
-            "name": "developer a laptop"
+            "name": "developer laptop"
           }
         },
         {
@@ -733,7 +735,7 @@
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d0981ee3d5c9",
             "entity_type": "identity_core__human",
-            "name": "administrator a",
+            "name": "administrator",
             "dimensions": {
               "actor": "administrator",
               "dcom": "design",
@@ -744,14 +746,14 @@
           },
           "node": {
             "handle": "admin-a",
-            "name": "administrator a"
+            "name": "administrator"
           }
         },
         {
           "entity": {
             "entity_id": "01a13b55-8896-76ca-9f21-d0994866fe99",
             "entity_type": "computing_core__host",
-            "name": "administrator a workstation",
+            "name": "administrator workstation",
             "dimensions": {
               "device": "administrator",
               "dcom": "design",
@@ -765,7 +767,7 @@
             "stable_id": "admin-a-computer",
             "kind": "workstation",
             "os": "Linux",
-            "name": "administrator a workstation"
+            "name": "administrator workstation"
           }
         },
         {
@@ -1096,7 +1098,7 @@
           "entity": {
             "entity_id": "01a15a3e-4ebf-72d1-af65-3ea57354a89e",
             "entity_type": "aws_core__aws_vpc",
-            "name": "teleport",
+            "name": "Admin Access",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -1110,7 +1112,7 @@
             "vpc_id": "vpc-mockteleport",
             "cidr_block": "10.30.0.0/16",
             "state": "available",
-            "name": "teleport"
+            "name": "Admin Access"
           }
         },
         {
