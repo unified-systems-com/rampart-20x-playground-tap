@@ -554,6 +554,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
@@ -693,6 +695,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 1, "tone": "bad"}], "zero_tone": "muted", "decimals": 0},
                   "header_tooltip": "Open findings with a CVSS score of 7 or more (critical is counted here)."
                 },
                 {
@@ -701,6 +705,8 @@
                   "width": 100,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 1, "tone": "warn"}], "zero_tone": "muted", "decimals": 0},
                   "header_tooltip": "CVSS 4.0 to 6.9."
                 },
                 {
@@ -709,6 +715,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 1, "tone": "good"}], "zero_tone": "muted", "decimals": 0},
                   "header_tooltip": "CVSS below 4.0."
                 },
                 {
@@ -717,6 +725,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 1, "tone": "bad"}], "zero_tone": "muted", "decimals": 0},
                   "header_tooltip": "Open findings on CISA's Known Exploited Vulnerabilities catalog."
                 },
                 {
@@ -805,6 +815,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
@@ -1294,6 +1306,8 @@
                   "width": 90,
                   "align": "right",
                   "sorter": "number",
+                  "formatter": "toneThreshold",
+                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
