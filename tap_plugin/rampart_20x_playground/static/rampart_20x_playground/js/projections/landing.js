@@ -97,6 +97,11 @@
  *  29. the delivery line: the nodes that carry `line: delivery` (the `layout:line` tag on a node type that has tags) leave the line of sight
  *      and are put on the horizontal line through the pile, in their own column order (`_onDeliveryLine`; should become an
  *      `align-to-line` of a named group in the ranked natural layout of the roots).
+ *  30. a slotted VPC: a VPC that carries `place: bottom-center` is not in the account's rows (it would stand beside the production VPC).
+ *      It is hidden with its subnets and what resides in them while the nesting runs, then drawn by hand (`_placeSlotted`) at the
+ *      centre of the account's bottom row, in the same row as the delivery pile: the VPC holds its subnet and the subnet its solo-icon instance, sized
+ *      from the same paddings, the account grown to hold the row (should become a `slot: bottom-center` of the nested layouts' tiered rows, a tier
+ *      chosen by a dimension and not only by entity type).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -108,7 +113,7 @@
  * lift), past the reveal zoom it ends on the tap-web program.
  */
 
-import {projectNested, ELEVATION_HIDDEN_CLASS, VIEWPORT_PARENT_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
+import {projectNested, ELEVATION_HIDDEN_CLASS, VIEWPORT_PARENT_CLASS, HIDDEN_CONTAINMENT_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
@@ -141,6 +146,7 @@ const T = {
     repo: "github_core__github_repository",
     workflow: "github_core__github_workflow",
     package: "github_core__github_package",
+    ec2: "aws_core__aws_ec2_instance",
     task: "aws_core__aws_ecs_task",
     ecsContainer: "aws_core__aws_ecs_container",
     program: "computing_core__program",
@@ -175,7 +181,7 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.ec2, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
 //: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
 //: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
@@ -197,6 +203,11 @@ const PILE_NAME_ROOM = 90;
 const LINE_KEY = "line";
 const LINE_TAG = "layout:line";
 const LINE_DELIVERY = "delivery";
+//: Playground exception 30: the dimension that gives a VPC a slot of its own, and the slot.
+const PLACE_KEY = "place";
+const PLACE_BOTTOM_CENTER = "bottom-center";
+//: Playground exception 30: the room, in model units, between a slotted VPC's edge and the subnet it holds.
+const SLOT_PADDING = 24;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
@@ -317,6 +328,10 @@ export async function execute(context) {
     // are out of the nesting while it runs, so the account is sized for its own rows; they are placed as a pile below
     // them afterwards, which grows the account.
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
+    // Playground exception 30: a slotted VPC, its subnets and their residents are out of the nesting; they are drawn by hand below.
+    const slotted = _slottedVpcs(cy, shown);
+    slotted.nodes.addClass(ELEVATION_HIDDEN_CLASS);
+    slotted.edges.addClass(HIDDEN_CONTAINMENT_CLASS);
     // Playground exception 27: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
     const placed = _placedFlows(shown([T.flow]));
     placed.addClass(ELEVATION_HIDDEN_CLASS);
@@ -407,8 +422,10 @@ export async function execute(context) {
     // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
     if (cy.scratch("landing_deploy")) cy.scratch("landing_deploy").destroy();
     const accountBottom = account.nonempty() ? account.boundingBox({includeLabels: false, includeOverlays: false}).y2 : 0;
-    const pile = _placeDeployPile(cy, account, deploy, pad);
+    const slotSize = _slotSize(slotted, pad);
+    const pile = _placeDeployPile(cy, account, deploy, pad, slotSize.height);
     cy.scratch("landing_deploy", pile);
+    _placeSlotted(cy, account, slotted, slotSize, pile, pad);
     _growAncestors(cy, account, accountBottom);
     // Playground exception 29: the delivery line runs through the pile.
     if (pile.lineY !== undefined) {
@@ -612,7 +629,7 @@ function _whenShown(cy, draw, tries = 600, waited = false) {
  * leave it stay. Returns a handle whose destroy() removes the box and restores those edges, and whose `lineY` is the horizontal line
  * through the middle of the pile (the delivery line, exception 29).
  */
-function _placeDeployPile(cy, account, deploy, pad) {
+function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     const restore = () => {
         cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
             e.removeData("_row_internal");
@@ -666,13 +683,15 @@ function _placeDeployPile(cy, account, deploy, pad) {
         e.style("display", "none");
     });
     // Bottom of the box: the pile, the room for the front name, then the account's own bottom padding.
-    const newBottom = top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM + pad.bottom;
+    // The slotted VPC (exception 30) stands in the same row, from the row's top; the row is as tall as the taller of the two.
+    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
         account.position({x: account.position("x"), y: account.position("y") + delta / 2});
     }
     return {
+        rowTop: above + 44,
         lineY: top + (h + spread) / 2,
         destroy: () => {
             destroyed = true;
@@ -680,6 +699,85 @@ function _placeDeployPile(cy, account, deploy, pad) {
             restore();
         },
     };
+}
+
+/**
+ * Playground exception 30: the VPCs that carry `place: bottom-center`, with what stands in them: their subnets (PARTITIONED_INTO_SUBNET) and what
+ * resides in those (RESIDES_IN_SUBNET), and the edges that would draw that containment as lines (these and the VPC's ownership by an
+ * account), which nesting would have consumed. Read from the shown nodes and the edges, never a type or a name.
+ */
+function _slottedVpcs(cy, shown) {
+    const vpcs = shown([T.vpc]).filter((n) => (n.data("dimensions") || {})[PLACE_KEY] === PLACE_BOTTOM_CENTER);
+    const chains = vpcs.map((vpc) => {
+        const subnets = cy.edges().filter((e) => _edgeType(e) === E.partitioned && e.source().same(vpc)).map((e) => e.target());
+        const subnetIds = new Set(subnets.map((n) => n.id()));
+        const residents = cy.edges().filter((e) => _edgeType(e) === E.residesInSubnet && subnetIds.has(e.target().id()))
+            .map((e) => ({subnet: e.target(), node: e.source()}));
+        return {vpc, subnets, residents};
+    });
+    const nodes = cy.collection();
+    const edges = cy.collection();
+    chains.forEach(({vpc, subnets, residents}) => {
+        nodes.merge(vpc);
+        subnets.forEach((n) => nodes.merge(n));
+        residents.forEach(({node}) => nodes.merge(node));
+        edges.merge(vpc.connectedEdges().filter((e) => _edgeType(e) === E.partitioned || _edgeType(e) === E.belongs));
+        subnets.forEach((n) => edges.merge(n.connectedEdges().filter((e) => _edgeType(e) === E.residesInSubnet)));
+    });
+    return {chains, nodes, edges};
+}
+
+/**
+ * Playground exception 30: the box sizes of a slotted VPC, from the paddings the nesting would use: the instance is a solo icon, the
+ * subnet holds it under a title and above its name, the VPC holds the subnet under its own title.
+ */
+function _slotSize(slotted, pad) {
+    const sizes = slotted.chains.map(({vpc, subnets, residents}) => {
+        const subnetBoxes = subnets.map((subnet) => {
+            const held = residents.filter((r) => r.subnet.same(subnet)).map((r) => r.node);
+            const iconW = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_w")) || n.width())) : 0;
+            const iconH = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_h")) || n.height())) : 0;
+            return {subnet, held, width: Math.max(SUBNET.width, iconW + pad.left + pad.right), height: pad.top + iconH + pad.bottom, iconH};
+        });
+        const width = Math.max(...subnetBoxes.map((b) => b.width), 0) + 2 * SLOT_PADDING;
+        const height = pad.top + subnetBoxes.reduce((sum, b) => sum + b.height, 0) + SLOT_PADDING;
+        return {vpc, subnetBoxes, width, height};
+    });
+    return {sizes, height: Math.max(0, ...sizes.map((b) => b.height))};
+}
+
+/**
+ * Playground exception 30 (should become a `slot: bottom-center` of the nested layouts' tiered rows): draw each slotted VPC by hand at the
+ * centre of the account's bottom row, from the row's top (the same top the delivery pile uses), centred on the account's centre line. Each
+ * subnet is centred in its VPC and each resident (a solo icon) in its subnet; the boxes carry the container class and the nesting data,
+ * as the nested layout would have stamped them.
+ */
+function _placeSlotted(cy, account, slotted, slotSize, pile, pad) {
+    if (account.empty() || !slotSize.sizes.length) return;
+    const baseZ = Number(account.style("z-index")) + 10;
+    slotSize.sizes.forEach(({vpc, subnetBoxes, width, height}) => {
+        const x = account.position("x");
+        const top = pile.rowTop;
+        vpc.style({width, height, "z-index": baseZ});
+        vpc.position({x, y: top + height / 2});
+        vpc.data("_viewport_parent", account.id());
+        vpc.addClass(VIEWPORT_PARENT_CLASS);
+        // The subnets stand under the VPC's title room, one above the other.
+        let y = top + height - SLOT_PADDING - subnetBoxes.reduce((sum, b) => sum + b.height, 0);
+        subnetBoxes.forEach(({subnet, held, width: sw, height: sh}) => {
+            subnet.style({width: sw, height: sh, "z-index": baseZ + 10});
+            subnet.position({x, y: y + sh / 2});
+            subnet.data("_viewport_parent", vpc.id());
+            subnet.addClass(VIEWPORT_PARENT_CLASS);
+            // A resident stands under the subnet's title room, its name below it inside the bottom room.
+            held.forEach((n) => {
+                n.position({x, y: y + pad.top + (Number(n.data("_icon_h")) || n.height()) / 2});
+                n.data("_viewport_parent", subnet.id());
+            });
+            y += sh;
+        });
+    });
+    slotted.nodes.removeClass(ELEVATION_HIDDEN_CLASS);
 }
 
 /**

@@ -129,7 +129,7 @@ class TestDeployRow:
         assert "baseZ + i" in body, "the last is in front"
         assert 'tagOrder(a)' in body and "layout:order" in body
         assert "lineY: " in body
-        assert "const pile = _placeDeployPile(cy, account, deploy, pad);" in source and "_growAncestors(cy, account, accountBottom);" in source
+        assert "const pile = _placeDeployPile(cy, account, deploy, pad, slotSize.height);" in source and "_growAncestors(cy, account, accountBottom);" in source
         assert "Playground exception 28 (should become a `pile` arrangement" in source
 
     def test_the_old_row_code_is_gone(self) -> None:
@@ -305,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -719,14 +719,75 @@ class TestDeliveryLine:
         assert "req-rampart-20x-playground-govcloud-layout-22" in text and "card pile" in text
 
 
+class TestTeleportVpc:
+    """`req-rampart-20x-playground-govcloud-layout-23`: teleport is a VPC in the git-serious account, not an account."""
+
+    def _named(self, entity_type: str, name: str) -> dict:
+        (node,) = [n for n in _by_type(entity_type) if n["entity"]["name"] == name]
+        return node
+
+    def test_the_vpc_the_subnet_and_the_instance_exist_with_their_siblings_dimensions(self) -> None:
+        vpc = self._named("aws_core__aws_vpc", "teleport")
+        subnet = self._named("aws_core__aws_subnet", "public")
+        instance = self._named("aws_core__aws_ec2_instance", "teleport")
+        production = self._named("aws_core__aws_vpc", "Production")
+        for node in (vpc, subnet, instance):
+            dims = node["entity"]["dimensions"]
+            assert dims["dcom"] == "design" and dims["overview"] == "shown" and dims["tap.cloud"] == "aws"
+            assert dims["aws_account"] == production["entity"]["dimensions"]["aws_account"] == "100000000001"
+            assert dims["aws_region"] == production["entity"]["dimensions"]["aws_region"]
+        assert vpc["entity"]["dimensions"]["place"] == "bottom-center" and "place" not in production["entity"]["dimensions"]
+        assert subnet["node"]["tags"] == {"tier": "public", "layout:order": "0"}
+        assert instance["entity"]["dimensions"]["inventory"] == "cloud"
+        assert vpc["node"]["vpc_id"] != production["node"]["vpc_id"] and instance["node"]["instance_id"]
+
+    def test_only_official_edges_join_them_and_the_account_owns_the_vpc(self) -> None:
+        edges = [e["edge"] for b in json.loads(MOCK.read_text(encoding="utf-8"))["batches"] for e in b["edges"]]
+        names = {n["entity"]["entity_id"]: n["entity"]["name"] for n in _nodes()}
+        types = {n["entity"]["entity_id"]: n["entity"]["entity_type"] for n in _nodes()}
+        mine = {n["entity"]["entity_id"] for n in _nodes() if n["entity"]["name"] in {"teleport", "public"}
+                and types[n["entity"]["entity_id"]] in {"aws_core__aws_vpc", "aws_core__aws_ec2_instance"}
+                or (n["entity"]["name"] == "public" and types[n["entity"]["entity_id"]] == "aws_core__aws_subnet"
+                    and n["node"]["subnet_id"] == "subnet-mockteleportpublic")}
+        joined = sorted((e["edge_type"], types[e["from_entity_id"]].split("__")[1], names[e["from_entity_id"]], names[e["to_entity_id"]])
+                        for e in edges if e["from_entity_id"] in mine or e["to_entity_id"] in mine)
+        assert joined == [
+            ("BELONGS_TO_ACCOUNT__aws_core", "aws_vpc", "teleport", "git-serious"),
+            ("PARTITIONED_INTO_SUBNET__aws_core", "aws_vpc", "teleport", "public"),
+            ("RESIDES_IN_SUBNET__aws_core", "aws_ec2_instance", "teleport", "public"),
+        ]
+        assert not any(t.startswith("teleport__") for t in types.values())
+
+    def test_the_remote_access_placeholder_account_is_not_the_teleport(self) -> None:
+        (account,) = [n for n in _by_type("aws_core__aws_account") if n["entity"]["name"] == "remote-access"]
+        assert "overview" not in account["entity"]["dimensions"]
+
+    def test_the_layout_reads_the_slot_from_data_and_draws_the_chain_by_hand(self) -> None:
+        source = _js()
+        assert 'const PLACE_KEY = "place";' in source and 'const PLACE_BOTTOM_CENTER = "bottom-center";' in source
+        assert "ec2" in _list("SOLO_TYPES"), "the instance is a solo icon"
+        body = source.split("function _slottedVpcs")[1].split("\n}\n")[0]
+        assert "PLACE_KEY" in body and "E.partitioned" in body and "E.residesInSubnet" in body
+        assert 'data("label")' not in body and not re.search(r"[0-9a-f]{8}-[0-9a-f]{4}", body)
+        assert "slotted.nodes.addClass(ELEVATION_HIDDEN_CLASS);" in source and "slotted.edges.addClass(HIDDEN_CONTAINMENT_CLASS);" in source
+        assert "_placeSlotted(cy, account, slotted, slotSize, pile, pad);" in source
+        assert "Playground exception 30 (should become a `slot: bottom-center`" in source
+
+    def test_the_row_is_as_tall_as_the_taller_of_the_pile_and_the_vpc_and_the_vpc_is_centred(self) -> None:
+        source = _js()
+        assert "Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom" in source
+        body = source.split("function _placeSlotted")[1].split("\n}\n")[0]
+        assert 'const x = account.position("x");' in body and "pile.rowTop" in body
+
+
 class TestOverviewZoomPolish:
     """`req-rampart-20x-playground-govcloud-layout-19`: Overview zoom polish."""
 
     def test_each_new_exception_names_its_runtime_form(self) -> None:
         source = _js()
-        for n in range(19, 30):
+        for n in range(19, 31):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 29 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 30 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
 
     def test_the_text_base_is_doubled_once(self) -> None:

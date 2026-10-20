@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.mock-inventory",
         "name": "rampart-20x-playground mock inventory",
-        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges, the people and computers around it (identity_core, computing_core) and the GitHub side of its deploy path (github_core). Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5). GitHub, the developer and the developer's laptop carry the delivery-line marker (dimension `line`, or the `layout:line` tag on GitHub): the Overview draws them on the line through the Continuous Delivery pile, not on the line of sight."
+        "description": "MOCK DATA, never collected from a live system: the declared GovCloud deployment of git-serious as aws_core nodes and edges, the people and computers around it (identity_core, computing_core) and the GitHub side of its deploy path (github_core). Every entity carries dcom=design (req-rampart-20x-playground-mock-inventory-2). Account ids and ARNs are invented and use the reserved example.invalid domain. Edges are official aws_core edges only (req-rampart-20x-playground-govcloud-grid-true-5). GitHub, the developer and the developer's laptop carry the delivery-line marker (dimension `line`, or the `layout:line` tag on GitHub): the Overview draws them on the line through the Continuous Delivery pile, not on the line of sight. Teleport is not an account: it is a VPC named teleport inside the git-serious account (one public subnet, one EC2 instance named teleport; mock instance id, no teleport__ node: the teleport plugin is vocabulary only), drawn at the centre-bottom of the account (dimension `place: bottom-center` on the VPC)."
       },
       "nodes": [
         {
@@ -1086,6 +1086,75 @@
             "vpc_attached": false,
             "region": "us-gov-west-1"
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3ea57354a89e",
+            "entity_type": "aws_core__aws_vpc",
+            "name": "teleport",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1",
+              "overview": "shown",
+              "place": "bottom-center"
+            }
+          },
+          "node": {
+            "vpc_id": "vpc-mockteleport",
+            "cidr_block": "10.30.0.0/16",
+            "state": "available",
+            "name": "teleport"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3ea6852c4c18",
+            "entity_type": "aws_core__aws_subnet",
+            "name": "public",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1",
+              "overview": "shown"
+            }
+          },
+          "node": {
+            "subnet_id": "subnet-mockteleportpublic",
+            "cidr_block": "10.30.0.0/24",
+            "availability_zone": "us-gov-west-1a",
+            "public": true,
+            "name": "public",
+            "tags": {
+              "tier": "public",
+              "layout:order": "0"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3ea75f324fb7",
+            "entity_type": "aws_core__aws_ec2_instance",
+            "name": "teleport",
+            "dimensions": {
+              "tap.cloud": "aws",
+              "dcom": "design",
+              "aws_account": "100000000001",
+              "aws_region": "us-gov-west-1",
+              "inventory": "cloud",
+              "overview": "shown"
+            }
+          },
+          "node": {
+            "instance_id": "i-0mockteleport0001",
+            "ec2_type": "t3.medium",
+            "state": "running",
+            "private_ip": "10.30.0.10",
+            "ami_id": "ami-0mockteleport01",
+            "name": "teleport"
+          }
         }
       ],
       "edges": [
@@ -2014,6 +2083,54 @@
             "from_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
             "to_entity_id": "01a1557d-3937-7faf-9ad9-9267dc986834",
             "edge_type": "SCOPED_TO_COMPLIANCE_BOUNDARY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3ea8aa5d6f8e",
+            "entity_type": "edge",
+            "name": "01a15a3e-4ebf-72d1-af65-3ea57354a89e --[BELONGS_TO_ACCOUNT__aws_core]--> 01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15a3e-4ebf-72d1-af65-3ea57354a89e",
+            "to_entity_id": "01a13b2b-a806-70ab-bec7-d21606cf61e9",
+            "edge_type": "BELONGS_TO_ACCOUNT__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3ea956552596",
+            "entity_type": "edge",
+            "name": "01a15a3e-4ebf-72d1-af65-3ea57354a89e --[PARTITIONED_INTO_SUBNET__aws_core]--> 01a15a3e-4ebf-72d1-af65-3ea6852c4c18",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15a3e-4ebf-72d1-af65-3ea57354a89e",
+            "to_entity_id": "01a15a3e-4ebf-72d1-af65-3ea6852c4c18",
+            "edge_type": "PARTITIONED_INTO_SUBNET__aws_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15a3e-4ebf-72d1-af65-3eaac0bff032",
+            "entity_type": "edge",
+            "name": "01a15a3e-4ebf-72d1-af65-3ea75f324fb7 --[RESIDES_IN_SUBNET__aws_core]--> 01a15a3e-4ebf-72d1-af65-3ea6852c4c18",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15a3e-4ebf-72d1-af65-3ea75f324fb7",
+            "to_entity_id": "01a15a3e-4ebf-72d1-af65-3ea6852c4c18",
+            "edge_type": "RESIDES_IN_SUBNET__aws_core",
             "properties": {}
           }
         }
