@@ -632,3 +632,26 @@ class TestOverviewZoomPolish:
         panel = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["name"] == "Playground landing graph")
         classes = panel["node"]["config"]["zoom_settle"]["classes"]
         assert classes["font"]["exponent"] == 0.5 and classes["icon"]["exponent"] == 0.75
+        assert classes["arrow"]["exponent"] == 1, "the arrowhead follows the zoom, so it is not huge at the fit zoom"
+
+
+class TestArrowPeoplePolish:
+    """Overview polish: the arrow follows the zoom, solo icons carry no border, a horizontal pair's names do not touch."""
+
+    def test_solo_icons_get_an_explicit_zero_border(self) -> None:
+        source = _js()
+        assert "_noBorder(cy.nodes().filter((n) => n.data(\"_icon_solo\")));" in source
+        body = source.split("function _noBorder")[1].split("\n}\n")[0]
+        assert '"border-width": 0' in body
+        assert "Playground exception 24 (should become: zoom_settle leaves a solo icon's border alone" in source
+        # After every pass that makes solo icons, so none is missed.
+        assert source.index("iconNodeId: \"landing-solo-flow\"") < source.index("_noBorder(cy.nodes()")
+
+    def test_a_horizontal_pair_s_labels_are_smaller_and_the_vertical_pair_is_left_alone(self) -> None:
+        source = _js()
+        factor = float(re.search(r"const PAIR_FONT_FACTOR = ([0-9.]+);", source).group(1))
+        assert 0.5 <= factor < 1
+        pair = source.split("function _closePairs")[1].split("\n}\n")[0]
+        horizontal = pair.split("} else {")[1]
+        assert pair.count("landingFontFactor") == 2 and horizontal.count("landingFontFactor") == 2
+        assert 'n.scratch("landingFontFactor") || 1' in source and "base * FONT_SCALE * factor" in source

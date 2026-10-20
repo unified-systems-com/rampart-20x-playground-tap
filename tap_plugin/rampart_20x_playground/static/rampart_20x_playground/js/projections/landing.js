@@ -75,6 +75,12 @@
  *      aws_core default of an outside label, applied here as a data override before placeParentLabels);
  *  23. the badges (the open-findings bubble and the type badges) follow the zoom_settle `icon` class (`_followIconPolicy`;
  *      should become a `badge` class of zoom_settle, which sizes the status and type badges as it sizes the icon cards).
+ *  24. the solo icons carry no border: a bypass `border-width: 0` after applyIconNodes (`_noBorder`), because the settle mode can read the
+ *      stylesheet's border (the `node[fill_color]` rule's 2 px) before the solo rule applies, write it scaled as a bypass, and so
+ *      override the solo rule for good (should become: zoom_settle skips a node whose `_icon_solo` is set, or applyIconNodes writing
+ *      `border-width: 0` itself for a solo node);
+ *  25. the label of a person and of their computer in a horizontal pair is PAIR_FONT_FACTOR of the usual size, so the two names do not touch
+ *      (`_closePairs` marks them and `_scaleFont` reads the mark; should become a per-node `label_scale` display hint).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -169,6 +175,9 @@ const DEPLOY_BOX_PADDING = 36;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
+//: Playground exception 25 (same exit): the label size of a person and of their computer in a horizontal pair, as a share of the usual
+//: one. The names are wider than the icon at twice the base font, and the two touch across PAIR_GAP.
+const PAIR_FONT_FACTOR = 0.7;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
 //: boundary) and the pair that hangs below it.
 const BELOW_ACCOUNT_GAP = 56;
@@ -263,6 +272,7 @@ export async function execute(context) {
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
+    _noBorder(cy.nodes().filter((n) => n.data("_icon_solo")));
     // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
     // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
     // them afterwards, which grows the account.
@@ -403,6 +413,16 @@ export async function execute(context) {
     _followIconPolicy(cy);
     if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
     return {warnings: result.warnings || []};
+}
+
+/**
+ * Playground exception 24 (should become: zoom_settle leaves a solo icon's border alone, or applyIconNodes writes the zero itself): a solo
+ * icon draws no border. The stylesheet says so (`node[?_icon_solo]`), but a bypass style wins over it, and the settle mode writes one
+ * (the border it read, scaled) if it reads the node before the solo data is set. An explicit zero is read as the base, and zero is
+ * never scaled.
+ */
+function _noBorder(nodes) {
+    nodes.forEach((n) => n.style({"border-width": 0}));
 }
 
 /**
@@ -608,6 +628,8 @@ function _closePairs(roots, account, productRoot) {
                 computer.position({x, y});
                 person.position({x, y: y + (person.height() + computer.height()) / 2 + PAIR_GAP});
             } else {
+                person.scratch("landingFontFactor", PAIR_FONT_FACTOR);
+                computer.scratch("landingFontFactor", PAIR_FONT_FACTOR);
                 const toward = Math.sign(account.position("x") - person.position("x"));
                 computer.position({y: computer.position("y"),
                     x: person.position("x") + toward * ((person.width() + computer.width()) / 2 + PAIR_GAP)});
@@ -1051,7 +1073,8 @@ function _scaleFont(n, given) {
         if (!(base > 0)) return;
         n.scratch("landingFontBase", base);
     }
-    n.style({"font-size": `${base * FONT_SCALE}px`});
+    const factor = n.scratch("landingFontFactor") || 1;
+    n.style({"font-size": `${base * FONT_SCALE * factor}px`});
     n.dirtyBoundingBoxCache();
 }
 
