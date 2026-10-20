@@ -56,7 +56,9 @@ class TestDeployRow:
 
     def test_a_secret_is_in_the_column_only_when_a_deploy_lambda_retrieves_it(self) -> None:
         """The data difference: the GitHub App token has a RETRIEVES_SECRET_FROM edge from the Lambda; the runtime
-        secret has none (it has ENCRYPTED_WITH_KEY). The layout selects by that edge, never by name."""
+        secret has none (it has ENCRYPTED_WITH_KEY). The layout selects by that edge, never by name. The token is
+        not drawn on the Overview now (no `overview` value), so the row holds no secret; were one drawn again it
+        would have to be retrieved by a deploy Lambda."""
         assert _list("DEPLOY_SECRET_READERS") == ["lambda"]
         assert "E.retrievesSecret" in _js()
         edges = [e["edge"] for b in json.loads(MOCK.read_text(encoding="utf-8"))["batches"] for e in b["edges"]]
@@ -65,7 +67,23 @@ class TestDeployRow:
                      and types[e["from_entity_id"]] == "aws_core__aws_lambda"}
         shown_secrets = {n["entity"]["entity_id"] for n in _by_type("aws_core__aws_secrets_manager_secret")
                          if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown_secrets and shown_secrets <= retrieved, "every secret still drawn is in the row"
+        assert shown_secrets <= retrieved, "every secret still drawn is in the row"
+
+    def test_the_row_is_the_state_bucket_the_pipeline_and_the_source_puller_in_that_order(self) -> None:
+        """Ruled 2026-10-20: the image repository, the GitHub App token, the bundle bucket and the plan and apply
+        projects carry no `overview` value (nodes kept for the grid); the three that remain are ordered by the
+        `layout:order` tag, which `_placeDeployRow` sorts on before label."""
+        deploy_types = {"aws_core__aws_s3_bucket", "aws_core__aws_codepipeline_pipeline", "aws_core__aws_lambda",
+                        "aws_core__aws_codebuild_project", "aws_core__aws_ecr_repository",
+                        "aws_core__aws_secrets_manager_secret"}
+        shown = [n for n in _nodes() if n["entity"]["entity_type"] in deploy_types
+                 and n["entity"]["dimensions"].get("overview") == "shown"
+                 and n["entity"]["name"].startswith(("terraform", "images", "github app"))]
+        by_order = sorted(shown, key=lambda n: int(n["node"]["tags"]["layout:order"]))
+        assert [n["entity"]["name"] for n in by_order] == ["terraform state", "terraform pipeline", "terraform source puller"]
+        hidden = {"github app token", "images", "terraform plan", "terraform apply", "terraform bundle"}
+        found = {n["entity"]["name"]: n["entity"]["dimensions"] for n in _nodes() if n["entity"]["name"] in hidden}
+        assert set(found) == hidden and all("overview" not in dims for dims in found.values())
 
     def test_the_certificate_the_key_and_the_runtime_secret_are_not_on_the_overview(self) -> None:
         """`req-rampart-20x-playground-govcloud-layout-11`: no `overview` value, nodes kept for the grid."""

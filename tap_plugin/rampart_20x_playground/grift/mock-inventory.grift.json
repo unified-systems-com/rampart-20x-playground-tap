@@ -580,8 +580,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud",
-              "overview": "shown"
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -947,7 +946,10 @@
           },
           "node": {
             "function_arn": "arn:aws-us-gov:lambda:us-gov-west-1:100000000001:function:terraform-source-puller",
-            "name": "terraform source puller"
+            "name": "terraform source puller",
+            "tags": {
+              "layout:order": "2"
+            }
           }
         },
         {
@@ -959,8 +961,7 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
-              "overview": "shown"
+              "aws_region": "us-gov-west-1"
             }
           },
           "node": {
@@ -977,8 +978,7 @@
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
-              "overview": "shown"
+              "aws_region": "us-gov-west-1"
             }
           },
           "node": {
@@ -1001,7 +1001,10 @@
           },
           "node": {
             "bucket_arn": "arn:aws-us-gov:s3:::terraform-state-mock",
-            "name": "terraform state"
+            "name": "terraform state",
+            "tags": {
+              "layout:order": "0"
+            }
           }
         },
         {
@@ -1029,7 +1032,10 @@
             ],
             "pipeline_type": "V2",
             "execution_mode": "QUEUED",
-            "region": "us-gov-west-1"
+            "region": "us-gov-west-1",
+            "tags": {
+              "layout:order": "1"
+            }
           }
         },
         {
@@ -1042,8 +1048,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud",
-              "overview": "shown"
+              "inventory": "cloud"
             }
           },
           "node": {
@@ -1066,8 +1071,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "inventory": "cloud",
-              "overview": "shown"
+              "inventory": "cloud"
             }
           },
           "node": {
