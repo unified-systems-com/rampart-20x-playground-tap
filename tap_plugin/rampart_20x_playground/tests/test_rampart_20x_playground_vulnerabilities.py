@@ -395,7 +395,7 @@ class TestVulnerabilityPages:
         assert {line["field"] for line in config["lines"]} == {"cvss", "version", "scored_by", "published"}
         assert config["tone"]["field"] == "kev" and config["tone_text"] is True
         assert config["tone"]["map"] == {"True": "bad", "true": "bad", "False": "good", "false": "good"}
-        assert config["tone_labels"]["bad"].startswith("On the CISA exploited list")
+        assert config["tone_labels"]["bad"].startswith("Actively exploited")
         assert config["tone_labels"]["good"].startswith("Not on the CISA exploited list")
         assert config["tone_labels"]["neutral"]
         assert self._stat_fields(panel) <= self._returned(panel)
