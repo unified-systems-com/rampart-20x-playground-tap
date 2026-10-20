@@ -144,6 +144,9 @@
  *      `label_scale` display hint of the VPC type, the hint of 25 and 33); the account hugs the delivery pile and the slotted VPC when the
  *      front icon's name is hidden (PILE_NAMELESS_ROOM; same exit as 28); the scope box's title has no background (same exit as 34);
  *      a flow's name is one line (`text-wrap: none` in `_styleFlow`; same exit as 40, a `label_wrap` of the display hint).
+ *  46. overview nits, round five: the Route 53 zone is DEPLOY_SCALE of the solo icon size, the scope box's title and the boundary's title are the
+ *      VPC titles' size (VPC_TITLE_FACTOR), and the account's and the VPCs' titles are TITLE_DARKEN of their own border colour (`_colourTitles`; should
+ *      become a `label_color` of the container type's display hint; the sizes, the same `label_scale` hint as 45, the icon the same size hint as 44).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -402,7 +405,10 @@ export async function execute(context) {
     applyIconNodes(cy, {members: logos, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, iconNodeId: "landing-logo"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     const deploy = _deployPath(cy, shown);
-    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception 46: the Route 53 zone is drawn at the size of the delivery icons.
+    const zones = shown([T.zone]).not(deploy).not(logos);
+    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos).not(zones), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    applyIconNodes(cy, {members: zones, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-zone"});
     // Playground exception 28: the deploy icons are half size.
     applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
     // Playground exception 38: a flow's circle is turned to the way its data goes.
@@ -542,6 +548,8 @@ export async function execute(context) {
     });
     // Playground exception 45: the VPCs' titles are VPC_TITLE_FACTOR of the usual size (`_scaleFont` reads the factor), bold as before.
     parents.filter((n) => isVpc(n) && !isInterior(n)).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR));
+    // Playground exception 46: the boundary's title is the same size as the VPC titles (`_styleBoundary` measures it afterwards).
+    shown([T.boundary]).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR));
     placeParentLabels(_only(cy, parents.filter((n) => isVpc(n) && !isInterior(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize * VPC_TITLE_FACTOR, parentFontWeight: chrome.parentFontWeight,
@@ -585,6 +593,7 @@ export async function execute(context) {
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
+    _colourTitles(cy, parents.filter((n) => !isInterior(n) && (isVpc(n) || n.data("entity_type") === T.account)));
     _styleContainer(cy, cy.nodes(`[entity_type = "${T.ecsContainer}"]`));
     // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
     // past ELEVATION_REVEAL_ZOOM shows the interior and destroys the lift. The layout itself never changes between the two.
@@ -703,6 +712,19 @@ function _styleContainer(cy, containers) {
         "background-color": CONTAINER_FILL, "background-opacity": 1,
         "border-color": CONTAINER_BORDER, "border-width": 3, "color": CONTAINER_LABEL,
     }));
+}
+
+/**
+ * Playground exception 46 (should become a `label_color` of the container type's display hint): the titles of the account and of the VPCs
+ * are a darker accent of their own box's border colour, TITLE_DARKEN of it, not black. Read from the node's own border colour.
+ */
+const TITLE_DARKEN = 0.6;
+function _colourTitles(cy, containers) {
+    containers.forEach((n) => {
+        const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(n.style("border-color"));
+        if (!m) return;
+        n.style({"color": `rgb(${[m[1], m[2], m[3]].map((v) => Math.round(Number(v) * TITLE_DARKEN)).join(",")})`});
+    });
 }
 
 function _boundaryLabelShift(node) {
@@ -962,7 +984,8 @@ function _syncScopeTitle(cy) {
     const apply = () => {
         const config = _settleConfig(cy);
         const factor = config ? modelFactor(cy.zoom(), config.classes.font) : 1;
-        const size = `${BASE_FONT * FONT_SCALE * factor}px`;
+        // Playground exception 46: the same size as the VPC titles (Admin Access).
+        const size = `${BASE_FONT * FONT_SCALE * factor * VPC_TITLE_FACTOR}px`;
         const root = cy.container();
         if (!root) return;
         // Right-aligned to the box: the larger title then runs left over empty account space, not over the flow name beside the box.

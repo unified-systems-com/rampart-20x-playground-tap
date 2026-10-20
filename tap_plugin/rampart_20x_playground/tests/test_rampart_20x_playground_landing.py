@@ -305,7 +305,7 @@ class TestPlaygroundException:
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         for rid in ("govcloud-layout-8", "govcloud-layout-9", "govcloud-layout-2", "govcloud-layout-13",
                     "govcloud-layout-14", "govcloud-layout-15", "govcloud-layout-16", "govcloud-layout-17", "govcloud-layout-18",
-                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25", "govcloud-layout-27"):
+                    "govcloud-layout-19", "govcloud-layout-20", "govcloud-layout-21", "govcloud-layout-22", "govcloud-layout-23", "govcloud-layout-25", "govcloud-layout-27", "govcloud-layout-28"):
             assert f"req-rampart-20x-playground-{rid}" in text
 
 
@@ -999,6 +999,14 @@ class TestOverviewNitsThree:
         assert "_labelHidden(ordered[ordered.length - 1]) ? PILE_NAMELESS_ROOM : PILE_NAME_ROOM" in source
         assert 'el.style.background = "transparent"' in source
         assert '"text-wrap": "none",\n    }));\n    _styleFlowEdges' in source, "a flow's name is one line"
+
+    def test_overview_nits_five(self) -> None:
+        source = _js()
+        assert "Playground exception 46" in source
+        assert 'iconNodeId: "landing-solo-zone"' in source and "members: zones, width: SOLO.width * DEPLOY_SCALE" in source
+        assert "BASE_FONT * FONT_SCALE * factor * VPC_TITLE_FACTOR" in source, "the scope title is the VPC title's size"
+        assert 'shown([T.boundary]).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR))' in source
+        assert "_colourTitles(cy, parents.filter" in source and "TITLE_DARKEN" in source
 
     def test_the_admin_access_vpc_is_snug(self) -> None:
         source = _js()
