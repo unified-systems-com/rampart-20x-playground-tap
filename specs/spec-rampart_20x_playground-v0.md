@@ -425,12 +425,14 @@ and is not built here.
 
 Route `/playground/vulnerabilities`, two bands. The first band is three equal columns, each a Stat Cards card
 over a Chart panel, so a card is as wide as its column: open findings, findings on CISA's KEV catalog and closed
-findings; then the CVSS score of the open findings (the count printed in each bar), the components carrying most
-open findings, and severity by age, a scatter of publication time against CVSS score. A card shows its figure
+findings; then the CVSS score of the open findings (the count printed in each bar), the most open findings (the ten
+components carrying most, each bar stacked High, Medium and Low in the CVSS colours), and severity by age, a scatter of
+publication time against CVSS score whose white bubble counts carry no outline. A card shows its figure
 and the tone's left edge, with no unit, no secondary line and no tone word. The three charts share one height.
 The second band is full width: a table of the open vulnerabilities (id, title, CVSS, KEV, publication time and
 the number of components that carry it) and a table of the components with an open vulnerability (name, type,
-open findings and highest CVSS). Both search and page. A row opens `/playground/vulnerabilities/vulnerability`
+open findings and highest CVSS). Both search and page, with alternating row shading, and their vulnerability and component links draw in the cell's own
+text colour with no underline or hover highlight. Every heading, panel name and column title is in Title Case. A row opens `/playground/vulnerabilities/vulnerability`
 or `/playground/vulnerabilities/component`; the id is a query parameter that the page forwards to its Searches
 as a declared input. Every panel is bound by `USES_SEARCH` to one Search; the Searches reach vulnerabilities,
 findings and components by edge and none names a tool, a vulnerability or a node id. The component type is the
@@ -458,6 +460,10 @@ delivers enriched vulnerabilities.
 | req-rampart-20x-playground-page-vulnerabilities-14 | Whole Description And Weakness | Proposed | The description is shown whole as a card line, never as a clipped table cell; the CWE weakness types are a one-row list. | CWE ids are plain text: a link needs the number alone, which the record keeps as `CWE-n`. |
 | req-rampart-20x-playground-page-vulnerabilities-15 | Components And Systems On The CVE Page | Proposed | The components table (linked to the component pages) and the systems table moved from the older vulnerability page to the CVE page with their Searches unchanged. | |
 | req-rampart-20x-playground-page-vulnerabilities-16 | Missing Data Reads As Not Recorded | Proposed | Every answer card carries a `not recorded` null text and an empty text saying the vulnerability is not in the grid; none draws a blank. | |
+| req-rampart-20x-playground-page-vulnerabilities-17 | Title Case Everywhere | Proposed | Every panel name, panel title, chart axis name, column title and card line label on the vulnerability pages is in Title Case (each word capitalised, hyphenated parts both, acronyms kept), including `CVSS Score`, `Most Open Findings` and `Severity By Age`. | Ruled by George. |
+| req-rampart-20x-playground-page-vulnerabilities-18 | Plain Links And Striped Tables | Proposed | The two overview tables are striped, and each of their `link` and `linkList` columns sets `formatter_params.style` to `plain`. | Cells are vertically centred by default in tap_web. |
+| req-rampart-20x-playground-page-vulnerabilities-19 | Severity Bubbles Have No Outline | Proposed | The severity-by-age series label is white and bold with `textBorderWidth` 0 and no `textBorderColor`. | White on the yellow Medium bubbles has a low contrast ratio. |
+| req-rampart-20x-playground-page-vulnerabilities-20 | Most Open Findings Is Stacked By Band | Proposed | The chart is a stacked bar of one series each for High, Medium and Low in `#c0392b`, `#d9a400` and `#2f9e6b` (the CVSS scheme), sorted by `total` and limited to ten, reading the `component-severity` runner; it keeps its click-through to the component page and shows a legend. | The `top-components` Search became a `module` Search because a panel's `USES_SEARCH` edge cannot be repointed. |
 
 ### Data Classification Page
 

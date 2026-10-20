@@ -21,13 +21,13 @@
           "entity": {
             "entity_id": "01a13fc0-baed-7e9e-833c-5a3690837863",
             "entity_type": "panel",
-            "name": "Open findings",
+            "name": "Open Findings",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Open findings",
+            "name": "Open Findings",
             "slug": "playground-vulnerabilities-open",
             "description": "Open findings that concern a vulnerability.",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -36,7 +36,7 @@
               "value_formatter": "integer",
               "tone": "warn",
               "hide_header": true,
-              "title": "Open findings",
+              "title": "Open Findings",
               "tone_labels": {
                 "good": "",
                 "warn": "",
@@ -71,13 +71,13 @@
           "entity": {
             "entity_id": "01a13fc0-ae17-700b-84f1-6af7ed032123",
             "entity_type": "panel",
-            "name": "On the CISA exploited list",
+            "name": "On The CISA Exploited List",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "On the CISA exploited list",
+            "name": "On The CISA Exploited List",
             "slug": "playground-vulnerabilities-kev",
             "description": "Open findings whose vulnerability is on the CISA KEV catalog.",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -86,7 +86,7 @@
               "value_formatter": "integer",
               "tone": "bad",
               "hide_header": true,
-              "title": "On the CISA exploited list",
+              "title": "On The CISA Exploited List",
               "tone_labels": {
                 "good": "",
                 "warn": "",
@@ -172,13 +172,13 @@
           "entity": {
             "entity_id": "01a13fc0-c9d0-7cc4-aa1b-f933340aa920",
             "entity_type": "panel",
-            "name": "CVSS score",
+            "name": "CVSS Score",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "CVSS score",
+            "name": "CVSS Score",
             "slug": "playground-vulnerabilities-cvss",
             "description": "Open findings by the CVSS base score of their vulnerability.",
             "view": "tap_web/panels/chart.html",
@@ -196,14 +196,14 @@
                 },
                 "xAxis": {
                   "type": "category",
-                  "name": "CVSS base score",
+                  "name": "CVSS Base Score",
                   "nameLocation": "middle",
                   "nameGap": 30
                 },
                 "yAxis": {
                   "type": "value",
                   "minInterval": 1,
-                  "name": "findings",
+                  "name": "Findings",
                   "splitLine": {
                     "lineStyle": {
                       "opacity": 0.35
@@ -292,26 +292,36 @@
           "entity": {
             "entity_id": "01a13fc0-9697-7b28-9a51-cce547e62b96",
             "entity_type": "panel",
-            "name": "Components with the most open findings",
+            "name": "Most Open Findings",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Components with the most open findings",
+            "name": "Most Open Findings",
             "slug": "playground-vulnerabilities-top-components",
-            "description": "The ten components carrying the most open findings.",
+            "description": "The ten components carrying the most open findings, stacked by High, Medium and Low (CVSS bands).",
             "view": "tap_web/panels/chart.html",
             "config": {
               "option": {
                 "tooltip": {
-                  "trigger": "item",
-                  "formatter": "{b}: {@c} open"
+                  "trigger": "axis",
+                  "axisPointer": {
+                    "type": "shadow"
+                  }
+                },
+                "legend": {
+                  "data": [
+                    "High",
+                    "Medium",
+                    "Low"
+                  ],
+                  "top": 0
                 },
                 "grid": {
                   "left": 150,
                   "right": 36,
-                  "top": 8,
+                  "top": 32,
                   "bottom": 24
                 },
                 "xAxis": {
@@ -330,23 +340,57 @@
                 "series": [
                   {
                     "type": "bar",
+                    "name": "High",
+                    "stack": "findings",
                     "encode": {
-                      "x": "c",
+                      "x": "high",
                       "y": "component"
                     },
                     "barMaxWidth": 22,
-                    "label": {
-                      "show": true,
-                      "position": "right",
-                      "formatter": "{@c}"
+                    "itemStyle": {
+                      "color": "#c0392b"
+                    }
+                  },
+                  {
+                    "type": "bar",
+                    "name": "Medium",
+                    "stack": "findings",
+                    "encode": {
+                      "x": "medium",
+                      "y": "component"
+                    },
+                    "barMaxWidth": 22,
+                    "itemStyle": {
+                      "color": "#d9a400"
+                    }
+                  },
+                  {
+                    "type": "bar",
+                    "name": "Low",
+                    "stack": "findings",
+                    "encode": {
+                      "x": "low",
+                      "y": "component"
+                    },
+                    "barMaxWidth": 22,
+                    "itemStyle": {
+                      "color": "#2f9e6b"
                     }
                   }
                 ]
               },
               "types": {
-                "c": "number"
+                "high": "number",
+                "medium": "number",
+                "low": "number",
+                "total": "number"
               },
-              "aria_label": "Open findings by component, top ten",
+              "sort": {
+                "field": "total",
+                "order": "desc"
+              },
+              "limit": 10,
+              "aria_label": "Open findings by component and CVSS band, top ten",
               "empty_text": "No open findings.",
               "height": 320,
               "hide_header": false,
@@ -365,15 +409,27 @@
           },
           "node": {
             "name": "playground — vulnerabilities top-components",
-            "description": "The components with the most open findings.",
-            "search_type": "gryphon",
+            "description": "The components with the most open findings, banded High (CVSS 7 and up), Medium and Low, for the stacked chart. A module Search because Gryphon has no conditional counts; the missing capability is several filtered counts in one query. The chart sorts by total and keeps ten.",
+            "search_type": "module",
             "root": "node",
             "definition": {
-              "query": [
-                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND c.entity_type != \"github_core__github_repository\"",
-                "RETURN c.name AS component, c.entity_id AS cid, COUNT(f) AS c",
-                "ORDER BY c DESC LIMIT 10"
-              ]
+              "runner_key": "tap_plugin.compliance_core.searches.cross_tabs:component-severity"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "exclude_types": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "github_core__github_repository"
+                  ],
+                  "description": "Node types that carry findings but are systems, not components; the repository carries every alert."
+                }
+              },
+              "description": "Which carriers to leave out."
             }
           }
         },
@@ -381,13 +437,13 @@
           "entity": {
             "entity_id": "01a13fc0-0202-7906-984e-26dc228c8de8",
             "entity_type": "panel",
-            "name": "Severity by age",
+            "name": "Severity By Age",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Severity by age",
+            "name": "Severity By Age",
             "slug": "playground-vulnerabilities-severity-age",
             "description": "Each dot is a vulnerability with an open finding: when it was published, against its CVSS score; a bigger dot has more findings, and its number is the count.",
             "view": "tap_web/panels/chart.html",
@@ -404,7 +460,7 @@
                 },
                 "xAxis": {
                   "type": "time",
-                  "name": "published",
+                  "name": "Published",
                   "nameLocation": "middle",
                   "nameGap": 32,
                   "splitLine": {
@@ -474,8 +530,7 @@
                       "color": "#ffffff",
                       "fontWeight": "bold",
                       "fontSize": 11,
-                      "textBorderColor": "rgba(0,0,0,0.55)",
-                      "textBorderWidth": 2
+                      "textBorderWidth": 0
                     },
                     "encode": {
                       "x": "published",
@@ -529,13 +584,13 @@
           "entity": {
             "entity_id": "01a13fc0-8f6c-7e81-87d1-a5ae5ac246f7",
             "entity_type": "panel",
-            "name": "Open vulnerabilities",
+            "name": "Open Vulnerabilities",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Open vulnerabilities",
+            "name": "Open Vulnerabilities",
             "slug": "playground-vulnerabilities-open-vulnerabilities",
             "description": "Every vulnerability with an open finding, most severe first. Click a row for its detail.",
             "view": "tap_web/panels/table_panel.html",
@@ -550,7 +605,8 @@
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/playground/vulnerabilities/cve?vuln_id={id}",
-                    "external": false
+                    "external": false,
+                    "style": "plain"
                   }
                 },
                 {
@@ -565,7 +621,23 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 7,
+                        "tone": "bad"
+                      },
+                      {
+                        "min": 4,
+                        "tone": "warn"
+                      },
+                      {
+                        "min": 0.1,
+                        "tone": "good"
+                      }
+                    ],
+                    "decimals": 1
+                  },
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
@@ -601,7 +673,7 @@
                 },
                 {
                   "field": "component_items",
-                  "title": "Affected components",
+                  "title": "Affected Components",
                   "widthGrow": 3,
                   "header_tooltip": "The components that carry it; click one for its detail.",
                   "formatter": "linkList",
@@ -609,11 +681,13 @@
                     "href_template": "/playground/vulnerabilities/component?component_id={id}",
                     "label_field": "name",
                     "external": false,
-                    "max_items": 5
+                    "max_items": 5,
+                    "style": "plain"
                   }
                 }
               ],
-              "row_url_template": "/playground/vulnerabilities/cve?vuln_id={id}"
+              "row_url_template": "/playground/vulnerabilities/cve?vuln_id={id}",
+              "striped": true
             }
           }
         },
@@ -654,13 +728,13 @@
           "entity": {
             "entity_id": "01a13fc0-3282-7884-abd9-b3dadb88733d",
             "entity_type": "panel",
-            "name": "Open vulnerabilities per component",
+            "name": "Open Vulnerabilities Per Component",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Open vulnerabilities per component",
+            "name": "Open Vulnerabilities Per Component",
             "slug": "playground-vulnerabilities-open-components",
             "description": "Every component with an open vulnerability. Click a row for its detail.",
             "view": "tap_web/panels/table_panel.html",
@@ -675,7 +749,8 @@
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/playground/vulnerabilities/component?component_id={cid}",
-                    "external": false
+                    "external": false,
+                    "style": "plain"
                   }
                 },
                 {
@@ -706,7 +781,16 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 1, "tone": "bad"}], "zero_tone": "muted", "decimals": 0},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 1,
+                        "tone": "bad"
+                      }
+                    ],
+                    "zero_tone": "muted",
+                    "decimals": 0
+                  },
                   "header_tooltip": "Open findings with a CVSS score of 7 or more (critical is counted here)."
                 },
                 {
@@ -716,7 +800,16 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 1, "tone": "warn"}], "zero_tone": "muted", "decimals": 0},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 1,
+                        "tone": "warn"
+                      }
+                    ],
+                    "zero_tone": "muted",
+                    "decimals": 0
+                  },
                   "header_tooltip": "CVSS 4.0 to 6.9."
                 },
                 {
@@ -726,7 +819,16 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 1, "tone": "good"}], "zero_tone": "muted", "decimals": 0},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 1,
+                        "tone": "good"
+                      }
+                    ],
+                    "zero_tone": "muted",
+                    "decimals": 0
+                  },
                   "header_tooltip": "CVSS below 4.0."
                 },
                 {
@@ -736,7 +838,16 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 1, "tone": "bad"}], "zero_tone": "muted", "decimals": 0},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 1,
+                        "tone": "bad"
+                      }
+                    ],
+                    "zero_tone": "muted",
+                    "decimals": 0
+                  },
                   "header_tooltip": "Open findings on CISA's Known Exploited Vulnerabilities catalog."
                 },
                 {
@@ -748,7 +859,8 @@
                   "header_tooltip": "All open findings on the component."
                 }
               ],
-              "row_url_template": "/playground/vulnerabilities/component?component_id={cid}"
+              "row_url_template": "/playground/vulnerabilities/component?component_id={cid}",
+              "striped": true
             }
           }
         },
@@ -826,7 +938,23 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 7,
+                        "tone": "bad"
+                      },
+                      {
+                        "min": 4,
+                        "tone": "warn"
+                      },
+                      {
+                        "min": 0.1,
+                        "tone": "good"
+                      }
+                    ],
+                    "decimals": 1
+                  },
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
@@ -853,7 +981,7 @@
                 },
                 {
                   "field": "due",
-                  "title": "KEV due date",
+                  "title": "KEV Due Date",
                   "width": 120,
                   "header_tooltip": "When CISA requires federal agencies to have remediated it."
                 },
@@ -894,7 +1022,7 @@
                 },
                 {
                   "field": "record",
-                  "title": "CVE record",
+                  "title": "CVE Record",
                   "width": 140,
                   "formatter": "externalLink"
                 }
@@ -962,7 +1090,7 @@
                 },
                 {
                   "field": "action",
-                  "title": "Required action",
+                  "title": "Required Action",
                   "widthGrow": 2,
                   "header_tooltip": "The action CISA requires, for a KEV entry."
                 }
@@ -1008,13 +1136,13 @@
           "entity": {
             "entity_id": "01a13fc0-2da9-7021-be54-e336e583f2dd",
             "entity_type": "panel",
-            "name": "Components with this vulnerability",
+            "name": "Components With This Vulnerability",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Components with this vulnerability",
+            "name": "Components With This Vulnerability",
             "slug": "playground-vulnerabilities-vuln-components",
             "description": "Components that carry a finding for it.",
             "view": "tap_web/panels/table_panel.html",
@@ -1119,13 +1247,13 @@
           "entity": {
             "entity_id": "01a13fc0-0d6f-7717-a87e-e5f285678c2d",
             "entity_type": "panel",
-            "name": "Systems where it was found",
+            "name": "Systems Where It Was Found",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Systems where it was found",
+            "name": "Systems Where It Was Found",
             "slug": "playground-vulnerabilities-vuln-systems",
             "description": "Hosts that install an affected package.",
             "view": "tap_web/panels/table_panel.html",
@@ -1140,7 +1268,7 @@
                 },
                 {
                   "field": "packages",
-                  "title": "Affected packages",
+                  "title": "Affected Packages",
                   "width": 160,
                   "align": "right",
                   "sorter": "number"
@@ -1229,7 +1357,7 @@
                 },
                 {
                   "field": "vulnerabilities",
-                  "title": "Open findings",
+                  "title": "Open Findings",
                   "width": 130,
                   "align": "right"
                 },
@@ -1317,7 +1445,23 @@
                   "align": "right",
                   "sorter": "number",
                   "formatter": "toneThreshold",
-                  "formatter_params": {"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}], "decimals": 1},
+                  "formatter_params": {
+                    "steps": [
+                      {
+                        "min": 7,
+                        "tone": "bad"
+                      },
+                      {
+                        "min": 4,
+                        "tone": "warn"
+                      },
+                      {
+                        "min": 0.1,
+                        "tone": "good"
+                      }
+                    ],
+                    "decimals": 1
+                  },
                   "header_tooltip": "CVSS base score, 0 to 10."
                 },
                 {
@@ -1402,13 +1546,13 @@
           "entity": {
             "entity_id": "01a13fc0-3053-79fe-871f-588b0b74a04c",
             "entity_type": "panel",
-            "name": "Systems where it runs",
+            "name": "Systems Where It Runs",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Systems where it runs",
+            "name": "Systems Where It Runs",
             "slug": "playground-vulnerabilities-component-systems",
             "description": "Hosts that install the component.",
             "view": "tap_web/panels/table_panel.html",
@@ -1622,13 +1766,13 @@
           "entity": {
             "entity_id": "01a13fc0-8513-7d45-91d0-d5624998bc74",
             "entity_type": "panel",
-            "name": "CVE dashboard",
+            "name": "CVE Dashboard",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "CVE dashboard",
+            "name": "CVE Dashboard",
             "slug": "playground-vulnerabilities-cve",
             "description": "The CVE record of the selected vulnerability, read from the local vuln-mosaic stores: exploitation, scores, products, references. Needs the vuln-mosaic plugin on the stack.",
             "view": "vuln_mosaic/panels/cve.html",
@@ -1839,20 +1983,20 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2af72bb0bf9",
             "entity_type": "panel",
-            "name": "CVE headline",
+            "name": "CVE Headline",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "CVE headline",
+            "name": "CVE Headline",
             "slug": "playground-vulnerabilities-cve-headline",
             "description": "The vulnerability id large, its plain-language title above it, and the severity, scorer, CISA KEV state and publication time.",
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
               "value_field": "id",
               "title_field": "title",
-              "title": "Vulnerability record",
+              "title": "Vulnerability Record",
               "hide_header": true,
               "tone": {
                 "field": "kev",
@@ -1873,16 +2017,16 @@
               },
               "lines": [
                 {
-                  "label": "CVSS score",
+                  "label": "CVSS Score",
                   "field": "cvss",
                   "formatter": "number"
                 },
                 {
-                  "label": "CVSS version",
+                  "label": "CVSS Version",
                   "field": "version"
                 },
                 {
-                  "label": "Scored by",
+                  "label": "Scored By",
                   "field": "scored_by"
                 },
                 {
@@ -1900,13 +2044,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2b15d8231a9",
             "entity_type": "panel",
-            "name": "How bad and how urgent",
+            "name": "How Bad And How Urgent",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "How bad and how urgent",
+            "name": "How Bad And How Urgent",
             "slug": "playground-vulnerabilities-cve-h-urgency",
             "description": "Section heading: Four answers, left to right: how severe the score says it is, whether attackers are using it, how likely that is to start, and how much of it is open here.",
             "view": "tap_web/panels/text_panel.html",
@@ -1955,13 +2099,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2b3217a52e7",
             "entity_type": "panel",
-            "name": "CVSS score",
+            "name": "CVSS Score",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "CVSS score",
+            "name": "CVSS Score",
             "slug": "playground-vulnerabilities-cve-cvss",
             "description": "How bad: the CVSS base score, coloured and worded by its band (Low below 4, Medium 4 to 6.9, High or critical 7 and up).",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -1969,7 +2113,7 @@
               "value_field": "cvss",
               "value_formatter": "number",
               "unit": "out of 10",
-              "title": "How bad: CVSS score",
+              "title": "How Bad: CVSS Score",
               "hide_header": true,
               "tone": {
                 "field": "cvss",
@@ -2102,11 +2246,11 @@
                   "field": "vector"
                 },
                 {
-                  "label": "CVSS version",
+                  "label": "CVSS Version",
                   "field": "version"
                 },
                 {
-                  "label": "Scored by",
+                  "label": "Scored By",
                   "field": "scored_by"
                 }
               ],
@@ -2153,20 +2297,20 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2b6a66375f3",
             "entity_type": "panel",
-            "name": "Exploited in the wild",
+            "name": "Exploited In The Wild",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Exploited in the wild",
+            "name": "Exploited In The Wild",
             "slug": "playground-vulnerabilities-cve-exploited",
             "description": "Whether CISA lists it as exploited; the tone word is the answer, the figure is CISA's fix-by date.",
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
               "value_field": "due",
               "unit": "CISA fix-by date",
-              "title": "Exploited in the wild? (CISA KEV)",
+              "title": "Exploited In The Wild? (CISA KEV)",
               "hide_header": true,
               "tone": {
                 "field": "kev",
@@ -2187,15 +2331,15 @@
               },
               "lines": [
                 {
-                  "label": "Added to the list",
+                  "label": "Added To The List",
                   "field": "added"
                 },
                 {
-                  "label": "Used in ransomware",
+                  "label": "Used In Ransomware",
                   "field": "ransomware"
                 },
                 {
-                  "label": "CISA requires",
+                  "label": "CISA Requires",
                   "field": "action"
                 }
               ],
@@ -2256,7 +2400,7 @@
               "value_field": "epss",
               "value_formatter": "number",
               "unit": "chance of exploit in 30 days (0 to 1)",
-              "title": "How likely: EPSS",
+              "title": "How Likely: EPSS",
               "hide_header": true,
               "tone": {
                 "field": "exploitation",
@@ -2281,7 +2425,7 @@
                   "formatter": "number"
                 },
                 {
-                  "label": "EPSS as of",
+                  "label": "EPSS As Of",
                   "field": "as_of"
                 },
                 {
@@ -2340,13 +2484,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2bc9e0f838b",
             "entity_type": "panel",
-            "name": "Exposure here",
+            "name": "Exposure Here",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Exposure here",
+            "name": "Exposure Here",
             "slug": "playground-vulnerabilities-cve-exposure",
             "description": "How much of it is open in this environment: the count of open findings, green at zero.",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -2354,7 +2498,7 @@
               "value_field": "findings",
               "value_formatter": "integer",
               "unit": "open findings",
-              "title": "Exposure here",
+              "title": "Exposure Here",
               "hide_header": true,
               "tone": "warn",
               "zero_tone": "good",
@@ -2373,13 +2517,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2bedacb68e7",
             "entity_type": "panel",
-            "name": "What it is",
+            "name": "What It Is",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "What it is",
+            "name": "What It Is",
             "slug": "playground-vulnerabilities-cve-h-what",
             "description": "Section heading: The record's own description of the flaw, and the kind of weakness behind it.",
             "view": "tap_web/panels/text_panel.html",
@@ -2428,13 +2572,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2c02666f39b",
             "entity_type": "panel",
-            "name": "What it is",
+            "name": "What It Is",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "What it is",
+            "name": "What It Is",
             "slug": "playground-vulnerabilities-cve-description",
             "description": "The full CVE description, with how long ago it was published.",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -2442,7 +2586,7 @@
               "value_field": "published",
               "value_formatter": "age",
               "unit": "since it was published",
-              "title": "What it is",
+              "title": "What It Is",
               "hide_header": true,
               "tone": "neutral",
               "lines": [
@@ -2451,12 +2595,12 @@
                   "field": "description"
                 },
                 {
-                  "label": "Record last updated",
+                  "label": "Record Last Updated",
                   "field": "record_updated",
                   "formatter": "datetime"
                 },
                 {
-                  "label": "Record source",
+                  "label": "Record Source",
                   "field": "record"
                 }
               ],
@@ -2503,13 +2647,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2c32165eb76",
             "entity_type": "panel",
-            "name": "Weakness type",
+            "name": "Weakness Type",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Weakness type",
+            "name": "Weakness Type",
             "slug": "playground-vulnerabilities-cve-weakness",
             "description": "The CWE ids of the weakness behind the vulnerability.",
             "view": "tap_web/panels/table_panel.html",
@@ -2520,7 +2664,7 @@
               "columns": [
                 {
                   "field": "cwes",
-                  "title": "Weakness type (CWE)",
+                  "title": "Weakness Type (CWE)",
                   "widthGrow": 3,
                   "formatter": "linkList",
                   "formatter_params": {
@@ -2537,13 +2681,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2c508a60c19",
             "entity_type": "panel",
-            "name": "Where it affects us",
+            "name": "Where It Affects Us",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Where it affects us",
+            "name": "Where It Affects Us",
             "slug": "playground-vulnerabilities-cve-h-where",
             "description": "Section heading: The components that carry a finding for it and the systems that install them. Click a component for everything it carries.",
             "view": "tap_web/panels/text_panel.html",
@@ -2558,13 +2702,13 @@
           "entity": {
             "entity_id": "01a1571e-29e8-77a4-a227-c2c6f8a3cde1",
             "entity_type": "panel",
-            "name": "Details and sources",
+            "name": "Details And Sources",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "Details and sources",
+            "name": "Details And Sources",
             "slug": "playground-vulnerabilities-cve-h-details",
             "description": "Section heading: Affected versions and the version that fixes them, references and how fresh the data is. Read from the local CVE record stores; needs the vuln-mosaic plugin on the stack.",
             "view": "tap_web/panels/text_panel.html",
