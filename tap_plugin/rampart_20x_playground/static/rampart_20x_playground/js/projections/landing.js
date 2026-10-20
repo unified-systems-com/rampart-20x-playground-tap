@@ -22,9 +22,10 @@
  * Top level, left to right: the customer and their computer, the authorization boundary around the product account,
  * GitHub, the developer's computer and the developer. The administrator and their computer hang under the
  * bottom-centre of the boundary (the account's bottom-centre x), the computer above the person. The line of sight is one horizontal line,
- * left to right: the customer, their computer, the internet gateway, the load balancer, the database, GitHub, the
- * developer's computer and the developer. The load balancer is the anchor: the roots outside the account and the
- * gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
+ * left to right: the customer, their computer, the internet gateway, the load balancer, the database. The load balancer is the anchor: the roots
+ * outside the account and the gateway are put on its horizontal line (align-only). The database is already on it (the same VPC column).
+ * GitHub, the developer's computer and the developer are NOT on it: they stand, in that order after the boundary, on the delivery line
+ * through the Continuous Delivery pile (exception 29).
  *
  * The people, their computers, the gateway, load balancer, database, Route 53 zone, ECR repository, Lambda,
  * buckets, secrets, pipeline and CodeBuild projects are icon-centric-solo nodes (icon-node.js): the icon and
@@ -32,10 +33,9 @@
  * and GitHub's accounts, repository, workflow, runs and packages are not drawn.
  *
  * Deploy path: the AWS icons of the delivery path (the secret a deploy Lambda retrieves, the ECR repository, the
- * buckets, the pipeline, the Lambda and the CodeBuild projects) stand in ONE tightly packed horizontal row, centred at
- * the bottom-middle of the account under the VPC, and a titled scope box, "Continuous Delivery", marks them as one
- * collection. The row is the tap_viz align-distribute helper with its `label` option (as samsite's Deploy & Bootstrap
- * row); the account is grown to hold it.
+ * buckets, the pipeline, the Lambda and the CodeBuild projects) are half size and stand as ONE card pile at the bottom-right of the
+ * account under the VPC, and a titled scope box, "Continuous Delivery", marks them as one collection (exception 28); the account
+ * is grown to hold it.
  *
  * PLAYGROUND EXCEPTION (standing exception, George 2026-10-19: custom tweaks in the playground's JavaScript layout
  * are permitted while the concepts settle; exit: fold into tap_viz when they do). Each tweak below is marked
@@ -81,6 +81,27 @@
  *      `border-width: 0` itself for a solo node);
  *  25. the label of a person and of their computer in a horizontal pair is PAIR_FONT_FACTOR of the usual size, so the two names do not touch
  *      (`_closePairs` marks them and `_scaleFont` reads the mark; should become a per-node `label_scale` display hint).
+ *  26. the database's two forms: at the account elevation the RDS instance is a solo icon; past the reveal zoom it becomes a standard
+ *      box (the type icon as a badge at its top-right, its name upper-left) with the PostgreSQL program drawn inside, laid out
+ *      once at the box's size and restyled on the elevation change (should become a per-elevation `form` of a node type in the
+ *      Elevation definition: `icon-solo` at one elevation, `standard` at the next, its interior shown with it; and a
+ *      `badge_corner` option of the badge nodes);
+ *  27. the other application flows: a flow that carries no `column` dimension is not in the nesting (a flow cannot nest in an
+ *      account or a subnet), so it is hidden while the nesting runs and stood afterwards in the gap between the two boxes its
+ *      lines end on, on the line that joins their centres (`_placeFlows`; should become a `place: between-endpoints` option of
+ *      the nested layouts, which centres an edge-defined node in the gap between the siblings of the lowest common ancestor).
+ *  28. the delivery pile: the Continuous Delivery icons are half size and stand as a card pile (each icon offset down and right of the
+ *      one behind it, in `layout:order` from the back to the front) at the bottom-right of the account, with the titled scope box around
+ *      the pile; only the front icon keeps its name (`_placeDeployPile`; should become a `pile` arrangement of the align/distribute
+ *      helpers, a `corner: bottom-right` of the nested layouts' reserved row, and a `label_scope: front` of the pile);
+ *  29. the delivery line: the nodes that carry `line: delivery` (the `layout:line` tag on a node type that has tags) leave the line of sight
+ *      and are put on the horizontal line through the pile, in their own column order (`_onDeliveryLine`; should become an
+ *      `align-to-line` of a named group in the ranked natural layout of the roots).
+ *  30. a slotted VPC: a VPC that carries `place: bottom-center` is not in the account's rows (it would stand beside the production VPC).
+ *      It is hidden with its subnets and what resides in them while the nesting runs, then drawn by hand (`_placeSlotted`) at the
+ *      centre of the account's bottom row, in the same row as the delivery pile: the VPC holds its subnet and the subnet its solo-icon instance, sized
+ *      from the same paddings, the account grown to hold the row (should become a `slot: bottom-center` of the nested layouts' tiered rows, a tier
+ *      chosen by a dimension and not only by entity type).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -92,7 +113,7 @@
  * lift), past the reveal zoom it ends on the tap-web program.
  */
 
-import {projectNested, ELEVATION_HIDDEN_CLASS, VIEWPORT_PARENT_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
+import {projectNested, ELEVATION_HIDDEN_CLASS, VIEWPORT_PARENT_CLASS, HIDDEN_CONTAINMENT_CLASS} from "/static/tap_viz/js/runtime/nested-projection.js";
 import {applyStandardChrome, placeParentLabels, parentLabelInset} from "/static/tap_viz/js/runtime/chrome.js";
 import {applyStack, STACK_COLLAPSED_CLASS} from "/static/tap_viz/js/runtime/stack.js";
 import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";
@@ -100,6 +121,7 @@ import {closeInfoWindow} from "/static/tap_viz/js/runtime/info-window.js";
 import {applyBadgeNodes} from "/static/tap_viz/js/runtime/badge-nodes.js";
 import {liftEdge, containedNodes, LIFTED_EDGE_CLASS} from "/static/rampart_20x_playground/js/projections/lift-edge.js";
 import {alignDistributeHorizontal} from "/static/tap_viz/js/runtime/align-distribute.js";
+import {applyScopeBoxes} from "/static/tap_viz/js/runtime/layout-scope-boxes.js";
 import {normalizeSettleConfig, modelFactor} from "/static/tap_viz/js/runtime/zoom-settle.js";
 
 const T = {
@@ -124,6 +146,7 @@ const T = {
     repo: "github_core__github_repository",
     workflow: "github_core__github_workflow",
     package: "github_core__github_package",
+    ec2: "aws_core__aws_ec2_instance",
     task: "aws_core__aws_ecs_task",
     ecsContainer: "aws_core__aws_ecs_container",
     program: "computing_core__program",
@@ -158,20 +181,33 @@ const ICON = {width: 84, height: 84};
 //: the carded icon nodes they were, so nothing moves.
 const SOLO_ICON_TYPES = [T.human, T.host];
 //: Shown as icon-centric-solo nodes: the icon and the name, no card.
-const SOLO_TYPES = [T.igw, T.alb, T.rds, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
+const SOLO_TYPES = [T.igw, T.alb, T.ec2, T.zone, T.ecr, T.lambda, T.bucket, T.secret, T.pipeline, T.codebuild];
 const SOLO = {width: 72, height: 72};
 //: The deploy path inside the account: the AWS icons of the delivery path. A secret is part of it only when a deploy
 //: Lambda retrieves it (RETRIEVES_SECRET_FROM): that is the GitHub App token (a secret no deploy node
 //: retrieves would not be part of it).
 const DEPLOY_TYPES = [T.ecr, T.bucket, T.pipeline, T.lambda, T.codebuild];
 const DEPLOY_SECRET_READERS = [T.lambda];
-//: The gap between two icons of the deploy row (model units): fairly tight, but wide enough that the names under
-//: neighbouring icons (wrapped at 104 units) do not run together.
-const DEPLOY_GAP = 28;
-//: The title of the scope box around the deploy row.
+//: Playground exception 28: the deploy icons are DEPLOY_SCALE of the solo icon size, and stand as a pile: each is offset PILE_STEP (model
+//: units) right and down of the one behind it.
+const DEPLOY_SCALE = 0.5;
+const PILE_STEP = 22;
+//: The title of the scope box around the deploy pile.
 const DEPLOY_LABEL = "Continuous Delivery";
-//: Room the scope box takes around its icons, on all sides: it must contain the names under the icons.
-const DEPLOY_BOX_PADDING = 36;
+//: Room the scope box takes around its icons, on all sides.
+const DEPLOY_BOX_PADDING = 28;
+//: Room under the pile for the front icon's name (model units), inside the account.
+const PILE_NAME_ROOM = 90;
+//: Playground exception 29: the dimension (and the tag, on a node type that has a tagging system) that puts a node on the delivery line, and
+//: its value.
+const LINE_KEY = "line";
+const LINE_TAG = "layout:line";
+const LINE_DELIVERY = "delivery";
+//: Playground exception 30: the dimension that gives a VPC a slot of its own, and the slot.
+const PLACE_KEY = "place";
+const PLACE_BOTTOM_CENTER = "bottom-center";
+//: Playground exception 30: the room, in model units, between a slotted VPC's edge and the subnet it holds.
+const SLOT_PADDING = 24;
 //: Playground exception (should become the spacing option of the tap_viz align/distribute helpers): the gap, in
 //: model units, between the boxes of a person and their computer. One constant for all three pairs.
 const PAIR_GAP = 28;
@@ -179,8 +215,18 @@ const PAIR_GAP = 28;
 //: one. The names are wider than the icon at twice the base font, and the two touch across PAIR_GAP.
 const PAIR_FONT_FACTOR = 0.65;
 //: Playground exception (same exit): the clear gap between the bottom edge of the box that holds the account (the
-//: boundary) and the pair that hangs below it.
-const BELOW_ACCOUNT_GAP = 56;
+//: boundary) and the pair that hangs below it. Wide enough for the administration flow's circle and its name in between.
+const BELOW_ACCOUNT_GAP = 220;
+//: Playground exception 26: the box of the database when it is a standard node (model units at the account scale): the layout reserves
+//: it, the solo icon (SOLO) stands at its centre at the account elevation. The interior program is laid out at INTERIOR_SCALE inside it.
+const RDS_BOX = {width: 200, height: 120};
+//: Playground exception 26: the box's fill when it is a standard node, a light blue so the program inside stands out, and its border.
+const RDS_FILL = "#BFD4F2";
+const RDS_BORDER = "#2E5C99";
+const RDS_LABEL = "#0F2A4F";
+//: Playground exception 27: the horizontal gap between two columns of the VPC. Wide enough for a flow's circle between the private
+//: and the database tier (the circle is half an icon; its name stands above it).
+const VPC_COLUMN_GAP = 130;
 
 //: Playground exception (same exit as _styleBoundary): the boundary's line colour (a true red), its width and how far
 //: its title stands above the box.
@@ -232,6 +278,7 @@ const LIFT_EDGE = [
     {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
     {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
     {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
+    {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exception 11: what a container holds besides what it runs directly: the programs those run, drawn beside
 //: them (siblings) and not inside them. `via` is the edge walked, `from` the holder.
@@ -265,19 +312,29 @@ export async function execute(context) {
     // The interior is sized at INTERIOR_SCALE (a leaf program, and the container's floor); the circle of the flow is half an icon.
     baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
     baseSizes[T.ecsContainer] = {width: 0, height: 0};
+    baseSizes[T.rds] = RDS_BOX;
     baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     applyIconNodes(cy, {members: shown(ICON_TYPES), ...ICON, iconNodeId: "landing"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
-    applyIconNodes(cy, {members: shown(SOLO_TYPES), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    const deploy = _deployPath(cy, shown);
+    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception 28: the deploy icons are half size.
+    applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
     applyIconNodes(cy, {members: shown([T.flow]), width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE, solo: true, iconNodeId: "landing-solo-flow"});
     _noBorder(cy.nodes().filter((n) => n.data("_icon_solo")));
-    // Playground exception (deploy row room; should become a reserve option of the nested layouts): the deploy icons
-    // are out of the nesting while it runs, so the account is sized for its own rows; they are placed in one row below
+    // Playground exception (deploy pile room; should become a reserve option of the nested layouts): the deploy icons
+    // are out of the nesting while it runs, so the account is sized for its own rows; they are placed as a pile below
     // them afterwards, which grows the account.
-    const deploy = _deployPath(cy, shown);
     deploy.addClass(ELEVATION_HIDDEN_CLASS);
+    // Playground exception 30: a slotted VPC, its subnets and their residents are out of the nesting; they are drawn by hand below.
+    const slotted = _slottedVpcs(cy, shown);
+    slotted.nodes.addClass(ELEVATION_HIDDEN_CLASS);
+    slotted.edges.addClass(HIDDEN_CONTAINMENT_CLASS);
+    // Playground exception 27: a flow with no `column` is not in the nesting; it is out of the way while the nesting runs.
+    const placed = _placedFlows(shown([T.flow]));
+    placed.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
     _deriveContainment(cy, DERIVED_CONTAINMENT);
@@ -292,6 +349,7 @@ export async function execute(context) {
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
             {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "container-holds-derived-program", gryphon: `(parent:${T.ecsContainer})-[:${E.containsProgram}]->(child:${T.program})`},
+            {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
             {name: "github-account-holds-repo", gryphon: `(parent:${T.ghAccount})-[:${E.ownsRepo}]->(child)`},
@@ -302,8 +360,8 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad},
-        innerLayout: {name: "ranked", sort: "order", columnGap: 90, rowGap: 56, columnLayout: "flow"},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 140, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
             [T.boundary]: {name: "flow", gap: 12, sort: "label"},
@@ -321,7 +379,8 @@ export async function execute(context) {
                     {name: "vpc", entityTypes: [T.vpc]},
                 ],
             },
-            [T.vpc]: {name: "ranked", sort: "order", columnGap: 16, rowGap: 12},
+            [T.vpc]: {name: "ranked", sort: "order", columnGap: VPC_COLUMN_GAP, rowGap: 12},
+            [T.rds]: {name: "flow", gap: 12 * INTERIOR_SCALE, sort: "label"},
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
             [T.task]: {name: "flow", gap: 12, sort: "label"},
             //: tap-web left, gunicorn right: the `column` dimension (read by _stampRootColumns) orders the siblings.
@@ -333,6 +392,7 @@ export async function execute(context) {
         applyStack(cy, pile);
     });
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
+    placed.removeClass(ELEVATION_HIDDEN_CLASS);
 
     // Everything that stands outside the product's column already has its column; put it on the request
     // path's line. What stands in the product's column besides the boundary around the account (the
@@ -346,7 +406,7 @@ export async function execute(context) {
     const productRoot = account.nonempty() ? _outermost(cy, account) : account;
     const productStage = productRoot.nonempty() ? productRoot.data("_stage") : undefined;
     if (anchor.nonempty()) {
-        const row = roots.filter((n) => n.data("_stage") !== productStage);
+        const row = roots.filter((n) => n.data("_stage") !== productStage && !_onDeliveryLine(n));
         cy.scratch("landing_row", alignDistributeHorizontal(cy, {members: row, anchorNode: anchor, distribute: false, reactive: false}));
     }
 
@@ -358,15 +418,23 @@ export async function execute(context) {
         alignDistributeHorizontal(cy, {members: gateway, anchorNode: anchor, distribute: false, reactive: false});
     }
 
-    // Playground exception (deploy row room): the account grows downward for the row. The line of sight does not
+    // Playground exception (deploy pile room): the account grows downward for the pile. The line of sight does not
     // move (the anchor is above the growth); what stands beneath the account is placed by _closePairs afterwards.
     if (cy.scratch("landing_deploy")) cy.scratch("landing_deploy").destroy();
     const accountBottom = account.nonempty() ? account.boundingBox({includeLabels: false, includeOverlays: false}).y2 : 0;
-    cy.scratch("landing_deploy", _placeDeployRow(cy, account, deploy, pad.bottom));
+    const slotSize = _slotSize(slotted, pad);
+    const pile = _placeDeployPile(cy, account, deploy, pad, slotSize.height);
+    cy.scratch("landing_deploy", pile);
+    _placeSlotted(cy, account, slotted, slotSize, pile, pad);
     _growAncestors(cy, account, accountBottom);
+    // Playground exception 29: the delivery line runs through the pile.
+    if (pile.lineY !== undefined) {
+        alignDistributeHorizontal(cy, {members: roots.filter(_onDeliveryLine), anchor: {y: pile.lineY}, distribute: false, reactive: false});
+    }
     _closePairs(roots, account, productRoot);
-    _centreFlow(cy, roots, productRoot, shown([T.flow]));
+    _centreFlow(cy, roots, productRoot, shown([T.flow]).not(placed));
     _alignInteriorToLine(cy, anchor);
+    _placeFlows(cy, placed);
 
     // An empty container is still a box, not a leaf.
     cy.nodes(CONTAINERS.map((t) => `[entity_type = "${t}"]`).join(", ")).forEach((n) => {
@@ -379,7 +447,8 @@ export async function execute(context) {
     const isInterior = (n) => interior.has(n.id());
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
     const isSubnet = (n) => n.data("entity_type") === T.subnet;
-    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n))), {
+    const isDatabase = (n) => n.data("entity_type") === T.rds;
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
@@ -393,6 +462,11 @@ export async function execute(context) {
         parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
     });
     _keepTaskLabel(cy);
+    // Playground exception 26: the database's box label, upper-left, at the text size the settle mode draws; kept for the reveal.
+    placeParentLabels(_only(cy, parents.filter(isDatabase)), {
+        anchor: "upper-left", inset: 16,
+        parentFontSize: chrome.parentFontSize * FONT_SCALE, parentFontWeight: chrome.parentFontWeight,
+    });
     placeParentLabels(_only(cy, parents.filter(isInterior)), {
         anchor: "upper-left", inset: interiorInset,
         parentFontSize: interiorChrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
@@ -401,6 +475,8 @@ export async function execute(context) {
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
     // Playground exception 19: after every label's size is set, so the doubled size is the base the settle mode starts from.
     cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
+    _keepDatabase(cy.nodes(`[entity_type = "${T.rds}"]`));
+    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
@@ -452,6 +528,8 @@ function _layerEdges(cy) {
         cy.nodes().forEach((n) => {
             if (isParent(n) || isOwnLayer(n)) return;
             n.style({"z-index": edgeZ + 1 + Math.round(z(n) / 10)});
+            // Playground exception 26: the database's solo form is a leaf (above the edges) and its box form a container (below them).
+            if (n.data("entity_type") === T.rds) n.scratch("landing_db_layers", {box: edgeZ - 1, solo: edgeZ + 1 + Math.round(z(n) / 10)});
         });
     });
 }
@@ -542,24 +620,33 @@ function _whenShown(cy, draw, tries = 600, waited = false) {
 }
 
 /**
- * Stand the deploy-path icons in one row, left to right, DEPLOY_GAP apart (the tap_viz align-distribute helper, with
- * its `label` option drawing the titled scope box), the row centred on the account's centre line below the account's
- * other contents. Playground exception: the account grows downward to hold the row, and the members and their order
- * are chosen here: the `layout:order` tag when a node has one, then label (a stable key, never a place). The edges
- * between two icons of the row are hidden (they would run along and under the icons); edges that leave it stay.
- * Returns a handle whose destroy() removes the row's box and restores those edges.
+ * Playground exception 28 (should become a `pile` arrangement of the align/distribute helpers, a bottom-right corner of the nested layouts'
+ * reserved row, and a front-only name): stand the deploy-path icons as a card pile at the bottom-right of the account, below the account's
+ * other contents. The members are put in order from the back to the front (the `layout:order` tag when a node has one, then label, a stable
+ * key and never a place), each PILE_STEP right and down of the one behind it, the last in front; only the front icon keeps its name, since
+ * the others' names would stand under the icons in front. The titled scope box (tap_viz's own) surrounds exactly the pile. The account
+ * grows downward to hold it. The edges between two icons of the pile are hidden (they would run along and under the icons); edges that
+ * leave it stay. Returns a handle whose destroy() removes the box and restores those edges, and whose `lineY` is the horizontal line
+ * through the middle of the pile (the delivery line, exception 29).
  */
-function _placeDeployRow(cy, account, deploy, bottomPad) {
-    const restore = () => cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
-        e.removeData("_row_internal");
-        e.removeStyle("display");
-    });
+function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
+    const restore = () => {
+        cy.edges().filter((e) => e.data("_row_internal")).forEach((e) => {
+            e.removeData("_row_internal");
+            e.removeStyle("display");
+        });
+        cy.nodes().filter((n) => n.scratch("landing_pile_hidden_name")).forEach((n) => {
+            n.removeScratch("landing_pile_hidden_name");
+            n.removeStyle("text-opacity");
+        });
+    };
     restore();
     if (account.empty() || deploy.empty()) return {destroy: restore};
     const box = account.boundingBox({includeLabels: false, includeOverlays: false});
     const others = cy.nodes().filter((n) => n.data("_viewport_parent") === account.id() && !n.hasClass(ELEVATION_HIDDEN_CLASS)
         && !deploy.anySame(n));
     const above = others.nonempty() ? others.boundingBox({includeLabels: true, includeOverlays: false}).y2 : box.y1;
+    const iconWidth = (n) => Number(n.data("_icon_w")) || n.width();
     const iconHeight = (n) => Number(n.data("_icon_h")) || n.height();
     const tagOrder = (n) => Number((n.data("tags") || {})["layout:order"]);
     const ordered = deploy.toArray().sort((a, b) => {
@@ -567,41 +654,139 @@ function _placeDeployRow(cy, account, deploy, bottomPad) {
         if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
         return String(a.data("label")).localeCompare(String(b.data("label")));
     });
-    const half = iconHeight(ordered[0]) / 2;
-    // The scope box starts DEPLOY_BOX_PADDING above the icons; keep it clear of what is above.
-    const y = above + 44 + DEPLOY_BOX_PADDING + half;
+    const w = iconWidth(ordered[0]), h = iconHeight(ordered[0]);
+    const spread = PILE_STEP * (ordered.length - 1);
+    // The scope box starts DEPLOY_BOX_PADDING above the icons (and 44 clear of what is above) and its right edge stands DEPLOY_BOX_PADDING
+    // inside the account's padding.
+    const top = above + 44 + DEPLOY_BOX_PADDING;
+    const left = box.x2 - pad.right - DEPLOY_BOX_PADDING - (w + spread);
     const baseZ = Number(account.style("z-index")) + 10;
-    ordered.forEach((n) => {
-        n.style({"z-index": baseZ});
+    ordered.forEach((n, i) => {
+        n.style({"z-index": baseZ + i});
+        n.position({x: left + w / 2 + PILE_STEP * i, y: top + h / 2 + PILE_STEP * i});
         n.data("_viewport_parent", account.id());
+        if (i < ordered.length - 1) {
+            n.style({"text-opacity": 0});
+            n.scratch("landing_pile_hidden_name", true);
+        }
     });
-    const row = {members: ordered, anchor: {x: account.position("x"), y}, anchorMode: "center", gap: DEPLOY_GAP, sort: false};
-    // Its reactive anchor (the account) is released by destroy(), so a re-run of the layout (the second elevation) does not fight it.
-    const rowHandle = alignDistributeHorizontal(cy, row);
     let handle = {destroy: () => {}}, destroyed = false;
+    const ids = new Set(ordered.map((n) => n.id()));
     // Playground exception: the scope box tracks its members' bounds, and cytoscape recurses computing them while the
     // projection is still revealing the scene (the graph element is hidden). Draw the box once the scene is shown.
     // Should become a fix in the tap_viz scope-box helper (observed 2026-10-19), after which this wait goes.
     _whenShown(cy, () => {
-        if (!destroyed) handle = alignDistributeHorizontal(cy, {...row, label: DEPLOY_LABEL, style: {padding: DEPLOY_BOX_PADDING}});
+        if (!destroyed) handle = applyScopeBoxes(cy, [{label: DEPLOY_LABEL, filter: (n) => ids.has(n.id()), style: {padding: DEPLOY_BOX_PADDING}}]);
     });
     cy.edges().filter((e) => deploy.anySame(e.source()) && deploy.anySame(e.target())).forEach((e) => {
         e.data("_row_internal", true);
         e.style("display", "none");
     });
-    // Bottom of the box: the icons, the room for their names, then the account's own bottom padding.
-    const newBottom = y + half + DEPLOY_BOX_PADDING + bottomPad;
+    // Bottom of the box: the pile, the room for the front name, then the account's own bottom padding.
+    // The slotted VPC (exception 30) stands in the same row, from the row's top; the row is as tall as the taller of the two.
+    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
         account.position({x: account.position("x"), y: account.position("y") + delta / 2});
     }
-    return {destroy: () => {
-        destroyed = true;
-        rowHandle.destroy();
-        handle.destroy();
-        restore();
-    }};
+    return {
+        rowTop: above + 44,
+        lineY: top + (h + spread) / 2,
+        destroy: () => {
+            destroyed = true;
+            handle.destroy();
+            restore();
+        },
+    };
+}
+
+/**
+ * Playground exception 30: the VPCs that carry `place: bottom-center`, with what stands in them: their subnets (PARTITIONED_INTO_SUBNET) and what
+ * resides in those (RESIDES_IN_SUBNET), and the edges that would draw that containment as lines (these and the VPC's ownership by an
+ * account), which nesting would have consumed. Read from the shown nodes and the edges, never a type or a name.
+ */
+function _slottedVpcs(cy, shown) {
+    const vpcs = shown([T.vpc]).filter((n) => (n.data("dimensions") || {})[PLACE_KEY] === PLACE_BOTTOM_CENTER);
+    const chains = vpcs.map((vpc) => {
+        const subnets = cy.edges().filter((e) => _edgeType(e) === E.partitioned && e.source().same(vpc)).map((e) => e.target());
+        const subnetIds = new Set(subnets.map((n) => n.id()));
+        const residents = cy.edges().filter((e) => _edgeType(e) === E.residesInSubnet && subnetIds.has(e.target().id()))
+            .map((e) => ({subnet: e.target(), node: e.source()}));
+        return {vpc, subnets, residents};
+    });
+    const nodes = cy.collection();
+    const edges = cy.collection();
+    chains.forEach(({vpc, subnets, residents}) => {
+        nodes.merge(vpc);
+        subnets.forEach((n) => nodes.merge(n));
+        residents.forEach(({node}) => nodes.merge(node));
+        edges.merge(vpc.connectedEdges().filter((e) => _edgeType(e) === E.partitioned || _edgeType(e) === E.belongs));
+        subnets.forEach((n) => edges.merge(n.connectedEdges().filter((e) => _edgeType(e) === E.residesInSubnet)));
+    });
+    return {chains, nodes, edges};
+}
+
+/**
+ * Playground exception 30: the box sizes of a slotted VPC, from the paddings the nesting would use: the instance is a solo icon, the
+ * subnet holds it under a title and above its name, the VPC holds the subnet under its own title.
+ */
+function _slotSize(slotted, pad) {
+    const sizes = slotted.chains.map(({vpc, subnets, residents}) => {
+        const subnetBoxes = subnets.map((subnet) => {
+            const held = residents.filter((r) => r.subnet.same(subnet)).map((r) => r.node);
+            const iconW = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_w")) || n.width())) : 0;
+            const iconH = held.length ? Math.max(...held.map((n) => Number(n.data("_icon_h")) || n.height())) : 0;
+            return {subnet, held, width: Math.max(SUBNET.width, iconW + pad.left + pad.right), height: pad.top + iconH + pad.bottom, iconH};
+        });
+        const width = Math.max(...subnetBoxes.map((b) => b.width), 0) + 2 * SLOT_PADDING;
+        const height = pad.top + subnetBoxes.reduce((sum, b) => sum + b.height, 0) + SLOT_PADDING;
+        return {vpc, subnetBoxes, width, height};
+    });
+    return {sizes, height: Math.max(0, ...sizes.map((b) => b.height))};
+}
+
+/**
+ * Playground exception 30 (should become a `slot: bottom-center` of the nested layouts' tiered rows): draw each slotted VPC by hand at the
+ * centre of the account's bottom row, from the row's top (the same top the delivery pile uses), centred on the account's centre line. Each
+ * subnet is centred in its VPC and each resident (a solo icon) in its subnet; the boxes carry the container class and the nesting data,
+ * as the nested layout would have stamped them.
+ */
+function _placeSlotted(cy, account, slotted, slotSize, pile, pad) {
+    if (account.empty() || !slotSize.sizes.length) return;
+    const baseZ = Number(account.style("z-index")) + 10;
+    slotSize.sizes.forEach(({vpc, subnetBoxes, width, height}) => {
+        const x = account.position("x");
+        const top = pile.rowTop;
+        vpc.style({width, height, "z-index": baseZ});
+        vpc.position({x, y: top + height / 2});
+        vpc.data("_viewport_parent", account.id());
+        vpc.addClass(VIEWPORT_PARENT_CLASS);
+        // The subnets stand under the VPC's title room, one above the other.
+        let y = top + height - SLOT_PADDING - subnetBoxes.reduce((sum, b) => sum + b.height, 0);
+        subnetBoxes.forEach(({subnet, held, width: sw, height: sh}) => {
+            subnet.style({width: sw, height: sh, "z-index": baseZ + 10});
+            subnet.position({x, y: y + sh / 2});
+            subnet.data("_viewport_parent", vpc.id());
+            subnet.addClass(VIEWPORT_PARENT_CLASS);
+            // A resident stands under the subnet's title room, its name below it inside the bottom room.
+            held.forEach((n) => {
+                n.position({x, y: y + pad.top + (Number(n.data("_icon_h")) || n.height()) / 2});
+                n.data("_viewport_parent", subnet.id());
+            });
+            y += sh;
+        });
+    });
+    slotted.nodes.removeClass(ELEVATION_HIDDEN_CLASS);
+}
+
+/**
+ * Playground exception 29 (should become an `align-to-line` of a named group in the ranked natural layout of the roots): whether a node
+ * stands on the delivery line, read from its data: the dimension `line` (people and computers, which have no tagging system) or the tag
+ * `layout:line` (a type that has one, GitHub) is `delivery`. Never a type, a name or an id.
+ */
+function _onDeliveryLine(n) {
+    return (n.data("dimensions") || {})[LINE_KEY] === LINE_DELIVERY || (n.data("tags") || {})[LINE_TAG] === LINE_DELIVERY;
 }
 
 /**
@@ -835,6 +1020,141 @@ function _openFlowWindow(cy, node) {
 }
 
 /**
+ * Playground exception 27: the flows that are not ranked among the roots, those with no `column` dimension (the customer's flow
+ * carries one and is placed by `_centreFlow`).
+ */
+function _placedFlows(flows) {
+    return flows.filter((flow) => (flow.data("dimensions") || {}).column === undefined);
+}
+
+/** The chain of nodes that hold `node`, innermost first, read from the nesting the layout stamped. */
+function _holders(cy, node) {
+    const chain = [];
+    for (let up = cy.getElementById(node.data("_viewport_parent") || ""); up.nonempty();
+         up = cy.getElementById(up.data("_viewport_parent") || "")) chain.push(up);
+    return chain;
+}
+
+/**
+ * Playground exception 27 (should become a `place: between-endpoints` option of the nested layouts): each flow stands in the gap
+ * between the two boxes its lines end on. The ends are the nodes drawn at the account elevation (the outermost holder in the
+ * `lift_edge` relationships, so the web task and not the program inside it). Each end is taken up to the box that is a child of
+ * the lowest holder the two share (a subnet, the authorization boundary, a root), and the flow stands midway between the facing
+ * edges of those two boxes, on the line that joins the ends' centres: horizontally when they are further apart across than down,
+ * vertically when not. Two boxes that overlap on that axis put it at the middle of their centres.
+ */
+function _placeFlows(cy, flows) {
+    const {outermost} = containedNodes(cy, LIFT_EDGE);
+    const drawn = (n) => cy.getElementById(outermost.get(n.id()) || n.id());
+    const box = (n) => n.boundingBox({includeLabels: false, includeOverlays: false});
+    flows.forEach((flow) => {
+        const from = cy.edges().filter((e) => _edgeType(e) === E.flowSource && e.target().same(flow)).map((e) => e.source())[0];
+        const to = cy.edges().filter((e) => _edgeType(e) === E.flowDestination && e.source().same(flow)).map((e) => e.target())[0];
+        if (!from || !to) return;
+        const a = drawn(from), b = drawn(to);
+        const chainA = [a, ..._holders(cy, a)], chainB = [b, ..._holders(cy, b)];
+        const shared = chainA.find((n) => chainB.some((m) => m.same(n)));
+        const upTo = (chain) => (shared ? chain.slice(0, chain.findIndex((n) => n.same(shared))) : chain).pop() || chain[0];
+        const outerA = upTo(chainA), outerB = upTo(chainB);
+        const pa = a.position(), pb = b.position();
+        const ba = box(outerA), bb = box(outerB);
+        let x = (pa.x + pb.x) / 2, y = (pa.y + pb.y) / 2;
+        if (Math.abs(pa.x - pb.x) >= Math.abs(pa.y - pb.y)) {
+            const [left, right] = pa.x <= pb.x ? [ba, bb] : [bb, ba];
+            if (right.x1 > left.x2) x = (left.x2 + right.x1) / 2;
+        } else {
+            const [top, bottom] = pa.y <= pb.y ? [ba, bb] : [bb, ba];
+            if (bottom.y1 > top.y2) y = (top.y2 + bottom.y1) / 2;
+        }
+        flow.position({x, y});
+    });
+}
+
+/**
+ * Playground exception 26: remember the database's box and the label style the layout gave it (upper-left), before it is
+ * made a solo icon, for the reveal.
+ */
+function _keepDatabase(nodes) {
+    nodes.forEach((n) => {
+        const label = {};
+        ["text-valign", "text-halign", "text-margin-x", "text-margin-y", "text-wrap", "text-max-width"].forEach((prop) => {
+            label[prop] = n.style(prop);
+        });
+        n.scratch("landing_db", {w: n.width(), h: n.height(), label});
+    });
+}
+
+/**
+ * Playground exception 26 (should become the `icon-solo` / `standard` forms of a node type in the Elevation definition): the
+ * database is a solo icon at the account elevation and a standard box (light blue, its name upper-left, its type badge at the
+ * top-right, the program drawn inside) once the interior is shown. The box is the size the layout reserved; the solo icon
+ * stands at its centre.
+ */
+function _formDatabase(cy, nodes, revealed) {
+    nodes.forEach((n) => {
+        const keep = n.scratch("landing_db");
+        const icons = n.scratch("landing_db_icons");
+        if (icons) icons.destroy();
+        n.removeScratch("landing_db_icons");
+        if (!keep) return;
+        if (revealed) {
+            // The container class draws the box's own look (and suppresses the type icon, which the badge shows).
+            n.addClass(VIEWPORT_PARENT_CLASS);
+            const layers = n.scratch("landing_db_layers");
+            if (layers) n.style({"z-index": layers.box});
+            n.style({
+                "width": keep.w, "height": keep.h, "shape": "round-rectangle",
+                "background-color": RDS_FILL, "background-opacity": 1, "border-color": RDS_BORDER, "border-width": 3,
+                "border-opacity": 1, "color": RDS_LABEL, ...keep.label,
+            });
+        } else {
+            // The container class would hide the icon the solo form is made of.
+            n.removeClass(VIEWPORT_PARENT_CLASS);
+            const layers = n.scratch("landing_db_layers");
+            if (layers) n.style({"z-index": layers.solo});
+            n.removeStyle("background-color background-opacity border-color border-width border-opacity color shape "
+                + Object.keys(keep.label).join(" "));
+            n.scratch("landing_db_icons", applyIconNodes(cy, {members: n, ...SOLO, solo: true, iconNodeId: `landing-solo-db-${n.id()}`}));
+        }
+        n.dirtyBoundingBoxCache();
+    });
+}
+
+/**
+ * Playground exception 26 (should become a `badge_corner` option of the badge nodes): the database's type badge stands at the
+ * top-right corner of its box, not the upper-left the runtime gives every other node. Runs after the badge pass and again on
+ * each move of the box, after the runtime's own handler.
+ */
+function _moveDatabaseBadge(cy) {
+    const previous = cy.scratch("landing_db_badge");
+    if (previous) cy.off("position bounds", "node[_badge_active]", previous);
+    // Re-entrancy guard (the tap#289 class): reading the host's box can emit `bounds` on it again.
+    const placing = new Set();
+    const place = (host) => {
+        const badge = cy.getElementById(`badge:${host.id()}`);
+        if (badge.empty() || placing.has(host.id())) return;
+        placing.add(host.id());
+        try {
+            const bb = host.boundingBox({includeLabels: false});
+            const pos = badge.position();
+            if (pos.x !== bb.x2 || pos.y !== bb.y1) {
+                badge.unlock();
+                badge.position({x: bb.x2, y: bb.y1});
+                badge.lock();
+            }
+        } finally {
+            placing.delete(host.id());
+        }
+    };
+    const handler = (evt) => {
+        if (evt.target.data("entity_type") === T.rds) place(evt.target);
+    };
+    cy.scratch("landing_db_badge", handler);
+    cy.on("position bounds", "node[_badge_active]", handler);
+    cy.nodes(`[entity_type = "${T.rds}"][?_badge_active]`).forEach(place);
+}
+
+/**
  * Playground exception 9: undo the previous run's elevation state, so the layout always sizes the whole interior: the lift
  * is destroyed (the original edges come back), the interior is shown, the derived containment edges are removed.
  */
@@ -849,6 +1169,8 @@ function _resetElevation(cy) {
     });
     containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => cy.getElementById(id).removeClass(ELEVATION_HIDDEN_CLASS));
     cy.edges().filter((e) => _edgeType(e) === E.containsProgram).remove();
+    // Playground exception 26: the nesting sizes the database as a box, so its solo form is taken off first.
+    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
 }
 
 /**
@@ -895,6 +1217,8 @@ function _only(cy, nodes) {
 function _styleFlow(cy, flows) {
     flows.forEach((flow) => flow.style({
         "text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP, "color": FLOW_BLUE,
+        "text-background-color": "#ffffff", "text-background-opacity": 0.8, "text-background-padding": "2px",
+        "text-background-shape": "roundrectangle",
     }));
     _styleFlowEdges(cy);
 }
@@ -972,6 +1296,7 @@ function _watchElevation(cy, context) {
                 // Shown first (a badge is drawn for what is visible), then faded in from nothing below.
                 interior.style("opacity", 1);
                 interior.removeClass(ELEVATION_HIDDEN_CLASS);
+                _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
             });
             // The container's own type badge: badges are drawn for what is shown when they are applied, and the interior was not.
             _refreshBadges(cy, context);
@@ -987,7 +1312,10 @@ function _watchElevation(cy, context) {
             const finish = () => {
                 if (done || mine !== epoch) return;
                 done = true;
-                cy.batch(hide);
+                cy.batch(() => {
+                    hide();
+                    _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
+                });
                 _refreshBadges(cy, context);
                 interior.style("opacity", 1);
             };
@@ -1014,7 +1342,11 @@ function _alignInteriorToLine(cy, anchor) {
     if (!target) return;
     const dy = anchor.position("y") - target.position("y");
     if (!dy) return;
-    containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => {
+    const {outermost} = containedNodes(cy, LIFT_EDGE);
+    // Only what the same node holds moves with it: the database's program is not the web task's.
+    const holder = outermost.get(target.id());
+    outermost.forEach((top, id) => {
+        if (top !== holder) return;
         const n = cy.getElementById(id);
         n.position({x: n.position("x"), y: n.position("y") + dy});
     });
@@ -1034,6 +1366,7 @@ function _refreshBadges(cy, context) {
     const previous = cy.scratch("landing_badge_handle");
     if (previous) previous.destroy();
     cy.scratch("landing_badge_handle", applyBadgeNodes(cy, {excludeTypes: exclude}));
+    _moveDatabaseBadge(cy);
 }
 
 /**

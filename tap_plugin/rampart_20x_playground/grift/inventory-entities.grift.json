@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-entities",
         "name": "rampart-20x-playground inventory entities v0.1.0",
-        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs, gunicorn and tap-web once per web task, plus PostgreSQL, and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges here: the RUNS_PROGRAM edges that join each task's container to its programs are in the application flow bundle; computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets)."
+        "description": "MOCK DATA, never collected from a live system: the inventory entities the mock deployment needs and the mock inventory bundle does not carry (the running programs, gunicorn and tap-web once per web task, plus PostgreSQL, and the container's certificate with its two key halves), all existing computing_core types. Every entity carries dcom=design and one inventory value (req-rampart-20x-playground-inventory-tables). No edges here: the RUNS_PROGRAM edges that join each task's container to its programs are in the application flow bundle; computing_core has no official edge between a program, a file and a key, and none is invented. No secret value, file content or key fingerprint is recorded (req-rampart-20x-playground-inventory-secrets). The PostgreSQL program is marked overview=shown (it is drawn inside the RDS instance when the Overview is zoomed in)."
       },
       "nodes": [
         {
@@ -94,7 +94,8 @@
             "name": "PostgreSQL database instance",
             "dimensions": {
               "dcom": "design",
-              "inventory": "applications"
+              "inventory": "applications",
+              "overview": "shown"
             }
           },
           "node": {
