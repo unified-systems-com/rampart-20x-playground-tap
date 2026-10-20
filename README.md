@@ -19,6 +19,6 @@ for a podcast demo. It composes existing plugins; it ships no models, edges or c
 ## Display data the Overview reads
 
 - **`icon_angle`** (dimension of an application flow, degrees): the way the flow points. **0 = north / up, 90 = east, 180 = south, 270 = west**
-  (default 90). The Overview turns the flow's circle icon to it and puts its arrowhead on the end the angle points to. Today: `source pull` 270,
-  `developer source code` 270, `administration` 0, `customer data` and `database` 90. It is a marked playground exception in `landing.js`
+  (default 90). The Overview turns only the flow's circle icon (the data marker) to it. Arrows always point from the session initiator (the flow's source) to the target (its destination): the arrowhead is on the destination end whatever the angle. Today: `source pull` 270,
+  `code` 270, `administration` 0, `customer data` and `database` 90. It is a marked playground exception in `landing.js`
   (exception 38) that becomes a per-node `icon_angle` display hint in tap_viz.

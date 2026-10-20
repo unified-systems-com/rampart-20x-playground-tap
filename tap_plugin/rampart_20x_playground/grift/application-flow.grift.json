@@ -131,7 +131,7 @@
           "entity": {
             "entity_id": "01a15a28-7763-727d-9425-a57d4fb90007",
             "entity_type": "computing_core__application_flow",
-            "name": "developer source code",
+            "name": "code",
             "dimensions": {
               "dcom": "design",
               "overview": "shown",
@@ -140,7 +140,7 @@
             }
           },
           "node": {
-            "name": "developer source code",
+            "name": "code",
             "description": "Source code from the developer's laptop to github.com. It carries infrastructure code."
           }
         },

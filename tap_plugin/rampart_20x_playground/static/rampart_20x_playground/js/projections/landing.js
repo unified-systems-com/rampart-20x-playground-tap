@@ -102,8 +102,8 @@
  *      centre of the account's bottom row, in the same row as the delivery pile: the VPC holds its subnet and the subnet its solo-icon instance, sized
  *      from the same paddings, the account grown to hold the row (should become a `slot: bottom-center` of the nested layouts' tiered rows, a tier
  *      chosen by a dimension and not only by entity type).
- *  31. a node's name hidden: the nodes that carry the dimension `label: hidden` (the Route 53 zone, the internet gateway, the load balancer, the
- *      database at the account elevation, the source-puller Lambda, the teleport EC2 instance) draw no name (`_hideLabels`; should become a `label: hidden` display hint of
+ *  31. a node's name hidden: the nodes that carry the dimension `label: hidden` (the Route 53 zone, the source-puller Lambda, the teleport EC2 instance;
+ *      the internet gateway, the load balancer and the database carried it until exception 47) draw no name (`_hideLabels`; should become a `label: hidden` display hint of
  *      a node, applied per instance, with the revealed form of a node type free to show it again);
  *  32. a node's logo: a node that carries the dimension `icon: <app>/icons/<key>.svg` shows that static icon (the Teleport logo on the teleport
  *      EC2 instance) in a bordered card like GitHub's, instead of its type's icon (`_logoNodes`; should become the instance-level icon override
@@ -122,8 +122,8 @@
  *      (`_shiftGithub`; should become a `gap-before` of a named group in the ranked natural layout of the roots).
  *  38. a flow's direction: the dimension `icon_angle` of an application flow (degrees; 0 = north / up, 90 = east, 180 = south, 270 = west;
  *      default 90) turns the flow's circle icon (the icon's own arrow points east at 90, so the icon file is rewrapped in a rotation) and puts
- *      the one arrowhead on the end of the flow's lines that the angle points to: on the destination line's target end when the destination
- *      lies on the angle's side of the flow, else on the source line's source end (`_flowAngle`, `_rotateFlowIcons`, `_styleFlowEdges`;
+ *      NOTHING else (the arrowhead is always on the destination end, whatever the angle: arrows point from the session initiator to the
+ *      target, and the icon marks the way the data moves) (`_flowAngle`, `_rotateFlowIcons`, `_styleFlowEdges`;
  *      should become a per-node `icon_angle` display hint of the application-flow type, which the node's icon and its edge types'
  *      arrow shape both read).
  *  39. the interior programs' names inside their boxes: centred in the box, wrapped to the box's width, FLOW_FONT_FACTOR-like smaller
@@ -140,6 +140,16 @@
  *  44. the Admin Access VPC and its logo card are compact: the logo card (exception 32) is drawn at DEPLOY_SCALE of the solo icon size, like the
  *      Continuous Delivery icons, its name is hidden by `label: hidden` (exception 31), and the slotted subnet and VPC shrink to it
  *      (SLOT_SUBNET_WIDTH, SLOT_NAMELESS_BOTTOM; exceptions 30 and 43, same exit as 32 for the size, 31 for the name, 30 for the boxes).
+ *  45. overview nits, round four: the VPCs' titles are VPC_TITLE_FACTOR of the usual size (`_scaleFont` reads the factor; should become a
+ *      `label_scale` display hint of the VPC type, the hint of 25 and 33); the account hugs the delivery pile and the slotted VPC when the
+ *      front icon's name is hidden (PILE_NAMELESS_ROOM; same exit as 28); the scope box's title has no background (same exit as 34);
+ *      a flow's name is one line (`text-wrap: none` in `_styleFlow`; same exit as 40, a `label_wrap` of the display hint).
+ *  46. overview nits, round five: the Route 53 zone is DEPLOY_SCALE of the solo icon size, the scope box's title and the boundary's title are the
+ *      VPC titles' size (VPC_TITLE_FACTOR), and the account's and the VPCs' titles are TITLE_DARKEN of their own border colour (`_colourTitles`; should
+ *      become a `label_color` of the container type's display hint; the sizes, the same `label_scale` hint as 45, the icon the same size hint as 44).
+ *  47. the internet gateway, the load balancer and the database show their names again, directly below their icons, at SUBNET_LABEL_FACTOR of the
+ *      usual size and a normal weight (`NAMED_ICON_TYPES`; should become a `label_scale` and `label_weight` display hint of the node type, the hints of 33;
+ *      the revealed database box keeps its own title of exception 41).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -236,6 +246,8 @@ const DEPLOY_LABEL = "Continuous Delivery";
 const DEPLOY_BOX_PADDING = 28;
 //: Room under the pile for the front icon's name (model units), inside the account.
 const PILE_NAME_ROOM = 90;
+//: Playground exception 45: the room under a front icon whose name is hidden (`label: hidden`), so the account hugs the pile.
+const PILE_NAMELESS_ROOM = 0;
 //: Playground exceptions 31, 32 and 42: the dimensions that hide a node's name, give a node an icon of its own and say that icon is a whole card, and their values.
 const LABEL_KEY = "label";
 const LABEL_HIDDEN = "hidden";
@@ -257,6 +269,10 @@ const DB_TITLE_FACTOR = 0.6;
 //: Playground exception 33: the subnets' name size, as a share of the usual one, and its weight.
 const SUBNET_LABEL_FACTOR = 0.6;
 const SUBNET_LABEL_WEIGHT = "normal";
+//: Playground exception 47: the solo icons that show a subtle name directly below them at the account elevation.
+const NAMED_ICON_TYPES = [T.igw, T.alb, T.rds];
+//: Playground exception 45: the VPCs' title size, as a share of the usual (account) one: between the subnets' (SUBNET_LABEL_FACTOR) and the account's.
+const VPC_TITLE_FACTOR = 0.8;
 //: Playground exception 37: how far right, in model units, the first node of the delivery line (GitHub) moves.
 const GITHUB_SHIFT = 70;
 //: Playground exception 29: the dimension (and the tag, on a node type that has a tagging system) that puts a node on the delivery line, and
@@ -394,7 +410,10 @@ export async function execute(context) {
     applyIconNodes(cy, {members: logos, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, iconNodeId: "landing-logo"});
     applyIconNodes(cy, {members: shown(SOLO_ICON_TYPES), ...ICON, solo: true, iconNodeId: "landing-solo-icon"});
     const deploy = _deployPath(cy, shown);
-    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    // Playground exception 46: the Route 53 zone is drawn at the size of the delivery icons.
+    const zones = shown([T.zone]).not(deploy).not(logos);
+    applyIconNodes(cy, {members: shown(SOLO_TYPES).not(deploy).not(logos).not(zones), ...SOLO, solo: true, iconNodeId: "landing-solo"});
+    applyIconNodes(cy, {members: zones, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-zone"});
     // Playground exception 28: the deploy icons are half size.
     applyIconNodes(cy, {members: deploy, width: SOLO.width * DEPLOY_SCALE, height: SOLO.height * DEPLOY_SCALE, solo: true, iconNodeId: "landing-solo-deploy"});
     // Playground exception 38: a flow's circle is turned to the way its data goes.
@@ -527,9 +546,18 @@ export async function execute(context) {
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
     const isSubnet = (n) => n.data("entity_type") === T.subnet;
     const isDatabase = (n) => n.data("entity_type") === T.rds;
-    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n))), {
+    const isVpc = (n) => n.data("entity_type") === T.vpc;
+    placeParentLabels(_only(cy, parents.filter((n) => !isInterior(n) && !isSubnet(n) && !isDatabase(n) && !isVpc(n))), {
         anchor: "upper-left", inset: 16,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
+    });
+    // Playground exception 45: the VPCs' titles are VPC_TITLE_FACTOR of the usual size (`_scaleFont` reads the factor), bold as before.
+    parents.filter((n) => isVpc(n) && !isInterior(n)).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR));
+    // Playground exception 46: the boundary's title is the same size as the VPC titles (`_styleBoundary` measures it afterwards).
+    shown([T.boundary]).forEach((n) => n.scratch("landingFontFactor", VPC_TITLE_FACTOR));
+    placeParentLabels(_only(cy, parents.filter((n) => isVpc(n) && !isInterior(n))), {
+        anchor: "upper-left", inset: 16,
+        parentFontSize: chrome.parentFontSize * VPC_TITLE_FACTOR, parentFontWeight: chrome.parentFontWeight,
     });
     // Playground exception 22 (a `label_position: inside` of the subnet's display hint): the subnets' labels stand inside the box,
     // top-centre. aws_core's default puts them outside, above the box; the data override makes placeParentLabels treat them as
@@ -562,14 +590,20 @@ export async function execute(context) {
     // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
     _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && n.data("entity_type") === T.program));
     shown([T.flow]).forEach((n) => n.scratch("landingFontFactor", FLOW_FONT_FACTOR));
+    // Playground exception 47: the gateway's, the load balancer's and the database's names, under their icons, are as subtle as the subnets'.
+    shown(NAMED_ICON_TYPES).forEach((n) => n.scratch("landingFontFactor", SUBNET_LABEL_FACTOR));
     // Playground exception 19: after every label's size is set, so the doubled size is the base the settle mode starts from.
     cy.nodes().forEach((n) => _scaleFont(n, isInterior(n) ? undefined : BASE_FONT));
     _keepDatabase(cy.nodes(`[entity_type = "${T.rds}"]`));
     _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
     _hideLabels(cy);
+    shown(NAMED_ICON_TYPES).not(`[entity_type = "${T.rds}"]`).style({"font-weight": SUBNET_LABEL_WEIGHT});
+    // One line each, so the name stays inside the subnet's bottom room.
+    shown(NAMED_ICON_TYPES).style({"text-wrap": "none"});
     _layerEdges(cy);
     _styleFlow(cy, shown([T.flow]));
     _styleBoundary(cy, shown([T.boundary]));
+    _colourTitles(cy, parents.filter((n) => !isInterior(n) && (isVpc(n) || n.data("entity_type") === T.account)));
     _styleContainer(cy, cy.nodes(`[entity_type = "${T.ecsContainer}"]`));
     // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
     // past ELEVATION_REVEAL_ZOOM shows the interior and destroys the lift. The layout itself never changes between the two.
@@ -690,6 +724,19 @@ function _styleContainer(cy, containers) {
     }));
 }
 
+/**
+ * Playground exception 46 (should become a `label_color` of the container type's display hint): the titles of the account and of the VPCs
+ * are a darker accent of their own box's border colour, TITLE_DARKEN of it, not black. Read from the node's own border colour.
+ */
+const TITLE_DARKEN = 0.6;
+function _colourTitles(cy, containers) {
+    containers.forEach((n) => {
+        const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(n.style("border-color"));
+        if (!m) return;
+        n.style({"color": `rgb(${[m[1], m[2], m[3]].map((v) => Math.round(Number(v) * TITLE_DARKEN)).join(",")})`});
+    });
+}
+
 function _boundaryLabelShift(node) {
     const ctx = document.createElement("canvas").getContext("2d");
     if (!ctx) return 0;
@@ -780,7 +827,9 @@ function _placeDeployPile(cy, account, deploy, pad, slotHeight = 0) {
     });
     // Bottom of the box: the pile, the room for the front name, then the account's own bottom padding.
     // The slotted VPC (exception 30) stands in the same row, from the row's top; the row is as tall as the taller of the two.
-    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + PILE_NAME_ROOM, above + 44 + slotHeight) + pad.bottom;
+    // Playground exception 45: no room for a front name that is hidden.
+    const nameRoom = _labelHidden(ordered[ordered.length - 1]) ? PILE_NAMELESS_ROOM : PILE_NAME_ROOM;
+    const newBottom = Math.max(top + h + spread + DEPLOY_BOX_PADDING + nameRoom, above + 44 + slotHeight) + pad.bottom;
     const delta = Math.max(0, newBottom - box.y2);
     if (delta > 0) {
         account.style({height: box.h + delta});
@@ -945,7 +994,8 @@ function _syncScopeTitle(cy) {
     const apply = () => {
         const config = _settleConfig(cy);
         const factor = config ? modelFactor(cy.zoom(), config.classes.font) : 1;
-        const size = `${BASE_FONT * FONT_SCALE * factor}px`;
+        // Playground exception 46: the same size as the VPC titles (Admin Access).
+        const size = `${BASE_FONT * FONT_SCALE * factor * VPC_TITLE_FACTOR}px`;
         const root = cy.container();
         if (!root) return;
         // Right-aligned to the box: the larger title then runs left over empty account space, not over the flow name beside the box.
@@ -953,6 +1003,8 @@ function _syncScopeTitle(cy) {
             el.style.fontSize = size;
             el.style.left = "auto";
             el.style.right = "12px";
+            // Playground exception 45: no fill behind the title.
+            el.style.background = "transparent";
         });
     };
     cy.on("zoom", apply);
@@ -1286,7 +1338,7 @@ function _formDatabase(cy, nodes, revealed) {
             const layers = n.scratch("landing_db_layers");
             if (layers) n.style({"z-index": layers.box});
             // Playground exception 31: the revealed standard box shows its name again.
-            n.removeStyle("text-opacity");
+            n.removeStyle("text-opacity font-weight");
             n.style({
                 "width": keep.w, "height": keep.h, "shape": "round-rectangle",
                 "background-color": RDS_FILL, "background-opacity": 1, "border-color": RDS_BORDER, "border-width": 3,
@@ -1301,6 +1353,8 @@ function _formDatabase(cy, nodes, revealed) {
                 + Object.keys(keep.label).join(" "));
             n.scratch("landing_db_icons", applyIconNodes(cy, {members: n, ...SOLO, solo: true, iconNodeId: `landing-solo-db-${n.id()}`}));
             if (_labelHidden(n)) n.style({"text-opacity": 0});
+            // Playground exception 47: the solo form's name is subtle (normal weight); the revealed box's title keeps its own.
+            n.style({"font-weight": SUBNET_LABEL_WEIGHT});
         }
         n.dirtyBoundingBoxCache();
     });
@@ -1409,6 +1463,8 @@ function _styleFlow(cy, flows) {
         "color": FLOW_BLUE,
         // Ruled 2026-10-20 (George): no fill behind a flow's name.
         "text-background-opacity": 0,
+        // Playground exception 45: a flow's name is one line, never wrapped.
+        "text-wrap": "none",
     }));
     _styleFlowEdges(cy);
 }
@@ -1417,15 +1473,13 @@ function _styleFlowEdges(cy) {
     cy.edges().forEach((edge) => {
         const type = _edgeType(edge);
         if (type !== E.flowSource && type !== E.flowDestination) return;
-        // Playground exception 38: a flow carries ONE arrowhead, on the end its `icon_angle` points to: the destination line's target end
-        // when the destination lies on the angle's side of the flow, else the source line's source end (the data comes back to the source).
-        const flow = type === E.flowSource ? edge.target() : edge.source();
-        const onDestination = _destinationAhead(flow);
-        const head = type === E.flowSource ? !onDestination : onDestination;
+        // Arrowhead convention: arrows point from the session initiator (the flow's source) to its target (the flow's destination), so the ONE
+        // arrowhead is always on the destination line's target end; `icon_angle` turns only the circle marker's glyph (the way the data moves).
+        const head = type === E.flowDestination;
         edge.style({
             "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE, "source-arrow-color": FLOW_BLUE,
-            "target-arrow-shape": type === E.flowSource || !head ? "none" : "triangle",
-            "source-arrow-shape": type === E.flowSource && head ? "triangle" : "none",
+            "target-arrow-shape": head ? "triangle" : "none",
+            "source-arrow-shape": "none",
             ...(head ? {"arrow-scale": FLOW_ARROW_SCALE} : {}),
         });
     });
@@ -1439,18 +1493,6 @@ function _flowAngle(flow) {
     const value = Number((flow.data("dimensions") || {})[ICON_ANGLE_KEY]);
     const given = Number.isFinite(value) && (flow.data("dimensions") || {})[ICON_ANGLE_KEY] !== "" ? value : FLOW_ICON_ANGLE;
     return ((given % 360) + 360) % 360;
-}
-
-/**
- * Playground exception 38: whether the flow's destination lies on the side of the flow its angle points to (the dot product of the
- * destination's offset from the flow and the angle's unit vector, screen y down, is not negative).
- */
-function _destinationAhead(flow) {
-    const edge = flow.connectedEdges().filter((e) => _edgeType(e) === E.flowDestination && e.source().same(flow)).first();
-    if (edge.empty()) return true;
-    const angle = _flowAngle(flow) * Math.PI / 180;
-    const from = flow.position(), to = edge.target().position();
-    return (to.x - from.x) * Math.sin(angle) + (to.y - from.y) * -Math.cos(angle) >= 0;
 }
 
 const _flowIconSource = new Map();

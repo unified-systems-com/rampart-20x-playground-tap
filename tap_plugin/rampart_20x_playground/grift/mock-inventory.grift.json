@@ -245,7 +245,7 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d225cae1116b",
             "entity_type": "aws_core__aws_internet_gateway",
-            "name": "internet gateway",
+            "name": "IGW",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -253,14 +253,13 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
-              "label": "hidden",
               "icon": "rampart_20x_playground/icons/internet-gateway-card.svg",
               "icon_form": "solo"
             }
           },
           "node": {
             "igw_id": "igw-mockgitserious",
-            "name": "internet gateway"
+            "name": "IGW"
           }
         },
         {
@@ -417,15 +416,14 @@
           "entity": {
             "entity_id": "01a13b2b-a806-70ab-bec7-d2338817f78c",
             "entity_type": "aws_core__aws_alb",
-            "name": "load balancer",
+            "name": "ALB",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown",
-              "label": "hidden"
+              "overview": "shown"
             }
           },
           "node": {
@@ -433,7 +431,7 @@
             "scheme": "internet-facing",
             "state": "active",
             "dns_name": "git-serious-mock.elb.example.invalid",
-            "name": "load balancer"
+            "name": "ALB"
           }
         },
         {
@@ -527,8 +525,7 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "overview": "shown",
-              "label": "hidden"
+              "overview": "shown"
             }
           },
           "node": {
