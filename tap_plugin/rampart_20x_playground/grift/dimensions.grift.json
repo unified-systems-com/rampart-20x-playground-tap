@@ -182,7 +182,7 @@
           },
           "node": {
             "name": "dataclass.customer",
-            "description": "The customer sub-axis of dataclass: data that belongs to customers. Its values are dataclass.customer.data, dataclass.customer.creds and dataclass.customer.logs."
+            "description": "Data that belongs to customers."
           }
         },
         {
@@ -196,7 +196,7 @@
           },
           "node": {
             "name": "dataclass.infra",
-            "description": "The infrastructure sub-axis of dataclass: data that belongs to running the infrastructure. Its values are dataclass.infra.code, dataclass.infra.secrets, dataclass.infra.logs and dataclass.infra.admin."
+            "description": "Data that belongs to running the infrastructure."
           }
         },
         {

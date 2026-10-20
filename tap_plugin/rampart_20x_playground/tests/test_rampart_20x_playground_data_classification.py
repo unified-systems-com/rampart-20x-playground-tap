@@ -20,6 +20,8 @@ CARD = "tap_web/panels/stat_card_panel.html"
 RUNNER = "tap_plugin.compliance_core.searches.dimension_coverage:dimension-coverage"
 # The fields the runner returns that a card may name (compliance_core req-compliance-core-dimension-coverage).
 RUNNER_FIELDS = {"key", "description", "total", "values", "values_text", "breakdown_text"}
+# The keys of each element of the runner's `values` array that a table column may name.
+VALUE_FIELDS = {"value", "description", "declared", "count", "by_type"}
 KEYS = {"dataclass.customer", "dataclass.infra"}
 
 
@@ -89,6 +91,33 @@ class TestDataClassificationPage:
             config = card["node"]["config"]
             named = {config["title_field"], config["value_field"], *(line["field"] for line in config["lines"])}
             assert named <= RUNNER_FIELDS, named - RUNNER_FIELDS
+            for line in config["lines"]:
+                columns = {c["field"] for c in line.get("columns", [])}
+                assert columns <= VALUE_FIELDS, columns - VALUE_FIELDS
+
+    def test_each_card_is_title_and_figure_then_a_plain_description_then_the_values_table(self) -> None:
+        for card in self.cards:
+            config = card["node"]["config"]
+            assert config["layout"] == "figure_right" and config["title_style"] == "bold"
+            assert config["title_field"] == "key" and config["value_field"] == "total"
+            assert config["unit"] == "components"
+            description, table = config["lines"]
+            assert description["field"] == "description" and "label" not in description
+            assert table["field"] == "values" and table["formatter"] == "table" and "label" not in table
+            assert [c["field"] for c in table["columns"]] == ["value", "description", "count"]
+            assert table["columns"][2]["formatter"] == "integer"  # a zero count shows 0
+
+    def test_the_page_starts_with_its_title_and_has_no_explanatory_prose(self) -> None:
+        assert self.page["node"]["name"] == self.page["entity"]["name"] == "Data Classification"
+        first = self.panels[
+            next(r["panel-id"] for r in self.page["node"]["layout"]["columns"]["col-1"]["rows"].values())
+        ]
+        assert first["node"]["view"] == TEXT
+        assert first["node"]["name"] == first["entity"]["name"] == "Data Classification"
+        assert first["node"]["config"] == {"text": "", "hide_header": False}  # the header IS the title
+        shown = json.dumps([p["node"]["config"] for p in self.cards])
+        for caption in ("What it classifies", "Components by type", '"label"', "values_text", "breakdown_text"):
+            assert caption not in shown, caption
 
     def test_no_value_is_named_and_nothing_says_mock(self) -> None:
         text = json.dumps(self.nodes).lower()
