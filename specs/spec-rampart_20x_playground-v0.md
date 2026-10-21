@@ -507,7 +507,7 @@ with `components` under the number; then the classification's description as pla
 borderless table with one row per value it can take: the value, its description, and the number of components
 carrying it (0 when none does). There is no breakdown by entity type.
 
-Under the cards, four bands hold the classification-mapping tables of `req-rampart-20x-playground-classification-mapping`, each a standard table panel bound by `USES_SEARCH` to one of that requirement's four Searches, in this order: `Summary` (one row per mapping row: `label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped`), `Mapped Incorrectly`, `Unmapped` and `Mapped` (`label`, `name`, `found_text`, `allowed_text`; the name cell links to the entity's page and a row click opens it). The three entity tables have a quick filter and paging, because the unmapped table holds hundreds of rows. The tables are panels of the classification-mapping bundle; this page places them with `USES_PANEL` edges. There is no separate Classification Mapping page.
+Under the cards, four standard table panels show how much of the inventory carries the classification it should and what is missing or wrong (George, 2026-10-21: there is no separate Classification Mapping page; its tables live here). Each is bound by `USES_SEARCH` to one of the four Searches of `req-rampart-20x-playground-classification-mapping`: a summary table with one row per inventory category (columns `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule` and `percent_mapped`), then three entity tables named `Mapped Incorrectly`, `Unmapped` and `Mapped` (columns `group`, `label`, `name`, `found_text` and `allowed_text`, titled in Title Case), in the runner's order. The entity tables have a quick filter and paging, because the unmapped table holds hundreds of rows.
 
 All three cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
 `req-compliance-core-dimension-coverage`); the Search's input `dimension_key` is the only thing that differs. Gryphon
@@ -535,6 +535,10 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Link, Filter And Page | Proposed | The panels are striped with Title Case headings; in the three entity tables the name cell is a link, the row click opens the entity's page, and there is a quick filter and paging. No panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 | req-rampart-20x-playground-page-data-classification-11 | Summary Headings And Centred Numbers | Proposed | The `Summary` table's columns are titled `Entity Type`, `Classification`, `Total`, `Mapped`, `Unmapped`, `Incorrect` (field `mapped_incorrectly`) and `%` (field `percent_mapped`), and its five numeric columns carry `align: center` so each value sits centred under its heading. | The headings were `Mapped Incorrectly` and `Percent Mapped`. The `Unmapped` table sets `show_all_rows` to `false`, so its page-size selector offers 25, 50, 100 and 200 and no `All`; the default stays 25 a page. |
 | req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
+| req-rampart-20x-playground-page-data-classification-9 | Four Mapping Tables Under The Cards | Proposed | Under the three cards the page has four table panels: the summary, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each bound by `USES_SEARCH` to its own Search of the classification mapping, and no `/playground/classification-mapping` route exists. | Ruled by George, 2026-10-21. The old page and its entity are purged. |
+| req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Name Returned Fields | Proposed | The summary table's columns are `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule` and `percent_mapped`; each entity table's are `group`, `label`, `name` (a link to the entity's page), `found_text` and `allowed_text`; every title is in Title Case. | |
+| req-rampart-20x-playground-page-data-classification-11 | Entity Tables Filter And Page | Proposed | The three entity tables have a quick filter and paging. | |
+| req-rampart-20x-playground-page-data-classification-12 | Mapping Tables Carry No Prose | Proposed | No mapping table panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 
 ### Classification Mapping
 ----
@@ -559,20 +563,21 @@ Which entities carry the data classification they should, which carry none, and 
 
 The summary Search's entity id is fixed because `fedramp_20x_vdr`'s collector names it in code (`req-fedramp-20x-vdr-coverage-snapshot`); the id here and there must never differ. Each Search's description says why it is a module Search (Gryphon cannot write a count grouped by a dimension value taken from an input) and where its mapping is also written, because the four copies must agree.
 
-**The mapping** (proposed for review; each row reads "an entity of this type should carry this key with one of these values"):
+**The mapping** (groups of entity types; the assignment is proposed for review). Each row reads "an entity of one of these types should carry this key with one of these values", and the value check is the group's: a value is right when the group allows it (ruled by George, 2026-10-21). The Searches work in grouped mode, `group_by` `inventory` (`req-compliance-core-dimension-mapping`), so each entity is judged by the first row that names its type and is counted in its inventory category.
 
-| entity type | key and allowed values | match |
-| --- | --- | --- |
-| `computing_core__application_flow` | `dataclass.customer`: `data`, `sanitized`, `creds`, `logs`; `dataclass.infra`: `code`, `secrets`, `logs`, `admin` | `any` |
-| `computing_core__application_flow` | `dataclass.action`: `transmit` | `all` |
-| `computing_core__program` | `dataclass.action`: `process` | `all` |
-| `aws_core__aws_ecs_container` | `dataclass.action`: `process` | `all` |
-| `aws_core__aws_rds_instance` | `dataclass.action`: `store` | `all` |
-| `aws_core__aws_s3_bucket` | `dataclass.action`: `store` | `all` |
-| `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
-| `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
+| group | entity types | key and allowed values | match |
+| --- | --- | --- | --- |
+| Data Flows | `computing_core__application_flow` | `dataclass.action`: `transmit` | `all` |
+| Programs | `computing_core__program` | `dataclass.action`: `process` | `all` |
+| AWS Services | `aws_core__aws_route53_zone`, `aws_core__aws_internet_gateway`, `aws_core__aws_alb`, `aws_core__aws_ecs_cluster`, `aws_core__aws_ecs_service`, `aws_core__aws_ecs_container`, `aws_core__aws_rds_instance`, `aws_core__aws_s3_bucket`, `aws_core__aws_secrets_manager_secret`, `aws_core__aws_kms_key`, `aws_core__aws_ecr_repository`, `aws_core__aws_iam_oidc_provider`, `aws_core__aws_codepipeline_pipeline`, `aws_core__aws_codebuild_project`, `aws_core__aws_ec2_instance` | `dataclass.action`: `store`, `process`, `transmit`, `none` | `all` |
+| Containers | `computing_core__host`, `github_core__github_package`, `github_core__github_package_version` | `dataclass.action`: `process`, `store` | `all` |
+| Packages | `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
+| Libraries | `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
+| Operating Systems | `computing_core__operating_system` | `dataclass.action`: `process` | `all` |
+| Secrets | `computing_core__file`, `computing_core__public_key`, `computing_core__private_key`, `aws_core__aws_acm_certificate` | `dataclass.action`: `store` | `all` |
+| Third-Party SaaS | `aws_core__aws_organization`, `github_core__github_platform` | `dataclass.action`: `store`, `process`, `transmit`, `none` | `all` |
 
-These are the types that exist in the seed today. A `crypto_provider` has no row: it is a finding about the code that carries it (`CARRIES_CRYPTO_PROVIDER`), and the carrier, a library, package or program, is classified instead (ruled by George, 2026-10-21). The library and package rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
+These are the types the seed stamps into the inventory categories, as read on 2026-10-21. Two things are deliberate. The application flows carry no `inventory` stamp, so grouped mode never counts them in a category; the row is kept for the group George named and for a flow that is later stamped. And `computing_core__crypto_provider` has no row: it is a finding about the code that carries it (`CARRIES_CRYPTO_PROVIDER`), and the carrier is classified instead (ruled by George, 2026-10-21), so the Searches leave the `crypto` category out with `exclude_groups`, and their descriptions say so. A type with no row is not hidden: grouped mode counts it `unmapped` and `no_rule`.
 
 **Four table panels.** `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each a standard table panel bound by `USES_SEARCH` to the Search of the same name above. They are shown on the Data Classification page (`req-rampart-20x-playground-page-data-classification-9`); the bundle holds no page.
 
@@ -580,11 +585,11 @@ These are the types that exist in the seed today. A `crypto_provider` has no row
 
 #### Development
 
-The mapping is stated four times because a module Search receives its inputs from its own `input_schema` defaults and there is no way for one Search to read another's. That is the duplication George accepted for the demo sprint; the fix is for the runners to read the mapping from one place, which is a change to the runners. A test pins the four `mappings` defaults as equal so they cannot drift.
+The mapping and the grouping are stated four times because a module Search receives its inputs from its own `input_schema` defaults and there is no way for one Search to read another's. That is the duplication George accepted for the demo sprint; the fix is for the runners to read the mapping from one place, which is a change to the runners. A test pins the four `mappings` defaults as equal so they cannot drift.
 
 The seed ships no wrong stamp, so the mapped-incorrectly table is empty until something is stamped with a value its row does not allow. That is the honest state of the data.
 
-Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is applied and counting the entities in the seed files as read on 2026-10-20 (the inventory-software batch is regenerated, so the package count moves): application flows 6 (customer or infra: 5 mapped, 1 unmapped, the administrator flow to the account perimeter; action: 6 mapped); programs 5 mapped; ECS containers 2 mapped; RDS instance 1 mapped; S3 buckets 2 mapped; libraries 4 unmapped; packages 180 unmapped.
+On the seed the summary lists the nine inventory categories (`crypto` left out), and the packages and libraries are unmapped because nothing stamps them: the gap the table is there to show. The mapped-incorrectly table stays empty because nothing is stamped with a value its group does not allow. The counts are not fixed here, because the inventory-software batch is regenerated.
 
 #### Acceptance Criteria
 
@@ -598,12 +603,9 @@ Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is 
 | req-rampart-20x-playground-classification-mapping-6 | Target Resolves | Proposed | The `schedule-grift-targets` guard passes on a stack that installs this plugin and `fedramp_20x_vdr`. | |
 | req-rampart-20x-playground-classification-mapping-7 | Dependencies Declared | Proposed | `depends_on` gains `fedramp_20x_vdr`, the `demo` record installs it, and the `compliance_core` floor names the release that ships the mapping runners and the snapshot base class. | |
 | req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
-| req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package count follows the inventory-software batch. |
+| req-rampart-20x-playground-classification-mapping-9 | Every Seeded Type Has A Rule | Proposed | After the action stamps apply, the summary reports `no_rule` 0 for every category except `crypto`, which is excluded, and `warnings` lists no type without a rule. | A new type in the seed with no row shows here as a gap. The package count follows the inventory-software batch. |
 | req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
-
-#### Future
-
-A coverage-over-time view: a table or chart reading the `compliance_search_snapshot` nodes of the summary Search, one row per snapshot. It reads `rows` through a `module` Search and is the reason the snapshots exist.
+| req-rampart-20x-playground-classification-mapping-11 | Grouped And Excluded | Proposed | All four Searches declare `group_by` `inventory`, and `exclude_groups` `["crypto"]` with a description that says the crypto category is left out and why. | |
 
 ### Inventory Coverage
 ----
