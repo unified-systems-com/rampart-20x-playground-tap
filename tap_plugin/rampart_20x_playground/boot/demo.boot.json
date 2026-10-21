@@ -20,8 +20,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/administrivia-tap",
-          "rev": "v0.2.0",
-          "commit": "cf205b31e83ff8774cfae59db4810a4d9bd06aea"
+          "rev": "v0.2.1",
+          "commit": "f2431b90222b1e7e116067a9ccd1cd88847fe755"
         }
       },
       {
@@ -112,8 +112,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/vuln-mosaic-tap",
-          "rev": "v0.5.0",
-          "commit": "18d453d8e2d2adb485a6c35506fe4fa63252ca0d"
+          "rev": "v0.6.0",
+          "commit": "b0ae7728c41004aa885aac974654a16e8a13fb6a"
         }
       },
       {
