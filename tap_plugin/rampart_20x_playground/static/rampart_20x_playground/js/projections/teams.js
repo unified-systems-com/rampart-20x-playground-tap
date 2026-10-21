@@ -10,13 +10,13 @@
  * Both are single-hop nesting patterns (spec-viz-nesting.md); the runtime stamps the containment, hides those
  * edges and sizes the boxes.
  *
- * Arrangement is the `ranked` natural layout (spec-viz-nested-projection.md): columns by the integer `_stage`, stacked
- * top-to-bottom by the integer `_order`. Both are stamped here from facts on the graph, never from a label:
+ * Arrangement is the `ranked` natural layout (spec-viz-nested-projection.md): columns by the integer `_stage`. Every
+ * child of a team is its own stage, so a team's children stand in one horizontal row. Stages are stamped here from facts
+ * on the graph, never from a label:
  *
- *   - a person is stage 0, a child team is stage 1 + its rank among its sibling teams (typed `name` field), so the
- *     child teams of a team stand side by side in one row and the people of a team stack in one column;
- *   - a leader is the human at the source of a LEADS_TEAM edge: order 0, so the leader is first in the stack, at
- *     the top of the team. The LEADS_TEAM edge is hidden, because the leader is already inside the team.
+ *   - a leader is the human at the source of a LEADS_TEAM edge: stage 0, first in the row. The other people follow by
+ *     typed `name`, then the child teams by typed `name`. The LEADS_TEAM edge is hidden, because the leader is already
+ *     inside the team.
  *
  * Every person is drawn as an icon-centric-solo node (icon-node.js, req-viz-icon-node-solo): the type icon and the
  * name, no card. A leader's name is set on the leader colours; a solo icon has no fill, so the colour lives on the label.
@@ -41,11 +41,11 @@ const LEADER_LABEL = {
     "text-background-padding": "3px", "text-background-shape": "round-rectangle",
 };
 const PERSON_LABEL = {"color": "#1e293b", "font-weight": 400, "text-background-opacity": 0};
-const PERSON = {width: 64, height: 64};
-const TEAM = {width: 240, height: 120};
-const PADDING = 24;
-const LABEL_INSET = 12;
-const NAME_ROOM = 36; // a person's name stands below the icon, outside its box: room at the foot of the team
+const PERSON = {width: 56, height: 56};
+const TEAM = {width: 120, height: 80};
+const PADDING = 12;
+const LABEL_INSET = 8;
+const NAME_ROOM = 30; // a person's name stands below the icon, outside its box: room at the foot of the team
 
 function _edgeType(e) {
     return e.data("edge_type") || e.data("label") || "";
@@ -62,7 +62,7 @@ function _leaders(cy) {
 }
 
 //: Stamp `_stage` and `_order` for the `ranked` layout from the BELONGS_TO_TEAM edges and the leaders.
-//: A person is stage 0; a child team is stage 1 + its rank among its sibling teams by typed name, so siblings sit in a row.
+//: Every child of a team is its own stage in one row: the leader, the other people by typed name, then the child teams.
 function _stampRanks(cy, leaders) {
     const siblings = new Map();
     cy.edges().filter((e) => _edgeType(e) === BELONGS).forEach((e) => {
@@ -70,12 +70,13 @@ function _stampRanks(cy, leaders) {
         if (!siblings.has(parent)) siblings.set(parent, cy.collection());
         siblings.set(parent, siblings.get(parent).merge(e.source()));
     });
+    const byName = (a, b) =>
+        String((a.data("fields") || {}).name || "").localeCompare(String((b.data("fields") || {}).name || ""));
     siblings.forEach((children) => {
-        const teams = children.filter(`[entity_type = "${T.team}"]`).sort((a, b) =>
-            String((a.data("fields") || {}).name || "").localeCompare(String((b.data("fields") || {}).name || "")));
-        teams.forEach((n, i) => n.data({_stage: 1 + i, _order: 0}));
-        children.filter(`[entity_type = "${T.human}"]`).forEach((n) =>
-            n.data({_stage: 0, _order: leaders.contains(n) ? 0 : 1}));
+        const people = children.filter(`[entity_type = "${T.human}"]`).sort((a, b) =>
+            (leaders.contains(a) ? 0 : 1) - (leaders.contains(b) ? 0 : 1) || byName(a, b));
+        const teams = children.filter(`[entity_type = "${T.team}"]`).sort(byName);
+        people.toArray().concat(teams.toArray()).forEach((n, i) => n.data({_stage: i, _order: 0}));
     });
 }
 
@@ -105,13 +106,13 @@ export async function execute(context) {
         baseSizes: {[T.human]: PERSON, [T.team]: TEAM},
         padding: PADDING,
         paddings: {[T.team]: {top: PADDING + inset, right: PADDING, bottom: PADDING + NAME_ROOM, left: PADDING}},
-        innerLayout: {name: "ranked", sort: "order", columnGap: 56, rowGap: 44},
+        innerLayout: {name: "ranked", sort: "order", columnGap: 56, rowGap: 12},
     });
 
     placeParentLabels(cy, {
         anchor: "top-center", inset: LABEL_INSET,
         parentFontSize: chrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
-    if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 40);
+    if (trigger_reason === "initial_load") cy.fit(cy.nodes(":visible"), 12);
     return {warnings: result.warnings || []};
 }
