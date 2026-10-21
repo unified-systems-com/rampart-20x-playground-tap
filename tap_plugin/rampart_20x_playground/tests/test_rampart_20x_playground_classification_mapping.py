@@ -1,5 +1,5 @@
-"""The classification mapping bundle and page, read from the bundle as written
-(`req-rampart-20x-playground-classification-mapping-*`, `req-rampart-20x-playground-page-classification-mapping-*`).
+"""The classification mapping bundle, read from the bundle as written (`req-rampart-20x-playground-classification-mapping-*`).
+The four tables sit on the Data Classification page; its test file pins their placement.
 
 These tests read JSON files only. What the runners return, and how the page looks, is checked against a booted stack."""
 
@@ -13,9 +13,7 @@ from pathlib import Path
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
 FILE = "classification-mapping.grift.json"
-SLUG = "/playground/classification-mapping"
 TABLE = "tap_web/panels/table_panel.html"
-TEXT = "tap_web/panels/text_panel.html"
 RUNNER = "tap_plugin.compliance_core.searches.dimension_mapping:"
 # The id fedramp_20x_vdr's coverage_snapshot collector hard-codes (COVERAGE_SUMMARY_SEARCH_ID). It must never differ.
 SUMMARY_SEARCH_ID = "01a15b2f-df3b-7569-bf22-9ead3f816b84"
@@ -39,7 +37,6 @@ class TestClassificationMapping:
         self.edges = self.batch["edges"]
         self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
         self.searches = [n for n in self.nodes if n["entity"]["entity_type"] == "search"]
-        self.page = next(n for n in self.nodes if n["entity"]["entity_type"] == "page")
         self.panels = {n["node"]["slug"]: n for n in self.nodes if n["entity"]["entity_type"] == "panel"}
 
     def _search_of(self, panel: dict) -> dict:
@@ -112,28 +109,14 @@ class TestClassificationMapping:
         namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "tap_cares.collector")
         assert str(uuid.uuid5(namespace, "fedramp_20x_vdr:coverage_snapshot")) == COLLECTOR_ID
 
-    def test_the_page_is_routable_titled_and_has_a_title_then_four_tables(self) -> None:
-        assert self.page["node"]["slug"] == SLUG and "discoverable" not in self.page["node"]
-        assert self.page["node"]["name"] == self.page["entity"]["name"] == "Classification Mapping"
-        columns = self.page["node"]["layout"]["columns"]
-        order = [row["panel-id"] for c in sorted(columns, key=lambda k: columns[k]["band"]) for row in columns[c]["rows"].values()]
-        assert [self.panels[p]["node"]["view"] for p in order] == [TEXT, TABLE, TABLE, TABLE, TABLE]
-        assert [self.panels[p]["node"]["name"] for p in order] == [
-            "Classification Mapping", "Summary", "Mapped Incorrectly", "Unmapped", "Mapped",
-        ]
-        assert self.panels[order[0]]["node"]["config"] == {"text": "", "hide_header": False}  # no prose
-
-    def test_slots_and_page_panel_edges_match_exactly(self) -> None:
-        slots = {row["panel-id"] for c in self.page["node"]["layout"]["columns"].values() for row in c["rows"].values()}
-        wired = {
-            e["edge"]["properties"]["hotlink"]["value"]: e["edge"]["to_entity_id"]
-            for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"
-        }
-        assert slots == set(wired)
-        assert {self.by_id[i]["node"]["slug"] for i in wired.values()} == slots
+    def test_the_bundle_holds_no_page_and_four_table_panels(self) -> None:
+        assert not [n for n in self.nodes if n["entity"]["entity_type"] == "page"]
+        assert not [e for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"]
+        assert [p["node"]["name"] for p in self.panels.values()] == ["Summary", "Mapped Incorrectly", "Unmapped", "Mapped"]
+        assert all(p["node"]["view"] == TABLE for p in self.panels.values())
 
     def test_each_table_reads_its_own_search_and_names_only_returned_fields(self) -> None:
-        """`page-classification-mapping-3`."""
+        """`page-data-classification-10`."""
         expected = {
             "Summary": ("dimension-mapping-summary", SUMMARY_FIELDS, None),
             "Mapped Incorrectly": ("dimension-mapping-entities", ENTITY_FIELDS | {"entity_type"}, "mapped_incorrectly"),
@@ -154,7 +137,7 @@ class TestClassificationMapping:
         assert seen_searches == {s["entity"]["entity_id"] for s in self.searches}
 
     def test_tables_are_striped_with_title_case_headings_and_the_entity_tables_link_filter_and_page(self) -> None:
-        """`page-classification-mapping-4`, `-5`."""
+        """`page-data-classification-10`."""
         for panel in self.panels.values():
             if panel["node"]["view"] != TABLE:
                 continue
@@ -171,7 +154,7 @@ class TestClassificationMapping:
             assert link["formatter"] == "link" and link["formatter_params"]["href_template"] == config["row_url_template"]
 
     def test_no_panel_carries_prose(self) -> None:
-        """`page-classification-mapping-6`."""
+        """`page-data-classification-10`."""
         for panel in self.panels.values():
             assert "text" not in panel["node"]["config"] or panel["node"]["config"]["text"] == ""
 

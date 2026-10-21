@@ -33,8 +33,8 @@ vulnerability_enrichment = "grift/vulnerability-enrichment.grift.json"
 vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
 pages = "grift/pages.grift.json"
 inventory_page = "grift/inventory-page.grift.json"
-data_classification_page = "grift/data-classification-page.grift.json"
 classification_mapping = "grift/classification-mapping.grift.json"
+data_classification_page = "grift/data-classification-page.grift.json"
 teams = "grift/teams.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
