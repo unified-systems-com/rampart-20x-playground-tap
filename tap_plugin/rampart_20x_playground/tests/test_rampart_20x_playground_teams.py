@@ -383,10 +383,17 @@ class TestTeamsGraph:
         assert 'innerLayout: {name: "ranked", sort: "order"' in self.source
         # One row per team: the leader, the other people by typed name, then the child teams by typed name.
         assert "(leaders.contains(a) ? 0 : 1) - (leaders.contains(b) ? 0 : 1) || byName(a, b)" in self.source
-        assert "people.toArray().concat(teams.toArray()).forEach((n, i) => n.data({_stage: i, _order: 0}))" in self.source
-        assert "_stage: 0, _order: leaders" not in self.source
+        assert "people.toArray().forEach((n, i) => n.data({_stage: i, _order: 0}))" in self.source
         assert "_edgeType(e) === BELONGS" in self.source
         assert '"top-center"' in self.source
+
+    def test_a_team_with_child_teams_stacks_its_people_above_one_row_of_child_teams(self) -> None:
+        """`teams-viz-7`, `teams-viz-8`: the decision is the graph fact (a team that is the parent of child teams), set through `_inner_layout`."""
+        assert "if (teams.length > 0) {" in self.source
+        assert "teams.toArray().forEach((n, i) => n.data({_stage: 1, _order: i}))" in self.source
+        assert "n.data({_stage: 0, _order: leaders.contains(n) ? 0 : 1})" in self.source
+        assert 'cy.getElementById(parent).data("_inner_layout", {name: "ranked", axis: "rows", sort: "order", columnGap: 56, rowGap: 44})' in self.source
+        assert self.source.count("_inner_layout") >= 1 and "git-serious" not in self.source
 
     def test_the_slot_is_a_thin_banner_at_the_top_of_the_page(self) -> None:
         """`teams-viz-11`: 40vh, ruled by George over 25vh (too small to read) and 33vh."""
@@ -402,8 +409,8 @@ class TestTeamsGraph:
         assert "_edgeType(e) === LEADS" in self.source and "leaders.merge(e.source())" in self.source
         assert "e.addClass(ELEVATION_HIDDEN_CLASS)" in self.source
         assert "leaders.style(LEADER_LABEL)" in self.source and "people.style(PERSON_LABEL)" in self.source
-        for key in ("color", "text-background-color"):
-            assert re.search(rf'"{key}": "#[0-9a-f]{{6}}"', self.source), key
+        assert re.search(r'const LEADER_LABEL = \{"color": "#0f5c70", "font-weight": 700, "text-background-opacity": 0\};', self.source)
+        assert "text-background-color" not in self.source
 
     def test_every_person_is_a_solo_icon_and_a_team_stays_a_box(self) -> None:
         """`teams-viz-10`: `applyIconNodes` with `solo: true` on the humans only (an icon node is terminal, so a team cannot be one)."""
