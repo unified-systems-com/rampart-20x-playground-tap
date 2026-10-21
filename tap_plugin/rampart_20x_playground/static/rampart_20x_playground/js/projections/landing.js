@@ -170,7 +170,7 @@
  *      arrangement of 28 with a `row: bottom`, a per-node `size` / `shape: square` display hint and a `floor` of the nested layouts' container):
  *      the OS box holds the programs AND the three piles. The programs stand in one row at the top (gunicorn, then the application program,
  *      tap-web: the program another program runs, drawn as the PROGRAM_LARGE box with its name top-centre, room for a later zoom level),
- *      the Keys, Libraries and Packages piles stand below them in one horizontal line, in that order (PILE_ORDER). The piles' derived
+ *      the Keys, Libraries and Packages piles stand below them in one horizontal line (PILE_ORDER; its order and the Packages title changed in exception 56). The piles' derived
  *      containment (CONTAINS_*__playground) runs from the OS, not the container. The programs and the pile faces are out of the nesting while
  *      it runs; the OS is sized by a floor computed from the same constants, and they are placed afterwards. The container's bottom padding is
  *      computed so the line of sight through gunicorn is the vertical centre of the web task, so the container fills the task.
@@ -184,13 +184,23 @@
  *  54. the revealed icons are hidden again on the way out (`_dropHiddenBadges`; should become: applyBadgeNodes reads a host's style fresh, or skips
  *      a host with the elevation-hidden class): the type badge of a node the elevation just hid was drawn anyway, because `visible()` is read before
  *      Cytoscape has applied the class's `display: none`; the badge stayed on the canvas, at the origin, when the interior was hidden again.
- *  55. the Python packages inside the Wolfi box as a fourth pile, after Packages (the same `_deriveInterior`, `INTERIOR_PILES`, `PILE_ORDER` and
+ *  55. the Python packages inside the Wolfi box as a fourth pile, after OS Packages (the same `_deriveInterior`, `INTERIOR_PILES`, `PILE_ORDER` and
  *      pile window as 49 to 53): titled Python Packages, holding the root packages the container's programs run (RUNS_PACKAGE, computing_core v0.10.2;
  *      written to the grid from tap-web to pypi tap and from gunicorn to pypi gunicorn) and every package those require, transitively
  *      (REQUIRES_PACKAGE, walked here: the closure is never written to the grid). The runtime form is a derived containment edge
- *      (CONTAINS_PYTHON_PACKAGE__playground) from the OS to each; a package in this pile is left out of the Packages pile, so none is counted twice.
+ *      (CONTAINS_PYTHON_PACKAGE__playground) from the OS to each; a package in this pile is left out of the OS Packages pile, so none is counted twice.
  *      The requirement edges are hidden (they only feed the walk); the RUNS_PACKAGE edge from a program is drawn to the pile like USES_KEY's to Keys
  *      (should become the `pile` arrangement of 28 with a per-pile membership by an edge path).
+ *  56. the Wolfi box's piles in the order Keys, Python Packages, Libraries, OS Packages, the pile once titled Packages now titled OS Packages, and the
+ *      programs' row starting at the box's left inner edge so gunicorn stands directly above the Keys pile (`PILE_ORDER`, `INTERIOR_PILES`, `_placeInterior`;
+ *      should become a row `order` and a `start` alignment of the `pile` arrangement).
+ *  57. the vulnerabilities counted on what carries them (`_loadFindings`, `_findingsOf`, `_placeInteriorBubbles`, `_interiorIds`, `_openPileWindow`'s
+ *      Vulnerabilities column, the badge set's `population.interior_findings_search_id`; should become a `members` population of tap_viz's status badges, with a `members` source and columns for
+ *      the node window of 53): the revealed web task's own red bubble is replaced by a bubble on each host of its interior that carries open findings (a pile:
+ *      the distinct findings of all its members), the task's bubble returns when the interior is hidden, and each pile window lists its members' counts in the
+ *      tone of their highest CVSS. The counts are one Search's rows (one per open finding on a carrier), not a constant.
+ *  58. the red bubbles the size of a pile's count chip (`PILE_CHIP_FONT`, `PILE_CHIP_HEIGHT`, `_syncBadgeSizes`; should become a `badge` class of the zoom_settle
+ *      config): the interior's bubbles and the web task's own take the chip's font and least height at every zoom.
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -435,8 +445,21 @@ const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage, E.con
 //: Playground exception 49: the interior piles. The title of each pile by the derived edge that holds its members, the prefix of a pile's
 //: stack id (the elevation watcher finds the pile's cards and count chip by it), the offset (model units, interior scale) between its
 //: cards and how many layers it shows. The chip carries the true count.
-const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages", [E.containsKey]: "Keys", [E.containsPythonPackage]: "Python Packages"};
+const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "OS Packages", [E.containsKey]: "Keys", [E.containsPythonPackage]: "Python Packages"};
 const INTERIOR_STACK_PREFIX = "interior:";
+//: Playground exception 57: the Search (named by the "open findings" badge set's `population.interior_findings_search_id`, never in this file) that lists, for each Overview entity that carries open findings, one row per finding (the carrier's entity_id,
+//: name and type, the finding's id and the highest CVSS among the vulnerabilities it concerns). The types of the interior that get a bubble of
+//: their own when they carry findings directly (a pile's members are counted into the pile's bubble). The bubble's look when the projection's
+//: "open findings" badge set cannot be read. The tones of the window's Vulnerabilities column, the vulnerabilities component page's own steps.
+const INTERIOR_HOST_TYPES = [T.program, T.os, T.ecsContainer];
+const BUBBLE_DEFAULT = {fill: "#dc2626", text: "#ffffff"};
+//: Playground exception 58: the red bubbles are the size of the numbers on a pile's count chip: the chip's font (model units, before the settle mode
+//: scales it) and its least height (tap_viz's stack chip: `Math.max(16, ...)`). A bubble is as tall as the chip, or 1.15 times its own font when the
+//: settle mode draws the font larger than that (zoomed far out), so the number always fits.
+const PILE_CHIP_FONT = 14;
+const PILE_CHIP_HEIGHT = 16;
+const BUBBLE_FIT = 1.15;
+const CVSS_TONE_STEPS = [{min: 7, tone: "bad"}, {min: 4, tone: "warn"}, {min: 0.1, tone: "good"}];
 const INTERIOR_PILE_STEP = 4;
 const INTERIOR_PILE_DEPTH = 3;
 //: Playground exception 49: the gap between the two piles (model units, interior scale), wide enough for the line of sight to pass between them.
@@ -463,14 +486,14 @@ const CONTAINER = {width: 220, height: 110};
 const PROGRAM_LARGE = {width: 280, height: 140};
 //: Playground exception 51: the other programs of the row are PROGRAM_TALL times the usual program box in height.
 const PROGRAM_TALL = 1.5;
-const PROGRAM_GAP = 40;
+const PROGRAM_GAP = 80;
 const PILE_ROW_GAP = 24;
 const PROGRAM_BOX = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
 const PILE_STACK_SPREAD = INTERIOR_PILE_STEP * (INTERIOR_PILE_DEPTH - 1);
 //: Playground exception 51: the room above the application program's name, inside its square.
 const PROGRAM_TITLE_INSET = 8;
 //: Playground exception 51: the order of the piles in the row, left to right, by the derived edge that holds each.
-const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage, E.containsPythonPackage];
+const PILE_ORDER = [E.containsKey, E.containsPythonPackage, E.containsLibrary, E.containsPackage];
 
 //: Playground exception 52: the colour of a flow by the data it carries, from its `dataclass.customer` or `dataclass.infra` value. Customer
 //: data keeps the original deep blue; sanitized customer data is a lighter blue; the infrastructure classes each have a hue of their own, all at
@@ -740,6 +763,11 @@ export async function execute(context) {
     _styleContainer(cy, cy.nodes(`[entity_type = "${T.ecsContainer}"]`));
     // Playground exception 9: the account elevation hides the interior and lifts the flow's edge onto the task; a zoom
     // past ELEVATION_REVEAL_ZOOM shows the interior and destroys the lift. The layout itself never changes between the two.
+    // Playground exception 57: the findings of the interior, read from the grid once per run; the bubbles take the look of the projection's
+    // "open findings" badge set.
+    const findingsSet = (((context.projection || {}).status_badges || {}).badge_sets || []).find((set) => set && set.name === "open findings") || {};
+    await _loadFindings(cy, (findingsSet.population || {}).interior_findings_search_id);
+    cy.scratch("landing_bubble", {fill: findingsSet.color || BUBBLE_DEFAULT.fill, text: findingsSet.text_color || BUBBLE_DEFAULT.text});
     _watchElevation(cy, context);
     _bindFlowWindow(cy);
     _pinBadgeSize(cy);
@@ -1295,7 +1323,9 @@ function _bindFlowWindow(cy) {
     const previous = cy.scratch("playgroundFlowWindowHandler");
     if (previous) cy.off("tap", "node", previous);
     const handler = (evt) => {
-        const node = evt.target;
+        let node = evt.target;
+        // Playground exception 57: a tap on a pile's bubble is a tap on the pile.
+        if (node.data("_is_interior_badge")) node = cy.getElementById(node.data("_interior_host"));
         // Playground exception 53: a tap on a pile of the interior lists its members.
         const pile = _pileOf(cy, node);
         if (pile) {
@@ -1385,22 +1415,35 @@ function _pileOf(cy, node) {
  * network call).
  */
 function _openPileWindow(cy, node, pile) {
-    const members = pile.members.slice().sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
+    // Playground exception 57: each member's open findings and the highest CVSS among them, from the grid (none read: no column). The list
+    // runs the members with the most findings first, then the highest CVSS, then the name.
+    const byCarrier = cy.scratch("landing_findings");
+    const label = (n) => String(n.data("label"));
+    const standing = (n) => (byCarrier ? _findingsOf(byCarrier, [n.id()]) : {count: 0, worst: null});
+    const members = pile.members.map((n) => ({n, ...standing(n)})).sort((a, b) => (b.count - a.count)
+        || ((b.worst === null ? -1 : b.worst) - (a.worst === null ? -1 : a.worst)) || label(a.n).localeCompare(label(b.n)));
     // The face's own label was replaced by the pile's title (the stack keeps the original aside).
     const name = (n) => (n.data("_stack_label_orig") !== undefined ? n.data("_stack_label_orig") : n.data("label")) || n.id();
     const page = (n) => (n.data("entity_type")
         ? `/object/${encodeURIComponent(n.data("entity_type"))}/${encodeURIComponent(n.data("url_id") || `entity--${n.id()}`)}/` : "");
-    const rows = members.map((n) => {
-        const url = page(n);
-        const text = _esc(name(n));
-        return `<tr><td>${url ? `<a href="${_esc(url)}">${text}</a>` : text}</td></tr>`;
+    const cell = ({count, worst}) => {
+        const tone = count ? _cvssTone(worst) : null;
+        const text = tone ? `<span class="tap-info-window__tone tap-info-window__tone--${tone}" title="Highest CVSS ${_esc(worst)}">${count}</span>`
+            : `<span title="${count ? "Highest CVSS not scored" : "No open findings"}">${count}</span>`;
+        return `<td class="tap-info-window__cell--right">${text}</td>`;
+    };
+    const rows = members.map((m) => {
+        const url = page(m.n);
+        const text = _esc(name(m.n));
+        return `<tr><td>${url ? `<a href="${_esc(url)}">${text}</a>` : text}</td>${byCarrier ? cell(m) : ""}</tr>`;
     }).join("");
+    const head = `<thead><tr><th>Name</th>${byCarrier ? '<th class="tap-info-window__cell--right">Vulnerabilities</th>' : ""}</tr></thead>`;
     _showWindow(cy, node, {
         label: `${pile.label} pile`,
         flag: "playgroundPileWindow",
         key: pile.stackId,
         title: pile.label,
-        type: [...new Set(members.map((n) => n.data("entity_type")))].join(", "),
+        type: [...new Set(members.map((m) => m.n.data("entity_type")))].join(", "),
         body: `
             <section class="tap-info-window__section">
                 <div class="tap-info-window__section-header">
@@ -1408,7 +1451,7 @@ function _openPileWindow(cy, node, pile) {
                     <span class="tap-info-window__count">${members.length}</span>
                 </div>
                 <div class="tap-info-window__section-body">
-                    <table class="tap-info-window__table"><tbody>${rows}</tbody></table>
+                    <table class="tap-info-window__table tap-info-window__table--columns">${head}<tbody>${rows}</tbody></table>
                 </div>
             </section>`,
     });
@@ -1686,7 +1729,7 @@ function _deriveInterior(cy) {
         if (!systems.length) return;
         step(programs, E.loadsLibrary).forEach((lib) => add(systems[0], lib, E.containsLibrary));
         // Playground exception 55: the Python packages are the root packages the programs run (RUNS_PACKAGE) and everything those require
-        // (REQUIRES_PACKAGE, transitively); the Packages pile holds the rest of the image's installed packages, so no package is in both.
+        // (REQUIRES_PACKAGE, transitively); the OS Packages pile holds the rest of the image's installed packages, so no package is in both.
         const roots = step(programs, E.runsPackage);
         const python = new Set([...roots, ...closure(roots, E.requiresPackage)]);
         python.forEach((pkg) => add(systems[0], pkg, E.containsPythonPackage));
@@ -1773,7 +1816,7 @@ function _osFloor(entries, pad) {
 
 /**
  * Playground exception 51: stand each OS box's programs in one row at the top, centred, and its piles in one horizontal line under them, spread
- * from the box's left inner edge to its right one (so the first pile is under the first program). Sizes are set here (they were out of the nesting).
+ * from the box's left inner edge to its right one (so the first pile is under the first program; the programs' row starts at the same left edge, exception 56). Sizes are set here (they were out of the nesting).
  */
 function _placeInterior(cy, entries, pad) {
     entries.forEach(({os, programs, piles}) => {
@@ -1784,7 +1827,8 @@ function _placeInterior(cy, entries, pad) {
         const z = Number(os.style("z-index")) + 10;
         const sizes = programs.map(_programSize);
         const rowH = Math.max(0, ...sizes.map((size) => size.height));
-        let x = left + (innerW - (sizes.reduce((sum, size) => sum + size.width, 0) + PROGRAM_GAP * Math.max(0, sizes.length - 1))) / 2;
+        // Playground exception 56: the row starts at the box's left inner edge, so the first program (gunicorn) stands directly above the first pile.
+        let x = left;
         programs.forEach((n, i) => {
             n.style({width: sizes[i].width, height: sizes[i].height, "z-index": z});
             n.position({x: x + sizes[i].width / 2, y: top + rowH / 2});
@@ -1970,7 +2014,8 @@ function _watchElevation(cy, context) {
         // The piles' collapsed members stay collapsed (exception 49); their cards and count chips are part of the interior.
         const faces = interior.filter((n) => !n.hasClass(STACK_COLLAPSED_CLASS));
         const badges = cy.nodes("[?_is_badge]").filter((n) => faces.some((h) => h.id() === n.data("_badge_host")));
-        return faces.union(cy.nodes().filter(_interiorStackPart)).union(badges).union(interior.connectedEdges().not("." + LIFTED_EDGE_CLASS));
+        return faces.union(cy.nodes().filter(_interiorStackPart)).union(badges).union(cy.nodes("[?_is_interior_badge]"))
+            .union(interior.connectedEdges().not("." + LIFTED_EDGE_CLASS));
     };
     const hide = () => {
         const next = liftEdge(cy, {relationships: LIFT_EDGE});
@@ -2006,7 +2051,7 @@ function _watchElevation(cy, context) {
                 _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
             });
             // The container's own type badge: badges are drawn for what is shown when they are applied, and the interior was not.
-            _refreshBadges(cy, context);
+            _refreshBadges(cy, context, true);
             const shownNow = interiorOf();
             cy.batch(() => shownNow.style("opacity", 0));
             shownNow.animate({style: {opacity: 1}, duration: FADE_MS, easing: "ease-in-out"});
@@ -2023,7 +2068,7 @@ function _watchElevation(cy, context) {
                     hide();
                     _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), false);
                 });
-                _refreshBadges(cy, context);
+                _refreshBadges(cy, context, false);
                 interior.style("opacity", 1);
             };
             interior.animate({style: {opacity: 0}, duration: FADE_MS, easing: "ease-in-out", complete: finish});
@@ -2064,7 +2109,7 @@ function _alignInteriorToLine(cy, anchor) {
  * shows nodes that were hidden when they were first applied): applyBadgeNodes is the runtime's own pass and is safe to run again;
  * it badges what is shown now, and skips the types the projection excludes (the types whose badges it flagged on its first pass).
  */
-function _refreshBadges(cy, context) {
+function _refreshBadges(cy, context, revealed = false) {
     let exclude = cy.scratch("landing_badge_exclude");
     if (!exclude) {
         exclude = [...new Set(cy.nodes("[?_badge_excluded]").map((n) => n.data("entity_type")))];
@@ -2075,6 +2120,7 @@ function _refreshBadges(cy, context) {
     cy.scratch("landing_badge_handle", applyBadgeNodes(cy, {excludeTypes: exclude}));
     _dropHiddenBadges(cy);
     _moveDatabaseBadge(cy);
+    _placeInteriorBubbles(cy, revealed);
 }
 
 /**
@@ -2085,10 +2131,154 @@ function _refreshBadges(cy, context) {
  * from its class (and its fresh `display`), never from `visible()`.
  */
 function _dropHiddenBadges(cy) {
-    cy.nodes("[?_is_badge]").filter((badge) => {
-        const host = cy.getElementById(badge.data("_badge_host") || "");
+    cy.nodes("[?_is_badge], [?_is_interior_badge]").filter((badge) => {
+        const host = cy.getElementById(badge.data("_badge_host") || badge.data("_interior_host") || "");
         return host.nonempty() && (host.hasClass(ELEVATION_HIDDEN_CLASS) || host.style("display") === "none");
     }).remove();
+}
+
+/**
+ * Playground exception 57 (should become a `members` population of tap_viz's status badges: a count per host, the distinct findings of the
+ * members an aggregate host stands for, and a badge set that applies to the elevation shown): reads the open findings of the Overview's
+ * entities from the grid, one row per finding (the search of the badge set's `population.interior_findings_search_id`), into `Map(carrier id -> Map(finding id -> highest CVSS or null))`. A failed
+ * read leaves none (null): the task's own bubble then stays, so no count is lost.
+ */
+async function _loadFindings(cy, searchId) {
+    cy.removeScratch("landing_findings");
+    if (!searchId) return;
+    try {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        const headers = {"Content-Type": "application/json"};
+        if (meta) headers["X-CSRFToken"] = meta.content;
+        const response = await fetch(`/api/v1/searches/${searchId}/execute`, {
+            method: "POST", headers, body: JSON.stringify({inputs: {}}), credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const byCarrier = new Map();
+        ((await response.json()).rows || []).forEach((row) => {
+            if (!row.entity_id || !row.finding) return;
+            if (!byCarrier.has(String(row.entity_id))) byCarrier.set(String(row.entity_id), new Map());
+            const cvss = Number.isFinite(Number(row.worst)) && row.worst !== null ? Number(row.worst) : null;
+            byCarrier.get(String(row.entity_id)).set(String(row.finding), cvss);
+        });
+        cy.scratch("landing_findings", byCarrier);
+    } catch (err) {
+        console.warn("[landing] the findings of the interior could not be read:", err);
+    }
+}
+
+/**
+ * Playground exception 57: the distinct open findings of the given entities and the highest CVSS among them (null when none is scored). A
+ * finding carried by two of them counts once, as the component page counts the findings of one component.
+ */
+function _findingsOf(byCarrier, ids) {
+    const found = new Map();
+    ids.forEach((id) => (byCarrier.get(id) || new Map()).forEach((cvss, finding) => {
+        const known = found.get(finding);
+        if (!found.has(finding) || (cvss !== null && (known === null || cvss > known))) found.set(finding, cvss);
+    }));
+    let worst = null;
+    found.forEach((cvss) => { if (cvss !== null && (worst === null || cvss > worst)) worst = cvss; });
+    return {count: found.size, worst, found};
+}
+
+/** Playground exception 57: the tone of a CVSS score by the component page's steps (7 bad, 4 warn, 0.1 good); null when unscored. */
+function _cvssTone(cvss) {
+    if (cvss === null || cvss === undefined) return null;
+    const hit = CVSS_TONE_STEPS.find((step) => cvss >= step.min);
+    return hit ? hit.tone : null;
+}
+
+/**
+ * Playground exception 57 (should become the `members` badge population of exception 57's note above): the red bubble of the revealed interior.
+ * It stands at the upper-right corner of each host of the interior that carries open findings: a pile (its bubble is the distinct findings
+ * across all its members), or a program, the operating system or the container that carries some itself. Where the interior is shown the web
+ * task's own bubble is taken off, as long as the interior accounts for every finding the task's bubble counts (the bubbles then sum to it); a
+ * task whose count the interior does not account for keeps its bubble, and it comes back when the interior is hidden. Bubbles of a hidden
+ * interior are removed with their hosts (`_dropHiddenBadges`, exception 54).
+ */
+function _placeInteriorBubbles(cy, revealed) {
+    cy.nodes("[?_is_interior_badge]").remove();
+    const stash = cy.scratch("landing_task_badges") || cy.collection();
+    if (!revealed) {
+        // The interior is hidden: the tasks' bubbles stand again.
+        stash.forEach((badge) => { if (cy.getElementById(badge.id()).empty() && cy.getElementById(badge.data("_status_host")).nonempty()) badge.restore(); });
+        cy.removeScratch("landing_task_badges");
+        return;
+    }
+    const byCarrier = cy.scratch("landing_findings");
+    if (!byCarrier) return;
+    const hosts = [];
+    const piled = new Set();
+    (cy.scratch("landing_piles") || []).filter((pile) => pile.stackId.startsWith(INTERIOR_STACK_PREFIX)).forEach((pile) => {
+        pile.members.forEach((m) => piled.add(m.id()));
+        hosts.push({host: pile.representative, ids: pile.members.map((m) => m.id())});
+    });
+    cy.nodes().filter((n) => INTERIOR_HOST_TYPES.includes(n.data("entity_type")) && !piled.has(n.id())).forEach((n) => hosts.push({host: n, ids: [n.id()]}));
+    const shown = hosts.filter(({host}) => !host.hasClass(ELEVATION_HIDDEN_CLASS) && host.style("display") !== "none");
+    const bubbles = [];
+    shown.forEach(({host, ids}) => {
+        const {count, worst} = _findingsOf(byCarrier, ids);
+        if (!count) return;
+        const pos = host.position();
+        bubbles.push({group: "nodes", locked: true, position: {x: pos.x + host.width() / 2, y: pos.y - host.height() / 2},
+            data: {id: `ibadge:${host.id()}`, label: String(count), shape: "ellipse", icon_url: "", _is_interior_badge: true, _interior_host: host.id(), _interior_count: count, _interior_worst: worst}});
+    });
+    if (bubbles.length) {
+        const look = cy.scratch("landing_bubble") || BUBBLE_DEFAULT;
+        const added = cy.add(bubbles);
+        const template = cy.nodes("[?_is_status_badge]").union(stash).first();
+        const base = template.nonempty() ? (template.scratch("landingBadgeBase") || template.width()) : BADGE_SIZE * 0.75;
+        added.forEach((b) => {
+            b.scratch("landingBadgeBase", base);
+            b.style({
+                "shape": "ellipse", "background-color": look.fill, "background-opacity": 1, "background-image": "none", "border-width": 1,
+                "border-color": _darken(look.fill, 0.6), "border-style": "solid", "color": look.text, "label": String(b.data("_interior_count")),
+                "text-valign": "center", "text-halign": "center", "text-margin-x": 0, "text-margin-y": 0, "font-size": PILE_CHIP_FONT,
+                "font-weight": "bold", "events": "yes", "z-index": 999, "width": base, "height": base,
+            });
+            _scaleFont(b);
+        });
+        _syncBadgeSizes(cy);
+    }
+    // The tasks whose interior accounts for every finding their bubble counts hand it over to the interior's bubbles.
+    const taken = cy.collection();
+    cy.edges().filter((e) => _edgeType(e) === E.runsContainer).forEach((e) => {
+        const task = e.source();
+        const taskBadges = cy.nodes(`[?_is_status_badge][_status_host = "${task.id()}"]`);
+        if (taskBadges.empty() || e.target().hasClass(ELEVATION_HIDDEN_CLASS)) return;
+        const inside = _interiorIds(cy, task);
+        const placed = _findingsOf(byCarrier, [...inside].filter((id) => shown.some(({ids}) => ids.includes(id)))).count;
+        const total = Number(taskBadges.first().data("_status_count_label"));
+        if (placed > 0 && placed === total) taken.merge(taskBadges);
+    });
+    if (taken.nonempty()) cy.scratch("landing_task_badges", stash.union(taken.remove()));
+}
+
+/** Playground exception 57: every entity the web task holds, by the edges the interior is read from: container, operating system, programs and what the piles hold. */
+function _interiorIds(cy, task) {
+    const follow = new Set([E.runsContainer, E.runsProgram, ...DERIVED_TYPES]);
+    const seen = new Set([task.id()]);
+    let frontier = [task.id()];
+    while (frontier.length) {
+        const next = [];
+        cy.edges().forEach((e) => {
+            if (follow.has(_edgeType(e)) && frontier.includes(e.source().id()) && !seen.has(e.target().id())) {
+                seen.add(e.target().id());
+                next.push(e.target().id());
+            }
+        });
+        frontier = next;
+    }
+    seen.delete(task.id());
+    return seen;
+}
+
+/** Playground exception 57: a colour darkened by a factor (the bubble's border, as tap_viz darkens a status badge's fill). */
+function _darken(hex, factor) {
+    const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || "");
+    if (!m) return hex;
+    return "#" + [m[1], m[2], m[3]].map((x) => Math.round(parseInt(x, 16) * factor).toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -2173,14 +2363,23 @@ function _followIconPolicy(cy) {
 function _syncBadgeSizes(cy) {
     const config = _settleConfig(cy);
     const factor = config ? modelFactor(cy.zoom(), config.classes.icon) : 1;
+    const fontFactor = config ? modelFactor(cy.zoom(), config.classes.font) : 1;
     cy.batch(() => {
-        cy.nodes("[?_is_badge], [?_is_status_badge]").forEach((n) => {
+        cy.nodes("[?_is_badge]").forEach((n) => {
             let base = n.scratch("landingBadgeBase");
             if (base === undefined) {
                 base = n.width();
                 n.scratch("landingBadgeBase", base);
             }
             n.style({width: base * factor, height: base * factor});
+        });
+        // Playground exception 58: the red bubbles (the interior's and the web task's) take the pile chip's font and its height, as wide as the number needs.
+        cy.nodes("[?_is_status_badge], [?_is_interior_badge]").forEach((n) => {
+            const font = PILE_CHIP_FONT * fontFactor;
+            const height = Math.max(PILE_CHIP_HEIGHT, font * BUBBLE_FIT);
+            const digits = String(n.data("_status_count_label") !== undefined ? n.data("_status_count_label") : n.data("_interior_count")).length;
+            n.scratch("landingFontBase", PILE_CHIP_FONT / FONT_SCALE);
+            n.style({"font-size": font, shape: "round-rectangle", "corner-radius": height / 2, height, width: Math.max(height, digits * font * 0.62 + font * 0.5)});
         });
     });
 }
