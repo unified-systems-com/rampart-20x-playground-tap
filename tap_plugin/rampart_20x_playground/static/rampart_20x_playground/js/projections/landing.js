@@ -184,6 +184,13 @@
  *  54. the revealed icons are hidden again on the way out (`_dropHiddenBadges`; should become: applyBadgeNodes reads a host's style fresh, or skips
  *      a host with the elevation-hidden class): the type badge of a node the elevation just hid was drawn anyway, because `visible()` is read before
  *      Cytoscape has applied the class's `display: none`; the badge stayed on the canvas, at the origin, when the interior was hidden again.
+ *  55. the Python packages inside the Wolfi box as a fourth pile, after Packages (the same `_deriveInterior`, `INTERIOR_PILES`, `PILE_ORDER` and
+ *      pile window as 49 to 53): titled Python Packages, holding the root packages the container's programs run (RUNS_PACKAGE, computing_core v0.10.2;
+ *      written to the grid from tap-web to pypi tap and from gunicorn to pypi gunicorn) and every package those require, transitively
+ *      (REQUIRES_PACKAGE, walked here: the closure is never written to the grid). The runtime form is a derived containment edge
+ *      (CONTAINS_PYTHON_PACKAGE__playground) from the OS to each; a package in this pile is left out of the Packages pile, so none is counted twice.
+ *      The requirement edges are hidden (they only feed the walk); the RUNS_PACKAGE edge from a program is drawn to the pile like USES_KEY's to Keys
+ *      (should become the `pile` arrangement of 28 with a per-pile membership by an edge path).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -261,11 +268,14 @@ const E = {
     installsPackage: "INSTALLS_PACKAGE__computing_core",
     loadsLibrary: "LOADS_LIBRARY__computing_core",
     usesKey: "USES_KEY__computing_core",
+    runsPackage: "RUNS_PACKAGE__computing_core",
+    requiresPackage: "REQUIRES_PACKAGE__computing_core",
     //: Derived by `_deriveInterior`, never in the grid (playground exception 48): for the nesting only.
     containsOs: "CONTAINS_OS__playground",
     containsLibrary: "CONTAINS_LIBRARY__playground",
     containsPackage: "CONTAINS_PACKAGE__playground",
     containsKey: "CONTAINS_KEY__playground",
+    containsPythonPackage: "CONTAINS_PYTHON_PACKAGE__playground",
     flowSource: "APPLICATION_FLOW_SOURCE__computing_core",
     flowDestination: "APPLICATION_FLOW_DESTINATION__computing_core",
 };
@@ -417,14 +427,15 @@ const LIFT_EDGE = [
     {name: "os-holds-library", gryphon: `(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})`},
     {name: "os-holds-package", gryphon: `(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})`},
     {name: "os-holds-key", gryphon: `(parent:${T.os})-[:${E.containsKey}]->(child)`},
+    {name: "os-holds-python-package", gryphon: `(parent:${T.os})-[:${E.containsPythonPackage}]->(child:${T.pkg})`},
     {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exceptions 11 and 48: the derived containment edges (never in the grid) the interior's nesting reads.
-const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage, E.containsKey];
+const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage, E.containsKey, E.containsPythonPackage];
 //: Playground exception 49: the interior piles. The title of each pile by the derived edge that holds its members, the prefix of a pile's
 //: stack id (the elevation watcher finds the pile's cards and count chip by it), the offset (model units, interior scale) between its
 //: cards and how many layers it shows. The chip carries the true count.
-const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages", [E.containsKey]: "Keys"};
+const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages", [E.containsKey]: "Keys", [E.containsPythonPackage]: "Python Packages"};
 const INTERIOR_STACK_PREFIX = "interior:";
 const INTERIOR_PILE_STEP = 4;
 const INTERIOR_PILE_DEPTH = 3;
@@ -459,7 +470,7 @@ const PILE_STACK_SPREAD = INTERIOR_PILE_STEP * (INTERIOR_PILE_DEPTH - 1);
 //: Playground exception 51: the room above the application program's name, inside its square.
 const PROGRAM_TITLE_INSET = 8;
 //: Playground exception 51: the order of the piles in the row, left to right, by the derived edge that holds each.
-const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage];
+const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage, E.containsPythonPackage];
 
 //: Playground exception 52: the colour of a flow by the data it carries, from its `dataclass.customer` or `dataclass.infra` value. Customer
 //: data keeps the original deep blue; sanitized customer data is a lighter blue; the infrastructure classes each have a hue of their own, all at
@@ -551,6 +562,7 @@ export async function execute(context) {
             {name: "os-holds-library", gryphon: `(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})`},
             {name: "os-holds-package", gryphon: `(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})`},
             {name: "os-holds-key", gryphon: `(parent:${T.os})-[:${E.containsKey}]->(child)`},
+            {name: "os-holds-python-package", gryphon: `(parent:${T.os})-[:${E.containsPythonPackage}]->(child:${T.pkg})`},
             {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
@@ -603,6 +615,8 @@ export async function execute(context) {
     // Playground exception 48: the container's own RUNS_PROGRAM edges are not drawn; the OS box holds the programs by the OS's own RUNS_PROGRAM edges.
     cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().data("entity_type") === T.ecsContainer)
         .addClass(HIDDEN_CONTAINMENT_CLASS);
+    // Playground exception 55: the requirement edges only fed the Python Packages closure; none is drawn.
+    cy.edges().filter((e) => _edgeType(e) === E.requiresPackage).addClass(HIDDEN_CONTAINMENT_CLASS);
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
     placed.removeClass(ELEVATION_HIDDEN_CLASS);
 
@@ -1671,7 +1685,12 @@ function _deriveInterior(cy) {
         // Playground exception 51: the piles are held by the operating system box, not the container.
         if (!systems.length) return;
         step(programs, E.loadsLibrary).forEach((lib) => add(systems[0], lib, E.containsLibrary));
-        step(image, E.installsPackage).forEach((pkg) => add(systems[0], pkg, E.containsPackage));
+        // Playground exception 55: the Python packages are the root packages the programs run (RUNS_PACKAGE) and everything those require
+        // (REQUIRES_PACKAGE, transitively); the Packages pile holds the rest of the image's installed packages, so no package is in both.
+        const roots = step(programs, E.runsPackage);
+        const python = new Set([...roots, ...closure(roots, E.requiresPackage)]);
+        python.forEach((pkg) => add(systems[0], pkg, E.containsPythonPackage));
+        step(image, E.installsPackage).filter((pkg) => !python.has(pkg)).forEach((pkg) => add(systems[0], pkg, E.containsPackage));
         step(programs, E.usesKey).forEach((key) => add(systems[0], key, E.containsKey));
     });
     if (added.length) cy.add(added);

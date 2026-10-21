@@ -39,6 +39,8 @@ SOFTWARE_EDGES = {
     "INSTALLS_PACKAGE__computing_core": ({"computing_core__host"}, {"computing_core__package"}),
     "RUNS_OPERATING_SYSTEM__computing_core": ({"computing_core__host"}, {"computing_core__operating_system"}),
     "LOADS_LIBRARY__computing_core": ({"computing_core__program"}, {"computing_core__library"}),
+    # A program's root package (computing_core v0.10.2): the package, never a source package.
+    "RUNS_PACKAGE__computing_core": ({"computing_core__program"}, {"computing_core__package"}),
     "CARRIES_CRYPTO_PROVIDER__computing_core": (
         {"computing_core__library", "computing_core__package", "computing_core__program"},
         {"computing_core__crypto_provider"},

@@ -450,6 +450,48 @@
         },
         {
           "entity": {
+            "entity_id": "01a15f71-3ab1-714d-84c1-aa1e40f8b268",
+            "entity_type": "search",
+            "name": "playground \u2014 landing runs-package",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing runs-package",
+            "description": "Each program and the package it is the root of.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__program)-[:RUNS_PACKAGE__computing_core]->(b:computing_core__package)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f71-3ab1-714d-84c1-aa1f43dec970",
+            "entity_type": "search",
+            "name": "playground \u2014 landing requires-package",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing requires-package",
+            "description": "Each package and the package it requires.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__package)-[:REQUIRES_PACKAGE__computing_core]->(b:computing_core__package)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
             "entity_type": "search",
             "name": "playground \u2014 landing flow-source",
@@ -717,6 +759,38 @@
         },
         {
           "entity": {
+            "entity_id": "01a15f71-93ec-74bf-b1bd-fdc47d561d26",
+            "entity_type": "panel",
+            "name": "Overview CISA Known Exploited List",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Overview CISA Known Exploited List",
+            "slug": "playground-overview-kev",
+            "description": "The Vulnerabilities page's CISA KEV card, as a notification card on the Overview: the same Search, the title and the count on one line.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "kev",
+              "value_formatter": "integer",
+              "tone": "bad",
+              "hide_header": true,
+              "title": "CISA Known Exploited List",
+              "layout": "figure_right",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
+              "null_text": "not observed",
+              "tone_text": true,
+              "zero_tone": "muted"
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
             "entity_type": "page",
             "name": "Overview",
@@ -733,7 +807,18 @@
               "full_bleed": true,
               "columns": {
                 "col-1": {
-                  "width": "1fr",
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-overview-kev",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
                   "rows": {
                     "row-1": {
                       "panel-id": "landing",
@@ -1341,6 +1426,68 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a15ca5-0e78-72b0-88e1-5ff1fc4d575d",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f71-3ab1-714d-84c1-aa2067f0bd77",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-runs-package",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15f71-3ab1-714d-84c1-aa1e40f8b268",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f71-3ab1-714d-84c1-aa219013bb88",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-requires-package",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15f71-3ab1-714d-84c1-aa1f43dec970",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f71-93ec-74bf-b1bd-fdc6ccd203c8",
+            "entity_type": "edge",
+            "name": "Overview USES_PANEL overview-kev",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "to_entity_id": "01a15f71-93ec-74bf-b1bd-fdc47d561d26",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-overview-kev"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f71-93ec-74bf-b1bd-fdc56732546b",
+            "entity_type": "edge",
+            "name": "Overview CISA Known Exploited List USES_SEARCH card-kev",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f71-93ec-74bf-b1bd-fdc47d561d26",
+            "to_entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
