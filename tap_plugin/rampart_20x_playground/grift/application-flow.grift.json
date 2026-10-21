@@ -21,7 +21,7 @@
           "entity": {
             "entity_id": "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a",
             "entity_type": "aws_core__aws_ecs_container",
-            "name": "web task a container",
+            "name": "tap-web",
             "dimensions": {
               "tap.cloud": "aws",
               "dcom": "design",
@@ -37,7 +37,7 @@
             "image_digest": "sha256:48e30963aa6e9786bba6cbea65c391f830f435fe15360fd87f0bd80f47eb56a4",
             "runtime_id": "web-a-5d2a8e41b7c04f3a9e6d1c0b8a7f6e5d-1048576321",
             "last_status": "RUNNING",
-            "name": "web task a container"
+            "name": "tap-web"
           }
         },
         {

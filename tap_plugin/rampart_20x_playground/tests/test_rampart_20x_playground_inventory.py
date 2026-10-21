@@ -194,9 +194,16 @@ class TestInventorySoftware:
             assert dims.get("inventory") == category, node["entity"]["name"]
             assert dims["dcom"] == "design", node["entity"]["name"]
 
-    def test_nothing_is_on_the_overview(self) -> None:
+    def test_only_the_container_interior_is_on_the_overview(self) -> None:
+        # `req-rampart-20x-playground-govcloud-layout-30`: the image host, its operating system, its packages and the two libraries the
+        # programs load are what the revealed container interior draws; everything else stays off the Overview.
+        shown = {n["entity"]["entity_type"] for n in self.nodes if n["entity"]["dimensions"].get("overview") == "shown"}
+        assert shown == {"computing_core__host", "computing_core__operating_system", "computing_core__package", "computing_core__library"}
         for node in self.nodes:
-            assert "overview" not in node["entity"]["dimensions"], node["entity"]["name"]
+            if node["entity"]["entity_type"] in ("computing_core__sbom_document", "computing_core__source_package", "computing_core__crypto_provider"):
+                assert "overview" not in node["entity"]["dimensions"], node["entity"]["name"]
+            if node["entity"]["entity_type"] == "computing_core__library" and node["entity"]["name"].startswith("uv"):
+                assert "overview" not in node["entity"]["dimensions"], node["entity"]["name"]
 
     def test_only_official_edges_between_the_types_they_join(self) -> None:
         assert self.edges
