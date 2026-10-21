@@ -1,0 +1,978 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a15c19-6922-734d-9272-2017f617937e",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground teams v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.teams",
+        "name": "rampart-20x-playground teams v0.1.0",
+        "description": "Four teams (git-serious and the three that belong to it), a generic roster of thirteen people, the team.responsible dictionary node (no value nodes) and the /playground/teams page. The stamp itself is a dimension value on entities in the other bundles, equal to a team's entity id."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "entity_type": "identity_core__team",
+            "name": "git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "git-serious",
+            "name": "git-serious",
+            "description": "The whole git-serious product team; the other three belong to it."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "entity_type": "identity_core__team",
+            "name": "DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "devops",
+            "name": "DevOps",
+            "description": "Continuous delivery: the build, the pipeline and the release of the product."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "entity_type": "identity_core__team",
+            "name": "Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "engineering",
+            "name": "Engineering",
+            "description": "The code: the application and the libraries it ships."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "entity_type": "identity_core__team",
+            "name": "Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "infra",
+            "name": "Infra",
+            "description": "The AWS infrastructure the product runs on, and access to it (Teleport)."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "entity_type": "dimension",
+            "name": "team.responsible",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "team.responsible",
+            "description": "The team answerable for an entity. The value is the entity id of an identity_core team, so the values are not nodes: a team is added or removed with no change to this dictionary. An entity carries one value or none; none means not yet assigned."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201d289ab696",
+            "entity_type": "identity_core__human",
+            "name": "git-serious Team Lead",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "git-serious-lead",
+            "name": "git-serious Team Lead"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201e3c27fbf0",
+            "entity_type": "identity_core__human",
+            "name": "DevOps Team Lead",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "devops-lead",
+            "name": "DevOps Team Lead"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201fb12df231",
+            "entity_type": "identity_core__human",
+            "name": "DevOps Member 1",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "devops-member-1",
+            "name": "DevOps Member 1"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2020a3b3f695",
+            "entity_type": "identity_core__human",
+            "name": "DevOps Member 2",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "devops-member-2",
+            "name": "DevOps Member 2"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2021467829d3",
+            "entity_type": "identity_core__human",
+            "name": "DevOps Member 3",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "devops-member-3",
+            "name": "DevOps Member 3"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2022a58a81c8",
+            "entity_type": "identity_core__human",
+            "name": "Engineering Team Lead",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "engineering-lead",
+            "name": "Engineering Team Lead"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202367f7416b",
+            "entity_type": "identity_core__human",
+            "name": "Engineering Member 1",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "engineering-member-1",
+            "name": "Engineering Member 1"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2024a8914ea8",
+            "entity_type": "identity_core__human",
+            "name": "Engineering Member 2",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "engineering-member-2",
+            "name": "Engineering Member 2"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2025dfc39d94",
+            "entity_type": "identity_core__human",
+            "name": "Engineering Member 3",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "engineering-member-3",
+            "name": "Engineering Member 3"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20263b9399e2",
+            "entity_type": "identity_core__human",
+            "name": "Infra Team Lead",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "infra-lead",
+            "name": "Infra Team Lead"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20278e7c2776",
+            "entity_type": "identity_core__human",
+            "name": "Infra Member 1",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "infra-member-1",
+            "name": "Infra Member 1"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202840b563fe",
+            "entity_type": "identity_core__human",
+            "name": "Infra Member 2",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "infra-member-2",
+            "name": "Infra Member 2"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2029631e210a",
+            "entity_type": "identity_core__human",
+            "name": "Infra Member 3",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "handle": "infra-member-3",
+            "name": "Infra Member 3"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203f2d4dcdad",
+            "entity_type": "panel",
+            "name": "Teams",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Teams",
+            "slug": "playground-teams-title",
+            "description": "The page title.",
+            "view": "tap_web/panels/text_panel.html",
+            "editor_view": "tap_web/panels/text_panel_editor.html",
+            "config": {
+              "text": "",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2040f6627239",
+            "entity_type": "panel",
+            "name": "Teams",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Teams",
+            "slug": "playground-teams-teams",
+            "description": "One row per team; the name opens the team.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 2,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/identity_core__team/entity--{entity_id}/",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "description",
+                  "title": "Description",
+                  "widthGrow": 4
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20414389ad1c",
+            "entity_type": "panel",
+            "name": "Leaders",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Leaders",
+            "slug": "playground-teams-leaders",
+            "description": "One row per leader of a team; the name opens the person.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "team",
+                  "title": "Team",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "name",
+                  "title": "Leader",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/identity_core__human/entity--{entity_id}/",
+                    "external": false
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20422054bfb6",
+            "entity_type": "panel",
+            "name": "Members",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Members",
+            "slug": "playground-teams-members",
+            "description": "One row per person in a team, leaders included; the name opens the person.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "team",
+                  "title": "Team",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "name",
+                  "title": "Member",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/identity_core__human/entity--{entity_id}/",
+                    "external": false
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2043c1dc947e",
+            "entity_type": "search",
+            "name": "playground — teams teams",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams teams",
+            "description": "One row per team. The parent team is not a column because Gryphon cannot project a field of an optional match (a plain match would drop git-serious, which has no parent); the missing capability is a left-outer join that returns the optional side's fields.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (t:identity_core__team)",
+                "RETURN t.entity_id AS entity_id, t.name AS name, t.data.description AS description",
+                "ORDER BY name ASC"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2044fbc49e3f",
+            "entity_type": "search",
+            "name": "playground — teams leaders",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams leaders",
+            "description": "One row per leader of a team.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:identity_core__human)-[:LEADS_TEAM__identity_core]->(t:identity_core__team)",
+                "RETURN t.name AS team, h.entity_id AS entity_id, h.name AS name"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20450c1b85f3",
+            "entity_type": "search",
+            "name": "playground — teams members",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams members",
+            "description": "One row per person in a team, leaders included.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:identity_core__human)-[:BELONGS_TO_TEAM__identity_core]->(t:identity_core__team)",
+                "RETURN t.name AS team, h.entity_id AS entity_id, h.name AS name"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "entity_type": "page",
+            "name": "Teams",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Teams",
+            "slug": "/playground/teams",
+            "description": "The teams, their leaders and their members.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-teams-title",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-teams-teams",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-teams-leaders",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "12fr",
+                  "band": 4,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-teams-members",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202aedb6adec",
+            "entity_type": "edge",
+            "name": "DevOps BELONGS_TO_TEAM git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "to_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202bc5740b3f",
+            "entity_type": "edge",
+            "name": "Engineering BELONGS_TO_TEAM git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "to_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202c537ccfc9",
+            "entity_type": "edge",
+            "name": "Infra BELONGS_TO_TEAM git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "to_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202dd0da1f00",
+            "entity_type": "edge",
+            "name": "git-serious Team Lead BELONGS_TO_TEAM git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201d289ab696",
+            "to_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202ea6f245f0",
+            "entity_type": "edge",
+            "name": "DevOps Team Lead BELONGS_TO_TEAM DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201e3c27fbf0",
+            "to_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-202ff72a737d",
+            "entity_type": "edge",
+            "name": "DevOps Member 1 BELONGS_TO_TEAM DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201fb12df231",
+            "to_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2030bd47064b",
+            "entity_type": "edge",
+            "name": "DevOps Member 2 BELONGS_TO_TEAM DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2020a3b3f695",
+            "to_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2031c2c12ecf",
+            "entity_type": "edge",
+            "name": "DevOps Member 3 BELONGS_TO_TEAM DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2021467829d3",
+            "to_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2032cf483ee3",
+            "entity_type": "edge",
+            "name": "Engineering Team Lead BELONGS_TO_TEAM Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2022a58a81c8",
+            "to_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20334489297e",
+            "entity_type": "edge",
+            "name": "Engineering Member 1 BELONGS_TO_TEAM Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-202367f7416b",
+            "to_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2034c157ccb7",
+            "entity_type": "edge",
+            "name": "Engineering Member 2 BELONGS_TO_TEAM Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2024a8914ea8",
+            "to_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2035ffcb2638",
+            "entity_type": "edge",
+            "name": "Engineering Member 3 BELONGS_TO_TEAM Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2025dfc39d94",
+            "to_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2036303a5add",
+            "entity_type": "edge",
+            "name": "Infra Team Lead BELONGS_TO_TEAM Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20263b9399e2",
+            "to_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203737d06b5c",
+            "entity_type": "edge",
+            "name": "Infra Member 1 BELONGS_TO_TEAM Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20278e7c2776",
+            "to_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20389180b7cb",
+            "entity_type": "edge",
+            "name": "Infra Member 2 BELONGS_TO_TEAM Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-202840b563fe",
+            "to_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20392f71dfbb",
+            "entity_type": "edge",
+            "name": "Infra Member 3 BELONGS_TO_TEAM Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2029631e210a",
+            "to_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "edge_type": "BELONGS_TO_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203af0276279",
+            "entity_type": "edge",
+            "name": "git-serious Team Lead LEADS_TEAM git-serious",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201d289ab696",
+            "to_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "edge_type": "LEADS_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203bfc036c87",
+            "entity_type": "edge",
+            "name": "DevOps Team Lead LEADS_TEAM DevOps",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201e3c27fbf0",
+            "to_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "edge_type": "LEADS_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203caa7bed12",
+            "entity_type": "edge",
+            "name": "Engineering Team Lead LEADS_TEAM Engineering",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2022a58a81c8",
+            "to_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "edge_type": "LEADS_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-203d447579d6",
+            "entity_type": "edge",
+            "name": "Infra Team Lead LEADS_TEAM Infra",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20263b9399e2",
+            "to_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "edge_type": "LEADS_TEAM__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20464d4fc5cb",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL title",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "to_entity_id": "01a15c19-6922-734d-9272-203f2d4dcdad",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-teams-title"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2047f5f8d44c",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL teams",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "to_entity_id": "01a15c19-6922-734d-9272-2040f6627239",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-teams-teams"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-2048b4b4f1ec",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL leaders",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "to_entity_id": "01a15c19-6922-734d-9272-20414389ad1c",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-teams-leaders"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-20498c46f34e",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL members",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "to_entity_id": "01a15c19-6922-734d-9272-20422054bfb6",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-teams-members"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-204af5059444",
+            "entity_type": "edge",
+            "name": "teams table USES_SEARCH teams",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2040f6627239",
+            "to_entity_id": "01a15c19-6922-734d-9272-2043c1dc947e",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-204bdb4c250b",
+            "entity_type": "edge",
+            "name": "leaders table USES_SEARCH leaders",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20414389ad1c",
+            "to_entity_id": "01a15c19-6922-734d-9272-2044fbc49e3f",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-204cda04583d",
+            "entity_type": "edge",
+            "name": "members table USES_SEARCH members",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20422054bfb6",
+            "to_entity_id": "01a15c19-6922-734d-9272-20450c1b85f3",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

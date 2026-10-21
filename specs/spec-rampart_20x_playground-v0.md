@@ -78,6 +78,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members |
+| req-rampart-20x-playground-teams-parent-column | [Parent Team Column](#parent-team-column) | Backlog | The Teams table's parent team column, blocked on a Gryphon left-outer join that returns the optional side's fields |
+| req-rampart-20x-playground-component-team | [Responsible Team On The Component Page](#responsible-team-on-the-component-page) | Backlog | A `Responsible Team` line in the component page's hero, blocked on reading a dimension value and joining it to a team |
 | req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
 | req-rampart-20x-playground-ownership-coverage | [Ownership Coverage](#ownership-coverage) | Backlog | The share of entities with a `team.responsible` stamp, by the mapping runners |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
@@ -688,7 +690,7 @@ Route `/playground/teams`; the page is named `Teams`, which is also its breadcru
 
 Three table panels under the title panel, each bound by `USES_SEARCH` to its own Gryphon Search:
 
-1. `Teams`: one row per team: `name`, `description` and the name of the team it belongs to (blank for `git-serious`).
+1. `Teams`: one row per team: `name` and `description`. The name of the parent team is not a column yet (`req-rampart-20x-playground-teams-parent-column`).
 2. `Leaders`: one row per `LEADS_TEAM` edge: the team name and the leader's name.
 3. `Members`: one row per `BELONGS_TO_TEAM` edge from a human: the team name and the member's name.
 
@@ -702,6 +704,22 @@ The name cell of each row is a link to the entity's page. Each table has a quick
 | req-rampart-20x-playground-page-teams-2 | Title Then Three Tables | Proposed | Under the title panel the page holds the Teams, Leaders and Members tables in that order. | |
 | req-rampart-20x-playground-page-teams-3 | Rows Match The Seed | Proposed | On a booted `demo` stack the Teams table has four rows, Leaders has four and Members has thirteen: every person, leaders included, has one `BELONGS_TO_TEAM` edge to their team. | |
 | req-rampart-20x-playground-page-teams-4 | No Prose | Proposed | The page carries a title and tables only. | `no-explanatory-text-on-pages`. |
+
+### Parent Team Column
+----
+RID: `req-rampart-20x-playground-teams-parent-column`
+
+Status: `Backlog`
+
+The Teams table should show, for each team, the name of the team it belongs to, blank for `git-serious`. Gryphon cannot: a plain match on `BELONGS_TO_TEAM` drops `git-serious`, which has no parent, and `OPTIONAL MATCH` keeps it but can only `COUNT` the optional variable, not return its `name` (`req-grid-gryphon-optional-match`, out-of-scope list). The missing capability is projecting the fields of an optional match. Until it ships, the Teams Search returns `name` and `description` only, and its description says so.
+
+### Responsible Team On The Component Page
+----
+RID: `req-rampart-20x-playground-component-team`
+
+Status: `Backlog`
+
+The component page's hero should carry a `Responsible Team` line: the name of the team in the component's `team.responsible` stamp, and `not assigned` for a component with no stamp. Gryphon cannot answer it as data: a stamp is a dimension whose value is a team's entity id, `RETURN` cannot project a dimension value (`<var>.dimensions[...]` in `RETURN` is refused, `req-grid-traversal-lang-envelope-paths-7`), and a `MATCH` cannot join a team to the entity whose dimension holds its id. Showing the id is not an option, and a Search chained on another Search's output is not something a panel does. The missing capabilities are returning a dimension value and joining on it; either lets the line be a Gryphon Search with the stat card's empty text set to `not assigned`.
 
 ### Findings By Responsible Team
 ----
