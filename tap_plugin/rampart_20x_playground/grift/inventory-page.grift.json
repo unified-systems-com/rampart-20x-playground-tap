@@ -8,12 +8,12 @@
       "batch_entity": {
         "entity_id": "01a13c39-3f6e-7448-a223-a802d2e1f0b3",
         "entity_type": "batch",
-        "name": "rampart-20x-playground inventory page v0.2.0",
+        "name": "rampart-20x-playground inventory page v0.3.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-page",
-        "name": "rampart-20x-playground inventory page v0.2.0",
+        "name": "rampart-20x-playground inventory page v0.3.0",
         "description": "The /playground/inventory page: nine standard table panels, each bound by USES_SEARCH to a Search over the inventory dimension (req-rampart-20x-playground-inventory-tables). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
       },
       "nodes": [
@@ -652,14 +652,15 @@
           },
           "node": {
             "name": "playground \u2014 inventory crypto",
-            "description": "Every entity whose `inventory` dimension is `crypto` (req-rampart-20x-playground-inventory-tables). Envelope mode, so the table receives each node with its typed fields.",
+            "description": "Every `crypto_provider` stamped `inventory: crypto`, grouped by provider: one row per provider with the number of files it was found in (req-rampart-20x-playground-page-inventory-9, -11). Projection mode, so the table receives the named fields.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
-                "MATCH (n)",
+                "MATCH (n:computing_core__crypto_provider)",
                 "WHERE n.dimensions[\"inventory\"] = \"crypto\"",
-                "RETURN n"
+                "RETURN n.entity_type AS entity_type, n.data.provider AS provider, n.data.provider_kind AS provider_kind, n.data.boundary AS boundary, n.data.fips_validation AS fips_validation, n.data.rationale AS rationale, COUNT(n) AS files",
+                "ORDER BY provider ASC"
               ]
             }
           }
@@ -676,7 +677,7 @@
           "node": {
             "name": "Crypto",
             "slug": "playground-inventory-crypto",
-            "description": "The cryptographic implementations the crypto-BOM scan found in the web image, one row per implementation and the file it was found in, with the reviewed decision about each. No key material, fingerprint or file content is shown.",
+            "description": "The cryptographic implementations the crypto-BOM scan found in the web image, one row per provider, with the reviewed decision about each and the number of files it was found in. No key material, fingerprint or file content is shown.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "default_page_size": 100,
@@ -699,76 +700,44 @@
                   "header_tooltip": "The icon of the entity's type."
                 },
                 {
-                  "field": "name",
-                  "title": "Name",
-                  "widthGrow": 2,
-                  "header_tooltip": "The node's name, the same text as its label on the board. Click the row to open the entity."
-                },
-                {
-                  "field": "data.provider",
+                  "field": "provider",
                   "title": "Provider",
-                  "widthGrow": 1,
+                  "widthGrow": 2,
                   "header_tooltip": "The implementation, by the crypto-BOM registry's name."
                 },
                 {
-                  "field": "data.provider_kind",
+                  "field": "provider_kind",
                   "title": "Provider Kind",
-                  "widthGrow": 1,
+                  "widthGrow": 2,
                   "header_tooltip": "What kind of implementation it is: the FIPS module itself, the system OpenSSL, an embedded OpenSSL or a non-OpenSSL library."
                 },
                 {
-                  "field": "data.artifact",
-                  "title": "Artifact",
-                  "widthGrow": 3,
-                  "tooltip": "full_value",
-                  "header_tooltip": "Where it was found: the path of the file."
-                },
-                {
-                  "field": "data.boundary",
+                  "field": "boundary",
                   "title": "Boundary",
-                  "widthGrow": 1,
+                  "widthGrow": 2,
                   "header_tooltip": "The reviewed decision about the provider relative to the FIPS cryptographic boundary."
                 },
                 {
-                  "field": "data.fips_validation",
+                  "field": "fips_validation",
                   "title": "FIPS Validation",
-                  "widthGrow": 2,
+                  "widthGrow": 3,
                   "tooltip": "full_value",
+                  "empty_text": "not recorded",
                   "header_tooltip": "The validation status of the module as shipped."
                 },
                 {
-                  "field": "data.scope",
-                  "title": "Scope",
-                  "width": 90,
-                  "header_tooltip": "What was scanned."
-                },
-                {
-                  "field": "data.rationale",
+                  "field": "rationale",
                   "title": "Rationale",
                   "widthGrow": 4,
                   "tooltip": "full_value",
                   "header_tooltip": "Why the boundary was decided, as the registry's reviewed sentence."
                 },
                 {
-                  "title": "Data Classification",
-                  "width": 200,
-                  "empty_text": "not classified",
-                  "field_paths": [
-                    [
-                      "dimensions",
-                      "dataclass.customer"
-                    ],
-                    [
-                      "dimensions",
-                      "dataclass.infra"
-                    ],
-                    [
-                      "dimensions",
-                      "dataclass.action"
-                    ]
-                  ],
-                  "joiner": ", ",
-                  "header_tooltip": "The data classification the component carries: customer, infrastructure and action, joined."
+                  "field": "files",
+                  "title": "Files",
+                  "width": 90,
+                  "align": "center",
+                  "header_tooltip": "How many files the provider was found in."
                 }
               ]
             }

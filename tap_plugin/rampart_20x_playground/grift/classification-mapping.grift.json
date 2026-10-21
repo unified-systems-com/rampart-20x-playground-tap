@@ -148,18 +148,6 @@
                         }
                       ],
                       "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__crypto_provider",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "process"
-                          ]
-                        }
-                      ],
-                      "match": "all"
                     }
                   ],
                   "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
@@ -295,18 +283,6 @@
                           "allowed": [
                             "process",
                             "none"
-                          ]
-                        }
-                      ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__crypto_provider",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "process"
                           ]
                         }
                       ],
@@ -460,18 +436,6 @@
                         }
                       ],
                       "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__crypto_provider",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "process"
-                          ]
-                        }
-                      ],
-                      "match": "all"
                     }
                   ],
                   "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
@@ -617,18 +581,6 @@
                           "allowed": [
                             "process",
                             "none"
-                          ]
-                        }
-                      ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__crypto_provider",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "process"
                           ]
                         }
                       ],
