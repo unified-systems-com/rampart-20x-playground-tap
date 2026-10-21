@@ -78,7 +78,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
-| req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person inside their team, each team inside its parent, the leaders in their own colour |
+| req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
 | req-rampart-20x-playground-teams-parent-column | [Parent Team Column](#parent-team-column) | Backlog | The Teams table's parent team column, blocked on a Gryphon left-outer join that returns the optional side's fields |
 | req-rampart-20x-playground-component-team | [Responsible Team On The Component Page](#responsible-team-on-the-component-page) | Backlog | A `Responsible Team` line in the component page's hero, blocked on reading a dimension value and joining it to a team |
 | req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
@@ -715,13 +715,17 @@ RID: `req-rampart-20x-playground-teams-viz`
 
 Status: `Proposed`
 
-A graph panel, full width, between the title and the Teams table of `/playground/teams`. A person is drawn inside their team and a team inside its parent team; a leader is drawn in a colour of its own. The panel has no header, legend or prose.
+A graph panel, full width, between the title and the Teams table of `/playground/teams`. A person is drawn inside their team and a team inside its parent team; the child teams of a team stand side by side in one row, the people of a team are stacked with the leader at the top, and a leader's name is set apart in a colour of its own. Every person is a solo icon: the type icon and the name, no card. The panel has no header, legend or prose.
 
 #### Implementation
 
-Nesting is the standard TAP nesting, configured and not coded: the layout module `static/rampart_20x_playground/js/projections/teams.js` calls `projectNested` with two single-hop relationships over `BELONGS_TO_TEAM__identity_core` (`(parent:identity_core__team)<-[:BELONGS_TO_TEAM__identity_core]-(child:identity_core__human)` and the same with a team child), `baseSizes` per type, `padding`, the `flow` inner layout, then `applyStandardChrome` and `placeParentLabels`, and `cy.fit` on `initial_load`. It holds configuration and data reads only; no geometry of its own.
+Nesting is the standard TAP nesting, configured and not coded: the layout module `static/rampart_20x_playground/js/projections/teams.js` calls `projectNested` with two single-hop relationships over `BELONGS_TO_TEAM__identity_core` (`(parent:identity_core__team)<-[:BELONGS_TO_TEAM__identity_core]-(child:identity_core__human)` and the same with a team child), `baseSizes` per type, `padding`, the `ranked` inner layout (`sort: "order"`), then `applyStandardChrome` and `placeParentLabels` (anchored top-centre, clear of the team's type-icon badge), and `cy.fit` on `initial_load`. It holds configuration and data reads only; no geometry of its own.
 
-A leader is a data read: the source of a `LEADS_TEAM__identity_core` edge in the scene takes the leader colours as node data (`fill_color`, `border_color`, `label_color`), and the edge is hidden because the leader is already inside the team. The palette is chosen for the fixed `#f1f0ec` canvas, which is the same in light and dark.
+Order is stamped from facts on the graph: a person is `_stage` 0, a child team is `_stage` 1 plus its rank among its sibling teams by typed `name` field, so sibling teams are columns of one row and the people of a team are one column; a leader (below) is `_order` 0 and everyone else `_order` 1, so the leader is first in the stack, at the top of the team. Every person is made a solo icon by `applyIconNodes(cy, {members, solo: true})` (`req-viz-icon-node-solo`); a team stays a box, because an icon node is terminal and would hide what the team holds. Solo is a layout primitive, not a `node_style` value: the projection keeps `icon-badge`, which gives each team its type-icon badge.
+
+Known gap: the `git-serious` leader stands in the first column, at the left of the child teams, and not above the row, centred. `ranked` is columns only, `tiered-rows` classifies a team that holds people as a person tier, and `innerLayouts` is chosen per entity type, so the parent team and the child teams share one layout. The placement needs a tap_viz capability (a per-container layout choice, or a row-above-columns natural layout).
+
+A leader is a data read: the source of a `LEADS_TEAM__identity_core` edge in the scene is ordered first and its name takes the leader label style (white on deep teal, bold); a solo icon has no fill, so the colour lives on the label. The edge is hidden because the leader is already inside the team. The palette is chosen for the fixed `#f1f0ec` canvas, which is the same in light and dark.
 
 The Layout, Elevation and Projection are data in `grift/teams.grift.json`, joined by `USES_PROJECTION`, `USES_ELEVATION`, `USES_DEFAULT_ELEVATION` and `USES_LAYOUT`. The panel reads three Gryphon Searches by `USES_SEARCH`: a person and their team, a team and its parent, and a leader and their team.
 
@@ -731,10 +735,14 @@ The Layout, Elevation and Projection are data in `grift/teams.grift.json`, joine
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-teams-viz-1 | Graph Above The Tables | Proposed | The page's second slot is a full-width `tap_viz/panels/graph_panel.html` panel with no header, above the Teams table. | |
 | req-rampart-20x-playground-teams-viz-2 | Nesting From The Edge | Proposed | The layout module nests with two `projectNested` relationships over `BELONGS_TO_TEAM__identity_core`, one with a human child and one with a team child, and names no entity by label or id. | |
-| req-rampart-20x-playground-teams-viz-3 | Leaders From The Edge | Proposed | The module colours the source of every `LEADS_TEAM__identity_core` edge through node data and hides that edge. | |
+| req-rampart-20x-playground-teams-viz-3 | Leaders From The Edge | Proposed | The module sets the name of the source of every `LEADS_TEAM__identity_core` edge in the leader style and hides that edge. | |
 | req-rampart-20x-playground-teams-viz-4 | Declarative Wiring | Proposed | The panel, its projection, elevation and layout and three Gryphon Searches are in the teams bundle, with the hotlink edges the importer requires. | |
-| req-rampart-20x-playground-teams-viz-5 | Counts On A Booted Stack | Proposed | On a booted `demo` stack the graph draws four teams, three of them inside `git-serious`, thirteen people, and four leaders in the leader colour, in light and dark, with no console error. | |
+| req-rampart-20x-playground-teams-viz-5 | Counts On A Booted Stack | Proposed | On a booted `demo` stack the graph draws four teams, three of them inside `git-serious`, thirteen people, and four leaders with their names in the leader colour, in light and dark, with no console error. | |
 | req-rampart-20x-playground-teams-viz-6 | No Prose | Proposed | The panel has no header, legend or text. | `no-explanatory-text-on-pages`. |
+| req-rampart-20x-playground-teams-viz-7 | Teams In A Row | Proposed | The module uses the `ranked` inner layout and stamps a child team `_stage` 1 plus its rank among its sibling teams, so the child teams of a team stand side by side in one row; no stage or order comes from a label or an id. | |
+| req-rampart-20x-playground-teams-viz-8 | Leader At The Top | Proposed | The module stamps `_stage` 0 on every person and `_order` 0 on a leader (the source of a `LEADS_TEAM__identity_core` edge), 1 on the rest, so the people of a team stack with the leader first. | The `git-serious` leader stands in the first column, not above the row (known gap, above). |
+| req-rampart-20x-playground-teams-viz-9 | Leader Set Apart | Proposed | A leader's name takes a style of its own (colour and weight) that an ordinary person's name does not. | |
+| req-rampart-20x-playground-teams-viz-10 | People As Solo Icons | Proposed | Every person is made an icon-centric-solo node by `applyIconNodes` with `solo: true`; a team stays a box with its type-icon badge. | `req-viz-icon-node-solo`. |
 
 ### Parent Team Column
 ----
