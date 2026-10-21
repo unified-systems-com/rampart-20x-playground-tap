@@ -1434,6 +1434,13 @@ class TestOverviewVulnerabilityDistribution:
         sizing = source.split("function _syncBadgeSizes")[1].split("\n}\n")[0]
         assert "PILE_CHIP_HEIGHT" in sizing and "PILE_CHIP_FONT * fontFactor" in sizing and "_is_interior_badge" in sizing
 
+    def test_the_bubbles_are_circles_at_every_zoom(self) -> None:
+        """`req-rampart-20x-playground-govcloud-layout-40`: width equals height (one diameter), an ellipse shape, sized to hold the digits; never a round-rectangle pill."""
+        sizing = _js().split("function _syncBadgeSizes")[1].split("\n}\n")[0]
+        assert "round-rectangle" not in sizing and "corner-radius" not in sizing
+        assert 'shape: "ellipse"' in sizing and "height: diameter, width: diameter" in sizing
+        assert "const diameter = Math.max(height, Math.hypot(digits * font * BUBBLE_DIGIT_WIDTH, font * BUBBLE_DIGIT_HEIGHT) + font * BUBBLE_PAD);" in sizing
+
     def test_the_new_exceptions_and_spec_rows_are_recorded(self) -> None:
         source = _js()
         for n in (56, 57, 58):

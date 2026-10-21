@@ -200,7 +200,7 @@
  *      the distinct findings of all its members), the task's bubble returns when the interior is hidden, and each pile window lists its members' counts in the
  *      tone of their highest CVSS. The counts are one Search's rows (one per open finding on a carrier), not a constant.
  *  58. the red bubbles the size of a pile's count chip (`PILE_CHIP_FONT`, `PILE_CHIP_HEIGHT`, `_syncBadgeSizes`; should become a `badge` class of the zoom_settle
- *      config): the interior's bubbles and the web task's own take the chip's font and least height at every zoom.
+ *      config): the interior's bubbles and the web task's own take the chip's font and least height at every zoom, and are circles at every zoom.
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -454,11 +454,14 @@ const INTERIOR_STACK_PREFIX = "interior:";
 const INTERIOR_HOST_TYPES = [T.program, T.os, T.ecsContainer];
 const BUBBLE_DEFAULT = {fill: "#dc2626", text: "#ffffff"};
 //: Playground exception 58: the red bubbles are the size of the numbers on a pile's count chip: the chip's font (model units, before the settle mode
-//: scales it) and its least height (tap_viz's stack chip: `Math.max(16, ...)`). A bubble is as tall as the chip, or 1.15 times its own font when the
-//: settle mode draws the font larger than that (zoomed far out), so the number always fits.
+//: scales it) and its least height (tap_viz's stack chip: `Math.max(16, ...)`). A bubble is a circle (width equal to height) as wide as the chip is tall, or 1.15 times its own font when the
+//: settle mode draws the font larger than that (zoomed far out), or the circle that holds the digits' box when the count has several digits, so the number always fits.
 const PILE_CHIP_FONT = 14;
 const PILE_CHIP_HEIGHT = 16;
 const BUBBLE_FIT = 1.15;
+const BUBBLE_DIGIT_WIDTH = 0.62;
+const BUBBLE_DIGIT_HEIGHT = 0.8;
+const BUBBLE_PAD = 0.1;
 const CVSS_TONE_STEPS = [{min: 7, tone: "bad"}, {min: 4, tone: "warn"}, {min: 0.1, tone: "good"}];
 const INTERIOR_PILE_STEP = 4;
 const INTERIOR_PILE_DEPTH = 3;
@@ -2373,13 +2376,15 @@ function _syncBadgeSizes(cy) {
             }
             n.style({width: base * factor, height: base * factor});
         });
-        // Playground exception 58: the red bubbles (the interior's and the web task's) take the pile chip's font and its height, as wide as the number needs.
+        // Playground exception 58: the red bubbles (the interior's and the web task's) take the pile chip's font and its height, drawn as a circle (width equal to height, never a pill) that grows to hold the digits.
         cy.nodes("[?_is_status_badge], [?_is_interior_badge]").forEach((n) => {
             const font = PILE_CHIP_FONT * fontFactor;
             const height = Math.max(PILE_CHIP_HEIGHT, font * BUBBLE_FIT);
             const digits = String(n.data("_status_count_label") !== undefined ? n.data("_status_count_label") : n.data("_interior_count")).length;
             n.scratch("landingFontBase", PILE_CHIP_FONT / FONT_SCALE);
-            n.style({"font-size": font, shape: "round-rectangle", "corner-radius": height / 2, height, width: Math.max(height, digits * font * 0.62 + font * 0.5)});
+            // A circle at every zoom: the diameter is the chip height, or the circle that holds the digits' box (digits * 0.62 em wide, 0.8 em tall) when that is larger.
+            const diameter = Math.max(height, Math.hypot(digits * font * BUBBLE_DIGIT_WIDTH, font * BUBBLE_DIGIT_HEIGHT) + font * BUBBLE_PAD);
+            n.style({"font-size": font, shape: "ellipse", height: diameter, width: diameter});
         });
     });
 }
