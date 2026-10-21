@@ -388,11 +388,13 @@ class TestRunningParts:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
         assert shown == {"tap-web", "customer data", "gunicorn", "PostgreSQL database instance",
-                         "database", "administration", "code", "source pull"}
+                         "database", "administration", "code", "source pull",
+                         "container tls private key", "container tls public key", "container tls certificate"}
 
     def test_the_nesting_is_configured_relationships_not_type_tests(self) -> None:
         source = _js()
-        for name in ("task-holds-container", "container-holds-os", "os-holds-program", "container-holds-library", "container-holds-package"):
+        for name in ("task-holds-container", "container-holds-os", "os-holds-program", "container-holds-library", "container-holds-package",
+                     "container-holds-key"):
             assert f'name: "{name}"' in source
         assert "(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})" in source
         assert "(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})" in source
@@ -507,7 +509,8 @@ class TestZoomPolish:
         pages = json.loads(PAGES.read_text(encoding="utf-8"))
         projection = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["entity_type"] == "projection")
         excluded = projection["node"]["definition"]["node_style"]["exclude_types"]
-        assert excluded == ["computing_core__program", "computing_core__library", "computing_core__package"]
+        assert excluded == ["computing_core__program", "computing_core__library", "computing_core__package",
+                            "computing_core__private_key", "computing_core__public_key", "computing_core__file"]
         source = _js()
         assert "applyBadgeNodes(cy, {excludeTypes: exclude})" in source and "_refreshBadges(cy, context);" in source
 
@@ -1098,4 +1101,41 @@ class TestContainerInterior:
             assert re.search(rf"\b{edge}: \"[A-Z_]+__computing_core\"", source)
         assert "applyStack" in source and "INTERIOR_PILES" in source
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
-        assert "req-rampart-20x-playground-govcloud-layout-30" in text and "Backlog, blocked by a gap" in text
+        assert "req-rampart-20x-playground-govcloud-layout-30" in text and "closed by `req-rampart-20x-playground-govcloud-layout-31`" in text
+
+
+class TestContainerKeyPile:
+    """`req-rampart-20x-playground-govcloud-layout-31`: the revealed container holds a pile of keys (USES_KEY)."""
+
+    GUNICORN = "01a13be3-0373-79d4-9ae8-be13c2e3bfd5"
+    KEYS = {
+        "01a13be3-0373-781b-a533-104d8726769b": "computing_core__private_key",
+        "01a13be3-0373-7aa9-bbc4-d43332f2fd5b": "computing_core__public_key",
+        "01a13be3-0373-7940-9fa5-a9ce49eccd49": "computing_core__file",
+    }
+
+    def test_gunicorn_uses_the_three_keys_by_official_edges_program_to_key(self) -> None:
+        edges = [e for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "USES_KEY__computing_core"]
+        assert {e["from_entity_id"] for e in edges} == {self.GUNICORN}
+        assert {e["to_entity_id"] for e in edges} == set(self.KEYS)
+        assert len(edges) == 3
+
+    def test_the_keys_are_shown_and_the_search_brings_the_edges(self) -> None:
+        entities = json.loads((PACKAGE_ROOT / "grift" / "inventory-entities.grift.json").read_text(encoding="utf-8"))["batches"][0]["nodes"]
+        for node in entities:
+            if node["entity"]["entity_id"] in self.KEYS:
+                assert node["entity"]["entity_type"] == self.KEYS[node["entity"]["entity_id"]]
+                assert node["entity"]["dimensions"]["overview"] == "shown"
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        (search,) = [n for n in pages["nodes"] if n["entity"]["name"] == "playground \u2014 landing uses-key"]
+        assert "USES_KEY__computing_core" in " ".join(search["node"]["definition"]["query"])
+        used = {e["edge"]["to_entity_id"] for e in pages["edges"] if e["edge"]["edge_type"] == "USES_SEARCH"}
+        assert search["entity"]["entity_id"] in used
+
+    def test_the_pile_is_marked_exception_fifty_and_derived_not_written(self) -> None:
+        source = _js()
+        assert "Playground exception 50" in source or " 50. " in source
+        assert re.search(r"\busesKey: \"USES_KEY__computing_core\"", source)
+        assert '[E.containsKey]: "Keys"' in source
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-govcloud-layout-31" in text and "exception 50" in text

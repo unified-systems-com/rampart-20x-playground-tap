@@ -429,6 +429,27 @@
         },
         {
           "entity": {
+            "entity_id": "01a15ca5-0e78-72b0-88e1-5ff1fc4d575d",
+            "entity_type": "search",
+            "name": "playground \u2014 landing uses-key",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing uses-key",
+            "description": "Each program and the key or certificate it uses.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__program)-[:USES_KEY__computing_core]->(b)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
             "entity_type": "search",
             "name": "playground \u2014 landing flow-source",
@@ -622,7 +643,10 @@
                 "exclude_types": [
                   "computing_core__program",
                   "computing_core__library",
-                  "computing_core__package"
+                  "computing_core__package",
+                  "computing_core__private_key",
+                  "computing_core__public_key",
+                  "computing_core__file"
                 ]
               },
               "elevations": [
@@ -1303,6 +1327,20 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a15bf7-9c81-757c-9474-39592f9d25aa",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15ca5-0e78-72b0-88e1-5ff2076d9ad7",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-uses-key",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15ca5-0e78-72b0-88e1-5ff1fc4d575d",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

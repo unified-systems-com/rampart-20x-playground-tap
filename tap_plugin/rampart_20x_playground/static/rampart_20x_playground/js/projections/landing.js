@@ -161,6 +161,11 @@
  *      them; the libraries are the ones the container's programs load (LOADS_LIBRARY), the packages the ones its image has installed
  *      (INSTALLS_PACKAGE). The image host is on the grid only to join them and is never drawn. They show only at the revealed elevation (their cards and
  *      chips are hidden by style with the interior, because the elevation class on them re-enters the stack's position handler).
+ *  50. the keys and the certificate inside the container as a third pile (the same `_collapseInteriorPiles` and `INTERIOR_PILES`, so the same exit as 49):
+ *      the private key, the public key and the certificate that the container's programs use (USES_KEY, computing_core v0.10.2; written to the grid
+ *      from gunicorn to the three entities, which are marked overview=shown), titled Keys, drawn with tap_viz's applyStack like the Libraries and
+ *      Packages piles. The runtime form is a derived containment edge (CONTAINS_KEY__playground) from the container to each key, never written to
+ *      the grid; no key material is read or drawn, only the names.
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -212,6 +217,9 @@ const T = {
     os: "computing_core__operating_system",
     pkg: "computing_core__package",
     lib: "computing_core__library",
+    privateKey: "computing_core__private_key",
+    publicKey: "computing_core__public_key",
+    file: "computing_core__file",
     flow: "computing_core__application_flow",
 };
 const E = {
@@ -234,10 +242,12 @@ const E = {
     runsOs: "RUNS_OPERATING_SYSTEM__computing_core",
     installsPackage: "INSTALLS_PACKAGE__computing_core",
     loadsLibrary: "LOADS_LIBRARY__computing_core",
+    usesKey: "USES_KEY__computing_core",
     //: Derived by `_deriveInterior`, never in the grid (playground exception 48): for the nesting only.
     containsOs: "CONTAINS_OS__playground",
     containsLibrary: "CONTAINS_LIBRARY__playground",
     containsPackage: "CONTAINS_PACKAGE__playground",
+    containsKey: "CONTAINS_KEY__playground",
     flowSource: "APPLICATION_FLOW_SOURCE__computing_core",
     flowDestination: "APPLICATION_FLOW_DESTINATION__computing_core",
 };
@@ -387,14 +397,15 @@ const LIFT_EDGE = [
     {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
     {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
     {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
+    {name: "container-holds-key", gryphon: `(parent:${T.ecsContainer})-[:${E.containsKey}]->(child)`},
     {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exceptions 11 and 48: the derived containment edges (never in the grid) the interior's nesting reads.
-const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage];
+const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage, E.containsKey];
 //: Playground exception 49: the interior piles. The title of each pile by the derived edge that holds its members, the prefix of a pile's
 //: stack id (the elevation watcher finds the pile's cards and count chip by it), the offset (model units, interior scale) between its
 //: cards and how many layers it shows. The chip carries the true count.
-const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages"};
+const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages", [E.containsKey]: "Keys"};
 const INTERIOR_STACK_PREFIX = "interior:";
 const INTERIOR_PILE_STEP = 4;
 const INTERIOR_PILE_DEPTH = 3;
@@ -434,7 +445,7 @@ export async function execute(context) {
     baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
     baseSizes[T.ecsContainer] = {width: 0, height: 0};
     baseSizes[T.os] = {width: 0, height: 0};
-    baseSizes[T.lib] = baseSizes[T.pkg] = baseSizes[T.program];
+    baseSizes[T.lib] = baseSizes[T.pkg] = baseSizes[T.privateKey] = baseSizes[T.publicKey] = baseSizes[T.file] = baseSizes[T.program];
     baseSizes[T.rds] = RDS_BOX;
     baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
     // Playground exception 49: the image host only joins the container to its operating system and packages; it is never drawn.
@@ -487,6 +498,7 @@ export async function execute(context) {
             {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
             {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
+            {name: "container-holds-key", gryphon: `(parent:${T.ecsContainer})-[:${E.containsKey}]->(child)`},
             {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
@@ -528,6 +540,7 @@ export async function execute(context) {
         },
     });
 
+    _alignKeyPiles(piles);
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
@@ -635,7 +648,7 @@ export async function execute(context) {
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
     // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
-    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg].includes(n.data("entity_type"))));
+    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg, T.privateKey, T.publicKey, T.file].includes(n.data("entity_type"))));
     // Playground exception 48: the operating-system box, in its own colours.
     _styleOs(cy.nodes(`[entity_type = "${T.os}"]`));
     shown([T.flow]).forEach((n) => n.scratch("landingFontFactor", FLOW_FONT_FACTOR));
@@ -1468,7 +1481,8 @@ function _resetElevation(cy) {
  * written to the grid, so the interior nests as container > operating system > programs, beside the library and package piles:
  *   - the container's operating system: the image it runs (RUNS_IMAGE) runs it (RUNS_OPERATING_SYSTEM);
  *   - the programs inside that operating system are not derived: the OS has a RUNS_PROGRAM edge to each (exception 48), and the nesting reads it;
- *   - the libraries those programs load (LOADS_LIBRARY) and the packages the image has installed (INSTALLS_PACKAGE) are held by the container.
+ *   - the libraries those programs load (LOADS_LIBRARY), the packages the image has installed (INSTALLS_PACKAGE) and the keys and certificates
+ *     those programs use (USES_KEY, exception 50) are held by the container.
  */
 function _deriveInterior(cy) {
     const out = new Map();
@@ -1499,6 +1513,7 @@ function _deriveInterior(cy) {
         systems.forEach((os) => add(container.id(), os, E.containsOs));
         step(programs, E.loadsLibrary).forEach((lib) => add(container.id(), lib, E.containsLibrary));
         step(image, E.installsPackage).forEach((pkg) => add(container.id(), pkg, E.containsPackage));
+        step(programs, E.usesKey).forEach((key) => add(container.id(), key, E.containsKey));
     });
     if (added.length) cy.add(added);
 }
@@ -1527,6 +1542,21 @@ function _collapseInteriorPiles(cy) {
             depthCap: INTERIOR_PILE_DEPTH, chip: true, label: INTERIOR_PILES[type]});
     });
     return piles;
+}
+
+/**
+ * Playground exception 50 (should become the per-pile `row` of the `pile` arrangement of exception 28: a column with one pile is not centred
+ * on the line of sight): the Keys pile of a container stands level with its Libraries pile, in a column of its own, so the line of sight
+ * keeps running between the Libraries and the Packages. The container's box was sized for the column, so nothing outgrows it.
+ */
+function _alignKeyPiles(piles) {
+    const holder = (pile) => pile.stackId.slice(INTERIOR_STACK_PREFIX.length).split("|")[0];
+    const keys = piles.filter((p) => p.label === INTERIOR_PILES[E.containsKey]);
+    keys.forEach((keyPile) => {
+        const libraries = piles.find((p) => p.label === INTERIOR_PILES[E.containsLibrary] && holder(p) === holder(keyPile));
+        if (!libraries) return;
+        keyPile.representative.position({x: keyPile.representative.position("x"), y: libraries.representative.position("y")});
+    });
 }
 
 /** Playground exception 49: a card or count chip of an interior pile. */
