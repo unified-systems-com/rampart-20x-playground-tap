@@ -345,6 +345,90 @@
         },
         {
           "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39531cd79da8",
+            "entity_type": "search",
+            "name": "playground \u2014 landing image",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing image",
+            "description": "Each ECS container and the image host it runs: the join to the operating system and the packages the container holds.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:aws_core__aws_ecs_container)-[:RUNS_IMAGE__computing_core]->(b:computing_core__host)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39551f89cb75",
+            "entity_type": "search",
+            "name": "playground \u2014 landing os",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing os",
+            "description": "Each image host and the operating system it runs.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__host)-[:RUNS_OPERATING_SYSTEM__computing_core]->(b:computing_core__operating_system)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39570427ea70",
+            "entity_type": "search",
+            "name": "playground \u2014 landing packages",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing packages",
+            "description": "Each image host and the packages installed on it.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__host)-[:INSTALLS_PACKAGE__computing_core]->(b:computing_core__package)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39592f9d25aa",
+            "entity_type": "search",
+            "name": "playground \u2014 landing loads-library",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground \u2014 landing loads-library",
+            "description": "Each program and the library it loads.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (a:computing_core__program)-[:LOADS_LIBRARY__computing_core]->(b:computing_core__library)",
+                "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
+                "RETURN a, b"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1c40f-2104-7023-962d-53c9efc6d892",
             "entity_type": "search",
             "name": "playground \u2014 landing flow-source",
@@ -536,7 +620,9 @@
               "node_style": {
                 "mode": "icon-badge",
                 "exclude_types": [
-                  "computing_core__program"
+                  "computing_core__program",
+                  "computing_core__library",
+                  "computing_core__package"
                 ]
               },
               "elevations": [
@@ -1161,6 +1247,62 @@
           "edge": {
             "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
             "to_entity_id": "01a1c41f-1bd3-78f1-bf34-920fbd01f400",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39546373a169",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-image",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15bf7-9c81-757c-9474-39531cd79da8",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-3956a7de72d9",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-os",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15bf7-9c81-757c-9474-39551f89cb75",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-39586a7437df",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-packages",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15bf7-9c81-757c-9474-39570427ea70",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bf7-9c81-757c-9474-395a84a7b5e4",
+            "entity_type": "edge",
+            "name": "panel USES_SEARCH search-loads-library",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-174095f774e9",
+            "to_entity_id": "01a15bf7-9c81-757c-9474-39592f9d25aa",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

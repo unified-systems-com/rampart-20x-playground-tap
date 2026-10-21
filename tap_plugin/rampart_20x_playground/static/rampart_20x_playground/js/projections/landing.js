@@ -63,7 +63,7 @@
  *  10. the interior's relative scale: the interior of the task is laid out and labelled at 1/ELEVATION_ZOOM_RATIO of the
  *      account's sizes, so its text is as large on screen at the reveal zoom as the account's text is at the account
  *      zoom, and the task box never changes size (a per-elevation label and size scale of the Elevation definition);
- *  11. tap-web and gunicorn as siblings in the container: a derived containment (`_deriveContainment`, should become a
+ *  11. tap-web and gunicorn as siblings in the container: a derived containment (`_deriveInterior`, should become a
  *      `flatten` option of a projectNested relationship), ordered by the `column` dimension.
  *  19. the text base size: every label is FONT_SCALE (2) times the runtime's base font, so the settle mode's constant on-screen
  *      size is twice as large (`_scaleFont`; should become a `font_scale` option of the zoom_settle config, or a larger
@@ -150,6 +150,17 @@
  *  47. the internet gateway, the load balancer and the database show their names again, directly below their icons, at SUBNET_LABEL_FACTOR of the
  *      usual size and a normal weight (`NAMED_ICON_TYPES`; should become a `label_scale` and `label_weight` display hint of the node type, the hints of 33;
  *      the revealed database box keeps its own title of exception 41).
+ *  48. the operating system inside the container, overview nits round six: the container is drawn as container > operating system > [gunicorn, tap-web],
+ *      the OS a box of its own (`_deriveInterior`, `_styleOs`; should become a multi-edge `via` path of a projectNested relationship, the
+ *      `flatten` option of 11, and a per-node display override for the box's colours). The OS is the one the container's image runs (RUNS_IMAGE,
+ *      then RUNS_OPERATING_SYSTEM); the programs it holds are the ones the container runs (RUNS_PROGRAM, directly or through another program).
+ *      No official edge says "this OS holds this program": the containment is derived from the container they share and never written to the grid.
+ *  49. the libraries and the packages inside the container as two piles with their true counts (`_collapseInteriorPiles`, `INTERIOR_PILES`; should become
+ *      the `pile` arrangement of 28 with a count chip in the nested layouts, a `via` path as in 48, and an `exclude_types` of the badge nodes
+ *      that is per elevation). Each pile is tap_viz's own stack (applyStack): the face card, two cards behind it and a chip with the count of all of
+ *      them; the libraries are the ones the container's programs load (LOADS_LIBRARY), the packages the ones its image has installed
+ *      (INSTALLS_PACKAGE). The image host is on the grid only to join them and is never drawn. They show only at the revealed elevation (their cards and
+ *      chips are hidden by style with the interior, because the elevation class on them re-enters the stack's position handler).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -198,6 +209,9 @@ const T = {
     task: "aws_core__aws_ecs_task",
     ecsContainer: "aws_core__aws_ecs_container",
     program: "computing_core__program",
+    os: "computing_core__operating_system",
+    pkg: "computing_core__package",
+    lib: "computing_core__library",
     flow: "computing_core__application_flow",
 };
 const E = {
@@ -216,12 +230,19 @@ const E = {
     publishesVersion: "PUBLISHES_PACKAGE_VERSION__github_core",
     runsContainer: "RUNS_CONTAINER__aws_core",
     runsProgram: "RUNS_PROGRAM__computing_core",
-    //: Derived by `_deriveContainment`, never in the grid: container -> a program gunicorn runs, for the nesting only.
-    containsProgram: "CONTAINS_PROGRAM__playground",
+    runsImage: "RUNS_IMAGE__computing_core",
+    runsOs: "RUNS_OPERATING_SYSTEM__computing_core",
+    installsPackage: "INSTALLS_PACKAGE__computing_core",
+    loadsLibrary: "LOADS_LIBRARY__computing_core",
+    //: Derived by `_deriveInterior`, never in the grid (playground exception 48): for the nesting only.
+    containsOs: "CONTAINS_OS__playground",
+    osRunsProgram: "OS_RUNS_PROGRAM__playground",
+    containsLibrary: "CONTAINS_LIBRARY__playground",
+    containsPackage: "CONTAINS_PACKAGE__playground",
     flowSource: "APPLICATION_FLOW_SOURCE__computing_core",
     flowDestination: "APPLICATION_FLOW_DESTINATION__computing_core",
 };
-const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.task, T.ecsContainer, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
+const CONTAINERS = [T.boundary, T.account, T.vpc, T.subnet, T.task, T.ecsContainer, T.os, T.host, T.platform, T.ghAccount, T.repo, T.workflow, T.package];
 //: Shown as icon nodes: the type icon is the card, the name is below it.
 const ICON_TYPES = [T.platform];
 const ICON = {width: 84, height: 84};
@@ -363,13 +384,27 @@ const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;
 //: so an edge that ends inside it is lifted onto it while the interior is hidden.
 const LIFT_EDGE = [
     {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
-    {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
-    {name: "program-holds-program", gryphon: `(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})`},
+    {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
+    {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})`},
+    {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
+    {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
     {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
-//: Playground exception 11: what a container holds besides what it runs directly: the programs those run, drawn beside
-//: them (siblings) and not inside them. `via` is the edge walked, `from` the holder.
-const DERIVED_CONTAINMENT = {from: T.ecsContainer, via: E.runsProgram, edgeType: E.containsProgram};
+//: Playground exceptions 11 and 48: the derived containment edges (never in the grid) the interior's nesting reads.
+const DERIVED_TYPES = [E.containsOs, E.osRunsProgram, E.containsLibrary, E.containsPackage];
+//: Playground exception 49: the interior piles. The title of each pile by the derived edge that holds its members, the prefix of a pile's
+//: stack id (the elevation watcher finds the pile's cards and count chip by it), the offset (model units, interior scale) between its
+//: cards and how many layers it shows. The chip carries the true count.
+const INTERIOR_PILES = {[E.containsLibrary]: "Libraries", [E.containsPackage]: "Packages"};
+const INTERIOR_STACK_PREFIX = "interior:";
+const INTERIOR_PILE_STEP = 4;
+const INTERIOR_PILE_DEPTH = 3;
+//: Playground exception 49: the gap between the two piles (model units, interior scale), wide enough for the line of sight to pass between them.
+const PILE_GAP = 40;
+//: Playground exception 48: the operating-system box inside the container: its fill, border and title colour.
+const OS_FILL = "#DCE6F2";
+const OS_BORDER = "#5B7DB1";
+const OS_LABEL = "#1E3A5F";
 //: The application flow's click window: the dimensions it lists (a key prefix), its width, and its class name (the
 //: tap_viz info window's own, so it looks like it).
 const FLOW_DIMENSION_PREFIX = "dataclass.";
@@ -399,8 +434,12 @@ export async function execute(context) {
     // The interior is sized at INTERIOR_SCALE (a leaf program, and the container's floor); the circle of the flow is half an icon.
     baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
     baseSizes[T.ecsContainer] = {width: 0, height: 0};
+    baseSizes[T.os] = {width: 0, height: 0};
+    baseSizes[T.lib] = baseSizes[T.pkg] = baseSizes[T.program];
     baseSizes[T.rds] = RDS_BOX;
     baseSizes[T.flow] = {width: ICON.width * FLOW_SCALE, height: ICON.height * FLOW_SCALE};
+    // Playground exception 49: the image host only joins the container to its operating system and packages; it is never drawn.
+    cy.edges().filter((e) => _edgeType(e) === E.runsImage).forEach((e) => e.target().addClass(ELEVATION_HIDDEN_CLASS));
     const piles = _collapseZoneCopies(cy);
     const shown = (types) => cy.nodes().filter((n) => types.includes(n.data("entity_type")) && !n.hasClass(ELEVATION_HIDDEN_CLASS));
     // Playground exception 32: a node with a logo is a bordered card like GitHub, with the logo as its icon.
@@ -433,7 +472,9 @@ export async function execute(context) {
     placed.addClass(ELEVATION_HIDDEN_CLASS);
     _stampVpcColumns(cy);
     _stampRootColumns(cy);
-    _deriveContainment(cy, DERIVED_CONTAINMENT);
+    // Playground exceptions 11, 48 and 49: the interior's derived containment, and its piles (all but the face of each out of the nesting).
+    _deriveInterior(cy);
+    piles.push(..._collapseInteriorPiles(cy));
 
     const result = await projectNested(cy, {
         relationships: [
@@ -443,8 +484,10 @@ export async function execute(context) {
             {name: "vpc-holds-gateway", gryphon: `(parent:${T.vpc})<-[:${E.attachedToVpc}]-(child)`},
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
-            {name: "container-holds-program", gryphon: `(parent:${T.ecsContainer})-[:${E.runsProgram}]->(child:${T.program})`},
-            {name: "container-holds-derived-program", gryphon: `(parent:${T.ecsContainer})-[:${E.containsProgram}]->(child:${T.program})`},
+            {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
+            {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})`},
+            {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
+            {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
             {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
@@ -456,7 +499,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad, [T.os]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
         innerLayout: {name: "ranked", sort: "order", columnGap: 140, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -480,13 +523,18 @@ export async function execute(context) {
             [T.subnet]: {name: "flow", gap: 8, sort: "label"},
             [T.task]: {name: "flow", gap: 12, sort: "label"},
             //: tap-web left, gunicorn right: the `column` dimension (read by _stampRootColumns) orders the siblings.
-            [T.ecsContainer]: {name: "ranked", sort: "order", columnGap: 12 * INTERIOR_SCALE, rowGap: 12 * INTERIOR_SCALE},
+            [T.ecsContainer]: {name: "ranked", sort: "order", columnGap: 12 * INTERIOR_SCALE, rowGap: PILE_GAP},
+            //: Inside the operating system: gunicorn left, tap-web right, as they stood in the container.
+            [T.os]: {name: "ranked", sort: "order", columnGap: 12 * INTERIOR_SCALE, rowGap: 12 * INTERIOR_SCALE},
         },
     });
 
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
+    // Playground exception 48: the container's own RUNS_PROGRAM edges are the containment the operating-system box now shows.
+    cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().data("entity_type") === T.ecsContainer)
+        .addClass(HIDDEN_CONTAINMENT_CLASS);
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
     placed.removeClass(ELEVATION_HIDDEN_CLASS);
 
@@ -542,7 +590,7 @@ export async function execute(context) {
     // Playground exception 10: the interior's labels at INTERIOR_SCALE (placeParentLabels reads `cy.nodes` and `cy.batch`
     // only, so it is handed the interior's parents and the rest separately).
     const interior = containedNodes(cy, LIFT_EDGE).outermost;
-    const isInterior = (n) => interior.has(n.id());
+    const isInterior = (n) => interior.has(n.id()) || _interiorStackPart(n);
     const parents = cy.nodes("." + VIEWPORT_PARENT_CLASS);
     const isSubnet = (n) => n.data("entity_type") === T.subnet;
     const isDatabase = (n) => n.data("entity_type") === T.rds;
@@ -588,7 +636,9 @@ export async function execute(context) {
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
     // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
-    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && n.data("entity_type") === T.program));
+    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg].includes(n.data("entity_type"))));
+    // Playground exception 48: the operating-system box, in its own colours.
+    _styleOs(cy.nodes(`[entity_type = "${T.os}"]`));
     shown([T.flow]).forEach((n) => n.scratch("landingFontFactor", FLOW_FONT_FACTOR));
     // Playground exception 47: the gateway's, the load balancer's and the database's names, under their icons, are as subtle as the subnets'.
     shown(NAMED_ICON_TYPES).forEach((n) => n.scratch("landingFontFactor", SUBNET_LABEL_FACTOR));
@@ -1408,39 +1458,94 @@ function _resetElevation(cy) {
         cy.removeScratch(key);
     });
     containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => cy.getElementById(id).removeClass(ELEVATION_HIDDEN_CLASS));
-    cy.edges().filter((e) => _edgeType(e) === E.containsProgram).remove();
+    cy.edges().filter((e) => DERIVED_TYPES.includes(_edgeType(e))).remove();
     // Playground exception 26: the nesting sizes the database as a box, so its solo form is taken off first.
     _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
 }
 
 /**
- * Playground exception 11 (should become a `flatten` option of a projectNested relationship): for each holder, a derived
- * containment edge to every node reached from it by two or more steps along `via` (what the holder runs directly is
- * already held by a relationship), so what gunicorn runs is nested beside it in the container, not inside it.
+ * Playground exceptions 11, 48 and 49 (should become a `flatten` option of a projectNested relationship, and a `via` path of a
+ * relationship that walks several edge types): for each ECS container, derived containment edges, read from the official edges and never
+ * written to the grid, so the interior nests as container > operating system > programs, beside the library and package piles:
+ *   - the container's operating system: the image it runs (RUNS_IMAGE) runs it (RUNS_OPERATING_SYSTEM);
+ *   - every program the container runs, directly or through another program (RUNS_PROGRAM), is held by that operating system;
+ *   - the libraries those programs load (LOADS_LIBRARY) and the packages the image has installed (INSTALLS_PACKAGE) are held by the container.
  */
-function _deriveContainment(cy, {from, via, edgeType}) {
+function _deriveInterior(cy) {
     const out = new Map();
     cy.edges().forEach((e) => {
-        if (_edgeType(e) !== via) return;
-        if (!out.has(e.source().id())) out.set(e.source().id(), []);
-        out.get(e.source().id()).push(e.target().id());
+        const type = _edgeType(e);
+        if (!out.has(type)) out.set(type, new Map());
+        const bySource = out.get(type);
+        if (!bySource.has(e.source().id())) bySource.set(e.source().id(), []);
+        bySource.get(e.source().id()).push(e.target().id());
     });
-    const added = [];
-    cy.nodes(`[entity_type = "${from}"]`).forEach((holder) => {
-        const direct = new Set(out.get(holder.id()) || []);
-        const seen = new Set([holder.id(), ...direct]);
-        const queue = [...direct];
-        while (queue.length) {
-            (out.get(queue.shift()) || []).forEach((id) => {
-                if (seen.has(id)) return;
-                seen.add(id);
-                queue.push(id);
-                added.push({group: "edges", data: {id: `contains:${holder.id()}|${id}`, source: holder.id(), target: id,
-                    edge_type: edgeType, label: edgeType}});
-            });
+    const step = (ids, type) => [...new Set(ids.flatMap((id) => (out.get(type) || new Map()).get(id) || []))];
+    const closure = (ids, type) => {
+        const seen = new Set();
+        let frontier = ids;
+        while (frontier.length) {
+            frontier = step(frontier, type).filter((id) => !seen.has(id));
+            frontier.forEach((id) => seen.add(id));
         }
+        return [...seen];
+    };
+    const added = [];
+    const add = (source, target, edgeType) => added.push({group: "edges", data: {id: `contains:${source}|${target}|${edgeType}`,
+        source, target, edge_type: edgeType, label: edgeType}});
+    cy.nodes(`[entity_type = "${T.ecsContainer}"]`).forEach((container) => {
+        const image = step([container.id()], E.runsImage);
+        const systems = step(image, E.runsOs);
+        const programs = closure([container.id()], E.runsProgram);
+        systems.forEach((os) => {
+            add(container.id(), os, E.containsOs);
+            programs.forEach((program) => add(os, program, E.osRunsProgram));
+        });
+        step(programs, E.loadsLibrary).forEach((lib) => add(container.id(), lib, E.containsLibrary));
+        step(image, E.installsPackage).forEach((pkg) => add(container.id(), pkg, E.containsPackage));
     });
     if (added.length) cy.add(added);
+}
+
+/**
+ * Playground exception 49 (should become the `pile` arrangement of exception 28 with a count chip, in the nested layouts): the members of
+ * each derived pile edge of a container are one pile. All but the first (by label) are out of the nesting while it runs, so the box
+ * is sized for one card; returns the stack options (tap_viz's applyStack, whose count chip carries the true count) to apply once the
+ * scene is positioned.
+ */
+function _collapseInteriorPiles(cy) {
+    const byHolder = new Map();
+    cy.edges().forEach((e) => {
+        const type = _edgeType(e);
+        if (INTERIOR_PILES[type] === undefined) return;
+        const key = e.source().id() + "|" + type;
+        if (!byHolder.has(key)) byHolder.set(key, {type, members: []});
+        byHolder.get(key).members.push(e.target());
+    });
+    const piles = [];
+    byHolder.forEach(({type, members}, key) => {
+        members.sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
+        const [representative, ...copies] = members;
+        copies.forEach((n) => n.addClass(ELEVATION_HIDDEN_CLASS + " " + STACK_COLLAPSED_CLASS));
+        piles.push({members, representative, stackId: INTERIOR_STACK_PREFIX + key, direction: "down-right", offset: INTERIOR_PILE_STEP,
+            depthCap: INTERIOR_PILE_DEPTH, chip: true, label: INTERIOR_PILES[type]});
+    });
+    return piles;
+}
+
+/** Playground exception 49: a card or count chip of an interior pile. */
+function _interiorStackPart(n) {
+    return Boolean(n.data("_is_stack_card") || n.data("_is_stack_chip")) && String(n.data("_stack_id")).startsWith(INTERIOR_STACK_PREFIX);
+}
+
+/**
+ * Playground exception 48 (same exit as _styleContainer, a per-node display override): the operating-system box is a light blue-grey
+ * box with a darker border, so it stands out inside the orange container.
+ */
+function _styleOs(systems) {
+    systems.forEach((n) => n.style({
+        "background-color": OS_FILL, "background-opacity": 1, "border-color": OS_BORDER, "border-width": 2, "color": OS_LABEL,
+    }));
 }
 
 /** A stand-in for the graph that offers only the given nodes to a helper that reads `cy.nodes` and `cy.batch`. */
@@ -1577,12 +1682,16 @@ function _watchElevation(cy, context) {
         const interior = cy.collection();
         containedNodes(cy, LIFT_EDGE).outermost.forEach((_top, id) => interior.merge(cy.getElementById(id)));
         // What belongs to the interior: its nodes, their type badges and the edges that touch them (not the lifted edge).
-        const badges = cy.nodes("[?_is_badge]").filter((n) => interior.some((h) => h.id() === n.data("_badge_host")));
-        return interior.union(badges).union(interior.connectedEdges().not("." + LIFTED_EDGE_CLASS));
+        // The piles' collapsed members stay collapsed (exception 49); their cards and count chips are part of the interior.
+        const faces = interior.filter((n) => !n.hasClass(STACK_COLLAPSED_CLASS));
+        const badges = cy.nodes("[?_is_badge]").filter((n) => faces.some((h) => h.id() === n.data("_badge_host")));
+        return faces.union(cy.nodes().filter(_interiorStackPart)).union(badges).union(interior.connectedEdges().not("." + LIFTED_EDGE_CLASS));
     };
     const hide = () => {
         const next = liftEdge(cy, {relationships: LIFT_EDGE});
         next.contained.addClass(ELEVATION_HIDDEN_CLASS);
+        // The piles' cards and count chips by style: the elevation class on them re-enters the stack's position handler (tap#304 class).
+        cy.nodes().filter(_interiorStackPart).style("display", "none");
         cy.scratch("landing_lift", next);
         _styleFlowEdges(cy);
     };
@@ -1608,6 +1717,7 @@ function _watchElevation(cy, context) {
                 // Shown first (a badge is drawn for what is visible), then faded in from nothing below.
                 interior.style("opacity", 1);
                 interior.removeClass(ELEVATION_HIDDEN_CLASS);
+                interior.removeStyle("display");
                 _formDatabase(cy, cy.nodes(`[entity_type = "${T.rds}"]`), true);
             });
             // The container's own type badge: badges are drawn for what is shown when they are applied, and the interior was not.

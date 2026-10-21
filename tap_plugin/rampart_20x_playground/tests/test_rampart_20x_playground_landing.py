@@ -336,7 +336,7 @@ class TestRunningParts:
 
     def test_one_container_per_task_with_a_real_shaped_arn_image_and_digest(self) -> None:
         containers = [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "aws_core__aws_ecs_container"]
-        assert sorted(n["entity"]["name"] for n in containers) == ["web task a container", "web task b container"]
+        assert sorted(n["entity"]["name"] for n in containers) == ["tap-web", "web task b container"]
         for node in containers:
             fields = node["node"]
             assert fields["container_arn"].startswith("arn:aws-us-gov:ecs:us-gov-west-1:100000000001:container/git-serious/")
@@ -352,14 +352,15 @@ class TestRunningParts:
         assert sorted(by_type["RUNS_TASK__aws_core"]) == [
             ("cluster", "web task a"), ("cluster", "web task b"), ("web", "web task a"), ("web", "web task b")]
         assert sorted(by_type["RUNS_CONTAINER__aws_core"]) == [
-            ("web task a", "web task a container"), ("web task b", "web task b container")]
+            ("web task a", "tap-web"), ("web task b", "web task b container")]
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
             ("RDS A", "PostgreSQL database instance"),
             ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
+            ("tap-web", "gunicorn"),
             ("teleport", "teleport auth"), ("teleport", "teleport proxy"), ("teleport", "teleport ssh"),
-            ("web task a container", "gunicorn"), ("web task b container", "gunicorn (web task b)")]
+            ("web task b container", "gunicorn (web task b)")]
         assert sorted(by_type["RUNS_IMAGE__computing_core"]) == [
-            ("web task a container", "git-serious web image"), ("web task b container", "git-serious web image")]
+            ("tap-web", "git-serious web image"), ("web task b container", "git-serious web image")]
 
     def test_the_programs_are_one_set_per_container_and_postgres_stays(self) -> None:
         programs = {n["entity"]["name"]: n for n in _batch_nodes(ENTITIES) if n["entity"]["entity_type"] == "computing_core__program"}
@@ -385,15 +386,15 @@ class TestRunningParts:
     def test_only_web_task_a_s_interior_the_flows_and_the_database_program_are_on_the_overview(self) -> None:
         shown = {n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW) + _batch_nodes(ENTITIES)
                  if n["entity"]["dimensions"].get("overview") == "shown"}
-        assert shown == {"web task a container", "customer data", "gunicorn", "tap-web", "PostgreSQL database instance",
+        assert shown == {"tap-web", "customer data", "gunicorn", "PostgreSQL database instance",
                          "database", "administration", "code", "source pull"}
 
-    def test_the_nesting_is_three_configured_relationships_not_type_tests(self) -> None:
+    def test_the_nesting_is_configured_relationships_not_type_tests(self) -> None:
         source = _js()
-        for name in ("task-holds-container", "container-holds-program", "program-holds-program"):
+        for name in ("task-holds-container", "container-holds-os", "os-holds-program", "container-holds-library", "container-holds-package"):
             assert f'name: "{name}"' in source
         assert "(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})" in source
-        assert "(parent:${T.program})-[:${E.runsProgram}]->(child:${T.program})" in source
+        assert "(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})" in source
         assert {"task", "ecsContainer"} <= set(_list("CONTAINERS"))
 
     def test_searches_bring_the_containment_edges_and_the_flow_edges(self) -> None:
@@ -505,7 +506,7 @@ class TestZoomPolish:
         pages = json.loads(PAGES.read_text(encoding="utf-8"))
         projection = next(n for b in pages["batches"] for n in b["nodes"] if n["entity"]["entity_type"] == "projection")
         excluded = projection["node"]["definition"]["node_style"]["exclude_types"]
-        assert excluded == ["computing_core__program"]
+        assert excluded == ["computing_core__program", "computing_core__library", "computing_core__package"]
         source = _js()
         assert "applyBadgeNodes(cy, {excludeTypes: exclude})" in source and "_refreshBadges(cy, context);" in source
 
@@ -1041,3 +1042,49 @@ class TestOverviewNitsThree:
         assert "Playground exception 44" in source and "SLOT_SUBNET_WIDTH" in source and "SLOT_NAMELESS_BOTTOM" in source
         assert "held.every(_labelHidden)" in source, "the room for a name is dropped only when every resident's name is hidden"
         assert int(re.search(r"const SLOT_SUBNET_WIDTH = ([0-9]+);", source).group(1)) < 230, "narrower than a standard subnet"
+
+
+class TestContainerInterior:
+    """`req-rampart-20x-playground-govcloud-layout-30`: overview nits, round six (the container's interior)."""
+
+    def test_the_container_is_tap_web_and_the_program_keeps_its_name(self) -> None:
+        names = {n["entity"]["entity_id"]: n["entity"]["name"] for n in _batch_nodes(APPLICATION_FLOW)}
+        assert names["01a1c4c8-3a0c-7582-b96a-f3a59a68c81a"] == "tap-web"
+        (container,) = [n for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_id"] == "01a1c4c8-3a0c-7582-b96a-f3a59a68c81a"]
+        assert container["node"]["name"] == "tap-web"
+
+    def test_what_the_interior_draws_is_shown_and_placed_by_data(self) -> None:
+        shown: dict[str, list[dict]] = {}
+        for node in _batch_nodes(SOFTWARE):
+            if node["entity"]["dimensions"].get("overview") == "shown":
+                shown.setdefault(node["entity"]["entity_type"], []).append(node["entity"])
+        assert sorted(e["name"] for e in shown["computing_core__library"]) == ["cryptography", "openssl-fips-provider"]
+        assert len(shown["computing_core__package"]) == 180
+        assert [e["name"] for e in shown["computing_core__operating_system"]] == ["Wolfi"]
+        assert [e["name"] for e in shown["computing_core__host"]] == ["git-serious web image"]
+        for kind in ("computing_core__library", "computing_core__package", "computing_core__operating_system"):
+            assert all("column" in e["dimensions"] and "row" in e["dimensions"] for e in shown[kind])
+
+    def test_four_searches_bring_the_official_edges_and_the_panel_uses_them(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        ids = {n["entity"]["name"]: n["entity"]["entity_id"] for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
+        queries = {n["entity"]["name"]: " ".join(n["node"]["definition"]["query"]) for n in pages["nodes"]
+                   if n["entity"]["entity_type"] == "search" and n["node"]["search_type"] == "gryphon"}
+        used = {e["edge"]["to_entity_id"] for e in pages["edges"] if e["edge"]["edge_type"] == "USES_SEARCH"}
+        for slug, edge in (("image", "RUNS_IMAGE__computing_core"), ("os", "RUNS_OPERATING_SYSTEM__computing_core"),
+                           ("packages", "INSTALLS_PACKAGE__computing_core"), ("loads-library", "LOADS_LIBRARY__computing_core")):
+            name = f"playground \u2014 landing {slug}"
+            assert edge in queries[name] and 'a.dimensions["overview"] = "shown"' in queries[name]
+            assert ids[name] in used
+        (projection,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "projection"]
+        excluded = projection["node"]["definition"]["node_style"]["exclude_types"]
+        assert {"computing_core__library", "computing_core__package"} <= set(excluded)
+
+    def test_the_interior_is_derived_from_official_edges_and_marked_exceptions(self) -> None:
+        source = _js()
+        assert "Playground exception 48" in source and "Playground exception 49" in source
+        for edge in ("runsImage", "runsOs", "installsPackage", "loadsLibrary"):
+            assert re.search(rf"\b{edge}: \"[A-Z_]+__computing_core\"", source)
+        assert "applyStack" in source and "INTERIOR_PILES" in source
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-govcloud-layout-30" in text and "Backlog, blocked by a gap" in text
