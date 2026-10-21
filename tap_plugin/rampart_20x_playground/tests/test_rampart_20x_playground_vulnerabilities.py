@@ -585,7 +585,7 @@ class TestVulnerabilityPages:
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         (entry,) = [p for p in demo["install"]["plugins"] if p["slug"] == "vuln_mosaic"]
         assert entry["source"]["rev"] == "v0.6.0"
-        assert entry["source"]["commit"] == "18d453d8e2d2adb485a6c35506fe4fa63252ca0d"
+        assert entry["source"]["commit"] == "b0ae7728c41004aa885aac974654a16e8a13fb6a"
         steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"]]
         assert ("vuln_mosaic", None) in steps
         assert steps.index(("vuln_mosaic", None)) < steps.index(("rampart_20x_playground", None))
