@@ -8,12 +8,12 @@
       "batch_entity": {
         "entity_id": "01a15bc6-d58c-7662-9ca4-8c0059132b71",
         "entity_type": "batch",
-        "name": "rampart-20x-playground classification mapping v0.2.0",
+        "name": "rampart-20x-playground classification mapping v0.3.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.classification-mapping",
-        "name": "rampart-20x-playground classification mapping v0.2.0",
+        "name": "rampart-20x-playground classification mapping v0.3.0",
         "description": "The four classification-mapping module Searches, the four table panels that read them (the summary and one per state), and the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot. The panels sit on the Data Classification page. The mapping is data in the Searches' mappings default."
       },
       "nodes": [
@@ -738,6 +738,7 @@
             "config": {
               "quick_filter": true,
               "default_page_size": 25,
+              "show_all_rows": false,
               "striped": true,
               "columns": [
                 {

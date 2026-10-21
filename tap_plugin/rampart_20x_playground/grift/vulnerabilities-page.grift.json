@@ -8,12 +8,12 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.7.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.8.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.7.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.8.0",
         "description": "The /playground/vulnerabilities page (four cards, three charts, a table of open vulnerabilities and two tables of affected components) with a drill-in page per component, a short older vulnerability page, and the CVE page that explains one vulnerability: the answer first, how bad and how urgent, what it is, where it affects us, then the details and sources. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
       },
       "nodes": [
@@ -2789,6 +2789,7 @@
             "config": {
               "quick_filter": true,
               "default_page_size": 25,
+              "empty_text": "No component carries a CWE-506 vulnerability.",
               "columns": [
                 {
                   "field": "component",
