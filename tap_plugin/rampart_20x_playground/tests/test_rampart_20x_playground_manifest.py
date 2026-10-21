@@ -97,6 +97,7 @@ class TestSurfaces:
             "grift/mock-inventory.grift.json",
             "grift/pages.grift.json",
             "grift/security-alerts.grift.json",
+            "grift/teams.grift.json",
             "grift/vulnerabilities-page.grift.json",
             "grift/vulnerability-enrichment.grift.json",
         ]

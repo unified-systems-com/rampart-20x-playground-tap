@@ -27,7 +27,8 @@
               "inventory": "applications",
               "overview": "shown",
               "column": "1",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -47,7 +48,8 @@
               "inventory": "applications",
               "overview": "shown",
               "column": "0",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -64,7 +66,8 @@
               "dcom": "design",
               "inventory": "applications",
               "column": "1",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -81,7 +84,8 @@
               "dcom": "design",
               "inventory": "applications",
               "column": "0",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -100,7 +104,8 @@
               "dcom": "design",
               "inventory": "applications",
               "overview": "shown",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -164,7 +169,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -180,7 +186,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -196,7 +203,8 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "applications",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {

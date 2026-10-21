@@ -28,7 +28,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "overview": "shown",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {
@@ -50,7 +51,8 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {
@@ -74,7 +76,8 @@
               "column": "2",
               "row": "0",
               "icon_angle": "90",
-              "dataclass.action": "transmit"
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -92,7 +95,8 @@
               "overview": "shown",
               "dataclass.customer": "sanitized",
               "icon_angle": "90",
-              "dataclass.action": "transmit"
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
             }
           },
           "node": {
@@ -106,7 +110,8 @@
             "entity_type": "computing_core__application_flow",
             "name": "administration",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {
@@ -124,7 +129,8 @@
               "overview": "shown",
               "icon_angle": "0",
               "dataclass.infra": "admin",
-              "dataclass.action": "transmit"
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {
@@ -142,7 +148,8 @@
               "overview": "shown",
               "dataclass.infra": "code",
               "icon_angle": "270",
-              "dataclass.action": "transmit"
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
           },
           "node": {
@@ -160,7 +167,8 @@
               "overview": "shown",
               "dataclass.infra": "code",
               "icon_angle": "270",
-              "dataclass.action": "transmit"
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
           },
           "node": {
