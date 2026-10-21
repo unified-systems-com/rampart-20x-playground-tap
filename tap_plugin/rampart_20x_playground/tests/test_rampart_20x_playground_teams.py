@@ -21,6 +21,7 @@ TEXT = "tap_web/panels/text_panel.html"
 KEY = "team.responsible"
 BELONGS = "BELONGS_TO_TEAM__identity_core"
 LEADS = "LEADS_TEAM__identity_core"
+ANSWERS = "ANSWERS_FOR_DIMENSION__identity_core"
 HANDLES = ("git-serious", "devops", "engineering", "infra")
 CHILDREN = ("devops", "engineering", "infra")
 NAMES = {"git-serious": "git-serious", "devops": "DevOps", "engineering": "Engineering", "infra": "Infra"}
@@ -107,6 +108,15 @@ class TestTeamsBundle:
         assert sorted((self.by_id[e["from_entity_id"]]["node"]["handle"], self.by_id[e["to_entity_id"]]["node"]["handle"])
                       for e in team_to_team) == sorted((h, "git-serious") for h in CHILDREN)
         assert not [e for e in self._edges(LEADS) if e["from_entity_id"] in team_ids]
+
+    def test_each_team_answers_for_the_team_responsible_dimension_node(self) -> None:
+        """`teams-9`: one ANSWERS_FOR_DIMENSION edge per team, each to the `team.responsible` dimension node."""
+        key_id = next(n["entity"]["entity_id"] for n in self.nodes if n["entity"]["name"] == KEY)
+        team_ids = {n["entity"]["entity_id"]: h for h, n in self.teams.items()}
+        answers = self._edges(ANSWERS)
+        assert sorted(team_ids[e["from_entity_id"]] for e in answers) == sorted(HANDLES)
+        assert {e["to_entity_id"] for e in answers} == {key_id}
+        assert all(e["properties"] == {} for e in answers)
 
     def test_thirteen_people_with_generic_names(self) -> None:
         """`teams-3`, `teams-4`."""
@@ -212,13 +222,13 @@ class TestManifest:
         """`teams-8`."""
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         identity = next(d for d in manifest["depends_on"] if d["slug"] == "identity_core")
-        assert identity["min_version"] == "0.1.5"
+        assert identity["min_version"] == "0.1.6"
         assert manifest["grift"]["teams"] == "grift/teams.grift.json"
         for name in ("ci", "demo"):
             record = json.loads((PACKAGE_ROOT / "boot" / f"{name}.boot.json").read_text(encoding="utf-8"))
             entry = next(p for p in record["install"]["plugins"] if p["slug"] == "identity_core")
-            assert entry["source"]["rev"] == "v0.1.5"
-            assert entry["source"]["commit"] == "678b246bcc4390df504c9b24a6be132372162044"
+            assert entry["source"]["rev"] == "v0.1.6"
+            assert entry["source"]["commit"] == "11f087954ff5d06792abc4a3994d7eae77bbcb5b"
 
 
 class TestTeamsPage:

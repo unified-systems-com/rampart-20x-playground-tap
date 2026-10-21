@@ -852,6 +852,70 @@
         },
         {
           "entity": {
+            "entity_id": "01a15f82-ee0e-7234-b36c-76f811c2164d",
+            "entity_type": "edge",
+            "name": "git-serious ANSWERS_FOR_DIMENSION team.responsible",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-2018790a1f75",
+            "to_entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "edge_type": "ANSWERS_FOR_DIMENSION__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f82-ee0e-7234-b36c-76f9e1a58f69",
+            "entity_type": "edge",
+            "name": "DevOps ANSWERS_FOR_DIMENSION team.responsible",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-20196bb8a954",
+            "to_entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "edge_type": "ANSWERS_FOR_DIMENSION__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f82-ee0e-7234-b36c-76fa67336425",
+            "entity_type": "edge",
+            "name": "Engineering ANSWERS_FOR_DIMENSION team.responsible",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201aa27ca26f",
+            "to_entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "edge_type": "ANSWERS_FOR_DIMENSION__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f82-ee0e-7234-b36c-76fb3da960d5",
+            "entity_type": "edge",
+            "name": "Infra ANSWERS_FOR_DIMENSION team.responsible",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-201be9b9d678",
+            "to_entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "edge_type": "ANSWERS_FOR_DIMENSION__identity_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a15c19-6922-734d-9272-20464d4fc5cb",
             "entity_type": "edge",
             "name": "Page USES_PANEL title",

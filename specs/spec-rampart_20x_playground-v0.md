@@ -648,6 +648,8 @@ The vulnerability story needs its last link: a vulnerability sits on a component
 
 Each lead has a `LEADS_TEAM` edge to their team and also a `BELONGS_TO_TEAM` edge to it, so the roster shows the whole team; each member has a `BELONGS_TO_TEAM` edge. That is thirteen people. No real person, email address or account appears in the bundle.
 
+Each of the four teams also has one `ANSWERS_FOR_DIMENSION` edge to the `team.responsible` dictionary node (identity_core v0.1.6), which records that the team's entity id appears under the key.
+
 **The stamp.** The key `team.responsible` has a dictionary node (`dimension`, name `team.responsible`, with a description) and no value nodes, because the values are team ids (`req-identity-core-responsible`). It is stamped on entities already in the seed, by type (proposed for review; a type listed carries the team's entity id on every instance unless noted):
 
 | team | types |
@@ -676,7 +678,8 @@ The generic roster is deliberate: the page must read as a demonstration of the s
 | req-rampart-20x-playground-teams-5 | Key Documented, Values Open | Proposed | A `dimension` node named `team.responsible` with a description is seeded, and no node named `team.responsible.<value>` is. | `req-identity-core-responsible`. |
 | req-rampart-20x-playground-teams-6 | Stamps By Type | Proposed | Every instance of a type in the table carries `team.responsible` equal to the entity id of that row's team, and no other seed entity carries the key. | The customer's computer is left unstamped on purpose. |
 | req-rampart-20x-playground-teams-7 | Ids Are Team Ids | Proposed | Every `team.responsible` value in the seed equals the entity id of one of the four seeded teams. | |
-| req-rampart-20x-playground-teams-8 | Dependency Floor | Proposed | The `identity_core` entry in `depends_on` names the first release that ships `team`, `BELONGS_TO_TEAM` and `LEADS_TEAM`, and the manifest lists the bundle. | |
+| req-rampart-20x-playground-teams-8 | Dependency Floor | Proposed | The `identity_core` entry in `depends_on` names the first release that ships `team`, `BELONGS_TO_TEAM`, `LEADS_TEAM` and `ANSWERS_FOR_DIMENSION` (v0.1.6), the ci and demo boot records pin that release by tag and commit, and the manifest lists the bundle. | |
+| req-rampart-20x-playground-teams-9 | Teams Answer For The Stamp Key | Proposed | Each of the four teams has one `ANSWERS_FOR_DIMENSION__identity_core` edge to the `team.responsible` dimension node, so a page can walk from a team to the key whose values are its entity id. | `req-identity-core-responsible`. |
 
 ### Teams Page
 ----
