@@ -1,7 +1,7 @@
 {
   "version": 1,
   "profile_kind": "dev_local",
-  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr, vuln_mosaic and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No credential is required. Three hourly schedules run: the classification mapping snapshot (minute 0, reads the local grid only), the KSI catalog (minute 17, fetches from raw.githubusercontent.com) and the vuln_mosaic refresh (minute 41, fetches public CVE data from github.com, www.cisa.gov and epss.empiricalsecurity.com). The inventory and findings are mock data. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
   "install": {
     "plugins": [
       {
@@ -91,8 +91,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
-          "rev": "v0.4.1",
-          "commit": "f34d4491d466aaf18fa2e14145920ff0198421d8"
+          "rev": "v0.4.2",
+          "commit": "5069b9d53b002a7f0626fad377f3abea0b193df6"
         }
       },
       {
@@ -105,6 +105,16 @@
           "commit": "0f1d0be19adcb599c0444b21d341476865a63ad4"
         },
         "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
+      },
+      {
+        "slug": "vuln_mosaic",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/vuln-mosaic-tap",
+          "rev": "v0.5.0",
+          "commit": "18d453d8e2d2adb485a6c35506fe4fa63252ca0d"
+        }
       },
       {
         "slug": "rampart_20x",
@@ -163,7 +173,20 @@
         "plugin": "fedramp_20x_ksi",
         "bundle": "dimension",
         "enabled": true,
-        "note": "fedramp_20x_ksi's vocabulary dimension nodes only; its KSI seed, pages and schedule stay out until the VDR pages need them."
+        "note": "fedramp_20x_ksi's vocabulary dimension nodes only; its KSI seed and pages stay out until a page needs them, and its hourly schedule is the next step."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_ksi",
+        "bundle": "ksi_schedule",
+        "enabled": true,
+        "note": "fedramp_20x_ksi's hourly KSI catalog Schedule (minute 17); the collector's only egress is raw.githubusercontent.com and it needs no credential."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "vuln_mosaic",
+        "enabled": true,
+        "note": "vuln_mosaic's hourly refresh Schedule (minute 41), so the local CVE stores stay current."
       },
       {
         "type": "seed-plugin",

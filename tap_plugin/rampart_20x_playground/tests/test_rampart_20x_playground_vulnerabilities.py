@@ -577,10 +577,29 @@ class TestVulnerabilityPages:
         (column,) = [c for c in identity["node"]["config"]["columns"] if c["field"] == "id"]
         assert column["formatter_params"]["href_template"] == CVE + "?vuln_id={id}"
 
-    def test_vuln_mosaic_is_not_a_dependency_of_the_plugin(self) -> None:
-        """vuln-mosaic is a local dev plugin for the demo: no manifest dependency and no pin in a shipped boot record."""
-        for path in (PACKAGE_ROOT / "tap-plugin.toml", *(PACKAGE_ROOT / "boot").glob("*.json")):
-            assert "vuln_mosaic" not in path.read_text(encoding="utf-8").replace("-", "_"), path.name
+    def test_vuln_mosaic_is_in_the_demo_record_and_not_a_dependency_of_the_plugin(self) -> None:
+        """`req-rampart-20x-playground-boot-6`: the demo installs vuln_mosaic and seeds its schedule before this plugin; the manifest and the ci record do not name it."""
+        manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8").replace("-", "_")
+        assert 'slug = "vuln_mosaic"' not in manifest
+        assert "vuln_mosaic" not in (PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8").replace("-", "_")
+        demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
+        (entry,) = [p for p in demo["install"]["plugins"] if p["slug"] == "vuln_mosaic"]
+        assert entry["source"]["rev"] == "v0.5.0"
+        assert entry["source"]["commit"] == "18d453d8e2d2adb485a6c35506fe4fa63252ca0d"
+        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"]]
+        assert ("vuln_mosaic", None) in steps
+        assert steps.index(("vuln_mosaic", None)) < steps.index(("rampart_20x_playground", None))
+
+    def test_the_demo_runs_the_ksi_catalog_hourly_and_its_description_says_what_runs(self) -> None:
+        """`req-rampart-20x-playground-boot-7`: fedramp_20x_ksi v0.4.2 with its schedule bundle seeded; the description no longer claims that no collector runs."""
+        demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
+        (ksi,) = [p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_ksi"]
+        assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.2", "5069b9d53b002a7f0626fad377f3abea0b193df6")
+        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"]]
+        assert steps.index(("fedramp_20x_ksi", "ksi_schedule")) < steps.index(("rampart_20x_playground", None))
+        assert "No collector runs" not in demo["description"]
+        for host in ("raw.githubusercontent.com", "www.cisa.gov", "epss.empiricalsecurity.com"):
+            assert host in demo["description"]
 
     # -- the data is observed --------------------------------------------------------------------------------
 
