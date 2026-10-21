@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a13c39-3f6e-7448-a223-a802d2e1f0b3",
         "entity_type": "batch",
-        "name": "rampart-20x-playground inventory page v0.3.0",
+        "name": "rampart-20x-playground inventory page v0.4.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-page",
-        "name": "rampart-20x-playground inventory page v0.3.0",
-        "description": "The /playground/inventory page: nine standard table panels, each bound by USES_SEARCH to a Search over the inventory dimension (req-rampart-20x-playground-inventory-tables). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
+        "name": "rampart-20x-playground inventory page v0.4.0",
+        "description": "The /playground/inventory page: a row of four coverage cards, the coverage chart and nine standard table panels, each bound by USES_SEARCH to a Search over the inventory dimension (req-rampart-20x-playground-inventory-tables). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
       },
       "nodes": [
         {
@@ -1204,6 +1204,56 @@
             "layout": {
               "columns": {
                 "col-1": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-inventory-coverage-overall",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-inventory-coverage-entries",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-inventory-coverage-with-team",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-inventory-coverage-without-team",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-inventory-coverage-chart",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-6": {
                   "width": "1fr",
                   "rows": {
                     "row-1": {
@@ -1242,7 +1292,8 @@
                       "panel-id": "saas",
                       "height": "auto"
                     }
-                  }
+                  },
+                  "band": 3
                 }
               }
             }
@@ -1552,6 +1603,106 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "crypto"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c1e4d9629b",
+            "entity_type": "edge",
+            "name": "Inventory page USES_PANEL Overall Coverage",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a16098-57be-71da-9424-40b67c950988",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-inventory-coverage-overall"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c314a9e075",
+            "entity_type": "edge",
+            "name": "Inventory page USES_PANEL Entries",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a16098-57be-71da-9424-40b7e19472a5",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-inventory-coverage-entries"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c5fdf92839",
+            "entity_type": "edge",
+            "name": "Inventory page USES_PANEL With A Team",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a16098-57be-71da-9424-40b8a3032abb",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-inventory-coverage-with-team"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c733030a9e",
+            "entity_type": "edge",
+            "name": "Inventory page USES_PANEL Without A Team",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a16098-57be-71da-9424-40b96f3b19d2",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-inventory-coverage-without-team"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c96aadd516",
+            "entity_type": "edge",
+            "name": "Inventory page USES_PANEL Responsibility Coverage",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-73f8-8ec0-7b1e2f183710",
+            "to_entity_id": "01a16098-57be-71da-9424-40becd72d37a",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-inventory-coverage-chart"
               }
             }
           }

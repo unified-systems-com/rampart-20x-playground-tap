@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a15bc6-d58c-7662-9ca4-8c0059132b71",
         "entity_type": "batch",
-        "name": "rampart-20x-playground classification mapping v0.3.0",
+        "name": "rampart-20x-playground classification mapping v0.4.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.classification-mapping",
-        "name": "rampart-20x-playground classification mapping v0.3.0",
-        "description": "The four classification-mapping module Searches, the four table panels that read them (the summary and one per state), and the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot. The panels sit on the Data Classification page. The mapping is data in the Searches' mappings default."
+        "name": "rampart-20x-playground classification mapping v0.4.0",
+        "description": "The four classification-mapping module Searches, the four table panels that read them (the summary and one per state), and the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot. The panels sit on the Data Classification page. The mapping is data in the Searches' mappings default: groups of entity types, judged per inventory category, with the crypto category left out."
       },
       "nodes": [
         {
@@ -26,7 +26,7 @@
           },
           "node": {
             "name": "playground — classification mapping summary",
-            "description": "One row per mapping row: how many entities of the type are mapped, unmapped and mapped incorrectly. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "description": "One row per inventory category: how many of its entities carry the classification their group allows, carry none, or carry a value the group does not allow. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal). Grouped by the inventory category; the crypto category is left out because a crypto provider is a finding about the code that carries it, and the carrier is classified instead.",
             "search_type": "module",
             "root": "node",
             "definition": {
@@ -40,31 +40,10 @@
                   "type": "array",
                   "default": [
                     {
-                      "entity_type": "computing_core__application_flow",
-                      "keys": [
-                        {
-                          "key": "dataclass.customer",
-                          "allowed": [
-                            "data",
-                            "sanitized",
-                            "creds",
-                            "logs"
-                          ]
-                        },
-                        {
-                          "key": "dataclass.infra",
-                          "allowed": [
-                            "code",
-                            "secrets",
-                            "logs",
-                            "admin"
-                          ]
-                        }
+                      "label": "Data Flows",
+                      "entity_types": [
+                        "computing_core__application_flow"
                       ],
-                      "match": "any"
-                    },
-                    {
-                      "entity_type": "computing_core__application_flow",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -76,7 +55,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__program",
+                      "label": "Programs",
+                      "entity_types": [
+                        "computing_core__program"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -88,23 +70,49 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_ecs_container",
+                      "label": "AWS Services",
+                      "entity_types": [
+                        "aws_core__aws_route53_zone",
+                        "aws_core__aws_internet_gateway",
+                        "aws_core__aws_alb",
+                        "aws_core__aws_ecs_cluster",
+                        "aws_core__aws_ecs_service",
+                        "aws_core__aws_ecs_container",
+                        "aws_core__aws_rds_instance",
+                        "aws_core__aws_s3_bucket",
+                        "aws_core__aws_secrets_manager_secret",
+                        "aws_core__aws_kms_key",
+                        "aws_core__aws_ecr_repository",
+                        "aws_core__aws_iam_oidc_provider",
+                        "aws_core__aws_codepipeline_pipeline",
+                        "aws_core__aws_codebuild_project",
+                        "aws_core__aws_ec2_instance"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
-                            "process"
+                            "store",
+                            "process",
+                            "transmit",
+                            "none"
                           ]
                         }
                       ],
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_rds_instance",
+                      "label": "Containers",
+                      "entity_types": [
+                        "computing_core__host",
+                        "github_core__github_package",
+                        "github_core__github_package_version"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
+                            "process",
                             "store"
                           ]
                         }
@@ -112,19 +120,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_s3_bucket",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "store"
-                          ]
-                        }
+                      "label": "Packages",
+                      "entity_types": [
+                        "computing_core__package"
                       ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__library",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -137,12 +136,67 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__package",
+                      "label": "Libraries",
+                      "entity_types": [
+                        "computing_core__library"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
                             "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Operating Systems",
+                      "entity_types": [
+                        "computing_core__operating_system"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Secrets",
+                      "entity_types": [
+                        "computing_core__file",
+                        "computing_core__public_key",
+                        "computing_core__private_key",
+                        "aws_core__aws_acm_certificate"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Third-Party SaaS",
+                      "entity_types": [
+                        "aws_core__aws_organization",
+                        "github_core__github_platform"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store",
+                            "process",
+                            "transmit",
                             "none"
                           ]
                         }
@@ -150,7 +204,22 @@
                       "match": "all"
                     }
                   ],
-                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                  "description": "Which dimension key and values an entity of each group of entity types should carry. Each row: label, entity_types, keys (key and allowed values) and match (all or any)."
+                },
+                "group_by": {
+                  "type": "string",
+                  "default": "inventory",
+                  "description": "The dimension key whose value is the group an entity is counted in: the inventory category."
+                },
+                "exclude_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "crypto"
+                  ],
+                  "description": "Groups left out of the result: crypto, because a crypto provider is a finding about the code that carries it and the carrier is classified instead."
                 }
               }
             }
@@ -165,7 +234,7 @@
           },
           "node": {
             "name": "playground — classification mapping: mapped incorrectly",
-            "description": "The entities that carry a listed key with a value the mapping does not allow. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "description": "The entities that carry a listed key with a value the mapping does not allow. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal). Grouped by the inventory category; the crypto category is left out because a crypto provider is a finding about the code that carries it, and the carrier is classified instead.",
             "search_type": "module",
             "root": "node",
             "definition": {
@@ -179,31 +248,10 @@
                   "type": "array",
                   "default": [
                     {
-                      "entity_type": "computing_core__application_flow",
-                      "keys": [
-                        {
-                          "key": "dataclass.customer",
-                          "allowed": [
-                            "data",
-                            "sanitized",
-                            "creds",
-                            "logs"
-                          ]
-                        },
-                        {
-                          "key": "dataclass.infra",
-                          "allowed": [
-                            "code",
-                            "secrets",
-                            "logs",
-                            "admin"
-                          ]
-                        }
+                      "label": "Data Flows",
+                      "entity_types": [
+                        "computing_core__application_flow"
                       ],
-                      "match": "any"
-                    },
-                    {
-                      "entity_type": "computing_core__application_flow",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -215,7 +263,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__program",
+                      "label": "Programs",
+                      "entity_types": [
+                        "computing_core__program"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -227,23 +278,49 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_ecs_container",
+                      "label": "AWS Services",
+                      "entity_types": [
+                        "aws_core__aws_route53_zone",
+                        "aws_core__aws_internet_gateway",
+                        "aws_core__aws_alb",
+                        "aws_core__aws_ecs_cluster",
+                        "aws_core__aws_ecs_service",
+                        "aws_core__aws_ecs_container",
+                        "aws_core__aws_rds_instance",
+                        "aws_core__aws_s3_bucket",
+                        "aws_core__aws_secrets_manager_secret",
+                        "aws_core__aws_kms_key",
+                        "aws_core__aws_ecr_repository",
+                        "aws_core__aws_iam_oidc_provider",
+                        "aws_core__aws_codepipeline_pipeline",
+                        "aws_core__aws_codebuild_project",
+                        "aws_core__aws_ec2_instance"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
-                            "process"
+                            "store",
+                            "process",
+                            "transmit",
+                            "none"
                           ]
                         }
                       ],
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_rds_instance",
+                      "label": "Containers",
+                      "entity_types": [
+                        "computing_core__host",
+                        "github_core__github_package",
+                        "github_core__github_package_version"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
+                            "process",
                             "store"
                           ]
                         }
@@ -251,19 +328,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_s3_bucket",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "store"
-                          ]
-                        }
+                      "label": "Packages",
+                      "entity_types": [
+                        "computing_core__package"
                       ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__library",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -276,12 +344,67 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__package",
+                      "label": "Libraries",
+                      "entity_types": [
+                        "computing_core__library"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
                             "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Operating Systems",
+                      "entity_types": [
+                        "computing_core__operating_system"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Secrets",
+                      "entity_types": [
+                        "computing_core__file",
+                        "computing_core__public_key",
+                        "computing_core__private_key",
+                        "aws_core__aws_acm_certificate"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Third-Party SaaS",
+                      "entity_types": [
+                        "aws_core__aws_organization",
+                        "github_core__github_platform"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store",
+                            "process",
+                            "transmit",
                             "none"
                           ]
                         }
@@ -289,7 +412,7 @@
                       "match": "all"
                     }
                   ],
-                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                  "description": "Which dimension key and values an entity of each group of entity types should carry. Each row: label, entity_types, keys (key and allowed values) and match (all or any)."
                 },
                 "status": {
                   "type": "string",
@@ -300,6 +423,21 @@
                   ],
                   "default": "mapped_incorrectly",
                   "description": "Which of the three states to list."
+                },
+                "group_by": {
+                  "type": "string",
+                  "default": "inventory",
+                  "description": "The dimension key whose value is the group an entity is counted in: the inventory category."
+                },
+                "exclude_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "crypto"
+                  ],
+                  "description": "Groups left out of the result: crypto, because a crypto provider is a finding about the code that carries it and the carrier is classified instead."
                 }
               }
             }
@@ -314,7 +452,7 @@
           },
           "node": {
             "name": "playground — classification mapping: unmapped",
-            "description": "The entities that carry none of the listed keys. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "description": "The entities that carry none of the listed keys. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal). Grouped by the inventory category; the crypto category is left out because a crypto provider is a finding about the code that carries it, and the carrier is classified instead.",
             "search_type": "module",
             "root": "node",
             "definition": {
@@ -328,31 +466,10 @@
                   "type": "array",
                   "default": [
                     {
-                      "entity_type": "computing_core__application_flow",
-                      "keys": [
-                        {
-                          "key": "dataclass.customer",
-                          "allowed": [
-                            "data",
-                            "sanitized",
-                            "creds",
-                            "logs"
-                          ]
-                        },
-                        {
-                          "key": "dataclass.infra",
-                          "allowed": [
-                            "code",
-                            "secrets",
-                            "logs",
-                            "admin"
-                          ]
-                        }
+                      "label": "Data Flows",
+                      "entity_types": [
+                        "computing_core__application_flow"
                       ],
-                      "match": "any"
-                    },
-                    {
-                      "entity_type": "computing_core__application_flow",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -364,7 +481,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__program",
+                      "label": "Programs",
+                      "entity_types": [
+                        "computing_core__program"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -376,23 +496,49 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_ecs_container",
+                      "label": "AWS Services",
+                      "entity_types": [
+                        "aws_core__aws_route53_zone",
+                        "aws_core__aws_internet_gateway",
+                        "aws_core__aws_alb",
+                        "aws_core__aws_ecs_cluster",
+                        "aws_core__aws_ecs_service",
+                        "aws_core__aws_ecs_container",
+                        "aws_core__aws_rds_instance",
+                        "aws_core__aws_s3_bucket",
+                        "aws_core__aws_secrets_manager_secret",
+                        "aws_core__aws_kms_key",
+                        "aws_core__aws_ecr_repository",
+                        "aws_core__aws_iam_oidc_provider",
+                        "aws_core__aws_codepipeline_pipeline",
+                        "aws_core__aws_codebuild_project",
+                        "aws_core__aws_ec2_instance"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
-                            "process"
+                            "store",
+                            "process",
+                            "transmit",
+                            "none"
                           ]
                         }
                       ],
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_rds_instance",
+                      "label": "Containers",
+                      "entity_types": [
+                        "computing_core__host",
+                        "github_core__github_package",
+                        "github_core__github_package_version"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
+                            "process",
                             "store"
                           ]
                         }
@@ -400,19 +546,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_s3_bucket",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "store"
-                          ]
-                        }
+                      "label": "Packages",
+                      "entity_types": [
+                        "computing_core__package"
                       ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__library",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -425,12 +562,67 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__package",
+                      "label": "Libraries",
+                      "entity_types": [
+                        "computing_core__library"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
                             "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Operating Systems",
+                      "entity_types": [
+                        "computing_core__operating_system"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Secrets",
+                      "entity_types": [
+                        "computing_core__file",
+                        "computing_core__public_key",
+                        "computing_core__private_key",
+                        "aws_core__aws_acm_certificate"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Third-Party SaaS",
+                      "entity_types": [
+                        "aws_core__aws_organization",
+                        "github_core__github_platform"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store",
+                            "process",
+                            "transmit",
                             "none"
                           ]
                         }
@@ -438,7 +630,7 @@
                       "match": "all"
                     }
                   ],
-                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                  "description": "Which dimension key and values an entity of each group of entity types should carry. Each row: label, entity_types, keys (key and allowed values) and match (all or any)."
                 },
                 "status": {
                   "type": "string",
@@ -449,6 +641,21 @@
                   ],
                   "default": "unmapped",
                   "description": "Which of the three states to list."
+                },
+                "group_by": {
+                  "type": "string",
+                  "default": "inventory",
+                  "description": "The dimension key whose value is the group an entity is counted in: the inventory category."
+                },
+                "exclude_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "crypto"
+                  ],
+                  "description": "Groups left out of the result: crypto, because a crypto provider is a finding about the code that carries it and the carrier is classified instead."
                 }
               }
             }
@@ -463,7 +670,7 @@
           },
           "node": {
             "name": "playground — classification mapping: mapped",
-            "description": "The entities that carry the listed keys with allowed values. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "description": "The entities that carry the listed keys with allowed values. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal). Grouped by the inventory category; the crypto category is left out because a crypto provider is a finding about the code that carries it, and the carrier is classified instead.",
             "search_type": "module",
             "root": "node",
             "definition": {
@@ -477,31 +684,10 @@
                   "type": "array",
                   "default": [
                     {
-                      "entity_type": "computing_core__application_flow",
-                      "keys": [
-                        {
-                          "key": "dataclass.customer",
-                          "allowed": [
-                            "data",
-                            "sanitized",
-                            "creds",
-                            "logs"
-                          ]
-                        },
-                        {
-                          "key": "dataclass.infra",
-                          "allowed": [
-                            "code",
-                            "secrets",
-                            "logs",
-                            "admin"
-                          ]
-                        }
+                      "label": "Data Flows",
+                      "entity_types": [
+                        "computing_core__application_flow"
                       ],
-                      "match": "any"
-                    },
-                    {
-                      "entity_type": "computing_core__application_flow",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -513,7 +699,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__program",
+                      "label": "Programs",
+                      "entity_types": [
+                        "computing_core__program"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -525,23 +714,49 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_ecs_container",
+                      "label": "AWS Services",
+                      "entity_types": [
+                        "aws_core__aws_route53_zone",
+                        "aws_core__aws_internet_gateway",
+                        "aws_core__aws_alb",
+                        "aws_core__aws_ecs_cluster",
+                        "aws_core__aws_ecs_service",
+                        "aws_core__aws_ecs_container",
+                        "aws_core__aws_rds_instance",
+                        "aws_core__aws_s3_bucket",
+                        "aws_core__aws_secrets_manager_secret",
+                        "aws_core__aws_kms_key",
+                        "aws_core__aws_ecr_repository",
+                        "aws_core__aws_iam_oidc_provider",
+                        "aws_core__aws_codepipeline_pipeline",
+                        "aws_core__aws_codebuild_project",
+                        "aws_core__aws_ec2_instance"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
-                            "process"
+                            "store",
+                            "process",
+                            "transmit",
+                            "none"
                           ]
                         }
                       ],
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_rds_instance",
+                      "label": "Containers",
+                      "entity_types": [
+                        "computing_core__host",
+                        "github_core__github_package",
+                        "github_core__github_package_version"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
+                            "process",
                             "store"
                           ]
                         }
@@ -549,19 +764,10 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "aws_core__aws_s3_bucket",
-                      "keys": [
-                        {
-                          "key": "dataclass.action",
-                          "allowed": [
-                            "store"
-                          ]
-                        }
+                      "label": "Packages",
+                      "entity_types": [
+                        "computing_core__package"
                       ],
-                      "match": "all"
-                    },
-                    {
-                      "entity_type": "computing_core__library",
                       "keys": [
                         {
                           "key": "dataclass.action",
@@ -574,12 +780,67 @@
                       "match": "all"
                     },
                     {
-                      "entity_type": "computing_core__package",
+                      "label": "Libraries",
+                      "entity_types": [
+                        "computing_core__library"
+                      ],
                       "keys": [
                         {
                           "key": "dataclass.action",
                           "allowed": [
                             "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Operating Systems",
+                      "entity_types": [
+                        "computing_core__operating_system"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Secrets",
+                      "entity_types": [
+                        "computing_core__file",
+                        "computing_core__public_key",
+                        "computing_core__private_key",
+                        "aws_core__aws_acm_certificate"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "label": "Third-Party SaaS",
+                      "entity_types": [
+                        "aws_core__aws_organization",
+                        "github_core__github_platform"
+                      ],
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store",
+                            "process",
+                            "transmit",
                             "none"
                           ]
                         }
@@ -587,7 +848,7 @@
                       "match": "all"
                     }
                   ],
-                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                  "description": "Which dimension key and values an entity of each group of entity types should carry. Each row: label, entity_types, keys (key and allowed values) and match (all or any)."
                 },
                 "status": {
                   "type": "string",
@@ -598,6 +859,21 @@
                   ],
                   "default": "mapped",
                   "description": "Which of the three states to list."
+                },
+                "group_by": {
+                  "type": "string",
+                  "default": "inventory",
+                  "description": "The dimension key whose value is the group an entity is counted in: the inventory category."
+                },
+                "exclude_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [
+                    "crypto"
+                  ],
+                  "description": "Groups left out of the result: crypto, because a crypto provider is a finding about the code that carries it and the carrier is classified instead."
                 }
               }
             }
@@ -615,7 +891,7 @@
           "node": {
             "name": "Summary",
             "slug": "playground-classification-mapping-summary",
-            "description": "One row per mapping row with its counts.",
+            "description": "One row per inventory category with its counts.",
             "view": "tap_web/panels/table_panel.html",
             "config": {
               "chrome": "minimal",
@@ -624,13 +900,8 @@
               "columns": [
                 {
                   "field": "label",
-                  "title": "Entity Type",
+                  "title": "Category",
                   "widthGrow": 2
-                },
-                {
-                  "field": "keys_text",
-                  "title": "Classification",
-                  "widthGrow": 3
                 },
                 {
                   "field": "denominator",
@@ -657,6 +928,13 @@
                   "field": "mapped_incorrectly",
                   "title": "Incorrect",
                   "width": 120,
+                  "align": "center",
+                  "sorter": "number"
+                },
+                {
+                  "field": "no_rule",
+                  "title": "No Rule",
+                  "width": 110,
                   "align": "center",
                   "sorter": "number"
                 },
@@ -691,6 +969,11 @@
               "default_page_size": 25,
               "striped": true,
               "columns": [
+                {
+                  "field": "group",
+                  "title": "Category",
+                  "widthGrow": 1
+                },
                 {
                   "field": "label",
                   "title": "Entity Type",
@@ -742,6 +1025,11 @@
               "striped": true,
               "columns": [
                 {
+                  "field": "group",
+                  "title": "Category",
+                  "widthGrow": 1
+                },
+                {
                   "field": "label",
                   "title": "Entity Type",
                   "widthGrow": 1
@@ -790,6 +1078,11 @@
               "default_page_size": 25,
               "striped": true,
               "columns": [
+                {
+                  "field": "group",
+                  "title": "Category",
+                  "widthGrow": 1
+                },
                 {
                   "field": "label",
                   "title": "Entity Type",

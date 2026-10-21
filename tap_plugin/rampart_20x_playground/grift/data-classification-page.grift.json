@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a15a04-3f79-7492-bc6a-b3d5a589b964",
         "entity_type": "batch",
-        "name": "rampart-20x-playground data classification page v0.1.0",
+        "name": "rampart-20x-playground data classification page v0.2.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.data-classification-page",
-        "name": "rampart-20x-playground data classification page v0.1.0",
-        "description": "The /playground/data-classification page: a title, one card per data classification key (customer, infra and action), each listing its values and the components that carry each, and under the cards the four classification-mapping tables (summary, mapped incorrectly, unmapped, mapped). Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
+        "name": "rampart-20x-playground data classification page v0.2.0",
+        "description": "The /playground/data-classification page: a title, a row of four coverage cards and the coverage chart, one card per data classification key (customer, infra and action), each listing its values and the components that carry each, and under the cards the four classification-mapping tables (summary, mapped incorrectly, unmapped, mapped). Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
       },
       "nodes": [
         {
@@ -43,8 +43,58 @@
                   }
                 },
                 "col-2": {
-                  "width": "4fr",
+                  "width": "3fr",
                   "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-coverage-overall",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "3fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-coverage-mapped",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "3fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-coverage-unmapped",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "3fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-coverage-incorrect",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-6": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-coverage-chart",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-7": {
+                  "width": "4fr",
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-data-classification-customer",
@@ -52,9 +102,9 @@
                     }
                   }
                 },
-                "col-3": {
+                "col-8": {
                   "width": "4fr",
-                  "band": 2,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-data-classification-infra",
@@ -62,9 +112,9 @@
                     }
                   }
                 },
-                "col-4": {
+                "col-9": {
                   "width": "4fr",
-                  "band": 2,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-data-classification-action",
@@ -72,9 +122,9 @@
                     }
                   }
                 },
-                "col-5": {
+                "col-10": {
                   "width": "12fr",
-                  "band": 3,
+                  "band": 5,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-classification-mapping-summary",
@@ -82,9 +132,9 @@
                     }
                   }
                 },
-                "col-6": {
+                "col-11": {
                   "width": "12fr",
-                  "band": 4,
+                  "band": 6,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-classification-mapping-mapped-incorrectly",
@@ -92,9 +142,9 @@
                     }
                   }
                 },
-                "col-7": {
+                "col-12": {
                   "width": "12fr",
-                  "band": 5,
+                  "band": 7,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-classification-mapping-unmapped",
@@ -102,9 +152,9 @@
                     }
                   }
                 },
-                "col-8": {
+                "col-13": {
                   "width": "12fr",
-                  "band": 6,
+                  "band": 8,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-classification-mapping-mapped",
@@ -622,6 +672,106 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-classification-mapping-mapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cb32292c77",
+            "entity_type": "edge",
+            "name": "Classification page USES_PANEL Overall Coverage",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a16098-57be-71da-9424-40bac25f21b8",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-coverage-overall"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cd5c1d283c",
+            "entity_type": "edge",
+            "name": "Classification page USES_PANEL Mapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a16098-57be-71da-9424-40bbfb253ef9",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-coverage-mapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cf558bc064",
+            "entity_type": "edge",
+            "name": "Classification page USES_PANEL Unmapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a16098-57be-71da-9424-40bc4c49133a",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-coverage-unmapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40d15b3332a3",
+            "entity_type": "edge",
+            "name": "Classification page USES_PANEL Incorrect",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a16098-57be-71da-9424-40bd8dd749b4",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-coverage-incorrect"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40d3c2cb3893",
+            "entity_type": "edge",
+            "name": "Classification page USES_PANEL Data Classification Coverage",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a16098-57be-71da-9424-40bfd0933590",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-coverage-chart"
               }
             }
           }

@@ -90,6 +90,7 @@ class TestSurfaces:
             "grift/data-classification-page.grift.json",
             "grift/dimensions-actors.grift.json",
             "grift/dimensions.grift.json",
+            "grift/inventory-coverage.grift.json",
             "grift/inventory-entities.grift.json",
             "grift/inventory-page.grift.json",
             "grift/inventory-software.grift.json",

@@ -42,7 +42,7 @@
           },
           "node": {
             "name": "inventory.applications",
-            "description": "The `applications` category on the inventory axis: running applications inside the environment."
+            "description": "Applications: running applications inside the environment."
           }
         },
         {
@@ -56,7 +56,7 @@
           },
           "node": {
             "name": "inventory.libraries",
-            "description": "The `libraries` category on the inventory axis: software libraries."
+            "description": "Libraries: software libraries."
           }
         },
         {
@@ -70,7 +70,7 @@
           },
           "node": {
             "name": "inventory.packages",
-            "description": "The `packages` category on the inventory axis: packages a package manager installed, one row per ecosystem, name and version."
+            "description": "Packages: packages a package manager installed, one row per ecosystem, name and version."
           }
         },
         {
@@ -84,7 +84,7 @@
           },
           "node": {
             "name": "inventory.os",
-            "description": "The `os` category on the inventory axis: operating systems."
+            "description": "Operating Systems."
           }
         },
         {
@@ -98,7 +98,7 @@
           },
           "node": {
             "name": "inventory.containers",
-            "description": "The `containers` category on the inventory axis: container images, one row per class of identical image."
+            "description": "Containers: container images, one row per class of identical image."
           }
         },
         {
@@ -112,7 +112,7 @@
           },
           "node": {
             "name": "inventory.crypto",
-            "description": "The `crypto` category on the inventory axis: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each."
+            "description": "Crypto: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each."
           }
         },
         {
@@ -126,7 +126,7 @@
           },
           "node": {
             "name": "inventory.secrets",
-            "description": "The `secrets` category on the inventory axis: secret material, keys, certificates and secrets."
+            "description": "Secrets: secret material, keys, certificates and secrets."
           }
         },
         {
@@ -140,7 +140,7 @@
           },
           "node": {
             "name": "inventory.cloud",
-            "description": "The `cloud` category on the inventory axis: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library or OS/container."
+            "description": "Cloud Services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library or OS/container."
           }
         },
         {
@@ -154,7 +154,7 @@
           },
           "node": {
             "name": "inventory.saas",
-            "description": "The `saas` category on the inventory axis: third-party SaaS, the interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from."
+            "description": "Third-Party SaaS: third-party SaaS, the interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from."
           }
         },
         {
