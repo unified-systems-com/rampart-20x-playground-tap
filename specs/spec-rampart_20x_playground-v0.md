@@ -72,7 +72,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-dependabot-pull | [Dependabot Pull](#dependabot-pull) | Proposed | One-off pull of `tap`'s Dependabot alerts, via a new model in `github-core-tap`; shapes the finding entry |
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
-| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
+| req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Four cards, three charts and three searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction, one card per data classification key, each describing the classification and its values and counting components by value and entity type, and under the cards the four classification-mapping tables |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
@@ -412,8 +412,8 @@ RID: `req-rampart-20x-playground-page-vulnerabilities`
 Status: `Proposed`
 
 The vulnerabilities page tells a story to someone who has just arrived: how much is open, how severe it is,
-what carries it, and what is already done. It is three cards, three charts, a table of the open vulnerabilities
-and a table of the components that carry them, over the `compliance_core` vulnerability and finding nodes and
+what carries it, and what is already done. It is four cards, three charts, a table of the open vulnerabilities,
+a table of the components that carry them and a table of the components that carry embedded malicious code (CWE-506), over the `compliance_core` vulnerability and finding nodes and
 the `computing_core` components they concern. Each row drills in: a vulnerability page shows as much context as
 the grid holds, the components that carry it and the systems where it was found; a component page shows its
 type and every vulnerability it carries.
@@ -436,15 +436,16 @@ and is not built here.
 
 #### Implementation
 
-Route `/playground/vulnerabilities`, two bands. The first band is three equal columns, each a Stat Cards card
-over a Chart panel, so a card is as wide as its column: open findings, findings on CISA's KEV catalog and closed
-findings; then the CVSS score of the open findings (the count printed in each bar), the most open findings (the ten
+Route `/playground/vulnerabilities`, three bands. The first band is four equal columns, each one Stat Cards card:
+findings on CISA's KEV catalog, open findings, closed findings and the vulnerabilities classed CWE-506 (Embedded
+Malicious Code; green at zero). The second band is three equal columns, each a Chart panel: the CVSS score of the open findings (the count printed in each bar), the most open findings (the ten
 components carrying most, each bar stacked High, Medium and Low in the CVSS colours), and severity by age, a scatter of
 publication time against CVSS score whose white bubble counts carry no outline. A card shows its figure
 and the tone's left edge, with no unit, no secondary line and no tone word. The three charts share one height.
-The second band is full width: a table of the open vulnerabilities (id, title, CVSS, KEV, publication time and
-the number of components that carry it) and a table of the components with an open vulnerability (name, type,
-open findings and highest CVSS). Both search and page, with alternating row shading, and their vulnerability and component links draw in the cell's own
+The third band is full width: a table of the open vulnerabilities (id, title, CVSS, KEV, publication time and
+the number of components that carry it), a table of the components with an open vulnerability (name, type,
+open findings and highest CVSS) and `Components With Embedded Malicious Code` (component, type, vulnerability, state
+and findings, for each finding of a vulnerability whose CWE list contains CWE-506; empty, it shows the core's `No results.`). All three search and page, with alternating row shading, and their vulnerability and component links draw in the cell's own
 text colour with no underline or hover highlight. Every heading, panel name and column title is in Title Case. A row opens `/playground/vulnerabilities/vulnerability`
 or `/playground/vulnerabilities/component`; the id is a query parameter that the page forwards to its Searches
 as a declared input. Every panel is bound by `USES_SEARCH` to one Search; the Searches reach vulnerabilities,
@@ -458,7 +459,7 @@ delivers enriched vulnerabilities.
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-vulnerabilities-1 | Routes Serve | Proposed | `GET /playground/vulnerabilities`, `/playground/vulnerabilities/cve?vuln_id=...`, `/playground/vulnerabilities/vulnerability?vuln_id=...` and `/playground/vulnerabilities/component?component_id=...` return 200. | |
-| req-rampart-20x-playground-page-vulnerabilities-2 | Cards Over Charts In Three Columns | Proposed | The first band is three equal columns, each a card over a chart; the cards carry no unit, secondary line or tone word. | |
+| req-rampart-20x-playground-page-vulnerabilities-2 | Cards Over Charts | Proposed | The first band is four equal columns of one card each; the second is three equal columns of one chart each; the cards carry no unit, secondary line or tone word. | The cards were each over a chart in three columns until the fourth card (`page-vulnerabilities-22`) made the page a row of cards over a row of charts. |
 | req-rampart-20x-playground-page-vulnerabilities-3 | No Tool In A Search | Proposed | No Search names a scanner, a vulnerability or a node id. | The scanner is reached by edge, the vulnerability by a parameter. |
 | req-rampart-20x-playground-page-vulnerabilities-4 | Standard Vocabulary Only | Proposed | The Searches read only `compliance_core`, `computing_core` and `github_core` types. | |
 | req-rampart-20x-playground-page-vulnerabilities-5 | Config Names Returned Fields | Proposed | Every field a column, chart or row link names is a RETURN alias of its Search; every `$parameter` a Search uses is declared in its input schema. | |
@@ -478,6 +479,7 @@ delivers enriched vulnerabilities.
 | req-rampart-20x-playground-page-vulnerabilities-19 | Severity Bubbles Have No Outline | Proposed | The severity-by-age series label is white and bold with `textBorderWidth` 0 and no `textBorderColor`. | White on the yellow Medium bubbles has a low contrast ratio. |
 | req-rampart-20x-playground-page-vulnerabilities-20 | Most Open Findings Is Stacked By Band | Proposed | The chart is a stacked bar of one series each for High, Medium and Low in `#c0392b`, `#d9a400` and `#2f9e6b` (the CVSS scheme), sorted by `total` and limited to ten, reading the `component-severity` runner; it keeps its click-through to the component page and shows a legend. | The `top-components` Search became a `module` Search because a panel's `USES_SEARCH` edge cannot be repointed. |
 | req-rampart-20x-playground-page-vulnerabilities-21 | Component Page Is A Hero, A Systems Table And A Vulnerabilities Table | Proposed | The component page is one full-width column of three rows. (1) A hero stat card (`stat_card_panel`, `layout: figure_right`): the component's name as the bold title, the count of its open findings as the figure with the unit `open findings`, its type as the header line and its highest CVSS as a line; the same `comp-identity` Search rows, no new code. (2) The `Systems Where It Runs` table, full width and striped. (3) The `Vulnerabilities` table, full width, striped, its id links `style: plain`. Backlog, not built: the people or team responsible for the component belong in the hero card; the teams bundle now exists and the line is blocked on Gryphon (`req-rampart-20x-playground-component-team`); no blank line stands in for them. | Ruled 2026-10-20 (George, component page nits 1 to 4); item 4 is Backlog (`req-rampart-20x-playground-component-team`). |
+| req-rampart-20x-playground-page-vulnerabilities-22 | Embedded Malicious Code Card And Table | Proposed | The overview holds a stat card `Embedded Malicious Code (CWE-506)` (Search `MATCH (v:compliance_core__compliance_vulnerability) WHERE v.data.cwes CONTAINS "CWE-506" RETURN COUNT(v) AS malicious`; tone `bad`, `zero_tone` `good`) as the fourth card of the first band, and a striped, searchable, paged table `Components With Embedded Malicious Code` (Search over components that carry a finding concerning such a vulnerability, excluding repositories) as the third table of the full-width band; a row click opens the component page. Component and vulnerability cells are plain links to the component and CVE pages; the type cell is a badge. | Authored in cve-tap and dropped in. The seed carries no CWE-506 vulnerability, so the card reads 0 and the table shows the core's `No results.`: the table panel has no table-level empty text option (the fragment's `empty_text` is a column-level key and was dropped). |
 
 ### Data Classification Page
 
