@@ -360,6 +360,43 @@ class TestVulnerabilityPages:
             assert f"playground-vulnerabilities-{need}" in slots, need
         assert "$component_id" in self._query(self.by_slug["playground-vulnerabilities-component-vulnerabilities"])
 
+    def test_the_two_tables_show_the_fix_the_scanner_states(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-20"""
+        for slug in ("playground-vulnerabilities-vuln-components", "playground-vulnerabilities-component-vulnerabilities"):
+            panel = self.by_slug[slug]
+            query = self._query(panel)
+            assert "-[e:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->" in query, slug
+            assert "e.data.properties.fix_state AS fix_state" in query and "e.data.properties.fixed_versions AS fixed_versions" in query, slug
+            columns = {c["field"]: c for c in panel["node"]["config"]["columns"]}
+            assert {"fixed_versions", "fix_state"} <= self._returned(panel) & set(columns), slug
+            assert list(columns).index("fixed_versions") + 1 == list(columns).index("fix_state"), "the versions sit beside the state"
+            badge = columns["fix_state"]
+            assert badge["formatter"] == "toneBadge" and badge["title"] == "Fix"
+            labels = badge["formatter_params"]["labels"]
+            assert labels == {"fixed": "Fix Available", "not-fixed": "No Fix Yet", "wont-fix": "Will Not Be Fixed", "unknown": "Unknown"}
+            assert badge["formatter_params"]["tones"] == {"fixed": "good", "not-fixed": "warn", "wont-fix": "bad", "unknown": "muted"}
+            assert set(badge["formatter_params"]["tones"]) == set(labels), "a state with a label has a tone and the other way round"
+
+    def test_every_demo_finding_edge_carries_the_fix_state_its_sbom_stated(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-20: the seeded data the Fix columns read."""
+        enrichment = json.loads((GRIFT / "vulnerability-enrichment.grift.json").read_text(encoding="utf-8"))
+        edges = [
+            e["edge"]
+            for b in enrichment["batches"]
+            for e in b["edges"]
+            if e["edge"]["edge_type"] == "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core"
+        ]
+        assert len(edges) == 94
+        states = {}
+        for edge in edges:
+            states[edge["properties"]["fix_state"]] = states.get(edge["properties"]["fix_state"], 0) + 1
+            if edge["properties"]["fix_state"] == "fixed":
+                assert edge["properties"]["fixed_versions"], "a fix that exists names its versions"
+            if edge["properties"]["fix_state"] == "unknown":
+                assert "fixed_versions" not in edge["properties"], "an unknown fix names no versions"
+        # Revision 3 of the tap-web SBOM states fixed for 67 matches and unknown for 27, and no won't-fix or not-fixed.
+        assert states == {"fixed": 67, "unknown": 27}
+
     def test_the_component_page_opens_the_cve_page_by_row_and_by_id_link(self) -> None:
         config = self.by_slug["playground-vulnerabilities-component-vulnerabilities"]["node"]["config"]
         assert config["row_url_template"] == CVE + "?vuln_id={id}"
@@ -523,7 +560,7 @@ class TestVulnerabilityPages:
         assert column["field"] == "cwes" and column["formatter"] == "linkList"
         assert "cwes" in self._returned(panel)
 
-    def test_the_components_and_systems_tables_moved_to_the_cve_page_with_their_searches_unchanged(self) -> None:
+    def test_the_components_and_systems_tables_moved_to_the_cve_page_with_their_searches_otherwise_unchanged(self) -> None:
         slots = set(self._slots(CVE))
         assert {"playground-vulnerabilities-vuln-components", "playground-vulnerabilities-vuln-systems"} <= slots
         components = self.by_slug["playground-vulnerabilities-vuln-components"]
@@ -531,7 +568,8 @@ class TestVulnerabilityPages:
         assert "$vuln_id" in self._query(components) and "$vuln_id" in self._query(systems)
         assert "computing_core__host" in self._query(systems)
         assert components["node"]["config"]["row_url_template"] == COMPONENT + "?component_id={cid}"
-        assert {c["field"] for c in components["node"]["config"]["columns"]} == {"component", "type", "status", "findings"}
+        # the same four columns as before, plus the two fix columns (req-rampart-20x-playground-page-vulnerabilities-20)
+        assert {c["field"] for c in components["node"]["config"]["columns"]} == {"component", "type", "status", "fixed_versions", "fix_state", "findings"}
         assert {c["field"] for c in systems["node"]["config"]["columns"]} == {"system", "packages"}
 
     def test_the_vulnerability_page_opens_the_cve_page_by_the_id_it_carries(self) -> None:
