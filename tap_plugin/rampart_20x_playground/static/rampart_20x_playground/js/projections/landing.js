@@ -166,6 +166,24 @@
  *      from gunicorn to the three entities, which are marked overview=shown), titled Keys, drawn with tap_viz's applyStack like the Libraries and
  *      Packages piles. The runtime form is a derived containment edge (CONTAINS_KEY__playground) from the container to each key, never written to
  *      the grid; no key material is read or drawn, only the names.
+ *  51. the Wolfi OS box laid out by hand (overview nits, round seven; `_interiorHand`, `_osFloor`, `_placeInterior`; should become the `pile`
+ *      arrangement of 28 with a `row: bottom`, a per-node `size` / `shape: square` display hint and a `floor` of the nested layouts' container):
+ *      the OS box holds the programs AND the three piles. The programs stand in one row at the top (gunicorn, then the application program,
+ *      tap-web: the program another program runs, drawn as the PROGRAM_LARGE box with its name top-centre, room for a later zoom level),
+ *      the Keys, Libraries and Packages piles stand below them in one horizontal line, in that order (PILE_ORDER). The piles' derived
+ *      containment (CONTAINS_*__playground) runs from the OS, not the container. The programs and the pile faces are out of the nesting while
+ *      it runs; the OS is sized by a floor computed from the same constants, and they are placed afterwards. The container's bottom padding is
+ *      computed so the line of sight through gunicorn is the vertical centre of the web task, so the container fills the task.
+ *  52. the flows' colour by the data they carry (`FLOW_COLOURS`, `_flowColour`, `_styleFlow`, `_styleFlowEdges`, `_rotateFlowIcons`; should become a
+ *      per-dimension-value `color` display hint of the application-flow type that its node, its edge types' line and arrow and its icon all read):
+ *      a small table from the flow's `dataclass.customer` or `dataclass.infra` value to one colour, applied to the flow's lines, arrowhead,
+ *      glyph and name. No flow is coloured by name or id.
+ *  53. the pile window (`_pileOf`, `_openPileWindow`, `_showWindow`; should become a projection-declared `node_info` window of tap_viz with a
+ *      `members` source for an aggregate node, the form of 7): a tap on a pile of the interior (its face, a card behind it or its count chip)
+ *      lists the pile's members by name, each linked to its own page (`/object/{entity_type}/{url_id}/`), in the window of 7.
+ *  54. the revealed icons are hidden again on the way out (`_dropHiddenBadges`; should become: applyBadgeNodes reads a host's style fresh, or skips
+ *      a host with the elevation-hidden class): the type badge of a node the elevation just hid was drawn anyway, because `visible()` is read before
+ *      Cytoscape has applied the class's `display: none`; the badge stayed on the canvas, at the origin, when the interior was hidden again.
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -382,9 +400,10 @@ const REVEAL_ON_ZOOM = true;
 //: size, in model units. The runtime derives it from the smallest host drawn (0.35 of its shorter side, 24 at least), and
 //: hiding the small interior made it 31 and more.
 const BADGE_SIZE = 24;
-//: Playground exception 17: room, in model units, added above the task's contents. The container is moved up onto the line of
-//: sight (_alignInteriorToLine), and without this it would stand against the task's title and its type badge.
-const TASK_TOP_ROOM = 36;
+//: Playground exception 17: room, in model units, added above the task's contents. The container used to be moved up onto the line of
+//: sight (_alignInteriorToLine), and without this it stood against the task's title and its type badge. Exception 51 makes the line of
+//: sight the task's centre, so nothing moves and the task's own label room is enough.
+const TASK_TOP_ROOM = 0;
 //: Playground exception 15: how long the interior fades in and out (milliseconds).
 const FADE_MS = 450;
 const ELEVATION_ZOOM_RATIO = 2;
@@ -395,9 +414,9 @@ const LIFT_EDGE = [
     {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
     {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
     {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
-    {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
-    {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
-    {name: "container-holds-key", gryphon: `(parent:${T.ecsContainer})-[:${E.containsKey}]->(child)`},
+    {name: "os-holds-library", gryphon: `(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})`},
+    {name: "os-holds-package", gryphon: `(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})`},
+    {name: "os-holds-key", gryphon: `(parent:${T.os})-[:${E.containsKey}]->(child)`},
     {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exceptions 11 and 48: the derived containment edges (never in the grid) the interior's nesting reads.
@@ -425,6 +444,29 @@ const FLOW_WINDOW_CLASS = "tap-info-window";
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
 const CONTAINER = {width: 220, height: 110};
+
+//: Playground exception 51: the Wolfi OS box laid out by hand. The application program (the one another program runs) is a square of this side
+//: (model units, interior scale), the gap between the programs of the row, the gap between the programs' row and the piles' row, the piles'
+//: face (a program's size at INTERIOR_SCALE) and the spread of the cards behind a pile's face.
+const PROGRAM_LARGE = {width: 280, height: 140};
+//: Playground exception 51: the other programs of the row are PROGRAM_TALL times the usual program box in height.
+const PROGRAM_TALL = 1.5;
+const PROGRAM_GAP = 40;
+const PILE_ROW_GAP = 24;
+const PROGRAM_BOX = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
+const PILE_STACK_SPREAD = INTERIOR_PILE_STEP * (INTERIOR_PILE_DEPTH - 1);
+//: Playground exception 51: the room above the application program's name, inside its square.
+const PROGRAM_TITLE_INSET = 8;
+//: Playground exception 51: the order of the piles in the row, left to right, by the derived edge that holds each.
+const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage];
+
+//: Playground exception 52: the colour of a flow by the data it carries, from its `dataclass.customer` or `dataclass.infra` value. Customer
+//: data keeps the original deep blue; sanitized customer data is a lighter blue; the infrastructure classes each have a hue of their own, all at
+//: least 3:1 against the graph canvas (#f1f0ec, the same in every theme). A flow with none of these keeps FLOW_BLUE.
+const FLOW_COLOURS = {
+    "dataclass.customer": {data: "#0B3D91", sanitized: "#1D63C9", creds: "#BE185D", logs: "#475569"},
+    "dataclass.infra": {admin: "#C2410C", code: "#166534", secrets: "#0F766E", logs: "#8A7A1E"},
+};
 
 export async function execute(context) {
     const {cy, trigger_reason} = context;
@@ -485,6 +527,15 @@ export async function execute(context) {
     // Playground exceptions 11, 48 and 49: the interior's derived containment, and its piles (all but the face of each out of the nesting).
     _deriveInterior(cy);
     piles.push(..._collapseInteriorPiles(cy));
+    // Playground exception 51: the programs and the pile faces of each OS box are out of the nesting; the box is sized by a floor from the same
+    // constants and they are placed by hand afterwards. The container's bottom padding makes the line of sight through gunicorn the vertical
+    // centre of the web task: top room of the task + the container + the OS box, less what stands below the programs' row.
+    const hand = _interiorHand(cy, piles);
+    hand.nodes.addClass(ELEVATION_HIDDEN_CLASS);
+    const osFloor = _osFloor(hand.entries, interiorPad);
+    baseSizes[T.os] = {width: osFloor.width, height: osFloor.height};
+    const containerPad = {...interiorPad, bottom: Math.max(interiorPad.bottom,
+        pad.top + TASK_TOP_ROOM + interiorPad.top + interiorPad.top - osFloor.below - interiorPad.bottom - pad.bottom)};
 
     const result = await projectNested(cy, {
         relationships: [
@@ -496,9 +547,9 @@ export async function execute(context) {
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
             {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
             {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
-            {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
-            {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
-            {name: "container-holds-key", gryphon: `(parent:${T.ecsContainer})-[:${E.containsKey}]->(child)`},
+            {name: "os-holds-library", gryphon: `(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})`},
+            {name: "os-holds-package", gryphon: `(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})`},
+            {name: "os-holds-key", gryphon: `(parent:${T.os})-[:${E.containsKey}]->(child)`},
             {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "host-holds", gryphon: `(parent:${T.host})-[:${E.definesOsUser}]->(child)`},
             {name: "platform-holds", gryphon: `(parent:${T.platform})-[:${E.hostsAccount}]->(child)`},
@@ -510,7 +561,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: interiorPad, [T.os]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: containerPad, [T.os]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
         innerLayout: {name: "ranked", sort: "order", columnGap: 140, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -540,7 +591,9 @@ export async function execute(context) {
         },
     });
 
-    _alignKeyPiles(piles);
+    _placeInterior(cy, hand.entries, interiorPad);
+    hand.nodes.removeClass(ELEVATION_HIDDEN_CLASS);
+    cy.scratch("landing_piles", piles);
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
@@ -648,7 +701,8 @@ export async function execute(context) {
     parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
     cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
     // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
-    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg, T.privateKey, T.publicKey, T.file].includes(n.data("entity_type"))));
+    _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg, T.privateKey, T.publicKey, T.file].includes(n.data("entity_type"))),
+        interiorChrome.nodeFontSize * FONT_SCALE * PROGRAM_FONT_FACTOR);
     // Playground exception 48: the operating-system box, in its own colours.
     _styleOs(cy.nodes(`[entity_type = "${T.os}"]`));
     shown([T.flow]).forEach((n) => n.scratch("landingFontFactor", FLOW_FONT_FACTOR));
@@ -1225,6 +1279,12 @@ function _bindFlowWindow(cy) {
     if (previous) cy.off("tap", "node", previous);
     const handler = (evt) => {
         const node = evt.target;
+        // Playground exception 53: a tap on a pile of the interior lists its members.
+        const pile = _pileOf(cy, node);
+        if (pile) {
+            _openPileWindow(cy, node, pile);
+            return;
+        }
         if (node.data("entity_type") !== T.flow) return;
         _openFlowWindow(cy, node);
     };
@@ -1244,36 +1304,21 @@ function _closeFlowWindow() {
 }
 
 function _openFlowWindow(cy, node) {
-    const panelEl = cy.container();
-    if (!panelEl) return;
-    const wasThis = _flowWindow && _flowWindow.nodeId === node.id();
-    _closeFlowWindow();
-    closeInfoWindow();
-    if (wasThis) return;
-    const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     const dims = Object.entries(node.data("dimensions") || {}).filter(([key]) => key.startsWith(FLOW_DIMENSION_PREFIX))
         .sort(([a], [b]) => a.localeCompare(b));
     const description = (node.data("fields") || {}).description || "";
     const rows = dims.length
-        ? dims.map(([key, value]) => `<tr><td>${esc(key)}</td><td><strong>${esc(value)}</strong></td></tr>`).join("")
+        ? dims.map(([key, value]) => `<tr><td>${_esc(key)}</td><td><strong>${_esc(value)}</strong></td></tr>`).join("")
         : `<tr><td>none</td></tr>`;
-    const el = document.createElement("div");
-    el.className = FLOW_WINDOW_CLASS;
-    el.setAttribute("role", "dialog");
-    el.setAttribute("aria-label", "Application flow details");
-    el.dataset.playgroundFlowWindow = "true";
-    el.innerHTML = `
-        <div class="tap-info-window__header">
-            <div class="tap-info-window__title">
-                <div class="tap-info-window__name">${esc(node.data("label") || node.id())}</div>
-                <div class="tap-info-window__type">${esc(node.data("entity_type"))}</div>
-            </div>
-            <button type="button" class="tap-info-window__close" aria-label="Close">×</button>
-        </div>
-        <div class="tap-info-window__body">
+    _showWindow(cy, node, {
+        label: "Application flow details",
+        flag: "playgroundFlowWindow",
+        title: node.data("label") || node.id(),
+        type: node.data("entity_type"),
+        body: `
             <section class="tap-info-window__section">
                 <div class="tap-info-window__section-header"><span class="tap-info-window__set-name">Description</span></div>
-                <div class="tap-info-window__section-body" data-flow-description>${esc(description)}</div>
+                <div class="tap-info-window__section-body" data-flow-description>${_esc(description)}</div>
             </section>
             <section class="tap-info-window__section">
                 <div class="tap-info-window__section-header">
@@ -1283,8 +1328,87 @@ function _openFlowWindow(cy, node) {
                 <div class="tap-info-window__section-body">
                     <table class="tap-info-window__table"><tbody>${rows}</tbody></table>
                 </div>
-            </section>
-        </div>`.trim();
+            </section>`,
+    });
+}
+
+function _esc(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/**
+ * Playground exception 53: the pile a node of the interior belongs to, or null: its face (the representative, which carries the stack's id as its
+ * front marker), a card behind it or its count chip (which carry it as their stack id). Only the interior piles (INTERIOR_STACK_PREFIX) count; the
+ * zone copies of the subnets are stacks too.
+ */
+function _pileOf(cy, node) {
+    const id = node.data("_stack_front_id") || node.data("_stack_id");
+    if (!id || !String(id).startsWith(INTERIOR_STACK_PREFIX)) return null;
+    return (cy.scratch("landing_piles") || []).find((pile) => pile.stackId === id) || null;
+}
+
+/**
+ * Playground exception 53 (should become a projection-declared `node_info` window of tap_viz with a `members` source): the window of a pile
+ * lists the members by name, sorted, each a link to the member's own page (the object-viewer convention of the grid,
+ * `/object/{entity_type}/{url_id}/`). The count is the pile's true one. The members are read from the nodes the pile was built from (no
+ * network call).
+ */
+function _openPileWindow(cy, node, pile) {
+    const members = pile.members.slice().sort((a, b) => String(a.data("label")).localeCompare(String(b.data("label"))));
+    // The face's own label was replaced by the pile's title (the stack keeps the original aside).
+    const name = (n) => (n.data("_stack_label_orig") !== undefined ? n.data("_stack_label_orig") : n.data("label")) || n.id();
+    const page = (n) => (n.data("entity_type")
+        ? `/object/${encodeURIComponent(n.data("entity_type"))}/${encodeURIComponent(n.data("url_id") || `entity--${n.id()}`)}/` : "");
+    const rows = members.map((n) => {
+        const url = page(n);
+        const text = _esc(name(n));
+        return `<tr><td>${url ? `<a href="${_esc(url)}">${text}</a>` : text}</td></tr>`;
+    }).join("");
+    _showWindow(cy, node, {
+        label: `${pile.label} pile`,
+        flag: "playgroundPileWindow",
+        key: pile.stackId,
+        title: pile.label,
+        type: [...new Set(members.map((n) => n.data("entity_type")))].join(", "),
+        body: `
+            <section class="tap-info-window__section">
+                <div class="tap-info-window__section-header">
+                    <span class="tap-info-window__set-name">${_esc(pile.label)}</span>
+                    <span class="tap-info-window__count">${members.length}</span>
+                </div>
+                <div class="tap-info-window__section-body">
+                    <table class="tap-info-window__table"><tbody>${rows}</tbody></table>
+                </div>
+            </section>`,
+    });
+}
+
+/**
+ * The window of exceptions 7 and 53: the tap_viz info window's own CSS classes and behaviour (a close X, ESC, a click outside, one at a time,
+ * a second tap on the same node closes it), positioned right of the node and clamped to the panel.
+ */
+function _showWindow(cy, node, {label, flag, key, title, type, body}) {
+    const panelEl = cy.container();
+    if (!panelEl) return;
+    const id = key || node.id();
+    const wasThis = _flowWindow && _flowWindow.nodeId === id;
+    _closeFlowWindow();
+    closeInfoWindow();
+    if (wasThis) return;
+    const el = document.createElement("div");
+    el.className = FLOW_WINDOW_CLASS;
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-label", label);
+    el.dataset[flag] = "true";
+    el.innerHTML = `
+        <div class="tap-info-window__header">
+            <div class="tap-info-window__title">
+                <div class="tap-info-window__name">${_esc(title)}</div>
+                <div class="tap-info-window__type">${_esc(type)}</div>
+            </div>
+            <button type="button" class="tap-info-window__close" aria-label="Close">×</button>
+        </div>
+        <div class="tap-info-window__body">${body}</div>`.trim();
     // Positioned like the tap_viz info window: right of the node, clamped to the panel.
     const rpos = node.renderedPosition();
     const panelRect = panelEl.getBoundingClientRect();
@@ -1296,7 +1420,9 @@ function _openFlowWindow(cy, node) {
     el.style.width = `${FLOW_WINDOW_WIDTH}px`;
     el.style.maxHeight = `${Math.floor(panelRect.height * 0.6)}px`;
     panelEl.appendChild(el);
-    const state = {el, nodeId: node.id(), keydown: null, outsideClick: null};
+    // Clamped so the whole window stands in the panel (a pile's list is tall).
+    el.style.top = `${Math.max(0, Math.min(top, panelRect.height - el.offsetHeight))}px`;
+    const state = {el, nodeId: id, keydown: null, outsideClick: null};
     _flowWindow = state;
     el.querySelector(".tap-info-window__close").addEventListener("click", (e) => {
         e.stopPropagation();
@@ -1482,7 +1608,7 @@ function _resetElevation(cy) {
  *   - the container's operating system: the image it runs (RUNS_IMAGE) runs it (RUNS_OPERATING_SYSTEM);
  *   - the programs inside that operating system are not derived: the OS has a RUNS_PROGRAM edge to each (exception 48), and the nesting reads it;
  *   - the libraries those programs load (LOADS_LIBRARY), the packages the image has installed (INSTALLS_PACKAGE) and the keys and certificates
- *     those programs use (USES_KEY, exception 50) are held by the container.
+ *     those programs use (USES_KEY, exception 50) are held by the operating system (exception 51).
  */
 function _deriveInterior(cy) {
     const out = new Map();
@@ -1511,9 +1637,11 @@ function _deriveInterior(cy) {
         const systems = step(image, E.runsOs);
         const programs = closure([container.id()], E.runsProgram);
         systems.forEach((os) => add(container.id(), os, E.containsOs));
-        step(programs, E.loadsLibrary).forEach((lib) => add(container.id(), lib, E.containsLibrary));
-        step(image, E.installsPackage).forEach((pkg) => add(container.id(), pkg, E.containsPackage));
-        step(programs, E.usesKey).forEach((key) => add(container.id(), key, E.containsKey));
+        // Playground exception 51: the piles are held by the operating system box, not the container.
+        if (!systems.length) return;
+        step(programs, E.loadsLibrary).forEach((lib) => add(systems[0], lib, E.containsLibrary));
+        step(image, E.installsPackage).forEach((pkg) => add(systems[0], pkg, E.containsPackage));
+        step(programs, E.usesKey).forEach((key) => add(systems[0], key, E.containsKey));
     });
     if (added.length) cy.add(added);
 }
@@ -1545,17 +1673,79 @@ function _collapseInteriorPiles(cy) {
 }
 
 /**
- * Playground exception 50 (should become the per-pile `row` of the `pile` arrangement of exception 28: a column with one pile is not centred
- * on the line of sight): the Keys pile of a container stands level with its Libraries pile, in a column of its own, so the line of sight
- * keeps running between the Libraries and the Packages. The container's box was sized for the column, so nothing outgrows it.
+ * Playground exception 51 (should become the `pile` arrangement with a `row: bottom` and a per-node size hint): for each operating system box, what
+ * it holds by hand: its programs (the OS's own RUNS_PROGRAM edges, in column order) and its piles (the derived containment edges from the OS, in
+ * PILE_ORDER). The application program, the one another program runs (gunicorn runs tap-web), is marked large. The programs and the pile faces are
+ * out of the nesting while it runs (`nodes`); `_osFloor` sizes the box and `_placeInterior` stands them in it.
  */
-function _alignKeyPiles(piles) {
+function _interiorHand(cy, piles) {
     const holder = (pile) => pile.stackId.slice(INTERIOR_STACK_PREFIX.length).split("|")[0];
-    const keys = piles.filter((p) => p.label === INTERIOR_PILES[E.containsKey]);
-    keys.forEach((keyPile) => {
-        const libraries = piles.find((p) => p.label === INTERIOR_PILES[E.containsLibrary] && holder(p) === holder(keyPile));
-        if (!libraries) return;
-        keyPile.representative.position({x: keyPile.representative.position("x"), y: libraries.representative.position("y")});
+    const entries = [];
+    let nodes = cy.collection();
+    cy.nodes(`[entity_type = "${T.os}"]`).forEach((os) => {
+        const programs = cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().same(os)
+            && e.target().data("entity_type") === T.program).map((e) => e.target());
+        programs.sort((a, b) => (Number(a.data("_stage")) - Number(b.data("_stage"))) || String(a.data("label")).localeCompare(String(b.data("label"))));
+        programs.forEach((n) => n.scratch("landingLarge", cy.edges().some((e) => _edgeType(e) === E.runsProgram && e.target().same(n)
+            && e.source().data("entity_type") === T.program)));
+        const held = piles.filter((pile) => pile.stackId.startsWith(INTERIOR_STACK_PREFIX) && holder(pile) === os.id())
+            .sort((a, b) => PILE_ORDER.findIndex((t) => INTERIOR_PILES[t] === a.label) - PILE_ORDER.findIndex((t) => INTERIOR_PILES[t] === b.label));
+        entries.push({os, programs, piles: held});
+        programs.forEach((n) => { nodes = nodes.union(n); });
+        held.forEach((pile) => { nodes = nodes.union(pile.representative); });
+    });
+    return {entries, nodes};
+}
+
+/** Playground exception 51: a program's box: the square for the application program, the usual box for the others. */
+function _programSize(n) {
+    return n.scratch("landingLarge") ? PROGRAM_LARGE : {width: PROGRAM_BOX.width, height: PROGRAM_BOX.height * PROGRAM_TALL};
+}
+
+/**
+ * Playground exception 51: the least size of the OS box (the nested layouts' container floor): the programs' row on top, the piles' row below it,
+ * inside `pad`. `below` is what stands under the programs' row (the gap and the piles' row), 0 with no pile.
+ */
+function _osFloor(entries, pad) {
+    let width = 0, height = 0, below = 0;
+    entries.forEach(({programs, piles}) => {
+        const sizes = programs.map(_programSize);
+        const rowW = sizes.reduce((sum, z) => sum + z.width, 0) + PROGRAM_GAP * Math.max(0, sizes.length - 1);
+        const rowH = Math.max(0, ...sizes.map((z) => z.height));
+        const pilesW = piles.length ? piles.length * PROGRAM_BOX.width + PILE_STACK_SPREAD + PILE_GAP * (piles.length - 1) : 0;
+        const under = piles.length ? PILE_ROW_GAP + PROGRAM_BOX.height + PILE_STACK_SPREAD : 0;
+        width = Math.max(width, Math.max(rowW, pilesW) + pad.left + pad.right);
+        height = Math.max(height, pad.top + rowH + under + pad.bottom);
+        below = Math.max(below, under);
+    });
+    return {width, height, below};
+}
+
+/**
+ * Playground exception 51: stand each OS box's programs in one row at the top, centred, and its piles in one horizontal line under them, spread
+ * from the box's left inner edge to its right one (so the first pile is under the first program). Sizes are set here (they were out of the nesting).
+ */
+function _placeInterior(cy, entries, pad) {
+    entries.forEach(({os, programs, piles}) => {
+        const c = os.position();
+        const left = c.x - os.width() / 2 + pad.left;
+        const innerW = os.width() - pad.left - pad.right;
+        const top = c.y - os.height() / 2 + pad.top;
+        const z = Number(os.style("z-index")) + 10;
+        const sizes = programs.map(_programSize);
+        const rowH = Math.max(0, ...sizes.map((size) => size.height));
+        let x = left + (innerW - (sizes.reduce((sum, size) => sum + size.width, 0) + PROGRAM_GAP * Math.max(0, sizes.length - 1))) / 2;
+        programs.forEach((n, i) => {
+            n.style({width: sizes[i].width, height: sizes[i].height, "z-index": z});
+            n.position({x: x + sizes[i].width / 2, y: top + rowH / 2});
+            x += sizes[i].width + PROGRAM_GAP;
+        });
+        const y = c.y + os.height() / 2 - pad.bottom - PILE_STACK_SPREAD - PROGRAM_BOX.height / 2;
+        const span = innerW - PROGRAM_BOX.width - PILE_STACK_SPREAD;
+        piles.forEach(({representative}, i) => {
+            representative.style({width: PROGRAM_BOX.width, height: PROGRAM_BOX.height, "z-index": z});
+            representative.position({x: left + PROGRAM_BOX.width / 2 + (piles.length > 1 ? span * i / (piles.length - 1) : span / 2), y});
+        });
     });
 }
 
@@ -1591,7 +1781,7 @@ function _styleFlow(cy, flows) {
         ...(_flowAngle(flow) % 180 === 0
             ? {"text-valign": "center", "text-halign": "right", "text-margin-x": FLOW_LABEL_GAP, "text-margin-y": 0}
             : {"text-valign": "top", "text-halign": "center", "text-margin-x": 0, "text-margin-y": -FLOW_LABEL_GAP}),
-        "color": FLOW_BLUE,
+        "color": _flowColour(flow),
         // Ruled 2026-10-20 (George): no fill behind a flow's name.
         "text-background-opacity": 0,
         // Playground exception 45: a flow's name is one line, never wrapped.
@@ -1607,13 +1797,28 @@ function _styleFlowEdges(cy) {
         // Arrowhead convention: arrows point from the session initiator (the flow's source) to its target (the flow's destination), so the ONE
         // arrowhead is always on the destination line's target end; `icon_angle` turns only the circle marker's glyph (the way the data moves).
         const head = type === E.flowDestination;
+        // Playground exception 52: the line and the arrowhead are the colour of the data the flow carries (the flow is the destination
+        // line's source and the source line's target).
+        const colour = _flowColour(head ? edge.source() : edge.target());
         edge.style({
-            "width": FLOW_EDGE_WIDTH, "line-color": FLOW_BLUE, "target-arrow-color": FLOW_BLUE, "source-arrow-color": FLOW_BLUE,
+            "width": FLOW_EDGE_WIDTH, "line-color": colour, "target-arrow-color": colour, "source-arrow-color": colour,
             "target-arrow-shape": head ? "triangle" : "none",
             "source-arrow-shape": "none",
             ...(head ? {"arrow-scale": FLOW_ARROW_SCALE} : {}),
         });
     });
+}
+
+/**
+ * Playground exception 52: the colour of a flow, from the data classification it is stamped with: the first of the `dataclass.*` sub-axes of
+ * FLOW_COLOURS that the flow carries a known value of. FLOW_BLUE when it carries none.
+ */
+function _flowColour(flow) {
+    const dims = (flow && flow.data("dimensions")) || {};
+    for (const [key, colours] of Object.entries(FLOW_COLOURS)) {
+        if (colours[dims[key]]) return colours[dims[key]];
+    }
+    return FLOW_BLUE;
 }
 
 /**
@@ -1640,7 +1845,9 @@ async function _rotateFlowIcons(flows) {
         if (!url || String(url).startsWith("data:")) continue;
         flow.scratch("landingFlowIconUrl", url);
         const turn = _flowAngle(flow) - FLOW_ICON_ANGLE;
-        if (turn === 0) {
+        // Playground exception 52: the circle's blue in the icon file (FLOW_BLUE) is the colour of the data the flow carries.
+        const colour = _flowColour(flow);
+        if (turn === 0 && colour === FLOW_BLUE) {
             flow.data("icon_url", url);
             continue;
         }
@@ -1650,7 +1857,7 @@ async function _rotateFlowIcons(flows) {
                 if (!response.ok) throw new Error(String(response.status));
                 _flowIconSource.set(url, await response.text());
             }
-            const text = _flowIconSource.get(url);
+            const text = _flowIconSource.get(url).split(`fill="${FLOW_BLUE}"`).join(`fill="${colour}"`);
             const open = text.match(/<svg[^>]*>/);
             const inner = open ? text.slice(open.index + open[0].length, text.lastIndexOf("</svg>")) : "";
             const box = open && open[0].match(/viewBox="([^"]+)"/);
@@ -1668,11 +1875,13 @@ async function _rotateFlowIcons(flows) {
  * Playground exception 39 (should become a `label_position: inside` display hint of the program type's revealed form): a program's name is
  * centred inside its box, wrapped to the box's width, at PROGRAM_FONT_FACTOR of the usual size (`_scaleFont` reads the factor).
  */
-function _labelProgramsInside(programs) {
+function _labelProgramsInside(programs, fontPx) {
     programs.forEach((n) => {
         n.scratch("landingFontFactor", PROGRAM_FONT_FACTOR);
         n.style({
-            "text-valign": "center", "text-halign": "center", "text-margin-x": 0, "text-margin-y": 0,
+            "text-valign": "center", "text-halign": "center", "text-margin-x": 0,
+            // Playground exception 51: the application program's square keeps its name top-centre, the rest of it free.
+            "text-margin-y": n.scratch("landingLarge") ? -(n.height() / 2) + PROGRAM_TITLE_INSET + fontPx * 0.65 : 0,
             "text-wrap": "wrap", "text-max-width": `${n.width() * PROGRAM_LABEL_FIT}px`,
         });
     });
@@ -1814,7 +2023,22 @@ function _refreshBadges(cy, context) {
     const previous = cy.scratch("landing_badge_handle");
     if (previous) previous.destroy();
     cy.scratch("landing_badge_handle", applyBadgeNodes(cy, {excludeTypes: exclude}));
+    _dropHiddenBadges(cy);
     _moveDatabaseBadge(cy);
+}
+
+/**
+ * Playground exception 54 (should become: applyBadgeNodes reads a host's style fresh, or skips a host with the elevation-hidden class): a
+ * badge whose host the elevation has hidden is removed. applyBadgeNodes keeps a host when `visible()` says so, and `visible()` is read from the
+ * style Cytoscape has applied so far, which does not yet include the `display: none` of the class just added; the badge of the Wolfi box was
+ * drawn for a host that was already hidden and stayed at the origin when the interior was hidden again. The host's own hidden state is read
+ * from its class (and its fresh `display`), never from `visible()`.
+ */
+function _dropHiddenBadges(cy) {
+    cy.nodes("[?_is_badge]").filter((badge) => {
+        const host = cy.getElementById(badge.data("_badge_host") || "");
+        return host.nonempty() && (host.hasClass(ELEVATION_HIDDEN_CLASS) || host.style("display") === "none");
+    }).remove();
 }
 
 /**

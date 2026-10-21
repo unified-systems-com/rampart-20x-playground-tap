@@ -393,8 +393,9 @@ class TestRunningParts:
 
     def test_the_nesting_is_configured_relationships_not_type_tests(self) -> None:
         source = _js()
-        for name in ("task-holds-container", "container-holds-os", "os-holds-program", "container-holds-library", "container-holds-package",
-                     "container-holds-key"):
+        # Exception 51: the three piles are held by the operating system box, not the container.
+        for name in ("task-holds-container", "container-holds-os", "os-holds-program", "os-holds-library", "os-holds-package",
+                     "os-holds-key"):
             assert f'name: "{name}"' in source
         assert "(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})" in source
         assert "(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})" in source
@@ -1139,3 +1140,104 @@ class TestContainerKeyPile:
         assert '[E.containsKey]: "Keys"' in source
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
         assert "req-rampart-20x-playground-govcloud-layout-31" in text and "exception 50" in text
+
+
+class TestOverviewNitsSeven:
+    """`req-rampart-20x-playground-govcloud-layout-32` to `-35`: overview nits, round seven. Source pins; what rendered is stated in the pull request."""
+
+    def test_the_piles_are_held_by_the_os_and_the_derived_edge_runs_from_it(self) -> None:
+        source = _js()
+        assert "(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})" in source
+        assert "(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})" in source
+        assert "(parent:${T.os})-[:${E.containsKey}]->(child)" in source
+        assert "add(systems[0], lib, E.containsLibrary)" in source and "add(container.id(), lib" not in source
+        assert "(parent:${T.ecsContainer})-[:${E.containsLibrary}]" not in source
+
+    def test_the_piles_stand_in_one_row_keys_libraries_packages(self) -> None:
+        source = _js()
+        assert "const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage];" in source
+        body = source.split("function _placeInterior")[1].split("\n}\n")[0]
+        # One y for the whole row: the row is horizontal.
+        assert "const y = " in body and "y});" in body.split("piles.forEach")[1]
+        assert "_alignKeyPiles" not in source
+
+    def test_the_application_program_is_a_large_square_named_top_centre_and_found_by_an_edge(self) -> None:
+        source = _js()
+        assert "const PROGRAM_LARGE = {width: 280, height: 140};" in source
+        assert "const PROGRAM_TALL = 1.5;" in source
+        body = source.split("function _interiorHand")[1].split("\n}\n")[0]
+        # The program another program runs (RUNS_PROGRAM from a program): an edge, never a name or an id.
+        assert "E.runsProgram" in body and "T.program" in body and "gunicorn" not in body and "tap-web" not in body
+        label = source.split("function _labelProgramsInside")[1].split("\n}\n")[0]
+        assert 'n.scratch("landingLarge")' in label and "PROGRAM_TITLE_INSET" in label
+
+    def test_the_os_box_is_sized_by_a_floor_and_the_container_fills_the_task_about_the_line_of_sight(self) -> None:
+        source = _js()
+        assert "baseSizes[T.os] = {width: osFloor.width, height: osFloor.height};" in source
+        assert "const containerPad = " in source and "[T.ecsContainer]: containerPad" in source
+        assert "hand.nodes.addClass(ELEVATION_HIDDEN_CLASS);" in source and "_placeInterior(cy, hand.entries, interiorPad);" in source
+        # Nothing is left to move: the task's top room is only its label's (exception 17 kept the constant).
+        assert "const TASK_TOP_ROOM = 0;" in source
+
+    def test_the_flow_colour_is_from_the_stamp_not_from_the_flow(self) -> None:
+        source = _js()
+        table = re.search(r"const FLOW_COLOURS = \{(.*?)\n\};", source, re.S).group(1)
+        assert '"dataclass.customer"' in table and '"dataclass.infra"' in table
+        for value in ("data", "sanitized", "creds", "logs", "admin", "code", "secrets"):
+            assert re.search(rf"\b{value}: \"#[0-9A-Fa-f]{{6}}\"", table), value
+        colours = re.findall(r"#[0-9A-Fa-f]{6}", table)
+        assert len(colours) == len(set(c.lower() for c in colours)), "every class has its own colour"
+        assert "#0B3D91" in table, "customer data keeps the current blue"
+        flow = source.split("function _flowColour")[1].split("\n}\n")[0]
+        assert 'flow.data("dimensions")' in flow and "FLOW_COLOURS" in flow and "label" not in flow and "entity_id" not in flow
+        # The line, the arrowhead, the glyph and the name all read it.
+        edges = source.split("function _styleFlowEdges")[1].split("\n}\n")[0]
+        assert "_flowColour(" in edges and '"line-color": colour' in edges and '"target-arrow-color": colour' in edges
+        assert '"color": _flowColour(flow)' in source
+        assert "_flowColour(flow)" in source.split("async function _rotateFlowIcons")[1]
+
+    def test_every_flow_class_in_use_has_a_colour(self) -> None:
+        stamps = {(k, v) for n in _batch_nodes(APPLICATION_FLOW) if n["entity"]["entity_type"] == "computing_core__application_flow"
+                  and n["entity"]["dimensions"].get("overview") == "shown"
+                  for k, v in n["entity"]["dimensions"].items() if k in ("dataclass.customer", "dataclass.infra")}
+        assert stamps == {("dataclass.customer", "data"), ("dataclass.customer", "sanitized"), ("dataclass.infra", "admin"),
+                          ("dataclass.infra", "code")}
+        table = re.search(r"const FLOW_COLOURS = \{(.*?)\n\};", _js(), re.S).group(1)
+        for _key, value in stamps:
+            assert re.search(rf"\b{value}: \"#", table)
+
+    def test_a_tap_on_a_pile_lists_its_members_with_links(self) -> None:
+        source = _js()
+        assert "_pileOf(cy, node)" in source and "_openPileWindow(cy, node, pile)" in source
+        assert 'cy.scratch("landing_piles", piles);' in source
+        pile = source.split("function _openPileWindow")[1].split("\n}\n")[0]
+        assert "/object/" in pile and "url_id" in pile and "pile.members" in pile and "dataset" not in pile
+        of = source.split("function _pileOf")[1].split("\n}\n")[0]
+        assert "_stack_front_id" in of and "_stack_id" in of and "INTERIOR_STACK_PREFIX" in of
+        # The same window as the flow's: one at a time.
+        assert source.count("function _showWindow") == 1 and source.count("_closeFlowWindow();\n    closeInfoWindow();") == 1
+
+    def test_the_hidden_interior_leaves_no_badge_behind(self) -> None:
+        source = _js()
+        drop = source.split("function _dropHiddenBadges")[1].split("\n}\n")[0]
+        assert "ELEVATION_HIDDEN_CLASS" in drop and 'style("display")' in drop and ".remove()" in drop
+        refresh = source.split("function _refreshBadges")[1].split("\n}\n")[0]
+        assert refresh.index("applyBadgeNodes(") < refresh.index("_dropHiddenBadges(cy);")
+
+    def test_the_new_exceptions_are_numbered_after_fifty_and_name_their_runtime_form(self) -> None:
+        source = _js()
+        for n in range(51, 55):
+            start = source.index(f" *  {n}. ")
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 54 else source.index("\n * None changes", start)
+            assert "should become" in source[start:end], n
+        assert "Playground exception 54" in source and "Playground exception 53" in source and "Playground exception 52" in source
+
+    def test_the_spec_rows_record_the_four_changes_and_the_palette(self) -> None:
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        for n in (32, 33, 34, 35):
+            assert f"| req-rampart-20x-playground-govcloud-layout-{n} |" in text
+        for exception in ("exception 51", "exception 52", "exception 53", "exception 54"):
+            assert exception in text
+        table = re.search(r"const FLOW_COLOURS = \{(.*?)\n\};", _js(), re.S).group(1)
+        for colour in re.findall(r"#[0-9A-Fa-f]{6}", table):
+            assert colour in text, colour
