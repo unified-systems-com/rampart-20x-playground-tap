@@ -382,28 +382,31 @@ RID: `req-rampart-20x-playground-page-inventory`
 
 Status: `Proposed`
 
-The system inventory, in seven categories: applications, libraries, operating systems, containers, secrets,
+The system inventory, in nine categories: applications, libraries, packages, operating systems, containers, crypto, secrets,
 cloud services and third-party SaaS. Each category is a section listing the items stamped with that
-`inventory` value, each row linking to its entity page. The columns and row rules of each table are in
+`inventory` value, each row linking to its entity page, except the crypto section, which lists one row per cryptographic provider (`req-rampart-20x-playground-page-inventory-9`). The columns and row rules of each table are in
 `spec-rampart_20x_playground-inventory.md`.
 
 #### Implementation
 
-Route `/playground/inventory`; seven Searches, one per `inventory` value, each filtering on
+Route `/playground/inventory`; nine Searches, one per `inventory` value, each filtering on
 `n.dimensions["inventory"]`; an existing table panel per section.
 
 #### Acceptance Criteria
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders seven sections, one per `inventory` category. | |
-| req-rampart-20x-playground-page-inventory-2 | Section Matches Dimension | Proposed | Each section lists exactly the entities whose `inventory` value is that section's category. | |
-| req-rampart-20x-playground-page-inventory-3 | Data Classification Column | Proposed | Every table on the page ends with one joined column titled `Data Classification` (width 200) that reads the node's `dataclass.customer`, `dataclass.infra` and `dataclass.action` dimensions by `field_paths`, joined with `, `, with `empty_text: not classified`, so no cell is blank. | Ruled 2026-10-20 (George, Q90a, then nit 9). Replaces the two `Customer data` and `Infra data` columns. Uses the Table panel's `field_paths`, `joiner` and `empty_text` column options. |
+| req-rampart-20x-playground-page-inventory-1 | Route Serves | Proposed | `GET /playground/inventory` returns 200 and renders nine sections, one per `inventory` category. | The page as built has nine tables (packages and crypto were added after this row was written). |
+| req-rampart-20x-playground-page-inventory-2 | Section Matches Dimension | Proposed | Each section lists exactly the entities whose `inventory` value is that section's category, except crypto (`-9`). | |
+| req-rampart-20x-playground-page-inventory-3 | Data Classification Column | Proposed | Every table on the page except Crypto ends with one joined column titled `Data Classification` (width 200) that reads the node's `dataclass.customer`, `dataclass.infra` and `dataclass.action` dimensions by `field_paths`, joined with `, `, with `empty_text: not classified`, so no cell is blank. | Ruled 2026-10-20 (George, Q90a, then nit 9). Replaces the two `Customer data` and `Infra data` columns. Uses the Table panel's `field_paths`, `joiner` and `empty_text` column options. |
 | req-rampart-20x-playground-page-inventory-4 | Title Case Headings | Proposed | Every table's panel name and column titles are in Title Case (`Cloud Services`, `Operating Systems`, `Third-Party SaaS`). | Ruled by George. |
 | req-rampart-20x-playground-page-inventory-5 | Icon Column, No ID Column | Proposed | Every table's first column is `Icon`, an `iconMap` over `entity_type` whose images are the plugin's own `/static/<plugin>/icons/<icon>.svg` (the `ENTITY_ICON` of each model); the ID column is gone. | Ruled Q102c. The full id as a Name tooltip is not possible: `tooltip: full_value` shows the cell's own value. |
 | req-rampart-20x-playground-page-inventory-6 | Standard Service Names | Proposed | Each `entity_type` column (Service or Kind) is a `toneBadge` whose `labels` map each type to its standard service name (`Application Load Balancer`, `RDS`, `ECR`, `Route 53`, `KMS` and the like); the Cloud Services table has no Scheme column. | |
 | req-rampart-20x-playground-page-inventory-7 | Third-Party SaaS Holds AWS And GitHub | Proposed | The Third-Party SaaS table holds the AWS organization (named `AWS`) and `github.com`; the `ghcr.io git-serious image` package is stamped `inventory: containers`. | Ruled Q101. |
 | req-rampart-20x-playground-page-inventory-8 | Teleport Programs | Proposed | `teleport proxy`, `teleport auth` and `teleport ssh` are `computing_core__program` entities stamped `inventory: applications` and `dataclass.action: process`, not on the Overview, each joined by a `RUNS_PROGRAM` edge from the `teleport` EC2 instance. | The edge source is open in `computing_core`; the three edges are in the application flow bundle. |
+| req-rampart-20x-playground-page-inventory-9 | Crypto Lists Providers | Proposed | The Crypto table has one row per cryptographic provider, not one per file the scan found it in: on the seed, exactly three rows, `openssl-system`, `openssl-fips-provider` and `rust-aws-lc-rs`. | Ruled by George, 2026-10-21. The 31 `crypto_provider` nodes stay in the grid, one per provider and file, stamped `inventory: crypto`; the table groups them. |
+| req-rampart-20x-playground-page-inventory-10 | Crypto Columns | Proposed | The Crypto table's columns are Icon, Provider, Provider Kind, Boundary, FIPS Validation, Rationale and Files (the number of files the provider was found in), with no Data Classification column. | Every provider's nodes agree on kind, boundary, validation and rationale in the seed (read 2026-10-21), so one row can show them. A provider whose nodes disagree is a defect to report, not a row to merge silently. |
+| req-rampart-20x-playground-page-inventory-11 | Crypto Search Groups By Provider | Proposed | The Crypto section reads a Search that groups the provider nodes by `provider`. If Gryphon cannot express the grouping, the builder stops and reports it, and no `module` runner or code is written for this table. | The choice between a Gryphon capability and a `module` Search is George's. |
 
 ### Vulnerabilities Page
 ----
@@ -556,9 +559,8 @@ The summary Search's entity id is fixed because `fedramp_20x_vdr`'s collector na
 | `aws_core__aws_s3_bucket` | `dataclass.action`: `store` | `all` |
 | `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
 | `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
-| `computing_core__crypto_provider` | `dataclass.action`: `process` | `all` |
 
-These are the types that exist in the seed today. The library, package and crypto-provider rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
+These are the types that exist in the seed today. A `crypto_provider` has no row: it is a finding about the code that carries it (`CARRIES_CRYPTO_PROVIDER`), and the carrier, a library, package or program, is classified instead (ruled by George, 2026-10-21). The library and package rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
 
 **Four table panels.** `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each a standard table panel bound by `USES_SEARCH` to the Search of the same name above. They are shown on the Data Classification page (`req-rampart-20x-playground-page-data-classification-9`); the bundle holds no page.
 
@@ -570,7 +572,7 @@ The mapping is stated four times because a module Search receives its inputs fro
 
 The seed ships no wrong stamp, so the mapped-incorrectly table is empty until something is stamped with a value its row does not allow. That is the honest state of the data.
 
-Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is applied and counting the entities in the seed files as read on 2026-10-20 (the inventory-software batch is regenerated, so the package and crypto-provider counts move): application flows 6 (customer or infra: 5 mapped, 1 unmapped, the administrator flow to the account perimeter; action: 6 mapped); programs 5 mapped; ECS containers 2 mapped; RDS instance 1 mapped; S3 buckets 2 mapped; libraries 4 unmapped; packages 180 unmapped; crypto providers 31 unmapped.
+Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is applied and counting the entities in the seed files as read on 2026-10-20 (the inventory-software batch is regenerated, so the package count moves): application flows 6 (customer or infra: 5 mapped, 1 unmapped, the administrator flow to the account perimeter; action: 6 mapped); programs 5 mapped; ECS containers 2 mapped; RDS instance 1 mapped; S3 buckets 2 mapped; libraries 4 unmapped; packages 180 unmapped.
 
 #### Acceptance Criteria
 
@@ -584,7 +586,7 @@ Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is 
 | req-rampart-20x-playground-classification-mapping-6 | Target Resolves | Proposed | The `schedule-grift-targets` guard passes on a stack that installs this plugin and `fedramp_20x_vdr`. | |
 | req-rampart-20x-playground-classification-mapping-7 | Dependencies Declared | Proposed | `depends_on` gains `fedramp_20x_vdr`, the `demo` record installs it, and the `compliance_core` floor names the release that ships the mapping runners and the snapshot base class. | |
 | req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
-| req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package and crypto-provider counts follow the inventory-software batch. |
+| req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package count follows the inventory-software batch. |
 | req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
 
 #### Future
