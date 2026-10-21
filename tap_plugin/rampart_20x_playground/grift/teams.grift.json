@@ -478,7 +478,7 @@
           },
           "node": {
             "name": "Playground teams layout",
-            "description": "teams.js: nests a person in their team and a team in its parent team from BELONGS_TO_TEAM; a leader (LEADS_TEAM) takes the leader colours.",
+            "description": "teams.js: nests a person in their team and a team in its parent team from BELONGS_TO_TEAM, ranks them (child teams in a row, people in a stack, the leader first from LEADS_TEAM) and draws every person as a solo icon with the leader's name set apart.",
             "definition": {
               "js_file": "tap_plugin/rampart_20x_playground/static/rampart_20x_playground/js/projections/teams.js"
             }

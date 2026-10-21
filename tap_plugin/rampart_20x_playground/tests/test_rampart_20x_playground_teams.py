@@ -378,13 +378,33 @@ class TestTeamsGraph:
             assert token in self.source, token
         assert 'trigger_reason === "initial_load"' in self.source
 
-    def test_a_leader_is_read_from_the_leads_team_edge_and_coloured_through_node_data(self) -> None:
-        """`teams-viz-3`."""
+    def test_the_teams_are_ranked_into_a_row_and_the_people_into_a_stack_from_the_edges(self) -> None:
+        """`teams-viz-7`, `teams-viz-8`: the `ranked` natural layout, ordered by stamped integers and never by a label."""
+        assert 'innerLayout: {name: "ranked", sort: "order"' in self.source
+        # People are stage 0 (one column, stacked); a child team is stage 1 + its rank among its sibling teams (a row).
+        assert "n.data({_stage: 1 + i, _order: 0})" in self.source
+        assert "n.data({_stage: 0, _order: leaders.contains(n) ? 0 : 1})" in self.source
+        assert "_edgeType(e) === BELONGS" in self.source
+        assert '"top-center"' in self.source
+
+    def test_a_leader_is_read_from_the_leads_team_edge_and_set_apart_on_the_label(self) -> None:
+        """`teams-viz-3`, `teams-viz-9`."""
         assert 'const LEADS = "LEADS_TEAM__identity_core";' in self.source
-        assert "_edgeType(e) === LEADS" in self.source and "e.source().data(LEADER)" in self.source
+        assert "_edgeType(e) === LEADS" in self.source and "leaders.merge(e.source())" in self.source
         assert "e.addClass(ELEVATION_HIDDEN_CLASS)" in self.source
-        for key in ("fill_color", "border_color", "label_color"):
-            assert re.search(rf'{key}: "#[0-9a-f]{{6}}"', self.source), key
+        assert "leaders.style(LEADER_LABEL)" in self.source and "people.style(PERSON_LABEL)" in self.source
+        for key in ("color", "text-background-color"):
+            assert re.search(rf'"{key}": "#[0-9a-f]{{6}}"', self.source), key
+
+    def test_every_person_is_a_solo_icon_and_a_team_stays_a_box(self) -> None:
+        """`teams-viz-10`: `applyIconNodes` with `solo: true` on the humans only (an icon node is terminal, so a team cannot be one)."""
+        assert 'import {applyIconNodes} from "/static/tap_viz/js/runtime/icon-node.js";' in self.source
+        assert "applyIconNodes(cy, {members: people," in self.source and "solo: true" in self.source
+        assert 'const people = cy.nodes(`[entity_type = "${T.human}"]`);' in self.source
+        assert "members: cy.nodes()" not in self.source
+        # The projection keeps the type-icon badge for the teams; solo is a layout primitive, not a node_style value.
+        (projection,) = self._out(self.panel, "USES_PROJECTION")
+        assert projection["node"]["definition"]["node_style"] == {"mode": "icon-badge"}
 
     def test_the_module_has_no_geometry_and_places_nothing_by_label_or_id(self) -> None:
         """`teams-viz-2`: configuration and data reads only."""
@@ -392,8 +412,8 @@ class TestTeamsGraph:
         assert not re.search(r'data\("label"\)\s*[=!]==|entity_id\s*[=!]==|handle', self.source)
         assert self.source.count("\nexport async function execute(context)") == 1
 
-    def test_the_spec_carries_the_requirement_and_its_six_criteria(self) -> None:
+    def test_the_spec_carries_the_requirement_and_its_ten_criteria(self) -> None:
         text = SPEC.read_text(encoding="utf-8")
         assert "RID: `req-rampart-20x-playground-teams-viz`" in text
-        for n in range(1, 7):
+        for n in range(1, 11):
             assert f"| req-rampart-20x-playground-teams-viz-{n} |" in text
