@@ -180,7 +180,7 @@
  *      glyph and name. No flow is coloured by name or id.
  *  53. the pile window (`_pileOf`, `_openPileWindow`, `_showWindow`; should become a projection-declared `node_info` window of tap_viz with a
  *      `members` source for an aggregate node, the form of 7): a tap on a pile of the interior (its face, a card behind it or its count chip)
- *      lists the pile's members by name, each linked to its own page (`/object/{entity_type}/{url_id}/`), in the window of 7.
+ *      lists the pile's members by name, each linked to its own page (`/object/{entity_type}/{url_id}/`), in the window of 7. The window's body scrolls (bounded max-height) and the window stops wheel/touch from reaching cytoscape; the stack tooltip of tap_viz (the repeated count over a chip) is hidden.
  *  54. the revealed icons are hidden again on the way out (`_dropHiddenBadges`; should become: applyBadgeNodes reads a host's style fresh, or skips
  *      a host with the elevation-hidden class): the type badge of a node the elevation just hid was drawn anyway, because `visible()` is read before
  *      Cytoscape has applied the class's `display: none`; the badge stayed on the canvas, at the origin, when the interior was hidden again.
@@ -440,6 +440,7 @@ const FLOW_DIMENSION_PREFIX = "dataclass.";
 const FLOW_WINDOW_WIDTH = 320;
 const FLOW_WINDOW_OFFSET = 12;
 const FLOW_WINDOW_CLASS = "tap-info-window";
+const STACK_TOOLTIP_STYLE_ID = "playground-no-stack-tooltip";
 
 const LEAF = {width: 200, height: 54};
 const SUBNET = {width: 230, height: 90};
@@ -594,6 +595,8 @@ export async function execute(context) {
     _placeInterior(cy, hand.entries, interiorPad);
     hand.nodes.removeClass(ELEVATION_HIDDEN_CLASS);
     cy.scratch("landing_piles", piles);
+    // Hovering a pile's count chip shows no second number above it (tap_viz's stack tooltip repeats the chip's count).
+    if (cy.container()) _hideStackTooltips(cy.container());
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
@@ -1292,6 +1295,19 @@ function _bindFlowWindow(cy) {
     cy.on("tap", "node", handler);
 }
 
+/**
+ * Playground exception 53: tap_viz's stack tooltip (`.tap-stack-tooltip`, the exact count shown above a chip on hover) repeats the number the
+ * pile's chip already shows; a rule scoped to this panel hides it. Idempotent.
+ */
+function _hideStackTooltips(panelEl) {
+    panelEl.dataset.playgroundNoStackTooltip = "true";
+    if (document.getElementById(STACK_TOOLTIP_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = STACK_TOOLTIP_STYLE_ID;
+    style.textContent = "[data-playground-no-stack-tooltip] .tap-stack-tooltip { display: none !important; }";
+    document.head.appendChild(style);
+}
+
 let _flowWindow = null;
 
 function _closeFlowWindow() {
@@ -1299,6 +1315,7 @@ function _closeFlowWindow() {
     const state = _flowWindow;
     _flowWindow = null;
     document.removeEventListener("keydown", state.keydown);
+    state.unguard();
     if (state.outsideClick) document.removeEventListener("click", state.outsideClick, true);
     if (state.el.parentNode) state.el.parentNode.removeChild(state.el);
 }
@@ -1419,10 +1436,24 @@ function _showWindow(cy, node, {label, flag, key, title, type, body}) {
     el.style.top = `${top}px`;
     el.style.width = `${FLOW_WINDOW_WIDTH}px`;
     el.style.maxHeight = `${Math.floor(panelRect.height * 0.6)}px`;
+    // The window scrolls its own content (below), and a wheel or touch inside it never reaches the graph: cytoscape listens on the container in the
+    // capture phase, before a listener on the window could run, so the guard stands on the document in the capture phase (earlier still) and only
+    // stops propagation (the event is not cancelled, so the browser's own scroll of the list goes on). Removed with the window.
+    const guard = (e) => {
+        if (el.contains(e.target)) e.stopPropagation();
+    };
+    const guarded = ["wheel", "touchstart", "touchmove", "touchend"];
+    guarded.forEach((type) => document.addEventListener(type, guard, {capture: true, passive: true}));
+    // (tap_viz's window CSS already makes `.tap-info-window__body` the scrolling part, under a fixed header.)
+    el.style.overscrollBehavior = "contain";
+    el.querySelector(".tap-info-window__body").style.overscrollBehavior = "contain";
+    for (const type of ["wheel", "touchstart", "touchmove"]) {
+        el.addEventListener(type, (e) => e.stopPropagation(), {passive: true});
+    }
     panelEl.appendChild(el);
     // Clamped so the whole window stands in the panel (a pile's list is tall).
     el.style.top = `${Math.max(0, Math.min(top, panelRect.height - el.offsetHeight))}px`;
-    const state = {el, nodeId: id, keydown: null, outsideClick: null};
+    const state = {el, nodeId: id, keydown: null, outsideClick: null, unguard: () => guarded.forEach((type) => document.removeEventListener(type, guard, true))};
     _flowWindow = state;
     el.querySelector(".tap-info-window__close").addEventListener("click", (e) => {
         e.stopPropagation();

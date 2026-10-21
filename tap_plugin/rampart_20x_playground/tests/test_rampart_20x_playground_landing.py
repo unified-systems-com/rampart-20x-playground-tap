@@ -1217,6 +1217,18 @@ class TestOverviewNitsSeven:
         # The same window as the flow's: one at a time.
         assert source.count("function _showWindow") == 1 and source.count("_closeFlowWindow();\n    closeInfoWindow();") == 1
 
+    def test_a_pile_window_scrolls_itself_and_a_pile_chip_has_no_hover_number(self) -> None:
+        source = _js()
+        show = source.split("function _showWindow")[1].split("\n}\n")[0]
+        assert "el.style.maxHeight" in show and 'overscrollBehavior = "contain"' in show and ".tap-info-window__body" in show
+        assert '["wheel", "touchstart", "touchmove", "touchend"]' in show and "e.stopPropagation()" in show
+        assert "capture: true, passive: true" in show and "preventDefault" not in show
+        close = source.split("function _closeFlowWindow")[1].split("\n}\n")[0]
+        assert "state.unguard()" in close
+        hide = source.split("function _hideStackTooltips")[1].split("\n}\n")[0]
+        assert ".tap-stack-tooltip { display: none !important; }" in hide
+        assert source.index("_hideStackTooltips(cy.container())") < source.index("applyStack(cy, pile);")
+
     def test_the_hidden_interior_leaves_no_badge_behind(self) -> None:
         source = _js()
         drop = source.split("function _dropHiddenBadges")[1].split("\n}\n")[0]
