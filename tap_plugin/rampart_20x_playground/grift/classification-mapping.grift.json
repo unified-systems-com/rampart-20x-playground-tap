@@ -725,14 +725,14 @@
                 {
                   "field": "mapped_incorrectly",
                   "title": "Mapped Incorrectly",
-                  "width": 170,
+                  "width": 210,
                   "align": "right",
                   "sorter": "number"
                 },
                 {
                   "field": "percent_mapped",
                   "title": "Percent Mapped",
-                  "width": 150,
+                  "width": 190,
                   "align": "right",
                   "sorter": "number",
                   "empty_text": "—"
