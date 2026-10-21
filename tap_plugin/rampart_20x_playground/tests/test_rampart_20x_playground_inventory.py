@@ -391,6 +391,8 @@ class TestInventoryPage:
     def test_common_columns_on_every_table(self) -> None:
         for panel in self._of("panel"):
             fields = [c["field"] for c in panel["node"]["config"]["columns"] if "field" in c]
+            if panel["entity"]["name"] == "Crypto":
+                continue  # one row per provider, not per node: `page-inventory-10`
             assert fields[:2] == ["entity_type", "name"], panel["entity"]["name"]
             assert "entity_id" not in fields, panel["entity"]["name"]
             # No description column: the entity types hold no description field (a recorded gap in the spec).
@@ -400,6 +402,9 @@ class TestInventoryPage:
         """One joined column read by path from the node's dimensions (customer, infra, action); never blank."""
         for panel in self._of("panel"):
             titles = [c["title"] for c in panel["node"]["config"]["columns"]]
+            if panel["entity"]["name"] == "Crypto":
+                assert "Data Classification" not in titles  # `page-inventory-3`: a provider is classified through its carrier
+                continue
             assert titles.count("Data Classification") == 1, panel["entity"]["name"]
             column = panel["node"]["config"]["columns"][-1]
             assert column["title"] == "Data Classification" and column["width"] == 200, panel["entity"]["name"]
@@ -454,8 +459,25 @@ class TestInventoryPage:
         }
         for field in ("data.version", "data.ecosystem", "data.source_document", "data.architecture", "data.license", "data.purl"):
             assert field in fields["Packages"], field
-        for field in ("data.provider", "data.provider_kind", "data.artifact", "data.boundary", "data.fips_validation", "data.scope", "data.rationale"):
-            assert field in fields["Crypto"], field
+
+    def test_the_crypto_table_is_one_row_per_provider_grouped_by_a_gryphon_search(self) -> None:
+        """`page-inventory-9`, `-10`, `-11`."""
+        panel = next(p for p in self._of("panel") if p["entity"]["name"] == "Crypto")
+        columns = panel["node"]["config"]["columns"]
+        assert [c["title"] for c in columns] == [
+            "Icon", "Provider", "Provider Kind", "Boundary", "FIPS Validation", "Rationale", "Files",
+        ]
+        assert [c["field"] for c in columns] == [
+            "entity_type", "provider", "provider_kind", "boundary", "fips_validation", "rationale", "files",
+        ]
+        assert next(c for c in columns if c["field"] == "fips_validation")["empty_text"]  # rust-aws-lc-rs records none
+        edge = next(e for e in self.edges if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"])
+        search = self.by_id[edge["edge"]["to_entity_id"]]["node"]
+        assert search["search_type"] == "gryphon" and "runner_key" not in search["definition"]
+        query = " ".join(search["definition"]["query"])
+        assert "MATCH (n:computing_core__crypto_provider)" in query and "COUNT(n) AS files" in query
+        aliases = set(re.findall(r" AS (\w+)", query))
+        assert {c["field"] for c in columns} == aliases
 
     def test_no_free_text_comments_column_and_no_secret_columns(self) -> None:
         for panel in self._of("panel"):

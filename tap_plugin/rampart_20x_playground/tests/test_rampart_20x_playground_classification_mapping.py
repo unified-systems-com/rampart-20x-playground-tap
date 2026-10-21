@@ -80,8 +80,9 @@ class TestClassificationMapping:
         assert set(by_type) == {
             "computing_core__application_flow", "computing_core__program", "aws_core__aws_ecs_container",
             "aws_core__aws_rds_instance", "aws_core__aws_s3_bucket", "computing_core__library",
-            "computing_core__package", "computing_core__crypto_provider",
+            "computing_core__package",
         }
+        assert "computing_core__crypto_provider" not in by_type  # a provider is classified through its carrier (`classification-mapping`)
         assert ("dataclass.action", ("transmit",)) in by_type["computing_core__application_flow"]
         assert by_type["computing_core__program"] == [("dataclass.action", ("process",))]
         assert by_type["aws_core__aws_ecs_container"] == [("dataclass.action", ("process",))]
