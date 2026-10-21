@@ -389,11 +389,11 @@ class TestTeamsGraph:
         assert '"top-center"' in self.source
 
     def test_the_slot_is_a_thin_banner_at_the_top_of_the_page(self) -> None:
-        """`teams-viz-11`: 25vh, the nearest height core's page schema allows at or below 30vh (a 60% cut of 75vh)."""
+        """`teams-viz-11`: 40vh, ruled by George over 25vh (too small to read) and 33vh."""
         page = next(n for n in self.nodes if n["entity"]["entity_type"] == "page")
         rows = [r for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()]
         slot = next(r for r in rows if r["panel-id"] == "playground-teams-graph")
-        assert slot["height"] == "25vh"
+        assert slot["height"] == "40vh"
         assert 'cy.fit(cy.nodes(":visible"), 12)' in self.source
 
     def test_a_leader_is_read_from_the_leads_team_edge_and_set_apart_on_the_label(self) -> None:
