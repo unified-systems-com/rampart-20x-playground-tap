@@ -638,7 +638,7 @@
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-teams-graph",
-                      "height": "75vh"
+                      "height": "40vh"
                     }
                   }
                 },

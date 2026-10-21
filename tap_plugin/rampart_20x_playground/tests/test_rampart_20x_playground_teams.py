@@ -378,14 +378,23 @@ class TestTeamsGraph:
             assert token in self.source, token
         assert 'trigger_reason === "initial_load"' in self.source
 
-    def test_the_teams_are_ranked_into_a_row_and_the_people_into_a_stack_from_the_edges(self) -> None:
+    def test_every_child_of_a_team_is_its_own_stage_in_one_row_leader_first(self) -> None:
         """`teams-viz-7`, `teams-viz-8`: the `ranked` natural layout, ordered by stamped integers and never by a label."""
         assert 'innerLayout: {name: "ranked", sort: "order"' in self.source
-        # People are stage 0 (one column, stacked); a child team is stage 1 + its rank among its sibling teams (a row).
-        assert "n.data({_stage: 1 + i, _order: 0})" in self.source
-        assert "n.data({_stage: 0, _order: leaders.contains(n) ? 0 : 1})" in self.source
+        # One row per team: the leader, the other people by typed name, then the child teams by typed name.
+        assert "(leaders.contains(a) ? 0 : 1) - (leaders.contains(b) ? 0 : 1) || byName(a, b)" in self.source
+        assert "people.toArray().concat(teams.toArray()).forEach((n, i) => n.data({_stage: i, _order: 0}))" in self.source
+        assert "_stage: 0, _order: leaders" not in self.source
         assert "_edgeType(e) === BELONGS" in self.source
         assert '"top-center"' in self.source
+
+    def test_the_slot_is_a_thin_banner_at_the_top_of_the_page(self) -> None:
+        """`teams-viz-11`: 40vh, ruled by George over 25vh (too small to read) and 33vh."""
+        page = next(n for n in self.nodes if n["entity"]["entity_type"] == "page")
+        rows = [r for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()]
+        slot = next(r for r in rows if r["panel-id"] == "playground-teams-graph")
+        assert slot["height"] == "40vh"
+        assert 'cy.fit(cy.nodes(":visible"), 12)' in self.source
 
     def test_a_leader_is_read_from_the_leads_team_edge_and_set_apart_on_the_label(self) -> None:
         """`teams-viz-3`, `teams-viz-9`."""
@@ -415,5 +424,5 @@ class TestTeamsGraph:
     def test_the_spec_carries_the_requirement_and_its_ten_criteria(self) -> None:
         text = SPEC.read_text(encoding="utf-8")
         assert "RID: `req-rampart-20x-playground-teams-viz`" in text
-        for n in range(1, 11):
+        for n in range(1, 12):
             assert f"| req-rampart-20x-playground-teams-viz-{n} |" in text
