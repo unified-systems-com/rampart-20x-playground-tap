@@ -74,6 +74,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction and one card per data classification key, each describing the classification and its values and counting components by value and entity type |
+| req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
+| req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -508,6 +510,104 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
 | req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
 
+### Classification Mapping
+----
+RID: `req-rampart-20x-playground-classification-mapping`
+
+Status: `Proposed`
+
+Which entities carry the data classification they should, which carry none, and which carry the wrong one. The comparison is compliance_core's `dimension-mapping-summary` and `dimension-mapping-entities` runners (`req-compliance-core-dimension-mapping`); the mapping they compare against is data held here, in the `mappings` input of four Searches. A fifth piece, an hourly Schedule, records the summary over time as a `compliance_search_snapshot` (`req-compliance-core-search-snapshot`) through the `coverage_snapshot` collector of `fedramp_20x_vdr` (`req-fedramp-20x-vdr-coverage-snapshot`).
+
+#### Implementation
+
+`grift/classification-mapping.grift.json`, one batch.
+
+**Four Searches**, all `search_type: module`, `root: node`, each with the same `mappings` default (below):
+
+| Search name | runner | `status` default | entity id |
+| --- | --- | --- | --- |
+| `playground — classification mapping summary` | `dimension-mapping-summary` | none | `01a15b2f-df3b-7569-bf22-9ead3f816b84` |
+| `playground — classification mapping: mapped incorrectly` | `dimension-mapping-entities` | `mapped_incorrectly` | minted once with `scripts/uuid7` |
+| `playground — classification mapping: unmapped` | `dimension-mapping-entities` | `unmapped` | minted once |
+| `playground — classification mapping: mapped` | `dimension-mapping-entities` | `mapped` | minted once |
+
+The summary Search's entity id is fixed because `fedramp_20x_vdr`'s collector names it in code (`req-fedramp-20x-vdr-coverage-snapshot`); the id here and there must never differ. Each Search's description says why it is a module Search (Gryphon cannot write a count grouped by a dimension value taken from an input) and where its mapping is also written, because the four copies must agree.
+
+**The mapping** (proposed for review; each row reads "an entity of this type should carry this key with one of these values"):
+
+| entity type | key and allowed values | match |
+| --- | --- | --- |
+| `computing_core__application_flow` | `dataclass.customer`: `data`, `sanitized`, `creds`, `logs`; `dataclass.infra`: `code`, `secrets`, `logs`, `admin` | `any` |
+| `computing_core__application_flow` | `dataclass.action`: `transmit` | `all` |
+| `computing_core__program` | `dataclass.action`: `process` | `all` |
+| `aws_core__aws_ecs_container` | `dataclass.action`: `process` | `all` |
+| `aws_core__aws_rds_instance` | `dataclass.action`: `store` | `all` |
+| `aws_core__aws_s3_bucket` | `dataclass.action`: `store` | `all` |
+| `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
+| `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
+| `computing_core__crypto_provider` | `dataclass.action`: `process` | `all` |
+
+These are the types that exist in the seed today. The library, package and crypto-provider rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
+
+**The Schedule.** One `schedule` node, `playground — classification mapping snapshot`, `enabled: true`, `cron_expression: "0 * * * *"` (hourly, UTC), `max_active_runs: 1`, and one `SCHEDULED_TARGET` edge to the entity id of the collector `fedramp_20x_vdr:coverage_snapshot`, which is `uuid5(NAMESPACE_COLLECTOR, "fedramp_20x_vdr:coverage_snapshot")`, `41611294-9c37-5013-8175-3b1c2c4a3908`. The guard `schedule-grift-targets` (`req-tap-cares-collector-model-10`) fails the build if that id does not resolve to a registered collector, so the plugin's `depends_on` gains `fedramp_20x_vdr` (with a `note`), the `demo` record installs it pinned by commit like the others, and the `compliance_core` entry's floor rises to the first release that ships the mapping runners and `SearchSnapshotCollector`. The `ci` record, which installs this plugin alone, needs the same plugins for the guard to resolve.
+
+#### Development
+
+The mapping is stated four times because a module Search receives its inputs from its own `input_schema` defaults and there is no way for one Search to read another's. That is the duplication George accepted for the demo sprint; the fix is for the runners to read the mapping from one place, which is a change to the runners. A test pins the four `mappings` defaults as equal so they cannot drift.
+
+The seed ships no wrong stamp, so the mapped-incorrectly table is empty until something is stamped with a value its row does not allow. That is the honest state of the data.
+
+Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is applied and counting the entities in the seed files as read on 2026-10-20 (the inventory-software batch is regenerated, so the package and crypto-provider counts move): application flows 6 (customer or infra: 5 mapped, 1 unmapped, the administrator flow to the account perimeter; action: 6 mapped); programs 5 mapped; ECS containers 2 mapped; RDS instance 1 mapped; S3 buckets 2 mapped; libraries 4 unmapped; packages 180 unmapped; crypto providers 31 unmapped.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-classification-mapping-1 | Four Module Searches | Proposed | The bundle holds four `search` nodes with `search_type` `module`, the runners and `status` defaults in the table above, and the summary Search carries the entity id `01a15b2f-df3b-7569-bf22-9ead3f816b84`. | |
+| req-rampart-20x-playground-classification-mapping-2 | Same Mapping Four Times | Proposed | The `mappings` default is identical in all four Searches, and a test pins it. | |
+| req-rampart-20x-playground-classification-mapping-3 | Rows Name Declared Values | Proposed | Every allowed value in the mapping has a `dimension` node `<key>.<value>` in this plugin's dimension bundle, so a run reports no undeclared-name warning. | `dataclass.action.none` and `dataclass.customer.sanitized` are in `req-rampart-20x-playground-dimensions`. |
+| req-rampart-20x-playground-classification-mapping-4 | No Tool Or Id In The Code | Proposed | No Search names an entity id or a stamped value other than in the mapping default. | |
+| req-rampart-20x-playground-classification-mapping-5 | Hourly Schedule | Proposed | One enabled `schedule` node with cron `0 * * * *` and `max_active_runs` 1 has one `SCHEDULED_TARGET` edge to `41611294-9c37-5013-8175-3b1c2c4a3908`. | |
+| req-rampart-20x-playground-classification-mapping-6 | Target Resolves | Proposed | The `schedule-grift-targets` guard passes on a stack that installs this plugin and `fedramp_20x_vdr`. | |
+| req-rampart-20x-playground-classification-mapping-7 | Dependencies Declared | Proposed | `depends_on` gains `fedramp_20x_vdr`, the `demo` record installs it, and the `compliance_core` floor names the release that ships the mapping runners and the snapshot base class. | |
+| req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
+| req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package and crypto-provider counts follow the inventory-software batch. |
+| req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
+
+### Classification Mapping Page
+----
+RID: `req-rampart-20x-playground-page-classification-mapping`
+
+Status: `Proposed`
+
+The page answers "how much of what we have is classified, and what is missing or wrong?". Route `/playground/classification-mapping`; the page is named `Classification Mapping`, which is also its breadcrumb. Like the other playground pages it shows data under a title and carries no explanatory prose.
+
+#### Implementation
+
+Four bands under the title panel, each a standard table panel bound by `USES_SEARCH` to one of the four Searches of `req-rampart-20x-playground-classification-mapping`:
+
+1. The summary table: one row per mapping row, columns `label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly` and `percent_mapped`.
+2. `Mapped incorrectly`: columns `label`, `name` (a row link to the entity's page), `found_text` and `allowed_text`.
+3. `Unmapped`: the same columns.
+4. `Mapped`: the same columns.
+
+Each of the three entity tables has a quick filter and paging, because the unmapped table holds hundreds of rows. Their order is the runner's: incorrect, unmapped, mapped.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-classification-mapping-1 | Route Serves | Proposed | `GET /playground/classification-mapping` returns 200 and is in navigation. | |
+| req-rampart-20x-playground-page-classification-mapping-2 | Title Then Four Tables | Proposed | Band one under the title is the summary table; bands two to four are the mapped-incorrectly, unmapped and mapped tables, in that order. | |
+| req-rampart-20x-playground-page-classification-mapping-3 | Each Table Reads Its Search | Proposed | Each table panel is bound by `USES_SEARCH` to its own Search and its config names only returned row fields (`label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped` for the summary; `label`, `name`, `found_text`, `allowed_text` for the others). | |
+| req-rampart-20x-playground-page-classification-mapping-4 | Entity Rows Link | Proposed | In the three entity tables the name cell is a link and the row click opens the entity's page. | |
+| req-rampart-20x-playground-page-classification-mapping-5 | Filter And Paging | Proposed | The three entity tables have a quick filter and paging. | |
+| req-rampart-20x-playground-page-classification-mapping-6 | No Prose | Proposed | The page carries a title and tables only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+
+#### Future
+
+A coverage-over-time view: a table or chart reading the `compliance_search_snapshot` nodes of the summary Search, one row per snapshot. It reads `rows` through a `module` Search and is the reason the snapshots exist.
+
 ### VDR Reports Page
 ----
 RID: `req-rampart-20x-playground-page-vdr-reports`
@@ -658,3 +758,4 @@ in the first cleanup by mistake and are pulled again.
 | `grift/inventory-entities.grift.json` | The programs and the container's certificate and key halves the inventory tables need beyond the mock inventory | `req-rampart-20x-playground-inventory-tables` |
 | `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass.customer` or `dataclass.infra` value, and with `dataclass.action: transmit`) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
 | `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |
+| `grift/classification-mapping.grift.json` | The four classification-mapping Searches, the hourly Schedule and its `SCHEDULED_TARGET` edge | `req-rampart-20x-playground-classification-mapping` |

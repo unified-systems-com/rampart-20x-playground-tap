@@ -1,0 +1,1152 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a15bc6-d58c-7662-9ca4-8c0059132b71",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground classification mapping v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.classification-mapping",
+        "name": "rampart-20x-playground classification mapping v0.1.0",
+        "description": "The four classification-mapping module Searches, the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot, and the /playground/classification-mapping page. The mapping is data in the Searches' mappings default."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a15b2f-df3b-7569-bf22-9ead3f816b84",
+            "entity_type": "search",
+            "name": "playground — classification mapping summary",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification mapping summary",
+            "description": "One row per mapping row: how many entities of the type are mapped, unmapped and mapped incorrectly. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping:dimension-mapping-summary"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "The mapping to compare the grid against.",
+              "properties": {
+                "mappings": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.customer",
+                          "allowed": [
+                            "data",
+                            "sanitized",
+                            "creds",
+                            "logs"
+                          ]
+                        },
+                        {
+                          "key": "dataclass.infra",
+                          "allowed": [
+                            "code",
+                            "secrets",
+                            "logs",
+                            "admin"
+                          ]
+                        }
+                      ],
+                      "match": "any"
+                    },
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "transmit"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__program",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_ecs_container",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_rds_instance",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_s3_bucket",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__library",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__package",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__crypto_provider",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    }
+                  ],
+                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d0cf-7564-afba-8933ff783090",
+            "entity_type": "search",
+            "name": "playground — classification mapping: mapped incorrectly",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification mapping: mapped incorrectly",
+            "description": "The entities that carry a listed key with a value the mapping does not allow. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping:dimension-mapping-entities"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "The mapping to compare the grid against, and the state to list.",
+              "properties": {
+                "mappings": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.customer",
+                          "allowed": [
+                            "data",
+                            "sanitized",
+                            "creds",
+                            "logs"
+                          ]
+                        },
+                        {
+                          "key": "dataclass.infra",
+                          "allowed": [
+                            "code",
+                            "secrets",
+                            "logs",
+                            "admin"
+                          ]
+                        }
+                      ],
+                      "match": "any"
+                    },
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "transmit"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__program",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_ecs_container",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_rds_instance",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_s3_bucket",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__library",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__package",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__crypto_provider",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    }
+                  ],
+                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "mapped",
+                    "unmapped",
+                    "mapped_incorrectly"
+                  ],
+                  "default": "mapped_incorrectly",
+                  "description": "Which of the three states to list."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d10c-710f-bfd4-afa761769da2",
+            "entity_type": "search",
+            "name": "playground — classification mapping: unmapped",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification mapping: unmapped",
+            "description": "The entities that carry none of the listed keys. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping:dimension-mapping-entities"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "The mapping to compare the grid against, and the state to list.",
+              "properties": {
+                "mappings": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.customer",
+                          "allowed": [
+                            "data",
+                            "sanitized",
+                            "creds",
+                            "logs"
+                          ]
+                        },
+                        {
+                          "key": "dataclass.infra",
+                          "allowed": [
+                            "code",
+                            "secrets",
+                            "logs",
+                            "admin"
+                          ]
+                        }
+                      ],
+                      "match": "any"
+                    },
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "transmit"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__program",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_ecs_container",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_rds_instance",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_s3_bucket",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__library",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__package",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__crypto_provider",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    }
+                  ],
+                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "mapped",
+                    "unmapped",
+                    "mapped_incorrectly"
+                  ],
+                  "default": "unmapped",
+                  "description": "Which of the three states to list."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d146-70d6-bb01-60b1103a4636",
+            "entity_type": "search",
+            "name": "playground — classification mapping: mapped",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification mapping: mapped",
+            "description": "The entities that carry the listed keys with allowed values. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping it compares against is its `mappings` input default; the same mapping is written in the other three classification-mapping Searches of this bundle and the four must agree (a test pins them equal).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping:dimension-mapping-entities"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "The mapping to compare the grid against, and the state to list.",
+              "properties": {
+                "mappings": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.customer",
+                          "allowed": [
+                            "data",
+                            "sanitized",
+                            "creds",
+                            "logs"
+                          ]
+                        },
+                        {
+                          "key": "dataclass.infra",
+                          "allowed": [
+                            "code",
+                            "secrets",
+                            "logs",
+                            "admin"
+                          ]
+                        }
+                      ],
+                      "match": "any"
+                    },
+                    {
+                      "entity_type": "computing_core__application_flow",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "transmit"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__program",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_ecs_container",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_rds_instance",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "aws_core__aws_s3_bucket",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "store"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__library",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__package",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process",
+                            "none"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    },
+                    {
+                      "entity_type": "computing_core__crypto_provider",
+                      "keys": [
+                        {
+                          "key": "dataclass.action",
+                          "allowed": [
+                            "process"
+                          ]
+                        }
+                      ],
+                      "match": "all"
+                    }
+                  ],
+                  "description": "Which dimension keys and values an entity of each type should carry. Each row: entity_type, keys (key and allowed values) and match (all or any)."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "mapped",
+                    "unmapped",
+                    "mapped_incorrectly"
+                  ],
+                  "default": "mapped",
+                  "description": "Which of the three states to list."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d17f-7574-8fde-3fe1310f61b6",
+            "entity_type": "panel",
+            "name": "Classification Mapping",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Classification Mapping",
+            "slug": "playground-classification-mapping-title",
+            "description": "The page title.",
+            "view": "tap_web/panels/text_panel.html",
+            "editor_view": "tap_web/panels/text_panel_editor.html",
+            "config": {
+              "text": "",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
+            "entity_type": "panel",
+            "name": "Summary",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Summary",
+            "slug": "playground-classification-mapping-summary",
+            "description": "One row per mapping row with its counts.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "minimal",
+              "default_page_size": 50,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "label",
+                  "title": "Entity Type",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "keys_text",
+                  "title": "Classification",
+                  "widthGrow": 3
+                },
+                {
+                  "field": "denominator",
+                  "title": "Total",
+                  "width": 110,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "mapped",
+                  "title": "Mapped",
+                  "width": 110,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "unmapped",
+                  "title": "Unmapped",
+                  "width": 120,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "mapped_incorrectly",
+                  "title": "Mapped Incorrectly",
+                  "width": 210,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "percent_mapped",
+                  "title": "Percent Mapped",
+                  "width": 190,
+                  "align": "right",
+                  "sorter": "number",
+                  "empty_text": "—"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d1f3-73d3-9e86-2e61b31a5b9b",
+            "entity_type": "panel",
+            "name": "Mapped Incorrectly",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Mapped Incorrectly",
+            "slug": "playground-classification-mapping-mapped-incorrectly",
+            "description": "The entities in the mapped incorrectly state; the name opens the entity.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "label",
+                  "title": "Entity Type",
+                  "widthGrow": 1
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{entity_type}/entity--{entity_id}/",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "found_text",
+                  "title": "Found",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "allowed_text",
+                  "title": "Allowed",
+                  "widthGrow": 3
+                }
+              ],
+              "row_url_template": "/object/{entity_type}/entity--{entity_id}/"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d22d-716b-a72f-e371414a0e9e",
+            "entity_type": "panel",
+            "name": "Unmapped",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Unmapped",
+            "slug": "playground-classification-mapping-unmapped",
+            "description": "The entities in the unmapped state; the name opens the entity.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "label",
+                  "title": "Entity Type",
+                  "widthGrow": 1
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{entity_type}/entity--{entity_id}/",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "found_text",
+                  "title": "Found",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "allowed_text",
+                  "title": "Allowed",
+                  "widthGrow": 3
+                }
+              ],
+              "row_url_template": "/object/{entity_type}/entity--{entity_id}/"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d268-7376-8256-bb0935464bc2",
+            "entity_type": "panel",
+            "name": "Mapped",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Mapped",
+            "slug": "playground-classification-mapping-mapped",
+            "description": "The entities in the mapped state; the name opens the entity.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "label",
+                  "title": "Entity Type",
+                  "widthGrow": 1
+                },
+                {
+                  "field": "name",
+                  "title": "Name",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{entity_type}/entity--{entity_id}/",
+                    "external": false
+                  }
+                },
+                {
+                  "field": "found_text",
+                  "title": "Found",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "allowed_text",
+                  "title": "Allowed",
+                  "widthGrow": 3
+                }
+              ],
+              "row_url_template": "/object/{entity_type}/entity--{entity_id}/"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "entity_type": "page",
+            "name": "Classification Mapping",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Classification Mapping",
+            "slug": "/playground/classification-mapping",
+            "description": "How much of the inventory carries the data classification it should, and what is missing or wrong.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-title",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-summary",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-mapped-incorrectly",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "12fr",
+                  "band": 4,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-unmapped",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "12fr",
+                  "band": 5,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-mapped",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d2e1-757a-9107-3e1c671d5fd6",
+            "entity_type": "schedule",
+            "name": "playground — classification mapping snapshot",
+            "dimensions": {
+              "tap_cares": "schedule"
+            }
+          },
+          "node": {
+            "name": "playground — classification mapping snapshot",
+            "description": "Records the classification mapping summary as a compliance_search_snapshot once an hour (UTC), through the coverage_snapshot collector of fedramp_20x_vdr.",
+            "enabled": true,
+            "cron_expression": "0 * * * *",
+            "max_active_runs": 1
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d31b-74d5-91bc-2c8d3dfcd7e9",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL title",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "to_entity_id": "01a15bc6-d17f-7574-8fde-3fe1310f61b6",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-title"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d352-723f-8148-b6471f677fdc",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL summary",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "to_entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-summary"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d38b-7481-a995-dc83f707f548",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL incorrect",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "to_entity_id": "01a15bc6-d1f3-73d3-9e86-2e61b31a5b9b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-mapped-incorrectly"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d3c8-76d9-808f-028b64a7d5fa",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL unmapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "to_entity_id": "01a15bc6-d22d-716b-a72f-e371414a0e9e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-unmapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d408-70c1-832c-b45d1bbdb397",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL mapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
+            "to_entity_id": "01a15bc6-d268-7376-8256-bb0935464bc2",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-mapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d446-75e6-b03a-4d8f7a40dad6",
+            "entity_type": "edge",
+            "name": "summary table USES_SEARCH summary",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
+            "to_entity_id": "01a15b2f-df3b-7569-bf22-9ead3f816b84",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d488-76ab-b12f-bf6bd78c13fa",
+            "entity_type": "edge",
+            "name": "incorrect table USES_SEARCH incorrect",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d1f3-73d3-9e86-2e61b31a5b9b",
+            "to_entity_id": "01a15bc6-d0cf-7564-afba-8933ff783090",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d4c5-76cd-ab34-9f80cdfd4c65",
+            "entity_type": "edge",
+            "name": "unmapped table USES_SEARCH unmapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d22d-716b-a72f-e371414a0e9e",
+            "to_entity_id": "01a15bc6-d10c-710f-bfd4-afa761769da2",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d504-700c-980e-161df2544f93",
+            "entity_type": "edge",
+            "name": "mapped table USES_SEARCH mapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d268-7376-8256-bb0935464bc2",
+            "to_entity_id": "01a15bc6-d146-70d6-bb01-60b1103a4636",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15bc6-d547-7485-9097-9d1e7c073b9a",
+            "entity_type": "edge",
+            "name": "Classification mapping snapshot SCHEDULED_TARGET coverage_snapshot collector",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15bc6-d2e1-757a-9107-3e1c671d5fd6",
+            "to_entity_id": "41611294-9c37-5013-8175-3b1c2c4a3908",
+            "edge_type": "SCHEDULED_TARGET",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

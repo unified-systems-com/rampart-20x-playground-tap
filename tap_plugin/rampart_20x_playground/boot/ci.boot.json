@@ -59,8 +59,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.8.0",
-          "commit": "30fb4dd0676e7c1c1cbdb60425a43cf623f6a2d8"
+          "rev": "v0.8.7",
+          "commit": "9eb88bb77087ede66b0b244534f8f9846825e48a"
         }
       },
       {
@@ -73,6 +73,17 @@
           "commit": "41a67b72e8a7fba6f9ea50c7f857e7f55c498da1"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
+      },
+      {
+        "slug": "fedramp_20x_vdr",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
+          "rev": "v0.1.0",
+          "commit": "0f1d0be19adcb599c0444b21d341476865a63ad4"
+        },
+        "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },
       {
         "slug": "rampart_20x_playground",

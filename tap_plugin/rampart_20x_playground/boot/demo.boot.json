@@ -1,7 +1,7 @@
 {
   "version": 1,
   "profile_kind": "dev_local",
-  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). No collector runs and no credential is required: the data is mock. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
   "install": {
     "plugins": [
       {
@@ -70,8 +70,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.8.0",
-          "commit": "30fb4dd0676e7c1c1cbdb60425a43cf623f6a2d8"
+          "rev": "v0.8.7",
+          "commit": "9eb88bb77087ede66b0b244534f8f9846825e48a"
         }
       },
       {
@@ -94,6 +94,17 @@
           "rev": "v0.4.1",
           "commit": "f34d4491d466aaf18fa2e14145920ff0198421d8"
         }
+      },
+      {
+        "slug": "fedramp_20x_vdr",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
+          "rev": "v0.1.0",
+          "commit": "0f1d0be19adcb599c0444b21d341476865a63ad4"
+        },
+        "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },
       {
         "slug": "rampart_20x",
