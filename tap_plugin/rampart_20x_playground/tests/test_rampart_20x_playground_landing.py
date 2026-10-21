@@ -12,6 +12,7 @@ PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 LANDING = PACKAGE_ROOT / "static" / "rampart_20x_playground" / "js" / "projections" / "landing.js"
 MOCK = PACKAGE_ROOT / "grift" / "mock-inventory.grift.json"
 SPECS = PACKAGE_ROOT.parents[1] / "specs"
+GRIFT = PACKAGE_ROOT / "grift"
 
 
 def _js() -> str:
@@ -515,7 +516,7 @@ class TestZoomPolish:
         assert excluded == ["computing_core__program", "computing_core__library", "computing_core__package",
                             "computing_core__private_key", "computing_core__public_key", "computing_core__file"]
         source = _js()
-        assert "applyBadgeNodes(cy, {excludeTypes: exclude})" in source and "_refreshBadges(cy, context);" in source
+        assert "applyBadgeNodes(cy, {excludeTypes: exclude})" in source and "_refreshBadges(cy, context, true);" in source and "_refreshBadges(cy, context, false);" in source
 
     def test_the_container_is_a_darker_orange_than_the_task(self) -> None:
         source = _js()
@@ -1208,7 +1209,7 @@ class TestOsPythonPackagePile:
         assert re.search(r"\brequiresPackage: \"REQUIRES_PACKAGE__computing_core\"", source)
         assert '[E.containsPythonPackage]: "Python Packages"' in source
         assert 'containsPythonPackage: "CONTAINS_PYTHON_PACKAGE__playground"' in source
-        # The closure is walked, the Packages pile leaves out what the Python Packages pile holds, the requirement edges are not drawn.
+        # The closure is walked, the OS Packages pile leaves out what the Python Packages pile holds, the requirement edges are not drawn.
         assert "closure(roots, E.requiresPackage)" in source
         assert ".filter((pkg) => !python.has(pkg))" in source
         assert "_edgeType(e) === E.requiresPackage).addClass(HIDDEN_CONTAINMENT_CLASS)" in source
@@ -1265,7 +1266,7 @@ class TestOverviewNotificationCards:
             bands.setdefault(col["band"], []).extend(row["panel-id"] for row in col["rows"].values())
         assert bands == {1: ["playground-overview-kev"], 2: ["landing"]}
         (graph,) = [c for c in columns.values() if c["band"] == 2]
-        assert graph["rows"]["row-1"]["height"] == "90vh"
+        assert graph["rows"]["row-1"]["height"] == "80vh"
 
     def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
         manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")
@@ -1286,7 +1287,7 @@ class TestOverviewNitsSeven:
 
     def test_the_piles_stand_in_one_row_keys_libraries_packages_python_packages(self) -> None:
         source = _js()
-        assert "const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage, E.containsPythonPackage];" in source
+        assert "const PILE_ORDER = [E.containsKey, E.containsPythonPackage, E.containsLibrary, E.containsPackage];" in source
         body = source.split("function _placeInterior")[1].split("\n}\n")[0]
         # One y for the whole row: the row is horizontal.
         assert "const y = " in body and "y});" in body.split("piles.forEach")[1]
@@ -1384,3 +1385,62 @@ class TestOverviewNitsSeven:
         table = re.search(r"const FLOW_COLOURS = \{(.*?)\n\};", _js(), re.S).group(1)
         for colour in re.findall(r"#[0-9A-Fa-f]{6}", table):
             assert colour in text, colour
+
+
+class TestOverviewVulnerabilityDistribution:
+    """Exceptions 56 to 58 (the pile order, the bubbles on what carries the vulnerabilities, their size). These tests pin source strings."""
+
+    def test_the_piles_are_ordered_and_the_os_packages_pile_is_renamed(self) -> None:
+        source = _js()
+        assert '[E.containsPackage]: "OS Packages"' in source and '"Packages"' not in source.replace('"OS Packages"', "").replace('"Python Packages"', "")
+        # The programs' row starts at the box's left inner edge, above the first pile.
+        placed = source.split("function _placeInterior")[1].split("\n}\n")[0]
+        assert "let x = left;" in placed
+
+    def test_the_findings_come_from_a_search_one_row_per_finding(self) -> None:
+        source = _js()
+        grift = json.loads((GRIFT / "pages.grift.json").read_text(encoding="utf-8"))
+        searches = {n["entity"]["name"]: n for b in grift["batches"] for n in b["nodes"] if n["entity"]["entity_type"] == "search"}
+        carrier = searches["playground \u2014 landing carrier-findings"]
+        projection = next(n for b in grift["batches"] for n in b["nodes"] if n["entity"]["entity_type"] == "projection")
+        badge_set = projection["node"]["definition"]["status_badges"]["badge_sets"][0]
+        assert badge_set["population"]["interior_findings_search_id"] == carrier["entity"]["entity_id"]
+        assert "interior_findings_search_id" in source and carrier["entity"]["entity_id"] not in source
+        query = " ".join(carrier["node"]["definition"]["query"])
+        assert "CARRIES_COMPLIANCE_FINDING__compliance_core" in query and 'f.data.status = "open"' in query
+        assert "f.entity_id AS finding" in query and "MAX(v.data.cvss_score)" in query and "COUNT(" not in query
+
+    def test_the_task_bubble_gives_way_to_the_interior_bubbles_and_returns(self) -> None:
+        source = _js()
+        place = source.split("function _placeInteriorBubbles")[1].split("\n}\n")[0]
+        assert "pile.members.map((m) => m.id())" in place and "_findingsOf(byCarrier, ids)" in place
+        assert "placed === total" in place and 'cy.scratch("landing_task_badges"' in place and ".restore()" in place
+        assert "_is_interior_badge" in source.split("function _dropHiddenBadges")[1].split("\n}\n")[0]
+        found = source.split("function _findingsOf")[1].split("\n}\n")[0]
+        assert "new Map()" in found and "found.size" in found  # distinct findings: a finding of two members counts once
+
+    def test_the_pile_window_has_a_vulnerabilities_column_in_the_component_pages_tones(self) -> None:
+        source = _js()
+        window = source.split("function _openPileWindow")[1].split("\n}\n")[0]
+        assert "Vulnerabilities" in window and "tap-info-window__tone--${tone}" in window and "_findingsOf(byCarrier, [n.id()])" in window
+        page = json.loads((GRIFT / "vulnerabilities-page.grift.json").read_text(encoding="utf-8"))
+        text = json.dumps(page)
+        assert '"steps": [{"min": 7, "tone": "bad"}, {"min": 4, "tone": "warn"}, {"min": 0.1, "tone": "good"}]' in text
+        assert "const CVSS_TONE_STEPS = [{min: 7, tone: \"bad\"}, {min: 4, tone: \"warn\"}, {min: 0.1, tone: \"good\"}];" in source
+
+    def test_the_bubbles_are_the_size_of_the_pile_chip(self) -> None:
+        source = _js()
+        assert "const PILE_CHIP_FONT = 14;" in source and "const PILE_CHIP_HEIGHT = 16;" in source
+        sizing = source.split("function _syncBadgeSizes")[1].split("\n}\n")[0]
+        assert "PILE_CHIP_HEIGHT" in sizing and "PILE_CHIP_FONT * fontFactor" in sizing and "_is_interior_badge" in sizing
+
+    def test_the_new_exceptions_and_spec_rows_are_recorded(self) -> None:
+        source = _js()
+        for n in (56, 57, 58):
+            start = source.index(f" *  {n}. ")
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 58 else source.index("\n * None changes", start)
+            assert "should become" in source[start:end], n
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        for n, exception in ((38, "exception 56"), (39, "exception 57"), (40, "exception 58")):
+            assert f"| req-rampart-20x-playground-govcloud-layout-{n} |" in text and exception in text
+
