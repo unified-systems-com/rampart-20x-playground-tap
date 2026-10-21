@@ -477,7 +477,11 @@
                     },
                     "endLabel": {
                       "show": true,
-                      "formatter": "{a}"
+                      "formatter": "{a}",
+                      "color": "inherit",
+                      "textBorderWidth": 0,
+                      "textBorderColor": "transparent",
+                      "textShadowBlur": 0
                     },
                     "labelLayout": {
                       "moveOverlap": "shiftY"
@@ -579,7 +583,11 @@
                     },
                     "endLabel": {
                       "show": true,
-                      "formatter": "{a}"
+                      "formatter": "{a}",
+                      "color": "inherit",
+                      "textBorderWidth": 0,
+                      "textBorderColor": "transparent",
+                      "textShadowBlur": 0
                     },
                     "labelLayout": {
                       "moveOverlap": "shiftY"

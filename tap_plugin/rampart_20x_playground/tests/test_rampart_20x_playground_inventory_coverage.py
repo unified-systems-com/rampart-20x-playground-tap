@@ -127,7 +127,7 @@ class TestInventoryCoverage:
             assert series["type"] == "line" and "stack" not in series
             # George, 2026-10-21: no legend; each line's name sits at its end, shifted apart where ends cluster.
             assert "legend" not in option and option["tooltip"]["trigger"] == "axis"
-            assert series["endLabel"] == {"show": True, "formatter": "{a}"} and series["labelLayout"] == {"moveOverlap": "shiftY"}
+            assert series["endLabel"] == {"show": True, "formatter": "{a}", "color": "inherit", "textBorderWidth": 0, "textBorderColor": "transparent", "textShadowBlur": 0} and series["labelLayout"] == {"moveOverlap": "shiftY"}
             assert set(config["color_map"]["map"]) == {*order, "Overall"} and config["color_map"]["map"]["Overall"] == "neutral"
             assert config["types"] == {"observed_at": "time", "value": "number"}
             assert config["empty_text"] and config["max_rows"] == 5000
@@ -174,3 +174,22 @@ class TestDependencies:
             for entry in record["install"]["plugins"]:
                 if entry["slug"] in pins:
                     assert (entry["source"]["rev"], entry["source"]["commit"]) == pins[entry["slug"]], (name, entry["slug"])
+
+
+class TestStampsAndWindow:
+    def test_containers_and_buckets_are_cloud_services(self) -> None:
+        """`dimensions-12`: counted in the Cloud Services line, listed in its table."""
+        seen: dict[str, int] = {}
+        for name in ("application-flow.grift.json", "mock-inventory.grift.json"):
+            for node in _batch(name)["nodes"]:
+                entity = node["entity"]
+                if entity["entity_type"] in ("aws_core__aws_ecs_container", "aws_core__aws_s3_bucket"):
+                    assert entity["dimensions"]["inventory"] == "cloud", entity["name"]
+                    seen[entity["entity_type"]] = seen.get(entity["entity_type"], 0) + 1
+        assert seen == {"aws_core__aws_ecs_container": 2, "aws_core__aws_s3_bucket": 2}
+
+    def test_the_classification_history_starts_at_the_first_grouped_snapshot(self) -> None:
+        """The card and the chart's last Overall point agree only when the chart holds one mapping."""
+        nodes = {n["entity"]["name"]: n for n in _batch()["nodes"] if n["entity"]["entity_type"] == "search"}
+        since = nodes["playground — classification coverage history"]["node"]["input_schema"]["properties"]["since"]
+        assert since["default"] == "2026-10-21T23:00:00Z"
