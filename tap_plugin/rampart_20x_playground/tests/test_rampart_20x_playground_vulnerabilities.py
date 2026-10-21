@@ -12,6 +12,7 @@ from pathlib import Path
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
+SPECS = PACKAGE_ROOT.parents[1] / "specs"
 FILE = "vulnerabilities-page.grift.json"
 OVERVIEW = "/playground/vulnerabilities"
 VULNERABILITY = "/playground/vulnerabilities/vulnerability"
@@ -360,11 +361,31 @@ class TestVulnerabilityPages:
             assert f"playground-vulnerabilities-{need}" in slots, need
         assert "$component_id" in self._query(self.by_slug["playground-vulnerabilities-component-vulnerabilities"])
 
+    def test_the_component_page_is_a_hero_over_two_full_width_striped_tables(self) -> None:
+        """`req-rampart-20x-playground-page-vulnerabilities-21`."""
+        layout = self.pages[COMPONENT]["node"]["layout"]["columns"]
+        assert list(layout) == ["col-1"] and layout["col-1"]["width"] == "12fr"
+        assert [r["panel-id"] for r in layout["col-1"]["rows"].values()] == [
+            "playground-vulnerabilities-component-identity", "playground-vulnerabilities-component-systems",
+            "playground-vulnerabilities-component-vulnerabilities"]
+        hero = self.by_slug["playground-vulnerabilities-component-identity"]["node"]
+        assert hero["view"] == "tap_web/panels/stat_card_panel.html"
+        config = hero["config"]
+        assert config["layout"] == "figure_right" and config["value_field"] == "vulnerabilities" and config["unit"] == "open findings"
+        assert config["title_field"] == "component"
+        assert [(line["field"], line.get("placement")) for line in config["lines"]] == [("type", "header"), ("worst", None)]
+        for slug in ("component-systems", "component-vulnerabilities"):
+            assert self.by_slug[f"playground-vulnerabilities-{slug}"]["node"]["config"]["striped"] is True
+        (link,) = [c for c in self.by_slug["playground-vulnerabilities-component-vulnerabilities"]["node"]["config"]["columns"] if c["field"] == "id"]
+        assert link["formatter_params"]["style"] == "plain"
+        text = (SPECS / "spec-rampart_20x_playground-v0.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-page-vulnerabilities-21" in text and "Backlog, not built" in text
+
     def test_the_component_page_opens_the_cve_page_by_row_and_by_id_link(self) -> None:
         config = self.by_slug["playground-vulnerabilities-component-vulnerabilities"]["node"]["config"]
         assert config["row_url_template"] == CVE + "?vuln_id={id}"
         (column,) = [c for c in config["columns"] if c["field"] == "id"]
-        assert column["formatter_params"] == {"href_template": CVE + "?vuln_id={id}", "external": False}
+        assert column["formatter_params"] == {"href_template": CVE + "?vuln_id={id}", "external": False, "style": "plain"}
 
     # -- the CVE page: answer first, then how bad, what it is, where it affects us, details and sources ---------
 
