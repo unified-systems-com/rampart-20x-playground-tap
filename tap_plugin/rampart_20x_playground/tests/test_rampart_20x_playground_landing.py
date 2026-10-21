@@ -250,7 +250,8 @@ class TestAuthorizationBoundary:
         scoped = [q for q in searches.values() if "SCOPED_TO_COMPLIANCE_BOUNDARY" in q]
         assert len(scoped) == 1 and 'b.dimensions["overview"] = "shown"' in scoped[0]
         assert "playground \u2014 landing scoped" in searches
-        (panel,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "panel"]
+        # The bundle also holds the notification card of the Overview (`req-rampart-20x-playground-govcloud-layout-37`): the graph is the other panel.
+        (panel,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "panel" and n["node"]["slug"] == "playground-landing-graph"]
         used = {e["edge"]["to_entity_id"] for e in pages["edges"]
                 if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]}
         (search,) = [n for n in pages["nodes"] if n["entity"]["name"] == "playground \u2014 landing scoped"]
@@ -417,7 +418,8 @@ class TestRunningParts:
                            ("flow-destination", "APPLICATION_FLOW_DESTINATION__computing_core")):
             query = searches[f"playground \u2014 landing {slug}"]
             assert edge in query and 'a.dimensions["overview"] = "shown" AND b.dimensions["overview"] = "shown"' in query
-        (panel,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "panel"]
+        # The bundle also holds the notification card of the Overview (`req-rampart-20x-playground-govcloud-layout-37`): the graph is the other panel.
+        (panel,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "panel" and n["node"]["slug"] == "playground-landing-graph"]
         used = {e["edge"]["to_entity_id"] for e in pages["edges"]
                 if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]}
         search_ids = {n["entity"]["name"]: n["entity"]["entity_id"] for n in pages["nodes"] if n["entity"]["entity_type"] == "search"}
@@ -1142,6 +1144,134 @@ class TestContainerKeyPile:
         assert "req-rampart-20x-playground-govcloud-layout-31" in text and "exception 50" in text
 
 
+class TestOsPythonPackagePile:
+    """`req-rampart-20x-playground-govcloud-layout-36`: the Wolfi box holds a pile of Python packages (RUNS_PACKAGE, then REQUIRES_PACKAGE)."""
+
+    TAP_WEB = {"01a13be3-0373-7afc-8d07-441072bee2eb", "01a1c453-b1c0-7baf-989a-834ff276c1b9"}
+    GUNICORN = {"01a13be3-0373-79d4-9ae8-be13c2e3bfd5", "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca"}
+
+    @staticmethod
+    def _ref_name(ref: str) -> tuple[str, str, str]:
+        kind, payload = ref.split("\x1f", 1)
+        body = json.loads(payload)
+        return kind, body["ecosystem"], body["name"]
+
+    def _runs_package(self) -> list[dict]:
+        return [e for e in _batch_edges(SOFTWARE) if e["edge_type"] == "RUNS_PACKAGE__computing_core"]
+
+    def test_each_program_runs_its_root_package_by_an_official_edge_to_a_package_not_a_source_package(self) -> None:
+        edges = self._runs_package()
+        assert len(edges) == 4
+        by_program = {e["from_entity_id"]: self._ref_name(e["to_ref"]) for e in edges}
+        assert {p for p, t in by_program.items() if t == ("computing_core__package", "pypi", "tap")} == self.TAP_WEB
+        assert {p for p, t in by_program.items() if t == ("computing_core__package", "pypi", "gunicorn")} == self.GUNICORN
+        assert all("source_package" not in e["to_ref"] for e in edges)
+
+    def test_the_roots_exist_as_seeded_packages_and_no_closure_member_is_written_as_a_root(self) -> None:
+        refs = {n["entity"].get("ref") for b in json.loads(SOFTWARE.read_text(encoding="utf-8"))["batches"] for n in b["nodes"]}
+        for e in self._runs_package():
+            assert e["to_ref"] in refs
+        # A root is not a closure (`req-computing-core-program-package-3`): only the two roots are drawn to, the rest is walked.
+        assert {self._ref_name(e["to_ref"])[2] for e in self._runs_package()} == {"tap", "gunicorn"}
+
+    def test_the_closure_over_requires_package_is_44_packages_and_all_of_them_are_shown(self) -> None:
+        batch = json.loads(SOFTWARE.read_text(encoding="utf-8"))["batches"][0]
+        shown = {n["entity"]["ref"] for n in batch["nodes"]
+                 if "ref" in n["entity"] and n["entity"].get("dimensions", {}).get("overview") == "shown"}
+        requires: dict[str, list[str]] = {}
+        for e in batch["edges"]:
+            if e["edge"]["edge_type"] == "REQUIRES_PACKAGE__computing_core":
+                requires.setdefault(e["edge"]["from_ref"], []).append(e["edge"]["to_ref"])
+        roots = {e["to_ref"] for e in self._runs_package()}
+        seen = set(roots)
+        frontier = set(roots)
+        while frontier:
+            frontier = {t for f in frontier for t in requires.get(f, [])} - seen
+            seen |= frontier
+        assert len(seen) == 44
+        assert seen <= shown
+        assert {self._ref_name(r)[1] for r in seen} == {"pypi"}
+
+    def test_the_searches_bring_both_edges_and_the_panel_uses_them(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        queries = {n["entity"]["entity_id"]: " ".join(n["node"]["definition"]["query"]) for n in pages["nodes"]
+                   if n["entity"]["entity_type"] == "search" and "query" in n["node"].get("definition", {})}
+        wanted = {name: i for i, q in queries.items() for name in ("RUNS_PACKAGE__computing_core", "REQUIRES_PACKAGE__computing_core") if name in q}
+        assert set(wanted) == {"RUNS_PACKAGE__computing_core", "REQUIRES_PACKAGE__computing_core"}
+        used = {e["edge"]["to_entity_id"] for e in pages["edges"] if e["edge"]["edge_type"] == "USES_SEARCH"}
+        assert set(wanted.values()) <= used
+
+    def test_the_pile_is_marked_exception_55_derived_and_not_double_counted(self) -> None:
+        source = _js()
+        assert " 55. " in source
+        assert re.search(r"\brunsPackage: \"RUNS_PACKAGE__computing_core\"", source)
+        assert re.search(r"\brequiresPackage: \"REQUIRES_PACKAGE__computing_core\"", source)
+        assert '[E.containsPythonPackage]: "Python Packages"' in source
+        assert 'containsPythonPackage: "CONTAINS_PYTHON_PACKAGE__playground"' in source
+        # The closure is walked, the Packages pile leaves out what the Python Packages pile holds, the requirement edges are not drawn.
+        assert "closure(roots, E.requiresPackage)" in source
+        assert ".filter((pkg) => !python.has(pkg))" in source
+        assert "_edgeType(e) === E.requiresPackage).addClass(HIDDEN_CONTAINMENT_CLASS)" in source
+        text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
+        assert "req-rampart-20x-playground-govcloud-layout-36" in text and "exception 55" in text
+
+
+class TestOverviewNotificationCards:
+    """`req-rampart-20x-playground-govcloud-layout-37`: a row of notification cards above the graph; the first is the CISA KEV card."""
+
+    VULNERABILITIES = PACKAGE_ROOT / "grift" / "vulnerabilities-page.grift.json"
+    OVERVIEW = "01a13b2c-82d6-73d2-baa8-17415ac66a72"
+    KEV_SEARCH = "01a13fc0-0c16-71d6-a543-32e09f5b48b8"
+
+    def _vuln(self) -> dict:
+        return json.loads(self.VULNERABILITIES.read_text(encoding="utf-8"))["batches"][0]
+
+    @staticmethod
+    def _pages() -> dict:
+        return json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+
+    @staticmethod
+    def _panel(batch: dict, slug: str) -> dict:
+        (panel,) = [n for n in batch["nodes"] if n["entity"]["entity_type"] == "panel" and n["node"]["slug"] == slug]
+        return panel
+
+    def test_the_card_is_the_vulnerabilities_kev_card_with_a_new_title_and_the_inline_layout(self) -> None:
+        original = self._panel(self._vuln(), "playground-vulnerabilities-kev")["node"]["config"]
+        card = self._panel(self._pages(), "playground-overview-kev")["node"]["config"]
+        assert card["title"] == "CISA Known Exploited List"
+        assert card["layout"] == "figure_right"
+        # Everything else is the card of the Vulnerabilities page.
+        assert {k: v for k, v in card.items() if k not in ("title", "layout")} == {k: v for k, v in original.items() if k != "title"}
+
+    def test_it_reads_the_same_search_and_the_overview_uses_it(self) -> None:
+        pages = self._pages()
+        panel_id = self._panel(pages, "playground-overview-kev")["entity"]["entity_id"]
+        searches = {e["edge"]["to_entity_id"] for e in pages["edges"]
+                    if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel_id}
+        assert searches == {self.KEV_SEARCH}
+        original = self._panel(self._vuln(), "playground-vulnerabilities-kev")["entity"]["entity_id"]
+        assert {e["edge"]["to_entity_id"] for e in self._vuln()["edges"]
+                if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == original} == {self.KEV_SEARCH}
+        assert any(n["entity"]["entity_id"] == self.KEV_SEARCH for n in self._vuln()["nodes"])
+        uses = [e["edge"] for e in pages["edges"] if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["to_entity_id"] == panel_id]
+        assert [(e["from_entity_id"], e["properties"]["hotlink"]["value"]) for e in uses] == [(self.OVERVIEW, "playground-overview-kev")]
+
+    def test_the_overview_is_two_bands_the_cards_then_the_graph(self) -> None:
+        pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
+        (page,) = [n for n in pages["nodes"] if n["entity"]["entity_id"] == self.OVERVIEW]
+        columns = page["node"]["layout"]["columns"]
+        bands = {}
+        for col in columns.values():
+            bands.setdefault(col["band"], []).extend(row["panel-id"] for row in col["rows"].values())
+        assert bands == {1: ["playground-overview-kev"], 2: ["landing"]}
+        (graph,) = [c for c in columns.values() if c["band"] == 2]
+        assert graph["rows"]["row-1"]["height"] == "90vh"
+
+    def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
+        manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")
+        assert manifest.index("vulnerabilities_page = ") < manifest.index("\npages = ")
+
+
 class TestOverviewNitsSeven:
     """`req-rampart-20x-playground-govcloud-layout-32` to `-35`: overview nits, round seven. Source pins; what rendered is stated in the pull request."""
 
@@ -1150,12 +1280,13 @@ class TestOverviewNitsSeven:
         assert "(parent:${T.os})-[:${E.containsLibrary}]->(child:${T.lib})" in source
         assert "(parent:${T.os})-[:${E.containsPackage}]->(child:${T.pkg})" in source
         assert "(parent:${T.os})-[:${E.containsKey}]->(child)" in source
+        assert "(parent:${T.os})-[:${E.containsPythonPackage}]->(child:${T.pkg})" in source
         assert "add(systems[0], lib, E.containsLibrary)" in source and "add(container.id(), lib" not in source
         assert "(parent:${T.ecsContainer})-[:${E.containsLibrary}]" not in source
 
-    def test_the_piles_stand_in_one_row_keys_libraries_packages(self) -> None:
+    def test_the_piles_stand_in_one_row_keys_libraries_packages_python_packages(self) -> None:
         source = _js()
-        assert "const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage];" in source
+        assert "const PILE_ORDER = [E.containsKey, E.containsLibrary, E.containsPackage, E.containsPythonPackage];" in source
         body = source.split("function _placeInterior")[1].split("\n}\n")[0]
         # One y for the whole row: the row is horizontal.
         assert "const y = " in body and "y});" in body.split("piles.forEach")[1]
