@@ -8,13 +8,13 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.6.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.7.0",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.6.0",
-        "description": "The /playground/vulnerabilities page (three cards, three charts, a table of open vulnerabilities and a table of affected components) with a drill-in page per component, a short older vulnerability page, and the CVE page that explains one vulnerability: the answer first, how bad and how urgent, what it is, where it affects us, then the details and sources. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
+        "name": "rampart-20x-playground vulnerabilities page v0.7.0",
+        "description": "The /playground/vulnerabilities page (four cards, three charts, a table of open vulnerabilities and two tables of affected components) with a drill-in page per component, a short older vulnerability page, and the CVE page that explains one vulnerability: the answer first, how bad and how urgent, what it is, where it affects us, then the details and sources. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
       },
       "nodes": [
         {
@@ -1673,50 +1673,78 @@
             "layout": {
               "columns": {
                 "col-1": {
-                  "width": "4fr",
+                  "width": "3fr",
                   "band": 1,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-kev",
                       "height": "auto"
-                    },
-                    "row-2": {
-                      "panel-id": "playground-vulnerabilities-cvss",
-                      "height": "auto"
                     }
                   }
                 },
                 "col-2": {
-                  "width": "4fr",
+                  "width": "3fr",
                   "band": 1,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-open",
                       "height": "auto"
-                    },
-                    "row-2": {
-                      "panel-id": "playground-vulnerabilities-top-components",
-                      "height": "auto"
                     }
                   }
                 },
                 "col-3": {
-                  "width": "4fr",
+                  "width": "3fr",
                   "band": 1,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-closed",
                       "height": "auto"
-                    },
-                    "row-2": {
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-cwe506",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "4fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-cvss",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-6": {
+                  "width": "4fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vulnerabilities-top-components",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-7": {
+                  "width": "4fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
                       "panel-id": "playground-vulnerabilities-severity-age",
                       "height": "auto"
                     }
                   }
                 },
-                "col-4": {
+                "col-8": {
                   "width": "12fr",
-                  "band": 2,
+                  "band": 3,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-open-vulnerabilities",
@@ -1724,6 +1752,10 @@
                     },
                     "row-2": {
                       "panel-id": "playground-vulnerabilities-open-components",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "playground-vulnerabilities-cwe506-components",
                       "height": "auto"
                     }
                   }
@@ -2688,6 +2720,167 @@
               "hide_header": false
             }
           }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-8edb-703e-86f6-2f3232d5d8aa",
+            "entity_type": "panel",
+            "name": "Embedded Malicious Code",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Embedded Malicious Code",
+            "slug": "playground-vulnerabilities-cwe506",
+            "description": "Vulnerabilities in the grid classed CWE-506, Embedded Malicious Code.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "malicious",
+              "value_formatter": "integer",
+              "tone": "bad",
+              "zero_tone": "good",
+              "hide_header": true,
+              "title": "Embedded Malicious Code (CWE-506)",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
+              "null_text": "not observed",
+              "tone_text": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-8edb-703e-86f6-2f33621d5df2",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities card-cwe506",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities card-cwe506",
+            "description": "Vulnerabilities in the grid whose CWE list contains CWE-506.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (v:compliance_core__compliance_vulnerability) WHERE v.data.cwes CONTAINS \"CWE-506\"",
+                "RETURN COUNT(v) AS malicious"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-8edb-703e-86f6-2f34ce7f662d",
+            "entity_type": "panel",
+            "name": "Components With Embedded Malicious Code",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Components With Embedded Malicious Code",
+            "slug": "playground-vulnerabilities-cwe506-components",
+            "description": "Components that carry a finding for a CWE-506 vulnerability.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "columns": [
+                {
+                  "field": "component",
+                  "title": "Component",
+                  "widthGrow": 3,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/component?component_id={cid}",
+                    "external": false,
+                    "style": "plain"
+                  }
+                },
+                {
+                  "field": "type",
+                  "title": "Type",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "computing_core__package": "muted",
+                      "computing_core__library": "muted",
+                      "computing_core__operating_system": "muted",
+                      "computing_core__crypto_provider": "muted"
+                    },
+                    "labels": {
+                      "computing_core__package": "Package",
+                      "computing_core__library": "Library",
+                      "computing_core__operating_system": "Operating system",
+                      "computing_core__crypto_provider": "Crypto provider"
+                    }
+                  },
+                  "width": 140
+                },
+                {
+                  "field": "id",
+                  "title": "Vulnerability",
+                  "widthGrow": 2,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/cve?vuln_id={id}",
+                    "external": false,
+                    "style": "plain"
+                  }
+                },
+                {
+                  "field": "status",
+                  "title": "State",
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "open": "bad",
+                      "resolved": "good"
+                    },
+                    "labels": {
+                      "resolved": "Closed"
+                    },
+                    "capitalize": true
+                  },
+                  "width": 100
+                },
+                {
+                  "field": "findings",
+                  "title": "Findings",
+                  "width": 120,
+                  "align": "right",
+                  "sorter": "number"
+                }
+              ],
+              "row_url_template": "/playground/vulnerabilities/component?component_id={cid}",
+              "striped": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-8edb-703e-86f6-2f35b3312f91",
+            "entity_type": "search",
+            "name": "playground — vulnerabilities cwe506-components",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vulnerabilities cwe506-components",
+            "description": "Components that carry a finding for a vulnerability whose CWE list contains CWE-506, with the finding state.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c)-[:CARRIES_COMPLIANCE_FINDING__compliance_core]->(f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE v.data.cwes CONTAINS \"CWE-506\" AND c.entity_type != \"github_core__github_repository\"",
+                "RETURN c.entity_id AS cid, c.name AS component, c.entity_type AS type, v.data.vuln_id AS id, f.data.status AS status, COUNT(f) AS findings",
+                "ORDER BY component ASC"
+              ]
+            }
+          }
         }
       ],
       "edges": [
@@ -3535,6 +3728,74 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-vulnerabilities-cve-h-details"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-f356-71ea-8f40-0d91c3bf5151",
+            "entity_type": "edge",
+            "name": "Embedded malicious code USES_SEARCH card-cwe506",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15fd7-8edb-703e-86f6-2f3232d5d8aa",
+            "to_entity_id": "01a15fd7-8edb-703e-86f6-2f33621d5df2",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-f356-71ea-8f40-0d928d6b0c3c",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_PANEL cwe506",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a15fd7-8edb-703e-86f6-2f3232d5d8aa",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-cwe506"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-f356-71ea-8f40-0d93ef982f61",
+            "entity_type": "edge",
+            "name": "Components with embedded malicious code USES_SEARCH cwe506-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15fd7-8edb-703e-86f6-2f34ce7f662d",
+            "to_entity_id": "01a15fd7-8edb-703e-86f6-2f35b3312f91",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fd7-f356-71ea-8f40-0d9475658c36",
+            "entity_type": "edge",
+            "name": "Vulnerabilities USES_PANEL cwe506-components",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13fc0-b086-7099-a261-d721d3ff5605",
+            "to_entity_id": "01a15fd7-8edb-703e-86f6-2f34ce7f662d",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vulnerabilities-cwe506-components"
               }
             }
           }

@@ -184,32 +184,35 @@ class TestVulnerabilityPages:
 
     # -- the overview ----------------------------------------------------------------------------------------
 
-    def test_the_overview_has_a_band_of_three_columns_then_one_band_of_tables(self) -> None:
+    def test_the_overview_has_a_row_of_cards_a_row_of_charts_then_one_band_of_tables(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-2"""
         bands = self._bands(OVERVIEW)
-        assert sorted(bands) == [1, 2]
-        assert [c["width"] for c in bands[1]] == ["4fr", "4fr", "4fr"]
-        assert len(bands[2]) == 1 and bands[2][0]["width"] == "12fr"
-        assert all(p["node"]["view"] == TABLE for p in self._of(bands[2])[0])
+        assert sorted(bands) == [1, 2, 3]
+        assert [c["width"] for c in bands[1]] == ["3fr"] * 4
+        assert [c["width"] for c in bands[2]] == ["4fr"] * 3
+        assert len(bands[3]) == 1 and bands[3][0]["width"] == "12fr"
+        assert all(p["node"]["view"] == TABLE for p in self._of(bands[3])[0])
 
-    def test_each_column_is_a_card_over_a_chart_so_the_card_is_as_wide_as_the_column(self) -> None:
-        for column in self._of(self._bands(OVERVIEW)[1]):
-            assert [p["node"]["view"] for p in column] == [CARD, CHART]
+    def test_each_first_band_column_is_one_card_and_each_second_band_column_one_chart(self) -> None:
+        assert [[p["node"]["view"] for p in col] for col in self._of(self._bands(OVERVIEW)[1])] == [[CARD]] * 4
+        assert [[p["node"]["view"] for p in col] for col in self._of(self._bands(OVERVIEW)[2])] == [[CHART]] * 3
 
-    def test_the_cards_run_kev_then_open_then_closed(self) -> None:
+    def test_the_cards_run_kev_then_open_then_closed_then_cwe506(self) -> None:
         first_row = [col["rows"]["row-1"]["panel-id"] for col in self._bands(OVERVIEW)[1]]
-        assert first_row == [f"playground-vulnerabilities-{s}" for s in ("kev", "open", "closed")]
+        assert first_row == [f"playground-vulnerabilities-{s}" for s in ("kev", "open", "closed", "cwe506")]
 
     def test_the_cards_draw_their_text_in_the_tone_and_kev_greys_out_at_zero(self) -> None:
-        tones = {"kev": "bad", "open": "warn", "closed": "good"}
+        tones = {"kev": "bad", "open": "warn", "closed": "good", "cwe506": "bad"}
         for slot, tone in tones.items():
             config = self.by_slug[f"playground-vulnerabilities-{slot}"]["node"]["config"]
             assert config["tone"] == tone and config["tone_text"] is True, slot
         assert self.by_slug["playground-vulnerabilities-kev"]["node"]["config"]["zero_tone"] == "muted"
+        assert self.by_slug["playground-vulnerabilities-cwe506"]["node"]["config"]["zero_tone"] == "good"
 
     def test_the_cards_say_a_number_and_nothing_else(self) -> None:
         """No unit, no secondary lines, no tone words and no header or description: the figure and the tone's left edge."""
         cards = [self.by_slug[s] for s in self._slots(OVERVIEW) if self.by_slug[s]["node"]["view"] == CARD]
-        assert len(cards) == 3
+        assert len(cards) == 4
         for card in cards:
             config = card["node"]["config"]
             assert config["hide_header"] is True and config["title"], card["entity"]["name"]
@@ -267,6 +270,20 @@ class TestVulnerabilityPages:
         assert self._query(panel) == RUNNER_PREFIX + "component-severity"
         assert self.by_slug["playground-vulnerabilities-cvss"]["node"]["config"]["option"]["visualMap"]["pieces"][0]["color"] == "#2f9e6b"
 
+    def test_the_cwe506_card_and_table_read_the_cwe_list(self) -> None:
+        """req-rampart-20x-playground-page-vulnerabilities-22"""
+        card = self.by_slug["playground-vulnerabilities-cwe506"]
+        assert card["node"]["config"]["title"] == "Embedded Malicious Code (CWE-506)"
+        assert self._query(card).endswith("RETURN COUNT(v) AS malicious")
+        assert 'v.data.cwes CONTAINS "CWE-506"' in self._query(card)
+        table = self.by_slug["playground-vulnerabilities-cwe506-components"]
+        assert table["node"]["name"] == "Components With Embedded Malicious Code"
+        assert "empty_text" not in table["node"]["config"]  # the table panel has no table-level empty text
+        assert 'v.data.cwes CONTAINS "CWE-506"' in self._query(table)
+        assert self._search_of(table)["node"]["search_type"] == "gryphon"
+        assert self._slots(OVERVIEW)[-1] == "playground-vulnerabilities-cwe506-components"
+        assert self.batch["batch_entity"]["name"].endswith("v0.7.0")
+
     def test_the_bubble_counts_are_white_with_no_outline(self) -> None:
         """req-rampart-20x-playground-page-vulnerabilities-19"""
         label = self.by_slug["playground-vulnerabilities-severity-age"]["node"]["config"]["option"]["series"][0]["label"]
@@ -275,7 +292,7 @@ class TestVulnerabilityPages:
 
     def test_the_overview_tables_are_striped_with_plain_links(self) -> None:
         """req-rampart-20x-playground-page-vulnerabilities-18"""
-        for slug in ("open-vulnerabilities", "open-components"):
+        for slug in ("open-vulnerabilities", "open-components", "cwe506-components"):
             config = self.by_slug[f"playground-vulnerabilities-{slug}"]["node"]["config"]
             assert config["striped"] is True, slug
             links = [c for c in config["columns"] if c.get("formatter") in ("link", "linkList")]
@@ -300,9 +317,9 @@ class TestVulnerabilityPages:
         names = {p["node"]["name"] for p in self.panels}
         assert {"CVSS Score", "Most Open Findings", "Severity By Age"} <= names
 
-    def test_the_two_overview_tables_search_and_page(self) -> None:
-        (column,) = self._of(self._bands(OVERVIEW)[2])
-        assert len(column) == 2
+    def test_the_three_overview_tables_search_and_page(self) -> None:
+        (column,) = self._of(self._bands(OVERVIEW)[3])
+        assert len(column) == 3
         for table in column:
             config = table["node"]["config"]
             assert config["quick_filter"] is True and config["default_page_size"] >= 10, table["entity"]["name"]
