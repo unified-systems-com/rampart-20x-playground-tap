@@ -119,6 +119,12 @@ class TestClassificationMapping:
         namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "tap_cares.collector")
         assert str(uuid.uuid5(namespace, "fedramp_20x_vdr:coverage_snapshot")) == COLLECTOR_ID
 
+    def test_the_unmapped_table_omits_the_all_page_size_and_keeps_25_a_page(self) -> None:
+        """`page-data-classification-11`."""
+        config = self.panels["playground-classification-mapping-unmapped"]["node"]["config"]
+        assert config["show_all_rows"] is False and config["default_page_size"] == 25
+        assert all("show_all_rows" not in p["node"]["config"] for s, p in self.panels.items() if not s.endswith("unmapped"))
+
     def test_the_bundle_holds_no_page_and_four_table_panels(self) -> None:
         assert not [n for n in self.nodes if n["entity"]["entity_type"] == "page"]
         assert not [e for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"]

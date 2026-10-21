@@ -1266,7 +1266,7 @@ class TestOverviewNotificationCards:
             bands.setdefault(col["band"], []).extend(row["panel-id"] for row in col["rows"].values())
         assert bands == {1: ["playground-overview-kev"], 2: ["landing"]}
         (graph,) = [c for c in columns.values() if c["band"] == 2]
-        assert graph["rows"]["row-1"]["height"] == "80vh"
+        assert graph["rows"]["row-1"]["height"] == "fill"
 
     def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
         manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")

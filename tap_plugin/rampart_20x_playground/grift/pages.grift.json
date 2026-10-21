@@ -844,7 +844,7 @@
                   "rows": {
                     "row-1": {
                       "panel-id": "landing",
-                      "height": "80vh"
+                      "height": "fill"
                     }
                   }
                 }

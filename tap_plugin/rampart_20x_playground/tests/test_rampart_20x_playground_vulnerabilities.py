@@ -278,11 +278,11 @@ class TestVulnerabilityPages:
         assert 'v.data.cwes CONTAINS "CWE-506"' in self._query(card)
         table = self.by_slug["playground-vulnerabilities-cwe506-components"]
         assert table["node"]["name"] == "Components With Embedded Malicious Code"
-        assert "empty_text" not in table["node"]["config"]  # the table panel has no table-level empty text
+        assert table["node"]["config"]["empty_text"] == "No component carries a CWE-506 vulnerability."
         assert 'v.data.cwes CONTAINS "CWE-506"' in self._query(table)
         assert self._search_of(table)["node"]["search_type"] == "gryphon"
         assert self._slots(OVERVIEW)[-1] == "playground-vulnerabilities-cwe506-components"
-        assert self.batch["batch_entity"]["name"].endswith("v0.7.0")
+        assert self.batch["batch_entity"]["name"].endswith("v0.8.0")
 
     def test_the_bubble_counts_are_white_with_no_outline(self) -> None:
         """req-rampart-20x-playground-page-vulnerabilities-19"""
