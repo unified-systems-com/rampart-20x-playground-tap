@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.application-flow",
         "name": "rampart-20x-playground application flow v0.2.0",
-        "description": "MOCK DATA, never collected from a live system: what runs inside the two web tasks and the customer traffic that reaches them. One ECS container per web task (aws_core, real-shaped ARNs, the image reference and digest of the git-serious web image), the RUNS_TASK edges from the service and the cluster to each task, RUNS_CONTAINER from each task to its container, RUNS_IMAGE from each container to the one image host, RUNS_PROGRAM from each container to its gunicorn and from gunicorn to tap-web (the programs are in the inventory entities bundle), LOADS_LIBRARY from web task b's tap-web to the two libraries web task a's loads (openssl-fips-provider and cryptography, from the inventory software bundle), and ONE application flow (computing_core, keyless, so it carries its own fixed entity id) from the customer's computer to the gunicorn program of web task a (the program the container runs, which runs tap-web), stamped dataclass.customer=data. Only web task a's container and programs and the flow are marked overview=shown: web task b is the stacked copy of a. Every entity carries dcom=design. Import after the mock inventory, the inventory entities and the inventory software bundles. v0.2.0 adds four more application flows (all keyless, overview=shown): the database traffic from tap-web to the PostgreSQL program (dataclass.customer=data), the administration from the administrator's workstation to the authorization boundary's perimeter (dataclass.infra=admin), the developer's laptop to github.com and the terraform source puller to github.com (both dataclass.infra=code), their eight APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges, and the RUNS_PROGRAM edge from the RDS instance to the PostgreSQL program (the database engine runs inside the managed instance). Overview nits 3: the flows are renamed 'customer data' and 'database'; the original administration flow (which ends on the authorization boundary and whose destination edge cannot change) is retired by dropping its overview=shown dimension, and a NEW administration flow (own fixed id) runs from the administrator's workstation to the teleport EC2 instance (dataclass.infra=admin); every shown flow carries icon_angle (degrees, 0 north, 90 east, 180 south, 270 west) for the direction its icon and arrowhead point. Dimension pack v0.6.0 stamps: each of the five stamped application flows carries dataclass.action=transmit, the database flow carries dataclass.customer=sanitized (the customer data flow keeps data), and the two ECS containers carry dataclass.action=process; the retired administration flow stays unstamped."
+        "description": "MOCK DATA, never collected from a live system: what runs inside the two web tasks and the customer traffic that reaches them. One ECS container per web task (aws_core, real-shaped ARNs, the image reference and digest of the git-serious web image), the RUNS_TASK edges from the service and the cluster to each task, RUNS_CONTAINER from each task to its container, RUNS_IMAGE from each container to the one image host, RUNS_PROGRAM from each container to its gunicorn and from gunicorn to tap-web (the programs are in the inventory entities bundle), LOADS_LIBRARY from web task b's tap-web to the two libraries web task a's loads (openssl-fips-provider and cryptography, from the inventory software bundle), and ONE application flow (computing_core, keyless, so it carries its own fixed entity id) from the customer's computer to the gunicorn program of web task a (the program the container runs, which runs tap-web), stamped dataclass.customer=data. Only web task a's container and programs and the flow are marked overview=shown: web task b is the stacked copy of a. Every entity carries dcom=design. Import after the mock inventory, the inventory entities and the inventory software bundles. v0.2.0 adds four more application flows (all keyless, overview=shown): the database traffic from tap-web to the PostgreSQL program (dataclass.customer=data), the administration from the administrator's workstation to the authorization boundary's perimeter (dataclass.infra=admin), the developer's laptop to github.com and the terraform source puller to github.com (both dataclass.infra=code), their eight APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges, and the RUNS_PROGRAM edge from the RDS instance to the PostgreSQL program (the database engine runs inside the managed instance). Overview nits 3: the flows are renamed 'customer data' and 'database'; the original administration flow (which ends on the authorization boundary and whose destination edge cannot change) is retired by dropping its overview=shown dimension, and a NEW administration flow (own fixed id) runs from the administrator's workstation to the teleport EC2 instance (dataclass.infra=admin); every shown flow carries icon_angle (degrees, 0 north, 90 east, 180 south, 270 west) for the direction its icon and arrowhead point. Dimension pack v0.6.0 stamps: each of the five stamped application flows carries dataclass.action=transmit, the database flow carries dataclass.customer=sanitized (the customer data flow keeps data), and the two ECS containers carry dataclass.action=process; the retired administration flow stays unstamped. It also holds three USES_KEY__computing_core edges from web task a's gunicorn to the container's TLS private key, public key and certificate (computing_core v0.10.2)."
       },
       "nodes": [
         {
@@ -687,6 +687,54 @@
             "from_entity_id": "01a15a3e-4ebf-72d1-af65-3ea75f324fb7",
             "to_entity_id": "01a15bac-3805-7538-9c48-f43b3ac0676d",
             "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15ca3-64c5-75c2-9862-e2c42f9b6085",
+            "entity_type": "edge",
+            "name": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5 --[USES_KEY__computing_core]--> 01a13be3-0373-781b-a533-104d8726769b",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "to_entity_id": "01a13be3-0373-781b-a533-104d8726769b",
+            "edge_type": "USES_KEY__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15ca3-64c5-75c2-9862-e2c5d4569d8c",
+            "entity_type": "edge",
+            "name": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5 --[USES_KEY__computing_core]--> 01a13be3-0373-7aa9-bbc4-d43332f2fd5b",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "to_entity_id": "01a13be3-0373-7aa9-bbc4-d43332f2fd5b",
+            "edge_type": "USES_KEY__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15ca3-64c5-75c2-9862-e2c6f174640d",
+            "entity_type": "edge",
+            "name": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5 --[USES_KEY__computing_core]--> 01a13be3-0373-7940-9fa5-a9ce49eccd49",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "to_entity_id": "01a13be3-0373-7940-9fa5-a9ce49eccd49",
+            "edge_type": "USES_KEY__computing_core",
             "properties": {}
           }
         }
