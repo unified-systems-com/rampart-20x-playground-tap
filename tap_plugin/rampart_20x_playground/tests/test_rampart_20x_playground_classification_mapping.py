@@ -105,6 +105,15 @@ class TestClassificationMapping:
         assert targets[0]["from_entity_id"] == schedules[0]["entity"]["entity_id"]
         assert targets[0]["to_entity_id"] == COLLECTOR_ID
 
+    def test_the_summary_headings_and_its_numbers_centred(self) -> None:
+        """`page-data-classification-11`."""
+        columns = self.panels["playground-classification-mapping-summary"]["node"]["config"]["columns"]
+        assert [c["title"] for c in columns] == [
+            "Entity Type", "Classification", "Total", "Mapped", "Unmapped", "Incorrect", "%",
+        ]
+        numeric = [c for c in columns if c["field"] in {"denominator", "mapped", "unmapped", "mapped_incorrectly", "percent_mapped"}]
+        assert len(numeric) == 5 and all(c["align"] == "center" for c in numeric)
+
     def test_the_collector_id_is_derived_from_its_scope_and_key(self) -> None:
         namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "tap_cares.collector")
         assert str(uuid.uuid5(namespace, "fedramp_20x_vdr:coverage_snapshot")) == COLLECTOR_ID
@@ -145,7 +154,7 @@ class TestClassificationMapping:
             assert config["striped"] is True
             for column in config["columns"]:
                 assert column["title"] == column["title"].title(), column["title"]
-                assert "align" not in column or column["align"] == "right"  # the default is left; numbers sit right
+                assert "align" not in column or column["align"] == "center"  # the default is left; numbers sit centred
             if panel["node"]["name"] == "Summary":
                 continue
             assert config["quick_filter"] is True and config["default_page_size"] >= 1
