@@ -1257,6 +1257,20 @@ class TestOverviewNotificationCards:
         uses = [e["edge"] for e in pages["edges"] if e["edge"]["edge_type"] == "USES_PANEL" and e["edge"]["to_entity_id"] == panel_id]
         assert [(e["from_entity_id"], e["properties"]["hotlink"]["value"]) for e in uses] == [(self.OVERVIEW, "playground-overview-kev")]
 
+    def test_the_second_card_is_the_cwe506_card_with_the_inline_layout_on_the_same_search(self) -> None:
+        original = self._panel(self._vuln(), "playground-vulnerabilities-cwe506")
+        card = self._panel(self._pages(), "playground-overview-cwe506")
+        assert card["node"]["config"]["layout"] == "figure_right"
+        assert {k: v for k, v in card["node"]["config"].items() if k != "layout"} == original["node"]["config"]
+        assert original["node"]["config"]["zero_tone"] == self._panel(self._vuln(), "playground-vulnerabilities-kev")["node"]["config"]["zero_tone"]
+        pages = self._pages()
+        searches = {e["edge"]["to_entity_id"] for e in pages["edges"]
+                    if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == card["entity"]["entity_id"]}
+        assert searches == {original_search for original_search in {
+            e["edge"]["to_entity_id"] for e in self._vuln()["edges"]
+            if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == original["entity"]["entity_id"]}}
+        assert len(searches) == 1
+
     def test_the_overview_is_two_bands_the_cards_then_the_graph(self) -> None:
         pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
         (page,) = [n for n in pages["nodes"] if n["entity"]["entity_id"] == self.OVERVIEW]
@@ -1264,7 +1278,7 @@ class TestOverviewNotificationCards:
         bands = {}
         for col in columns.values():
             bands.setdefault(col["band"], []).extend(row["panel-id"] for row in col["rows"].values())
-        assert bands == {1: ["playground-overview-kev"], 2: ["landing"]}
+        assert bands == {1: ["playground-overview-kev", "playground-overview-cwe506"], 2: ["landing"]}
         (graph,) = [c for c in columns.values() if c["band"] == 2]
         assert graph["rows"]["row-1"]["height"] == "fill"
 

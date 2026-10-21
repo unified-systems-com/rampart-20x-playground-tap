@@ -813,6 +813,38 @@
         },
         {
           "entity": {
+            "entity_id": "01a1c8f0-5d11-7a42-9b3e-167725ceffc4",
+            "entity_type": "panel",
+            "name": "Overview Embedded Malicious Code",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Overview Embedded Malicious Code",
+            "slug": "playground-overview-cwe506",
+            "description": "The Vulnerabilities page's Embedded Malicious Code card, as a notification card on the Overview: the same Search, the title and the count on one line.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "value_field": "malicious",
+              "value_formatter": "integer",
+              "tone": "bad",
+              "hide_header": true,
+              "title": "Embedded Malicious Code (CWE-506)",
+              "layout": "figure_right",
+              "tone_labels": {
+                "good": "",
+                "warn": "",
+                "bad": ""
+              },
+              "null_text": "not observed",
+              "tone_text": true,
+              "zero_tone": "muted"
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
             "entity_type": "page",
             "name": "Overview",
@@ -839,6 +871,16 @@
                   }
                 },
                 "col-2": {
+                  "width": "3fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-overview-cwe506",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
                   "width": "12fr",
                   "band": 2,
                   "rows": {
@@ -1510,6 +1552,40 @@
           "edge": {
             "from_entity_id": "01a15f71-93ec-74bf-b1bd-fdc47d561d26",
             "to_entity_id": "01a13fc0-0c16-71d6-a543-32e09f5b48b8",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c8f0-5d11-7a42-9b3e-6d2572dac2fe",
+            "entity_type": "edge",
+            "name": "Overview USES_PANEL overview-cwe506",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "to_entity_id": "01a1c8f0-5d11-7a42-9b3e-167725ceffc4",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-overview-cwe506"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1c8f0-5d11-7a42-9b3e-e7bc47da0ff6",
+            "entity_type": "edge",
+            "name": "Overview Embedded Malicious Code USES_SEARCH card-cwe506",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1c8f0-5d11-7a42-9b3e-167725ceffc4",
+            "to_entity_id": "01a15fd7-8edb-703e-86f6-2f33621d5df2",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

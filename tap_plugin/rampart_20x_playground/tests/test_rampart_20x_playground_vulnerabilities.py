@@ -197,17 +197,17 @@ class TestVulnerabilityPages:
         assert [[p["node"]["view"] for p in col] for col in self._of(self._bands(OVERVIEW)[1])] == [[CARD]] * 4
         assert [[p["node"]["view"] for p in col] for col in self._of(self._bands(OVERVIEW)[2])] == [[CHART]] * 3
 
-    def test_the_cards_run_kev_then_open_then_closed_then_cwe506(self) -> None:
+    def test_the_cards_run_kev_then_cwe506_then_open_then_closed(self) -> None:
         first_row = [col["rows"]["row-1"]["panel-id"] for col in self._bands(OVERVIEW)[1]]
-        assert first_row == [f"playground-vulnerabilities-{s}" for s in ("kev", "open", "closed", "cwe506")]
+        assert first_row == [f"playground-vulnerabilities-{s}" for s in ("kev", "cwe506", "open", "closed")]
 
-    def test_the_cards_draw_their_text_in_the_tone_and_kev_greys_out_at_zero(self) -> None:
+    def test_the_cards_draw_their_text_in_the_tone_and_kev_and_cwe506_grey_out_at_zero(self) -> None:
         tones = {"kev": "bad", "open": "warn", "closed": "good", "cwe506": "bad"}
         for slot, tone in tones.items():
             config = self.by_slug[f"playground-vulnerabilities-{slot}"]["node"]["config"]
             assert config["tone"] == tone and config["tone_text"] is True, slot
         assert self.by_slug["playground-vulnerabilities-kev"]["node"]["config"]["zero_tone"] == "muted"
-        assert self.by_slug["playground-vulnerabilities-cwe506"]["node"]["config"]["zero_tone"] == "good"
+        assert self.by_slug["playground-vulnerabilities-cwe506"]["node"]["config"]["zero_tone"] == "muted"
 
     def test_the_cards_say_a_number_and_nothing_else(self) -> None:
         """No unit, no secondary lines, no tone words and no header or description: the figure and the tone's left edge."""
@@ -282,7 +282,7 @@ class TestVulnerabilityPages:
         assert 'v.data.cwes CONTAINS "CWE-506"' in self._query(table)
         assert self._search_of(table)["node"]["search_type"] == "gryphon"
         assert self._slots(OVERVIEW)[-1] == "playground-vulnerabilities-cwe506-components"
-        assert self.batch["batch_entity"]["name"].endswith("v0.8.0")
+        assert self.batch["batch_entity"]["name"].endswith("v0.9.0")
 
     def test_the_bubble_counts_are_white_with_no_outline(self) -> None:
         """req-rampart-20x-playground-page-vulnerabilities-19"""
