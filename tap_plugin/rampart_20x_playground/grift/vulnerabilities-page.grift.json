@@ -1325,49 +1325,28 @@
             "name": "Component",
             "slug": "playground-vulnerabilities-component-identity",
             "description": "The selected component.",
-            "view": "tap_web/panels/table_panel.html",
+            "view": "tap_web/panels/stat_card_panel.html",
             "config": {
-              "quick_filter": false,
-              "default_page_size": 1,
-              "columns": [
+              "title_field": "component",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "vulnerabilities",
+              "value_formatter": "integer",
+              "unit": "open findings",
+              "hide_header": true,
+              "lines": [
                 {
-                  "field": "component",
-                  "title": "Component",
-                  "widthGrow": 3
-                },
-                {
+                  "label": "Type",
                   "field": "type",
-                  "title": "Type",
-                  "formatter": "toneBadge",
-                  "formatter_params": {
-                    "tones": {
-                      "computing_core__package": "muted",
-                      "computing_core__library": "muted",
-                      "computing_core__operating_system": "muted",
-                      "computing_core__crypto_provider": "muted"
-                    },
-                    "labels": {
-                      "computing_core__package": "Package",
-                      "computing_core__library": "Library",
-                      "computing_core__operating_system": "Operating system",
-                      "computing_core__crypto_provider": "Crypto provider"
-                    }
-                  },
-                  "width": 140
+                  "placement": "header"
                 },
                 {
-                  "field": "vulnerabilities",
-                  "title": "Open Findings",
-                  "width": 130,
-                  "align": "right"
-                },
-                {
+                  "label": "Highest CVSS",
                   "field": "worst",
-                  "title": "Highest CVSS",
-                  "width": 130,
-                  "align": "right"
+                  "formatter": "number"
                 }
-              ]
+              ],
+              "null_text": "not observed"
             }
           }
         },
@@ -1430,7 +1409,8 @@
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/playground/vulnerabilities/cve?vuln_id={id}",
-                    "external": false
+                    "external": false,
+                    "style": "plain"
                   }
                 },
                 {
@@ -1503,7 +1483,8 @@
                   "width": 100
                 }
               ],
-              "row_url_template": "/playground/vulnerabilities/cve?vuln_id={id}"
+              "row_url_template": "/playground/vulnerabilities/cve?vuln_id={id}",
+              "striped": true
             }
           }
         },
@@ -1565,7 +1546,8 @@
                   "title": "System",
                   "widthGrow": 3
                 }
-              ]
+              ],
+              "striped": true
             }
           }
         },
@@ -1660,25 +1642,13 @@
                     "row-1": {
                       "panel-id": "playground-vulnerabilities-component-identity",
                       "height": "auto"
-                    }
-                  }
-                },
-                "col-2": {
-                  "width": "8fr",
-                  "band": 2,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-vulnerabilities-component-vulnerabilities",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-3": {
-                  "width": "4fr",
-                  "band": 2,
-                  "rows": {
-                    "row-1": {
+                    },
+                    "row-2": {
                       "panel-id": "playground-vulnerabilities-component-systems",
+                      "height": "auto"
+                    },
+                    "row-3": {
+                      "panel-id": "playground-vulnerabilities-component-vulnerabilities",
                       "height": "auto"
                     }
                   }
