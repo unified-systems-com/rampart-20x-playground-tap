@@ -76,6 +76,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction, one card per data classification key, each describing the classification and its values and counting components by value and entity type, and under the cards the four classification-mapping tables |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, a row of four live status cards and, below it, one line chart over time on each page: responsibility on the inventory page, data classification on the Data Classification page |
+| req-rampart-20x-playground-coverage-seed | [Coverage History Seed](#coverage-history-seed) | Proposed | Mock data: the stamps that bring the coverage figures to a high end state, and four days of snapshots, every four hours, that climb to it |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
 | req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
@@ -295,7 +296,7 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 | req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the four value nodes `store`, `process`, `transmit` and `none`. | |
 | req-rampart-20x-playground-dimensions-7 | Role Values Removed | Proposed | No node named `dataclass.customer.reader`, `dataclass.customer.writer` or `dataclass.customer.storage` is in the bundle, and no entity in the seed data carries those values. | The three nodes are removed from this plugin's seed and purged from any live grid that holds them. Purge approved by George 2026-10-20 (relayed by rampart-pg); the importer cannot delete, so the purge is a separate sanctioned step. |
-| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
+| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value, and no other item in the seed carries one except the rows the coverage seed stamps (`req-rampart-20x-playground-coverage-seed-1`). | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
 | req-rampart-20x-playground-dimensions-9 | One Action Per Entity | Proposed | No seed entity carries more than one `dataclass.action` value, and no seed entity carries a `dataclass.action.<value>` key. | The key is `dataclass.action`; the value is one of the three. |
 | req-rampart-20x-playground-dimensions-10 | Sanitized Value | Proposed | The bundle holds the node `dataclass.customer.sanitized` with the description in the table above, and the `database` application flow carries `dataclass.customer: sanitized` and no `data` stamp; the `customer` application flow still carries `data`. | Replaces the unspecced `data.filtered` idea. |
 | req-rampart-20x-playground-dimensions-11 | None Is A Declared Value | Proposed | `dataclass.action.none` is in the bundle with a description, so an entity stamped `dataclass.action = none` is counted as declared by `dimension-coverage`; no seed entity is stamped `none` yet. | The value exists so libraries and packages that do nothing with data can be marked. A missing key is still "not observed". |
@@ -634,7 +635,7 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 
 **Data classification** is the grouped rulebook of `req-rampart-20x-playground-classification-mapping`: an entry is covered when it carries a `dataclass.action` its group allows.
 
-**Recording.** The existing hourly Schedule runs `fedramp_20x_vdr:coverage_snapshot`, which records both summary Searches (`req-fedramp-20x-vdr-coverage-snapshot`, two ids). Nothing new is scheduled. The history is what the snapshots hold from the first run: no history is back-filled. Snapshots recorded before the grouped rulebook (until 2026-10-21 22:00 UTC on the demo stack) hold one row per entity type, which is a different mapping from today's; the classification history Search's `since` default is the first grouped snapshot (2026-10-21T23:00:00Z), so the chart never mixes the two. The older snapshots are kept, not drawn.
+**Recording.** The existing hourly Schedule runs `fedramp_20x_vdr:coverage_snapshot`, which records both summary Searches (`req-fedramp-20x-vdr-coverage-snapshot`, two ids). Nothing new is scheduled. The history is what the snapshots hold from the first run: the collector back-fills nothing. The mock history of `req-rampart-20x-playground-coverage-seed` is seed data, written once and labelled as mock.
 
 **The charts.** Two `chart` panels (`req-web-panels-chart-panel-type`), one per page: `Responsibility Coverage` at the top of the inventory page and `Data Classification Coverage` at the top of the Data Classification page, below its row of cards and above the three classification cards, each bound by `USES_SEARCH` to its history Search. Each is a line chart on a time axis, with `series_by` `{category: observed_at, series: series, value: value}`, `types` `{observed_at: time, value: number}`, a 0 to 100 value axis, and `order` listing the categories in the order of the Summary table's rows (the runner's order: the dictionary's declared values in name order, then any other found) with the aggregate last, so it draws on top. The aggregate is named `Overall`. The classification chart has eight category lines and `Overall`; the responsibility chart has nine and `Overall`. Lines are independent, not stacked (George, 2026-10-21).
 
@@ -684,6 +685,81 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 | req-rampart-20x-playground-inventory-coverage-views | Other Views Of The History | Backlog | A table with a small trend line in each row, or a heat grid of category by time. | Considered 2026-10-21 and deferred; each needs a core panel capability. The line chart with end labels is the view for the demo. |
 | req-rampart-20x-playground-inventory-coverage-overall-weight | Overall Line Three Times As Thick | Backlog | The `Overall` line is drawn three times as thick as the category lines. | Blocked on the chart panel: `series_by` copies one template series to every line and has no per-line override, so only the template's `lineStyle.width` can be set. A core decision, for example a `series_by.overrides` map from a series value to series options. Reported 2026-10-21; core is held. |
 | req-rampart-20x-playground-inventory-coverage-overview | Cards On The Overview, A Consolidated Panel | Backlog | The same cards mounted on the Overview page, and a consolidated coverage panel that shows every card's figure at once. | The cards and the totals calculation are built to be reused for this (`-15`); the mounting and the panel are a later step. |
+
+### Coverage History Seed
+----
+RID: `req-rampart-20x-playground-coverage-seed`
+
+Status: `Proposed`
+
+MOCK DATA, never collected from a live system. Ruled by George, 2026-10-21, so that the two coverage charts show the figures going up and to the right: the seed stamps more entities, so the coverage figures end high, and a four-day history of snapshots climbs to those figures. Both parts are seed data in `grift/`; no code, no collector. The real hourly snapshots of `fedramp_20x_vdr` continue from the last mock point.
+
+#### Implementation
+
+**End state, classification.** The stamps below bring the data classification coverage to the end state of the waypoint table (a mean of 77.6 percent over the eight categories). A value is always one its type's group allows (`req-rampart-20x-playground-classification-mapping`), except the one wrong stamp on purpose. Stamps already made (the five flows, the programs, the RDS instance, the S3 buckets and the ECS containers) stay.
+
+| Category | Stamp, `dataclass.action` | Left unstamped |
+| --- | --- | --- |
+| Cloud Services | `route53_zone`, `internet_gateway`, `alb`: `transmit`. `ecs_cluster`, `ecs_service`, `kms_key`, `codepipeline_pipeline`, `ec2_instance`: `process`. `secrets_manager_secret`, `ecr_repository`: `store`. `iam_oidc_provider`: `none` | the two `codebuild_project` rows |
+| Containers | `computing_core__host`: `process`. `github_package`: `store` | the `github_package_version` row |
+| Libraries | the first three `computing_core__library` rows in file order: `process` | the fourth |
+| Operating Systems | `Wolfi`: `process` | none |
+| Packages | every `computing_core__package` row: `process` | the rows at positions 10, 20, and so on to 180 in file order (18 rows) |
+| Secrets | the container TLS certificate (a file) and the TLS certificate (ACM): `store`. The container TLS public key: `transmit`, which the group does not allow, so it reads as mapped incorrectly | the container TLS private key |
+| Third-Party SaaS | `github.com`: `transmit` | the `AWS` organization |
+
+**End state, responsibility.** The `team.responsible` stamp (`team` ids as in the Teams section) is added to `github.com` (`devops`), the container TLS certificate and the container TLS private key (`infra`). The container TLS public key stays unowned. Every other entity that carries an `inventory` value already has an owner, so the end state is 100 percent in every category but Secrets, which is 3 of 4 (a mean of 97.2 over the nine).
+
+**The snapshots.** For each of the two summary Searches (`01a15fdf-61ef-710d-b5d3-e3a7ae238a40` and `01a15b2f-df3b-7569-bf22-9ead3f816b84`), one `compliance_search_snapshot` node every four hours from 2026-10-17 00:00Z to 2026-10-21 20:00Z inclusive: 30 per Search, 60 in all, each with one `CAPTURES_SEARCH` edge to its Search. `source` is `rampart_20x_playground`, so a mock snapshot can never share a key with a real one (`fedramp_20x_vdr`) and every mock snapshot is found by that one value; `snapshot_key` is `<search entity id>@<observed_at>` as the snapshot spec states; `name` is `<search_name> @ <observed_at>`; `truncated` is false and `row_count` is the length of `rows`; `inputs_text` is the canonical JSON of the Search's inputs, taken from the Search. Every snapshot's batch description says MOCK DATA, never collected.
+
+**The rows of a snapshot** are what the Search's runner returns: one row per `inventory` value the dictionary declares, in the runner's order (name order), with `group`, `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule`, and `percent_mapped`. The classification Search has no `crypto` row. A category with `denominator` 0 has `percent_mapped` `null` and is no point on the chart. `mapped_incorrectly` is 0 except the Secrets row of the last classification snapshot, which is 1; `no_rule` is 0 throughout; `unmapped` is `denominator` less `mapped` less `mapped_incorrectly`; `percent_mapped` is `mapped` over `denominator` times 100 to one decimal. The labels are the Title Case names of the inventory dictionary (`Cloud Services`, `Operating Systems`, `Third-Party SaaS`).
+
+**The waypoints.** Five times: T0 2026-10-17 00:00Z, T1 2026-10-18 12:00Z, T2 2026-10-19 12:00Z, T3 2026-10-20 12:00Z and T4 2026-10-21 20:00Z. Each cell is `mapped/denominator`; a dash is denominator 0 (the category does not exist yet). Between waypoints, `mapped` and `denominator` each move in a straight line from one to the next and are rounded to whole numbers, so counts rise a few at a time and no step is a cliff. The story: owners were assigned team by team (infrastructure first, then applications), the 180 packages arrived on 10-19 and the cryptographic scan on 10-20, and the action axis (ruled 2026-10-20) began to be stamped on 10-19 and reached the cloud services today.
+
+Responsibility:
+
+| Category | T0 | T1 | T2 | T3 | T4 |
+| --- | --- | --- | --- | --- | --- |
+| Applications | 2/5 | 3/5 | 5/6 | 8/8 | 8/8 |
+| Cloud Services | 3/12 | 8/12 | 11/14 | 14/14 | 18/18 |
+| Containers | 0/2 | 1/2 | 2/3 | 3/3 | 3/3 |
+| Crypto | - | - | - | 12/31 | 31/31 |
+| Libraries | 1/4 | 2/4 | 3/4 | 4/4 | 4/4 |
+| Operating Systems | 0/1 | 0/1 | 1/1 | 1/1 | 1/1 |
+| Packages | - | - | 90/180 | 150/180 | 180/180 |
+| Secrets | 0/4 | 1/4 | 1/4 | 2/4 | 3/4 |
+| Third-Party SaaS | 0/2 | 0/2 | 1/2 | 1/2 | 2/2 |
+
+Data classification:
+
+| Category | T0 | T1 | T2 | T3 | T4 |
+| --- | --- | --- | --- | --- | --- |
+| Applications | 0/5 | 0/5 | 2/6 | 5/8 | 8/8 |
+| Cloud Services | 0/12 | 0/12 | 0/14 | 1/14 | 16/18 |
+| Containers | 0/2 | 0/2 | 0/3 | 0/3 | 2/3 |
+| Libraries | 0/4 | 0/4 | 0/4 | 1/4 | 3/4 |
+| Operating Systems | 0/1 | 0/1 | 0/1 | 0/1 | 1/1 |
+| Packages | - | - | 0/180 | 45/180 | 162/180 |
+| Secrets | 0/4 | 0/4 | 0/4 | 0/4 | 2/4 |
+| Third-Party SaaS | 0/2 | 0/2 | 0/2 | 0/2 | 1/2 |
+
+**Order of landing.** The stamps land before the first real snapshot after the build, or the real line would drop to today's figures and climb back. The last mock point (T4) is the live summary's figures after the stamps; the real snapshots then continue at those values.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-coverage-seed-1 | Classification Stamps | Proposed | The seed carries the `dataclass.action` stamps of the table above, each value one its type's group allows except the container TLS public key's `transmit`, and carries none on the rows left unstamped. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-coverage-seed-2 | Responsibility Stamps | Proposed | `github.com` carries `team.responsible` of `devops`; the container TLS certificate and private key carry `infra`; the container TLS public key carries none. | |
+| req-rampart-20x-playground-coverage-seed-3 | End State Is The Live Summary | Proposed | After the stamps, the responsibility summary Search's per-category `mapped` and `denominator` equal the T4 column of the responsibility table, and the classification summary's equal the T4 column of the classification table, with one `mapped_incorrectly` (Secrets). | Checked against the Searches, not against this spec's arithmetic. |
+| req-rampart-20x-playground-coverage-seed-4 | Wrong On Purpose | Proposed | The `Mapped Incorrectly` table of the Data Classification page lists the container TLS public key, and no other entity. | |
+| req-rampart-20x-playground-coverage-seed-5 | Thirty Snapshots Per Search | Proposed | Each of the two summary Searches has exactly 30 mock snapshots, observed every four hours from 2026-10-17 00:00Z to 2026-10-21 20:00Z, each captured by one `CAPTURES_SEARCH` edge to that Search. | |
+| req-rampart-20x-playground-coverage-seed-6 | Mock And Findable | Proposed | Every mock snapshot has `source` `rampart_20x_playground`, a `snapshot_key` of the form `<search id>@<observed_at>`, and a batch description that says MOCK DATA, never collected; deleting every snapshot of that source removes the mock history and nothing else. | A mock snapshot cannot collide with a real key. |
+| req-rampart-20x-playground-coverage-seed-7 | Rows As The Runner Writes Them | Proposed | Each snapshot's rows have the fields, the order and the labels of the summary runner's rows, the classification rows omit `crypto`, `unmapped` equals `denominator` less `mapped` less `mapped_incorrectly`, and `percent_mapped` is `mapped` over `denominator` to one decimal, `null` when `denominator` is 0. | `req-compliance-core-dimension-mapping-9`, `-10`. |
+| req-rampart-20x-playground-coverage-seed-8 | Counts Follow The Waypoints | Proposed | At each of the five waypoint times a snapshot's `mapped` and `denominator` equal the table; between them each is a straight line rounded to whole numbers. | |
+| req-rampart-20x-playground-coverage-seed-9 | Up And To The Right | Proposed | In each chart no line's value falls from one snapshot to the next, except where its category's denominator grows faster than its mapped count; and each chart's last `Overall` is higher than its first. | The classification chart's first `Overall` is 0.0. |
+| req-rampart-20x-playground-coverage-seed-10 | Charts Show It | Proposed | With the seed, both charts draw one line per category with a figure, plus `Overall`, from 2026-10-17 to 2026-10-21, and the `Overall` card of each page equals the last point of its chart. | `req-rampart-20x-playground-inventory-coverage-14`. |
+| req-rampart-20x-playground-coverage-seed-remove | Retire The Mock History | Backlog | Delete the mock snapshots once the real history is long enough to carry the charts. | A separate step; the one `source` value finds them. |
 
 ### Teams And Responsibility
 ----
