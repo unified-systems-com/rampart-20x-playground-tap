@@ -42,7 +42,7 @@ teams = "grift/teams.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "dd42dfd0b598c32f1641f29380c056317b4705dd133c8ab86419da3a994e753d"
+sha256 = "1b0a1e20bdb701abe869f3f7be5c423aed0043292299e6be1032761a7c28a994"
 
 [[boot.records]]
 name = "ci"
