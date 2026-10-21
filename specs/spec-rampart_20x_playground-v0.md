@@ -75,7 +75,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Four cards, three charts and three searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction, one card per data classification key, each describing the classification and its values and counting components by value and entity type, and under the cards the four classification-mapping tables |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
-| req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, recorded hourly and drawn as two line charts above the inventory tables |
+| req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, recorded hourly and drawn as one line chart per page: responsibility above the inventory tables, data classification above the cards on the Data Classification page |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
 | req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
@@ -398,7 +398,7 @@ cloud services and third-party SaaS. Each category is a section listing the item
 
 #### Implementation
 
-Route `/playground/inventory`; above the tables, a band of two coverage charts (`req-rampart-20x-playground-inventory-coverage`); nine Searches, one per `inventory` value, each filtering on
+Route `/playground/inventory`; above the tables, one coverage chart, `Responsibility Coverage` (`req-rampart-20x-playground-inventory-coverage`); nine Searches, one per `inventory` value, each filtering on
 `n.dimensions["inventory"]`; an existing table panel per section.
 
 #### Acceptance Criteria
@@ -539,6 +539,7 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Name Returned Fields | Proposed | The summary table's columns are `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule` and `percent_mapped`; each entity table's are `group`, `label`, `name` (a link to the entity's page), `found_text` and `allowed_text`; every title is in Title Case. | |
 | req-rampart-20x-playground-page-data-classification-11 | Entity Tables Filter And Page | Proposed | The three entity tables have a quick filter and paging. | |
 | req-rampart-20x-playground-page-data-classification-12 | Mapping Tables Carry No Prose | Proposed | No mapping table panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-page-data-classification-13 | Coverage Chart Above The Cards | Proposed | Directly under the title and above the three cards the page has the `Data Classification Coverage` chart panel of `req-rampart-20x-playground-inventory-coverage`; the cards and the four mapping tables follow unchanged. | Ruled by George, 2026-10-21. |
 
 ### Classification Mapping
 ----
@@ -613,7 +614,7 @@ RID: `req-rampart-20x-playground-inventory-coverage`
 
 Status: `Proposed`
 
-Coverage is the measure teams use to show progress toward the December 7 date. For the inventory it answers two yes-or-no questions about every entry: does it have a responsible team, and is its data classification right. Each question gives a percentage for each of the nine inventory categories, recorded every hour and drawn as one line chart per question, with a plain-average line on top. The charts sit at the top of the inventory page (George, 2026-10-21).
+Coverage is the measure teams use to show progress toward the December 7 date. For the inventory it answers two yes-or-no questions about every entry: does it have a responsible team, and is its data classification right. Each question gives a percentage for each of the nine inventory categories, recorded every hour and drawn as a line chart with a plain-average line on top. There is one coverage chart per page (George, 2026-10-21): the responsibility chart sits at the top of the inventory page, which is about who owns what, and the data classification chart sits at the top of the Data Classification page, above its cards.
 
 #### Implementation
 
@@ -632,7 +633,7 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 
 **Recording.** The existing hourly Schedule runs `fedramp_20x_vdr:coverage_snapshot`, which records both summary Searches (`req-fedramp-20x-vdr-coverage-snapshot`, two ids). Nothing new is scheduled. The history is what the snapshots hold from the first run: no history is back-filled.
 
-**The charts.** Two `chart` panels (`req-web-panels-chart-panel-type`) at the top of the inventory page, one per question, each bound by `USES_SEARCH` to its history Search. Each is a line chart on a time axis, with `series_by` `{category: observed_at, series: series, value: value}`, `types` `{observed_at: time, value: number}`, a 0 to 100 value axis, and `order` listing the categories in the order of the inventory page with the aggregate last, so it draws on top. The aggregate is named `Overall`. The classification chart has eight category lines and `Overall`; the responsibility chart has nine and `Overall`. Lines are independent, not stacked (George, 2026-10-21).
+**The charts.** Two `chart` panels (`req-web-panels-chart-panel-type`), one per page: `Responsibility Coverage` at the top of the inventory page and `Data Classification Coverage` at the top of the Data Classification page, directly under its title and above the three cards, each bound by `USES_SEARCH` to its history Search. Each is a line chart on a time axis, with `series_by` `{category: observed_at, series: series, value: value}`, `types` `{observed_at: time, value: number}`, a 0 to 100 value axis, and `order` listing the categories in the order of the inventory page with the aggregate last, so it draws on top. The aggregate is named `Overall`. The classification chart has eight category lines and `Overall`; the responsibility chart has nine and `Overall`. Lines are independent, not stacked (George, 2026-10-21).
 
 **Titles.** Series names come from the dimension dictionary: a category's label is its description up to the first colon, so each `inventory.*` description starts with the Title Case name (`Operating Systems`, `Cloud Services`, `Third-Party SaaS`), and the chart shows those. The panels are named `Responsibility Coverage` and `Data Classification Coverage`. The page carries no explanatory text.
 
@@ -646,14 +647,14 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 | req-rampart-20x-playground-inventory-coverage-2 | Responsibility Is Presence | Proposed | The responsibility Search's only mapping row names `*` and the key `team.responsible` with no `allowed`, and excludes no group. | |
 | req-rampart-20x-playground-inventory-coverage-3 | One List Of Groups, Not Two | Proposed | The classification summary reads the grouped rulebook of the classification mapping and no other mapping, and its description says the crypto category is left out and why. | |
 | req-rampart-20x-playground-inventory-coverage-4 | Both Recorded Hourly | Proposed | One run of `coverage_snapshot` writes one snapshot for each summary Search, each with an edge `CAPTURES_SEARCH` to its Search. | Depends on the two-id change in `fedramp_20x_vdr`. |
-| req-rampart-20x-playground-inventory-coverage-5 | Two Charts On The Inventory Page | Proposed | The inventory page has two `chart` panels in a band above the tables, `Responsibility Coverage` and `Data Classification Coverage`, each bound by `USES_SEARCH` to its history Search. | |
+| req-rampart-20x-playground-inventory-coverage-5 | One Chart Per Page | Proposed | The inventory page has one `chart` panel above the tables, `Responsibility Coverage`, and the Data Classification page has one, `Data Classification Coverage`, directly under its title and above the three cards; each is bound by `USES_SEARCH` to its history Search, and neither page has a second coverage chart. | Ruled by George, 2026-10-21. The inventory tables keep their Data Classification column. |
 | req-rampart-20x-playground-inventory-coverage-6 | Independent Lines, Aggregate Last | Proposed | Each chart is a line chart with `series_by`, a time axis, a 0 to 100 value axis and no `stack`; `Overall` is last in `order`. | |
 | req-rampart-20x-playground-inventory-coverage-7 | Series Named From The Dictionary | Proposed | The `label` of each series equals the Title Case name that begins its `inventory.*` description, and the three descriptions that were not Title Case are. | |
 | req-rampart-20x-playground-inventory-coverage-8 | Empty Is Stated | Proposed | Before the first snapshot a chart shows the chart panel's empty state, not a zero line. | `req-web-panels-chart-render`. |
 | req-rampart-20x-playground-inventory-coverage-9 | Rows Fit The Chart | Proposed | The chart config's `max_rows` is at least the default `max_snapshots` of 720 times the number of series, so thirty days of hourly points are not silently cut. | The panel reports a cut row, but the config should not cause one. |
-| req-rampart-20x-playground-inventory-coverage-10 | No Prose | Proposed | The band carries the two charts only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-inventory-coverage-10 | No Prose | Proposed | A coverage chart's band carries the chart only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 | req-rampart-20x-playground-inventory-coverage-11 | Dependencies Declared | Proposed | `depends_on` and the `compliance_core` floor name the releases that ship grouped mapping and `search-snapshot-series`, and the `fedramp_20x_vdr` floor the release that records both Searches. | |
-| req-rampart-20x-playground-inventory-coverage-metrics | Key-Metric Panels | Backlog | A handful of figure panels beside each chart (overall percentage, entries without a team, entries unmapped). | Needs a total figure the grouped summary does not return; a pooled total differs from the plain average. |
+| req-rampart-20x-playground-inventory-coverage-metrics | Key-Metric Panels | Backlog | A handful of figure panels beside each page's chart (overall percentage, entries without a team, entries unmapped). | Needs a total figure the grouped summary does not return; a pooled total differs from the plain average. |
 
 ### Teams And Responsibility
 ----
