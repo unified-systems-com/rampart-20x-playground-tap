@@ -372,6 +372,38 @@
         },
         {
           "entity": {
+            "entity_id": "01a15c5d-5a28-77a1-8a14-ed6f2172af67",
+            "entity_type": "edge",
+            "name": "01a13c38-4f5e-735c-9cf2-1f1434dc5163 --[RUNS_PROGRAM__computing_core]--> 01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13c38-4f5e-735c-9cf2-1f1434dc5163",
+            "to_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15c5d-5a28-77a1-8a14-ed700361b421",
+            "entity_type": "edge",
+            "name": "01a13c38-4f5e-735c-9cf2-1f1434dc5163 --[RUNS_PROGRAM__computing_core]--> 01a13be3-0373-7afc-8d07-441072bee2eb",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a13c38-4f5e-735c-9cf2-1f1434dc5163",
+            "to_entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1c4d8-96cb-7f51-9d3c-e3c146ccc47d",
             "entity_type": "edge",
             "name": "01a13b55-8896-76ca-9f21-d08a12acd38f --[APPLICATION_FLOW_SOURCE__computing_core]--> 01a1c40f-35b9-710b-a232-03df41fdae85",

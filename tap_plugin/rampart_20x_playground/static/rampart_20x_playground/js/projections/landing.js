@@ -153,8 +153,8 @@
  *  48. the operating system inside the container, overview nits round six: the container is drawn as container > operating system > [gunicorn, tap-web],
  *      the OS a box of its own (`_deriveInterior`, `_styleOs`; should become a multi-edge `via` path of a projectNested relationship, the
  *      `flatten` option of 11, and a per-node display override for the box's colours). The OS is the one the container's image runs (RUNS_IMAGE,
- *      then RUNS_OPERATING_SYSTEM); the programs it holds are the ones the container runs (RUNS_PROGRAM, directly or through another program).
- *      No official edge says "this OS holds this program": the containment is derived from the container they share and never written to the grid.
+ *      then RUNS_OPERATING_SYSTEM), joined to its container by a derived containment (never written to the grid). The programs it holds are read
+ *      from the grid: the OS box holds each program the OS has a RUNS_PROGRAM edge to (the application flow bundle writes them, ruled Q108).
  *  49. the libraries and the packages inside the container as two piles with their true counts (`_collapseInteriorPiles`, `INTERIOR_PILES`; should become
  *      the `pile` arrangement of 28 with a count chip in the nested layouts, a `via` path as in 48, and an `exclude_types` of the badge nodes
  *      that is per elevation). Each pile is tap_viz's own stack (applyStack): the face card, two cards behind it and a chip with the count of all of
@@ -236,7 +236,6 @@ const E = {
     loadsLibrary: "LOADS_LIBRARY__computing_core",
     //: Derived by `_deriveInterior`, never in the grid (playground exception 48): for the nesting only.
     containsOs: "CONTAINS_OS__playground",
-    osRunsProgram: "OS_RUNS_PROGRAM__playground",
     containsLibrary: "CONTAINS_LIBRARY__playground",
     containsPackage: "CONTAINS_PACKAGE__playground",
     flowSource: "APPLICATION_FLOW_SOURCE__computing_core",
@@ -385,13 +384,13 @@ const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;
 const LIFT_EDGE = [
     {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
     {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
-    {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})`},
+    {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
     {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
     {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
     {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
 ];
 //: Playground exceptions 11 and 48: the derived containment edges (never in the grid) the interior's nesting reads.
-const DERIVED_TYPES = [E.containsOs, E.osRunsProgram, E.containsLibrary, E.containsPackage];
+const DERIVED_TYPES = [E.containsOs, E.containsLibrary, E.containsPackage];
 //: Playground exception 49: the interior piles. The title of each pile by the derived edge that holds its members, the prefix of a pile's
 //: stack id (the elevation watcher finds the pile's cards and count chip by it), the offset (model units, interior scale) between its
 //: cards and how many layers it shows. The chip carries the true count.
@@ -485,7 +484,7 @@ export async function execute(context) {
             {name: "subnet-holds", gryphon: `(parent:${T.subnet})<-[:${E.residesInSubnet}]-(child)`},
             {name: "task-holds-container", gryphon: `(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})`},
             {name: "container-holds-os", gryphon: `(parent:${T.ecsContainer})-[:${E.containsOs}]->(child:${T.os})`},
-            {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})`},
+            {name: "os-holds-program", gryphon: `(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})`},
             {name: "container-holds-library", gryphon: `(parent:${T.ecsContainer})-[:${E.containsLibrary}]->(child:${T.lib})`},
             {name: "container-holds-package", gryphon: `(parent:${T.ecsContainer})-[:${E.containsPackage}]->(child:${T.pkg})`},
             {name: "database-holds-program", gryphon: `(parent:${T.rds})-[:${E.runsProgram}]->(child:${T.program})`},
@@ -532,7 +531,7 @@ export async function execute(context) {
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
-    // Playground exception 48: the container's own RUNS_PROGRAM edges are the containment the operating-system box now shows.
+    // Playground exception 48: the container's own RUNS_PROGRAM edges are not drawn; the OS box holds the programs by the OS's own RUNS_PROGRAM edges.
     cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().data("entity_type") === T.ecsContainer)
         .addClass(HIDDEN_CONTAINMENT_CLASS);
     deploy.removeClass(ELEVATION_HIDDEN_CLASS);
@@ -1468,7 +1467,7 @@ function _resetElevation(cy) {
  * relationship that walks several edge types): for each ECS container, derived containment edges, read from the official edges and never
  * written to the grid, so the interior nests as container > operating system > programs, beside the library and package piles:
  *   - the container's operating system: the image it runs (RUNS_IMAGE) runs it (RUNS_OPERATING_SYSTEM);
- *   - every program the container runs, directly or through another program (RUNS_PROGRAM), is held by that operating system;
+ *   - the programs inside that operating system are not derived: the OS has a RUNS_PROGRAM edge to each (exception 48), and the nesting reads it;
  *   - the libraries those programs load (LOADS_LIBRARY) and the packages the image has installed (INSTALLS_PACKAGE) are held by the container.
  */
 function _deriveInterior(cy) {
@@ -1497,10 +1496,7 @@ function _deriveInterior(cy) {
         const image = step([container.id()], E.runsImage);
         const systems = step(image, E.runsOs);
         const programs = closure([container.id()], E.runsProgram);
-        systems.forEach((os) => {
-            add(container.id(), os, E.containsOs);
-            programs.forEach((program) => add(os, program, E.osRunsProgram));
-        });
+        systems.forEach((os) => add(container.id(), os, E.containsOs));
         step(programs, E.loadsLibrary).forEach((lib) => add(container.id(), lib, E.containsLibrary));
         step(image, E.installsPackage).forEach((pkg) => add(container.id(), pkg, E.containsPackage));
     });

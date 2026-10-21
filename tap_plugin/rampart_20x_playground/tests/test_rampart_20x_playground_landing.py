@@ -355,6 +355,7 @@ class TestRunningParts:
             ("web task a", "tap-web"), ("web task b", "web task b container")]
         assert sorted(by_type["RUNS_PROGRAM__computing_core"]) == [
             ("RDS A", "PostgreSQL database instance"),
+            ("Wolfi", "gunicorn"), ("Wolfi", "tap-web"),
             ("gunicorn", "tap-web"), ("gunicorn (web task b)", "tap-web (web task b)"),
             ("tap-web", "gunicorn"),
             ("teleport", "teleport auth"), ("teleport", "teleport proxy"), ("teleport", "teleport ssh"),
@@ -394,7 +395,7 @@ class TestRunningParts:
         for name in ("task-holds-container", "container-holds-os", "os-holds-program", "container-holds-library", "container-holds-package"):
             assert f'name: "{name}"' in source
         assert "(parent:${T.task})-[:${E.runsContainer}]->(child:${T.ecsContainer})" in source
-        assert "(parent:${T.os})-[:${E.osRunsProgram}]->(child:${T.program})" in source
+        assert "(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})" in source
         assert {"task", "ecsContainer"} <= set(_list("CONTAINERS"))
 
     def test_searches_bring_the_containment_edges_and_the_flow_edges(self) -> None:
@@ -1079,6 +1080,16 @@ class TestContainerInterior:
         (projection,) = [n for n in pages["nodes"] if n["entity"]["entity_type"] == "projection"]
         excluded = projection["node"]["definition"]["node_style"]["exclude_types"]
         assert {"computing_core__library", "computing_core__package"} <= set(excluded)
+
+    def test_the_os_runs_the_two_programs_by_official_edges(self) -> None:
+        os_id = "01a13c38-4f5e-735c-9cf2-1f1434dc5163"
+        edges = json.loads(APPLICATION_FLOW.read_text(encoding="utf-8"))["batches"][0]["edges"]
+        held = {e["edge"]["to_entity_id"] for e in edges
+                if e["edge"]["edge_type"] == "RUNS_PROGRAM__computing_core" and e["edge"]["from_entity_id"] == os_id}
+        assert held == {"01a13be3-0373-79d4-9ae8-be13c2e3bfd5", "01a13be3-0373-7afc-8d07-441072bee2eb"}
+        source = _js()
+        assert "OS_RUNS_PROGRAM" not in source and "osRunsProgram" not in source
+        assert "(parent:${T.os})-[:${E.runsProgram}]->(child:${T.program})" in source
 
     def test_the_interior_is_derived_from_official_edges_and_marked_exceptions(self) -> None:
         source = _js()
