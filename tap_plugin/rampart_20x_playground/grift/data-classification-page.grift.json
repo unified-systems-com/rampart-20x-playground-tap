@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.data-classification-page",
         "name": "rampart-20x-playground data classification page v0.1.0",
-        "description": "The /playground/data-classification page: a title and one card per data classification key (customer, infra and action), each listing its values and the components that carry each. Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
+        "description": "The /playground/data-classification page: a title, one card per data classification key (customer, infra and action), each listing its values and the components that carry each, and under the cards the four classification-mapping tables (summary, mapped incorrectly, unmapped, mapped). Reads the dimension dictionary through a compliance_core module Search; nothing names a value."
       },
       "nodes": [
         {
@@ -68,6 +68,46 @@
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-data-classification-action",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-summary",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-6": {
+                  "width": "12fr",
+                  "band": 4,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-mapped-incorrectly",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-7": {
+                  "width": "12fr",
+                  "band": 5,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-unmapped",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-8": {
+                  "width": "12fr",
+                  "band": 6,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-classification-mapping-mapped",
                       "height": "auto"
                     }
                   }
@@ -269,11 +309,11 @@
           "entity": {
             "entity_id": "01a15a04-409c-7784-9a3f-f63c17f80440",
             "entity_type": "search",
-            "name": "playground \u2014 data classification customer",
+            "name": "playground — data classification customer",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 data classification customer",
+            "name": "playground — data classification customer",
             "description": "The components carrying each value of dataclass.customer, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
             "search_type": "module",
             "root": "node",
@@ -308,11 +348,11 @@
           "entity": {
             "entity_id": "01a15a04-40ce-772d-b7c9-56d270efb6ae",
             "entity_type": "search",
-            "name": "playground \u2014 data classification infra",
+            "name": "playground — data classification infra",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 data classification infra",
+            "name": "playground — data classification infra",
             "description": "The components carrying each value of dataclass.infra, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
             "search_type": "module",
             "root": "node",
@@ -347,11 +387,11 @@
           "entity": {
             "entity_id": "01a15b54-fff0-750a-b436-fc7e32812147",
             "entity_type": "search",
-            "name": "playground \u2014 data classification action",
+            "name": "playground — data classification action",
             "dimensions": {}
           },
           "node": {
-            "name": "playground \u2014 data classification action",
+            "name": "playground — data classification action",
             "description": "The components carrying each value of dataclass.action, by entity type. A module Search because Gryphon cannot write this: a labelless aggregate (a count over every node regardless of type) grouped by entity type and by the value of a dimension key taken from a Search input. The runner reads the values from the dimension dictionary, so a value added there appears here with no change to this Search.",
             "search_type": "module",
             "root": "node",
@@ -504,6 +544,86 @@
             "to_entity_id": "01a15b54-fff0-750a-b436-fc7e32812147",
             "edge_type": "USES_SEARCH",
             "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fe0-8ea2-7532-8b6f-c7d3c7d042d4",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL mapping summary",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-summary"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fe0-8ed8-7609-9123-f3b9877044fe",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL mapping incorrect",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15bc6-d1f3-73d3-9e86-2e61b31a5b9b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-mapped-incorrectly"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fe0-8f0b-7450-bf94-f9575bfb8ff3",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL mapping unmapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15bc6-d22d-716b-a72f-e371414a0e9e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-unmapped"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fe0-8f41-7460-913d-57da552561ee",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL mapping mapped",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15a04-3fd3-772e-a4b9-4e002d6c813a",
+            "to_entity_id": "01a15bc6-d268-7376-8256-bb0935464bc2",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-classification-mapping-mapped"
+              }
+            }
           }
         }
       ]

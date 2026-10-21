@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.classification-mapping",
         "name": "rampart-20x-playground classification mapping v0.1.0",
-        "description": "The four classification-mapping module Searches, the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot, and the /playground/classification-mapping page. The mapping is data in the Searches' mappings default."
+        "description": "The four classification-mapping module Searches, the four table panels that read them (the summary and one per state), and the hourly Schedule that records the summary through fedramp_20x_vdr:coverage_snapshot. The panels sit on the Data Classification page. The mapping is data in the Searches' mappings default."
       },
       "nodes": [
         {
@@ -653,27 +653,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a15bc6-d17f-7574-8fde-3fe1310f61b6",
-            "entity_type": "panel",
-            "name": "Classification Mapping",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Classification Mapping",
-            "slug": "playground-classification-mapping-title",
-            "description": "The page title.",
-            "view": "tap_web/panels/text_panel.html",
-            "editor_view": "tap_web/panels/text_panel_editor.html",
-            "config": {
-              "text": "",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
             "entity_type": "panel",
             "name": "Summary",
@@ -890,75 +869,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "entity_type": "page",
-            "name": "Classification Mapping",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Classification Mapping",
-            "slug": "/playground/classification-mapping",
-            "description": "How much of the inventory carries the data classification it should, and what is missing or wrong.",
-            "layout": {
-              "columns": {
-                "col-1": {
-                  "width": "12fr",
-                  "band": 1,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-classification-mapping-title",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-2": {
-                  "width": "12fr",
-                  "band": 2,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-classification-mapping-summary",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-3": {
-                  "width": "12fr",
-                  "band": 3,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-classification-mapping-mapped-incorrectly",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-4": {
-                  "width": "12fr",
-                  "band": 4,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-classification-mapping-unmapped",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-5": {
-                  "width": "12fr",
-                  "band": 5,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-classification-mapping-mapped",
-                      "height": "auto"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a15bc6-d2e1-757a-9107-3e1c671d5fd6",
             "entity_type": "schedule",
             "name": "playground — classification mapping snapshot",
@@ -976,106 +886,6 @@
         }
       ],
       "edges": [
-        {
-          "entity": {
-            "entity_id": "01a15bc6-d31b-74d5-91bc-2c8d3dfcd7e9",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL title",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "to_entity_id": "01a15bc6-d17f-7574-8fde-3fe1310f61b6",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-classification-mapping-title"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a15bc6-d352-723f-8148-b6471f677fdc",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL summary",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "to_entity_id": "01a15bc6-d1b9-762e-a12f-62cb1fad9b65",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-classification-mapping-summary"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a15bc6-d38b-7481-a995-dc83f707f548",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL incorrect",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "to_entity_id": "01a15bc6-d1f3-73d3-9e86-2e61b31a5b9b",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-classification-mapping-mapped-incorrectly"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a15bc6-d3c8-76d9-808f-028b64a7d5fa",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL unmapped",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "to_entity_id": "01a15bc6-d22d-716b-a72f-e371414a0e9e",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-classification-mapping-unmapped"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a15bc6-d408-70c1-832c-b45d1bbdb397",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL mapped",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a15bc6-d2a6-74c1-9aae-8e86ac8d4909",
-            "to_entity_id": "01a15bc6-d268-7376-8256-bb0935464bc2",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-classification-mapping-mapped"
-              }
-            }
-          }
-        },
         {
           "entity": {
             "entity_id": "01a15bc6-d446-75e6-b03a-4d8f7a40dad6",

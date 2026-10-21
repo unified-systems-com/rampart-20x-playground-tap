@@ -14,7 +14,9 @@ from pathlib import Path
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
 FILE = "data-classification-page.grift.json"
+MAPPING_FILE = "classification-mapping.grift.json"
 SLUG = "/playground/data-classification"
+TABLE = "tap_web/panels/table_panel.html"
 TEXT = "tap_web/panels/text_panel.html"
 CARD = "tap_web/panels/stat_card_panel.html"
 RUNNER = "tap_plugin.compliance_core.searches.dimension_coverage:dimension-coverage"
@@ -34,14 +36,16 @@ class TestDataClassificationPage:
         self.batch = _batch()
         self.nodes = self.batch["nodes"]
         self.edges = self.batch["edges"]
-        self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
+        # The four classification-mapping tables are panels of the mapping bundle, placed on this page by edges held here.
+        self.mapping = json.loads((GRIFT / MAPPING_FILE).read_text(encoding="utf-8"))["batches"][0]
+        self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes + self.mapping["nodes"]}
         self.page = next(n for n in self.nodes if n["entity"]["entity_type"] == "page")
-        self.panels = {n["node"]["slug"]: n for n in self.nodes if n["entity"]["entity_type"] == "panel"}
+        self.panels = {n["node"]["slug"]: n for n in self.by_id.values() if n["entity"]["entity_type"] == "panel"}
         self.cards = [p for p in self.panels.values() if p["node"]["view"] == CARD]
 
     def _search_of(self, panel: dict) -> dict:
         links = [
-            e for e in self.edges
+            e for e in self.edges + self.mapping["edges"]
             if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]
         ]
         assert len(links) == 1
@@ -64,17 +68,22 @@ class TestDataClassificationPage:
         assert slots == set(wired)
         assert {self.by_id[i]["node"]["slug"] for i in wired.values()} == slots
 
-    def test_an_introduction_then_three_equal_columns_with_one_card_each_and_no_table(self) -> None:
+    def test_a_title_then_three_equal_cards_then_the_four_mapping_tables(self) -> None:
+        """`page-data-classification-9`, `-10`."""
         columns = self.page["node"]["layout"]["columns"]
         bands: dict[int, list[dict]] = {}
         for column in columns.values():
             bands.setdefault(column["band"], []).append(column)
-        assert sorted(bands) == [1, 2]
+        assert sorted(bands) == [1, 2, 3, 4, 5, 6]
         assert len(bands[2]) == 3 and {c["width"] for c in bands[2]} == {"4fr"}
+        assert all(len(bands[b]) == 1 and bands[b][0]["width"] == "12fr" for b in (1, 3, 4, 5, 6))
         assert len(self.cards) == 3
-        assert all(p["node"]["view"] in (TEXT, CARD) for p in self.panels.values())
         intro = self.panels[next(iter(r["panel-id"] for r in bands[1][0]["rows"].values()))]
         assert intro["node"]["view"] == TEXT
+        tables = [self.panels[next(iter(r["panel-id"] for r in bands[b][0]["rows"].values()))] for b in (3, 4, 5, 6)]
+        assert [t["node"]["view"] for t in tables] == [TABLE] * 4
+        assert [t["node"]["name"] for t in tables] == ["Summary", "Mapped Incorrectly", "Unmapped", "Mapped"]
+        assert all(t["entity"]["entity_id"] in {e["edge"]["to_entity_id"] for e in self.edges} for t in tables)
 
     def test_each_card_reads_a_module_search_for_one_key_and_names_the_gryphon_gap(self) -> None:
         keys = set()

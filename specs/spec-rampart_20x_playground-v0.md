@@ -73,9 +73,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-landing | [Landing Page](#landing-page) | Proposed | Opens on the system visualization: the GovCloud design as a graph |
 | req-rampart-20x-playground-page-inventory | [Inventory Page](#inventory-page) | Proposed | System inventory |
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Three cards, three charts and two searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
-| req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction and one card per data classification key, each describing the classification and its values and counting components by value and entity type |
+| req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction, one card per data classification key, each describing the classification and its values and counting components by value and entity type, and under the cards the four classification-mapping tables |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
-| req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
 | req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
@@ -494,6 +493,8 @@ with `components` under the number; then the classification's description as pla
 borderless table with one row per value it can take: the value, its description, and the number of components
 carrying it (0 when none does). There is no breakdown by entity type.
 
+Under the cards, four bands hold the classification-mapping tables of `req-rampart-20x-playground-classification-mapping`, each a standard table panel bound by `USES_SEARCH` to one of that requirement's four Searches, in this order: `Summary` (one row per mapping row: `label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped`), `Mapped Incorrectly`, `Unmapped` and `Mapped` (`label`, `name`, `found_text`, `allowed_text`; the name cell links to the entity's page and a row click opens it). The three entity tables have a quick filter and paging, because the unmapped table holds hundreds of rows. The tables are panels of the classification-mapping bundle; this page places them with `USES_PANEL` edges. There is no separate Classification Mapping page.
+
 All three cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
 `req-compliance-core-dimension-coverage`); the Search's input `dimension_key` is the only thing that differs. Gryphon
 cannot write the query (a labelless aggregate grouped by entity type and by a dimension value taken from a Search
@@ -516,6 +517,8 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values`) and every table column a key of its `values` elements (`value`, `description`, `count`). | |
 | req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, a description line placed in the card header directly under the title (`placement: header`), and a `table` line of `value`, `description`, `count` captioned `Inventory` above the table (`label_placement: above`). | Ruled 2026-10-20 (George, Q90). The card title is still the dimension key (`dataclass.customer`): the dictionary nodes carry no plain-English name, so the title is open for a ruling. |
 | req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
+| req-rampart-20x-playground-page-data-classification-9 | Mapping Tables Under The Cards | Proposed | Bands three to six are, in order, the `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped` table panels, each bound by `USES_SEARCH` to its own classification-mapping Search, its config naming only returned row fields (`label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped` for the summary; `label`, `name`, `found_text`, `allowed_text` for the others). | `GET /playground/classification-mapping` no longer resolves. |
+| req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Link, Filter And Page | Proposed | The panels are striped with Title Case headings; in the three entity tables the name cell is a link, the row click opens the entity's page, and there is a quick filter and paging. No panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 | req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
 
 ### Classification Mapping
@@ -557,6 +560,8 @@ The summary Search's entity id is fixed because `fedramp_20x_vdr`'s collector na
 
 These are the types that exist in the seed today. The library, package and crypto-provider rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
 
+**Four table panels.** `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each a standard table panel bound by `USES_SEARCH` to the Search of the same name above. They are shown on the Data Classification page (`req-rampart-20x-playground-page-data-classification-9`); the bundle holds no page.
+
 **The Schedule.** One `schedule` node, `playground — classification mapping snapshot`, `enabled: true`, `cron_expression: "0 * * * *"` (hourly, UTC), `max_active_runs: 1`, and one `SCHEDULED_TARGET` edge to the entity id of the collector `fedramp_20x_vdr:coverage_snapshot`, which is `uuid5(NAMESPACE_COLLECTOR, "fedramp_20x_vdr:coverage_snapshot")`, `41611294-9c37-5013-8175-3b1c2c4a3908`. The guard `schedule-grift-targets` (`req-tap-cares-collector-model-10`) fails the build if that id does not resolve to a registered collector, so the plugin's `depends_on` gains `fedramp_20x_vdr` (with a `note`), the `demo` record installs it pinned by commit like the others, and the `compliance_core` entry's floor rises to the first release that ships the mapping runners and `SearchSnapshotCollector`. The `ci` record, which installs this plugin alone, needs the same plugins for the guard to resolve.
 
 #### Development
@@ -581,36 +586,6 @@ Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is 
 | req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
 | req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package and crypto-provider counts follow the inventory-software batch. |
 | req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
-
-### Classification Mapping Page
-----
-RID: `req-rampart-20x-playground-page-classification-mapping`
-
-Status: `Proposed`
-
-The page answers "how much of what we have is classified, and what is missing or wrong?". Route `/playground/classification-mapping`; the page is named `Classification Mapping`, which is also its breadcrumb. Like the other playground pages it shows data under a title and carries no explanatory prose.
-
-#### Implementation
-
-Four bands under the title panel, each a standard table panel bound by `USES_SEARCH` to one of the four Searches of `req-rampart-20x-playground-classification-mapping`:
-
-1. The summary table: one row per mapping row, columns `label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly` and `percent_mapped`.
-2. `Mapped incorrectly`: columns `label`, `name` (a row link to the entity's page), `found_text` and `allowed_text`.
-3. `Unmapped`: the same columns.
-4. `Mapped`: the same columns.
-
-Each of the three entity tables has a quick filter and paging, because the unmapped table holds hundreds of rows. Their order is the runner's: incorrect, unmapped, mapped.
-
-#### Acceptance Criteria
-
-| ACID | Title | Status | Description | Notes |
-| --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-classification-mapping-1 | Route Serves | Proposed | `GET /playground/classification-mapping` returns 200 and is in navigation. | |
-| req-rampart-20x-playground-page-classification-mapping-2 | Title Then Four Tables | Proposed | Band one under the title is the summary table; bands two to four are the mapped-incorrectly, unmapped and mapped tables, in that order. | |
-| req-rampart-20x-playground-page-classification-mapping-3 | Each Table Reads Its Search | Proposed | Each table panel is bound by `USES_SEARCH` to its own Search and its config names only returned row fields (`label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped` for the summary; `label`, `name`, `found_text`, `allowed_text` for the others). | |
-| req-rampart-20x-playground-page-classification-mapping-4 | Entity Rows Link | Proposed | In the three entity tables the name cell is a link and the row click opens the entity's page. | |
-| req-rampart-20x-playground-page-classification-mapping-5 | Filter And Paging | Proposed | The three entity tables have a quick filter and paging. | |
-| req-rampart-20x-playground-page-classification-mapping-6 | No Prose | Proposed | The page carries a title and tables only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 
 #### Future
 
@@ -927,4 +902,4 @@ in the first cleanup by mistake and are pulled again.
 | `grift/inventory-entities.grift.json` | The programs and the container's certificate and key halves the inventory tables need beyond the mock inventory | `req-rampart-20x-playground-inventory-tables` |
 | `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass.customer` or `dataclass.infra` value, and with `dataclass.action: transmit`) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
 | `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |
-| `grift/classification-mapping.grift.json` | The four classification-mapping Searches, the hourly Schedule and its `SCHEDULED_TARGET` edge | `req-rampart-20x-playground-classification-mapping` |
+| `grift/classification-mapping.grift.json` | The four classification-mapping Searches, their four table panels, the hourly Schedule and its `SCHEDULED_TARGET` edge | `req-rampart-20x-playground-classification-mapping` |
