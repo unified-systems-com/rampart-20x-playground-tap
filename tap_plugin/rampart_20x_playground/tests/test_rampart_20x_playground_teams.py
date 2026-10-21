@@ -18,6 +18,9 @@ FILE = "teams.grift.json"
 SLUG = "/playground/teams"
 TABLE = "tap_web/panels/table_panel.html"
 TEXT = "tap_web/panels/text_panel.html"
+GRAPH = "tap_viz/panels/graph_panel.html"
+MODULE = PACKAGE_ROOT / "static" / "rampart_20x_playground" / "js" / "projections" / "teams.js"
+SPEC = PACKAGE_ROOT.parents[1] / "specs" / "spec-rampart_20x_playground-v0.md"
 KEY = "team.responsible"
 BELONGS = "BELONGS_TO_TEAM__identity_core"
 LEADS = "LEADS_TEAM__identity_core"
@@ -258,11 +261,11 @@ class TestTeamsPage:
         assert self.page["node"]["name"] == self.page["entity"]["name"] == "Teams"
         assert all(a["entity"]["dimensions"] == {"tap.graph": "web"} for a in (self.page, *self.panels.values()))
 
-    def test_a_title_then_the_teams_leaders_and_members_tables(self) -> None:
+    def test_a_title_then_the_graph_then_the_teams_leaders_and_members_tables(self) -> None:
         """`page-teams-2`."""
         order = self._order()
-        assert [self.panels[p]["node"]["view"] for p in order] == [TEXT, TABLE, TABLE, TABLE]
-        assert [self.panels[p]["node"]["name"] for p in order] == ["Teams", "Teams", "Leaders", "Members"]
+        assert [self.panels[p]["node"]["view"] for p in order] == [TEXT, GRAPH, TABLE, TABLE, TABLE]
+        assert [self.panels[p]["node"]["name"] for p in order] == ["Teams", "Teams Graph", "Teams", "Leaders", "Members"]
 
     def test_slots_and_page_panel_edges_match_exactly(self) -> None:
         slots = set(self._order())
@@ -279,20 +282,20 @@ class TestTeamsPage:
         """`page-teams-3`: Gryphon answers all three, so no module runner is used."""
         returned = {"Teams": {"entity_id", "name", "description"}, "Leaders": {"team", "entity_id", "name"},
                     "Members": {"team", "entity_id", "name"}}
-        for slug in self._order()[1:]:
+        for slug in self._order()[2:]:
             panel = self.panels[slug]
             search = self._search_of(panel)
             assert search["node"]["search_type"] == "gryphon"
             query = " ".join(search["node"]["definition"]["query"])
             assert set(re.findall(r" AS (\w+)", query)) == returned[panel["node"]["name"]]
             assert {c["field"] for c in panel["node"]["config"]["columns"]} <= returned[panel["node"]["name"]]
-        queries = [" ".join(self._search_of(self.panels[s])["node"]["definition"]["query"]) for s in self._order()[1:]]
+        queries = [" ".join(self._search_of(self.panels[s])["node"]["definition"]["query"]) for s in self._order()[2:]]
         assert "identity_core__team)" in queries[0] and "BELONGS_TO_TEAM" not in queries[0]
         assert "LEADS_TEAM__identity_core" in queries[1]
         assert "BELONGS_TO_TEAM__identity_core" in queries[2]
 
     def test_tables_are_striped_titled_in_title_case_and_link_the_name_to_the_entity(self) -> None:
-        for slug in self._order()[1:]:
+        for slug in self._order()[2:]:
             config = self.panels[slug]["node"]["config"]
             assert config["striped"] is True and config["quick_filter"] is True
             for column in config["columns"]:
@@ -307,5 +310,90 @@ class TestTeamsPage:
         """`page-teams-4`."""
         title = self.panels[self._order()[0]]
         assert title["node"]["config"] == {"text": "", "hide_header": False}
-        for slug in self._order()[1:]:
+        for slug in self._order()[2:]:
             assert "text" not in self.panels[slug]["node"]["config"]
+
+
+class TestTeamsGraph:
+    """`teams-viz`: the graph panel, its projection chain and its layout module, read as written.
+
+    What the module draws (four teams, three inside git-serious, thirteen people, four leaders) is counted in a browser."""
+
+    def setup_method(self) -> None:
+        self.batch = _batch()
+        self.nodes = self.batch["nodes"]
+        self.edges = [e["edge"] for e in self.batch["edges"]]
+        self.by_id = {n["entity"]["entity_id"]: n for n in self.nodes}
+        self.panel = next(n for n in self.nodes if n["node"].get("slug") == "playground-teams-graph")
+        self.source = MODULE.read_text(encoding="utf-8")
+
+    def _out(self, from_node: dict, edge_type: str) -> list[dict]:
+        return [self.by_id[e["to_entity_id"]] for e in self.edges
+                if e["edge_type"] == edge_type and e["from_entity_id"] == from_node["entity"]["entity_id"]]
+
+    def test_the_graph_is_the_second_slot_full_width_with_no_header(self) -> None:
+        """`teams-viz-1`, `teams-viz-6`."""
+        page = next(n for n in self.nodes if n["entity"]["entity_type"] == "page")
+        columns = page["node"]["layout"]["columns"]
+        ordered = [columns[c] for c in sorted(columns, key=lambda k: columns[k]["band"])]
+        assert [list(c["rows"].values())[0]["panel-id"] for c in ordered][:3] == [
+            "playground-teams-title", "playground-teams-graph", "playground-teams-teams"]
+        assert all(c["width"] == "12fr" for c in ordered)
+        assert self.panel["node"]["view"] == GRAPH
+        assert self.panel["node"]["config"]["hide_header"] is True
+        assert "text" not in self.panel["node"]["config"]
+
+    def test_projection_elevation_and_layout_are_data_joined_by_hotlinks(self) -> None:
+        """`teams-viz-4`."""
+        (projection,) = self._out(self.panel, "USES_PROJECTION")
+        (elevation,) = self._out(projection, "USES_ELEVATION")
+        (default,) = self._out(projection, "USES_DEFAULT_ELEVATION")
+        (layout,) = self._out(elevation, "USES_LAYOUT")
+        assert default is elevation
+        assert projection["node"]["definition"]["node_style"] == {"mode": "icon-badge"}
+        assert projection["node"]["definition"]["elevations"] == [elevation["entity"]["entity_id"]]
+        assert elevation["node"]["definition"]["layouts"] == [layout["entity"]["entity_id"]]
+        js_file = layout["node"]["definition"]["js_file"]
+        assert js_file == "tap_plugin/rampart_20x_playground/static/rampart_20x_playground/js/projections/teams.js"
+        assert (PACKAGE_ROOT.parents[1] / js_file).is_file()
+
+    def test_three_gryphon_searches_bring_the_two_nesting_edges_and_the_leaders(self) -> None:
+        """`teams-viz-4`: one MATCH each, returning the nodes at both ends of one edge type."""
+        searches = self._out(self.panel, "USES_SEARCH")
+        queries = sorted(" ".join(s["node"]["definition"]["query"]) for s in searches)
+        assert all(s["node"]["search_type"] == "gryphon" for s in searches)
+        assert queries == sorted([
+            "MATCH (h:identity_core__human)-[:BELONGS_TO_TEAM__identity_core]->(t:identity_core__team) RETURN h, t",
+            "MATCH (c:identity_core__team)-[:BELONGS_TO_TEAM__identity_core]->(p:identity_core__team) RETURN c, p",
+            "MATCH (h:identity_core__human)-[:LEADS_TEAM__identity_core]->(t:identity_core__team) RETURN h, t",
+        ])
+
+    def test_nesting_is_two_single_hop_relationships_over_belongs_to_team(self) -> None:
+        """`teams-viz-2`."""
+        assert "projectNested(cy, {" in self.source
+        assert "(parent:${T.team})<-[:${BELONGS}]-(child:${T.human})" in self.source
+        assert "(parent:${T.team})<-[:${BELONGS}]-(child:${T.team})" in self.source
+        assert 'const BELONGS = "BELONGS_TO_TEAM__identity_core";' in self.source
+        for token in ("baseSizes", "padding", "innerLayout", "applyStandardChrome", "placeParentLabels", 'cy.fit('):
+            assert token in self.source, token
+        assert 'trigger_reason === "initial_load"' in self.source
+
+    def test_a_leader_is_read_from_the_leads_team_edge_and_coloured_through_node_data(self) -> None:
+        """`teams-viz-3`."""
+        assert 'const LEADS = "LEADS_TEAM__identity_core";' in self.source
+        assert "_edgeType(e) === LEADS" in self.source and "e.source().data(LEADER)" in self.source
+        assert "e.addClass(ELEVATION_HIDDEN_CLASS)" in self.source
+        for key in ("fill_color", "border_color", "label_color"):
+            assert re.search(rf'{key}: "#[0-9a-f]{{6}}"', self.source), key
+
+    def test_the_module_has_no_geometry_and_places_nothing_by_label_or_id(self) -> None:
+        """`teams-viz-2`: configuration and data reads only."""
+        assert not re.search(r"\.(position|renderedPosition|shift)\(|\.positions\(", self.source)
+        assert not re.search(r'data\("label"\)\s*[=!]==|entity_id\s*[=!]==|handle', self.source)
+        assert self.source.count("\nexport async function execute(context)") == 1
+
+    def test_the_spec_carries_the_requirement_and_its_six_criteria(self) -> None:
+        text = SPEC.read_text(encoding="utf-8")
+        assert "RID: `req-rampart-20x-playground-teams-viz`" in text
+        for n in range(1, 7):
+            assert f"| req-rampart-20x-playground-teams-viz-{n} |" in text

@@ -77,7 +77,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-page-classification-mapping | [Classification Mapping Page](#classification-mapping-page) | Proposed | A summary table and three tables, one per state: mapped incorrectly, unmapped, mapped |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
-| req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members |
+| req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
+| req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person inside their team, each team inside its parent, the leaders in their own colour |
 | req-rampart-20x-playground-teams-parent-column | [Parent Team Column](#parent-team-column) | Backlog | The Teams table's parent team column, blocked on a Gryphon left-outer join that returns the optional side's fields |
 | req-rampart-20x-playground-component-team | [Responsible Team On The Component Page](#responsible-team-on-the-component-page) | Backlog | A `Responsible Team` line in the component page's hero, blocked on reading a dimension value and joining it to a team |
 | req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
@@ -691,7 +692,7 @@ Route `/playground/teams`; the page is named `Teams`, which is also its breadcru
 
 #### Implementation
 
-Three table panels under the title panel, each bound by `USES_SEARCH` to its own Gryphon Search:
+The graph panel (`req-rampart-20x-playground-teams-viz`) under the title panel, then three table panels, each bound by `USES_SEARCH` to its own Gryphon Search:
 
 1. `Teams`: one row per team: `name` and `description`. The name of the parent team is not a column yet (`req-rampart-20x-playground-teams-parent-column`).
 2. `Leaders`: one row per `LEADS_TEAM` edge: the team name and the leader's name.
@@ -704,9 +705,36 @@ The name cell of each row is a link to the entity's page. Each table has a quick
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-teams-1 | Route Serves | Proposed | `GET /playground/teams` returns 200 and is in navigation. | |
-| req-rampart-20x-playground-page-teams-2 | Title Then Three Tables | Proposed | Under the title panel the page holds the Teams, Leaders and Members tables in that order. | |
+| req-rampart-20x-playground-page-teams-2 | Title, Graph, Then Three Tables | Proposed | Under the title panel the page holds the teams graph, then the Teams, Leaders and Members tables in that order. | |
 | req-rampart-20x-playground-page-teams-3 | Rows Match The Seed | Proposed | On a booted `demo` stack the Teams table has four rows, Leaders has four and Members has thirteen: every person, leaders included, has one `BELONGS_TO_TEAM` edge to their team. | |
-| req-rampart-20x-playground-page-teams-4 | No Prose | Proposed | The page carries a title and tables only. | `no-explanatory-text-on-pages`. |
+| req-rampart-20x-playground-page-teams-4 | No Prose | Proposed | The page carries a title, the graph and tables only. | `no-explanatory-text-on-pages`. |
+
+### Teams Graph
+----
+RID: `req-rampart-20x-playground-teams-viz`
+
+Status: `Proposed`
+
+A graph panel, full width, between the title and the Teams table of `/playground/teams`. A person is drawn inside their team and a team inside its parent team; a leader is drawn in a colour of its own. The panel has no header, legend or prose.
+
+#### Implementation
+
+Nesting is the standard TAP nesting, configured and not coded: the layout module `static/rampart_20x_playground/js/projections/teams.js` calls `projectNested` with two single-hop relationships over `BELONGS_TO_TEAM__identity_core` (`(parent:identity_core__team)<-[:BELONGS_TO_TEAM__identity_core]-(child:identity_core__human)` and the same with a team child), `baseSizes` per type, `padding`, the `flow` inner layout, then `applyStandardChrome` and `placeParentLabels`, and `cy.fit` on `initial_load`. It holds configuration and data reads only; no geometry of its own.
+
+A leader is a data read: the source of a `LEADS_TEAM__identity_core` edge in the scene takes the leader colours as node data (`fill_color`, `border_color`, `label_color`), and the edge is hidden because the leader is already inside the team. The palette is chosen for the fixed `#f1f0ec` canvas, which is the same in light and dark.
+
+The Layout, Elevation and Projection are data in `grift/teams.grift.json`, joined by `USES_PROJECTION`, `USES_ELEVATION`, `USES_DEFAULT_ELEVATION` and `USES_LAYOUT`. The panel reads three Gryphon Searches by `USES_SEARCH`: a person and their team, a team and its parent, and a leader and their team.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-teams-viz-1 | Graph Above The Tables | Proposed | The page's second slot is a full-width `tap_viz/panels/graph_panel.html` panel with no header, above the Teams table. | |
+| req-rampart-20x-playground-teams-viz-2 | Nesting From The Edge | Proposed | The layout module nests with two `projectNested` relationships over `BELONGS_TO_TEAM__identity_core`, one with a human child and one with a team child, and names no entity by label or id. | |
+| req-rampart-20x-playground-teams-viz-3 | Leaders From The Edge | Proposed | The module colours the source of every `LEADS_TEAM__identity_core` edge through node data and hides that edge. | |
+| req-rampart-20x-playground-teams-viz-4 | Declarative Wiring | Proposed | The panel, its projection, elevation and layout and three Gryphon Searches are in the teams bundle, with the hotlink edges the importer requires. | |
+| req-rampart-20x-playground-teams-viz-5 | Counts On A Booted Stack | Proposed | On a booted `demo` stack the graph draws four teams, three of them inside `git-serious`, thirteen people, and four leaders in the leader colour, in light and dark, with no console error. | |
+| req-rampart-20x-playground-teams-viz-6 | No Prose | Proposed | The panel has no header, legend or text. | `no-explanatory-text-on-pages`. |
 
 ### Parent Team Column
 ----

@@ -471,6 +471,144 @@
         },
         {
           "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7baa23986f65",
+            "entity_type": "layout",
+            "name": "Playground teams layout",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground teams layout",
+            "description": "teams.js: nests a person in their team and a team in its parent team from BELONGS_TO_TEAM; a leader (LEADS_TEAM) takes the leader colours.",
+            "definition": {
+              "js_file": "tap_plugin/rampart_20x_playground/static/rampart_20x_playground/js/projections/teams.js"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bab41197a94",
+            "entity_type": "elevation",
+            "name": "Playground teams elevation",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground teams elevation",
+            "description": "The teams view at one elevation.",
+            "definition": {
+              "zoom": 1.0,
+              "description": "The teams view at one elevation.",
+              "layouts": [
+                "01a15f9f-0e56-75b7-ac58-7baa23986f65"
+              ],
+              "double_tap_targets": []
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bace9d1d77c",
+            "entity_type": "projection",
+            "name": "Playground teams projection",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "Playground teams projection",
+            "description": "Teams: one elevation, the teams.js layout module, icon-badge chrome, opens fitted.",
+            "definition": {
+              "node_style": {
+                "mode": "icon-badge"
+              },
+              "elevations": [
+                "01a15f9f-0e56-75b7-ac58-7bab41197a94"
+              ],
+              "default_elevation_id": "01a15f9f-0e56-75b7-ac58-7bab41197a94",
+              "min_zoom": "fit",
+              "lock_nodes": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "entity_type": "panel",
+            "name": "Teams Graph",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Teams Graph",
+            "slug": "playground-teams-graph",
+            "description": "The teams nested in their parent team, with each person in their team and the leaders marked.",
+            "view": "tap_viz/panels/graph_panel.html",
+            "config": {
+              "height": "100%",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bae6a6710e4",
+            "entity_type": "search",
+            "name": "playground — teams graph members",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams graph members",
+            "description": "Each person and the team they belong to (BELONGS_TO_TEAM, human to team).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:identity_core__human)-[:BELONGS_TO_TEAM__identity_core]->(t:identity_core__team)",
+                "RETURN h, t"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bafa729c13a",
+            "entity_type": "search",
+            "name": "playground — teams graph parents",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams graph parents",
+            "description": "Each team and the team it belongs to (BELONGS_TO_TEAM, team to parent team).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (c:identity_core__team)-[:BELONGS_TO_TEAM__identity_core]->(p:identity_core__team)",
+                "RETURN c, p"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb0194d8b9d",
+            "entity_type": "search",
+            "name": "playground — teams graph leaders",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — teams graph leaders",
+            "description": "Each leader and the team they lead (LEADS_TEAM); the layout colours the leader and draws no line.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (h:identity_core__human)-[:LEADS_TEAM__identity_core]->(t:identity_core__team)",
+                "RETURN h, t"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a15c19-6922-734d-9272-203ef1453652",
             "entity_type": "page",
             "name": "Teams",
@@ -499,8 +637,8 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-teams-teams",
-                      "height": "auto"
+                      "panel-id": "playground-teams-graph",
+                      "height": "75vh"
                     }
                   }
                 },
@@ -509,7 +647,7 @@
                   "band": 3,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-teams-leaders",
+                      "panel-id": "playground-teams-teams",
                       "height": "auto"
                     }
                   }
@@ -517,6 +655,16 @@
                 "col-4": {
                   "width": "12fr",
                   "band": 4,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-teams-leaders",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "12fr",
+                  "band": 5,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-teams-members",
@@ -1034,6 +1182,142 @@
             "to_entity_id": "01a15c19-6922-734d-9272-20450c1b85f3",
             "edge_type": "USES_SEARCH",
             "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb1e6b4bb05",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL graph",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15c19-6922-734d-9272-203ef1453652",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-teams-graph"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb2664ce657",
+            "entity_type": "edge",
+            "name": "teams graph USES_PROJECTION projection",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bace9d1d77c",
+            "edge_type": "USES_PROJECTION",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb3fdae2587",
+            "entity_type": "edge",
+            "name": "projection USES_ELEVATION elevation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7bace9d1d77c",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bab41197a94",
+            "edge_type": "USES_ELEVATION",
+            "properties": {
+              "hotlink": {
+                "model": "projection",
+                "spec": "projection-elevations",
+                "value": "01a15f9f-0e56-75b7-ac58-7bab41197a94"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb448756070",
+            "entity_type": "edge",
+            "name": "elevation USES_LAYOUT layout",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7bab41197a94",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7baa23986f65",
+            "edge_type": "USES_LAYOUT",
+            "properties": {
+              "hotlink": {
+                "model": "elevation",
+                "spec": "elevation-layouts",
+                "value": "01a15f9f-0e56-75b7-ac58-7baa23986f65"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb57635ef80",
+            "entity_type": "edge",
+            "name": "teams graph USES_SEARCH members",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bae6a6710e4",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb6dbaab8a7",
+            "entity_type": "edge",
+            "name": "teams graph USES_SEARCH parents",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bafa729c13a",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15f9f-0e56-75b7-ac58-7bb73a45625a",
+            "entity_type": "edge",
+            "name": "teams graph USES_SEARCH leaders",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7badaf66a920",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bb0194d8b9d",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a15fa0-26fa-7701-9d25-3c3e1e8d8f46",
+            "entity_type": "edge",
+            "name": "projection USES_DEFAULT_ELEVATION elevation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a15f9f-0e56-75b7-ac58-7bace9d1d77c",
+            "to_entity_id": "01a15f9f-0e56-75b7-ac58-7bab41197a94",
+            "edge_type": "USES_DEFAULT_ELEVATION",
+            "properties": {
+              "hotlink": {
+                "model": "projection",
+                "spec": "projection-default-elevation",
+                "value": "01a15f9f-0e56-75b7-ac58-7bab41197a94"
+              }
+            }
           }
         }
       ]
