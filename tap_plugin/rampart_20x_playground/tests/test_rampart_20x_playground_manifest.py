@@ -103,6 +103,7 @@ class TestSurfaces:
             "grift/stackarmor-examples.grift.json",
             "grift/stackarmor-page.grift.json",
             "grift/teams.grift.json",
+            "grift/vdr-implementations.grift.json",
             "grift/vulnerabilities-page.grift.json",
             "grift/vulnerability-enrichment.grift.json",
         ]

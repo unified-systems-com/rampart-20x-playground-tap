@@ -38,7 +38,7 @@ class TestExamples:
     def test_five_examples(self) -> None:
         counts = Counter(n["entity"]["entity_type"] for n in self.nodes)
         assert counts[CC + "compliance_finding"] == 5 and counts["computing_core__program"] == 5
-        assert counts["stackarmor_vdr__asset_profile"] == 5 and counts[CC + "compliance_vulnerability"] == 3
+        assert counts["stackarmor_vdr__asset_profile"] == 5 and counts[CC + "compliance_vulnerability"] == 0
         assert {n["node"]["source"] for n in _of(self.nodes, CC + "compliance_finding")} == {"stackarmor-memo"}
 
     @pytest.mark.spec("req-rampart-20x-playground-stackarmor-examples-2")
@@ -52,10 +52,11 @@ class TestExamples:
             ("medium", "medium", "high", 0),
             ("low", "medium", "medium", 0),
         ]
-        vectors = {n["node"]["vuln_id"]: n["node"]["cvss_vector"] for n in _of(self.nodes, CC + "compliance_vulnerability")}
-        assert vectors["DEMO-2026-0001"].endswith("C:H/I:H/A:H")
-        assert vectors["DEMO-2026-0004"].endswith("C:N/I:N/A:H")
-        assert vectors["DEMO-2026-0005"].endswith("C:H/I:N/A:N")
+
+    def test_no_demo_vulnerability_is_seeded_or_named(self) -> None:
+        text = (GRIFT / "stackarmor-examples.grift.json").read_text(encoding="utf-8")
+        assert "DEMO-2026" not in text
+        assert not [e for e in _edges("stackarmor-examples.grift.json") if "VULNERABILITY" in e["edge"]["edge_type"]]
 
     @pytest.mark.spec("req-rampart-20x-playground-stackarmor-examples-4")
     def test_stamped_like_the_inventory(self) -> None:
@@ -85,9 +86,28 @@ class TestPage:
         assert page["node"]["slug"] == SLUG
         in_layout = {r["panel-id"] for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()}
         slugs = {n["node"]["slug"] for n in _of(self.nodes, "panel")}
-        assert in_layout == slugs and len(slugs) == 11
+        # the two PAIN tables are the pain bundle's panels, placed here by USES_PANEL
+        assert in_layout == slugs | {"playground-pain-findings", "playground-pain-assets"} and len(slugs) == 10
         used = {e["edge"]["properties"]["hotlink"]["value"] for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"}
-        assert used == slugs
+        assert used == in_layout
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-1")
+    def test_order_is_title_then_the_card_and_chart_then_the_text_last(self) -> None:
+        (page,) = _of(self.nodes, "page")
+        cols = sorted(page["node"]["layout"]["columns"].values(), key=lambda c: c["band"])
+        bands = []
+        for c in cols:
+            if not bands or bands[-1][0] != c["band"]:
+                bands.append((c["band"], []))
+            bands[-1][1].extend(r["panel-id"] for r in c["rows"].values())
+        order = [b[1] for b in bands]
+        assert order[0] == ["playground-stackarmor-intro"]
+        assert order[1] == ["playground-stackarmor-assumed", "playground-stackarmor-dist"]
+        assert order[-1] == ["playground-stackarmor-method", "playground-stackarmor-steps"]
+        assert ["playground-pain-findings"] in order and ["playground-pain-assets"] in order
+        assert not [n for n in _of(self.nodes, "panel") if n["node"]["slug"].endswith("-picker")]
+        assumed = next(n for n in _of(self.nodes, "panel") if n["node"]["slug"].endswith("-assumed"))
+        assert assumed["node"]["config"]["hide_header"] is False and "title_field" not in assumed["node"]["config"]
 
     @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-2")
     def test_each_data_panel_reads_one_search_and_no_panel_computes(self) -> None:
@@ -95,21 +115,26 @@ class TestPage:
         searches = {n["entity"]["entity_id"]: n["node"] for n in _of(self.nodes, "search")}
         bound = Counter(e["edge"]["from_entity_id"] for e in self.edges if e["edge"]["edge_type"] == "USES_SEARCH")
         data = [p for p in panels.values() if "text_panel" not in p["node"]["view"]]
-        assert len(data) == 8 and all(bound[p["entity"]["entity_id"]] == 1 for p in data)
+        assert len(data) == 7 and all(bound[p["entity"]["entity_id"]] == 1 for p in data)
         for s in searches.values():
             runner = s["definition"].get("runner_key")
             assert (runner is None and s["search_type"] == "gryphon") or runner.startswith(RUNNER)
 
     @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-3")
-    def test_the_picker_reloads_the_page_and_the_followers_declare_the_inputs(self) -> None:
-        (picker,) = [n for n in _of(self.nodes, "panel") if n["node"]["slug"].endswith("-picker")]
-        assert picker["node"]["config"]["row_url_template"] == SLUG + "?entity_id={finding_id}&vuln_id={vuln_id}"
-        examples = {n["entity"]["name"]: n["entity"]["entity_id"] for n in _nodes("stackarmor-examples.grift.json")}
-        first = next(i for name, i in examples.items() if name.startswith("Memo example 1"))
+    def test_no_picker_and_the_followers_default_to_a_real_finding(self) -> None:
+        memo = {n["entity"]["entity_id"] for n in _nodes("stackarmor-examples.grift.json")}
         by_name = {n["node"]["name"]: n["node"] for n in _of(self.nodes, "search")}
+        assert not [n for n in by_name if "memo examples" in n]
+        defaults = set()
         for key in ("one finding", "trace"):
-            assert by_name[f"playground — stackarmor {key}"]["input_schema"]["properties"]["entity_id"]["default"] == first
-        assert "vuln_id" in by_name["playground — stackarmor same cve"]["input_schema"]["properties"]
+            defaults.add(by_name[f"playground — stackarmor {key}"]["input_schema"]["properties"]["entity_id"]["default"])
+        assert len(defaults) == 1 and not defaults & memo
+        assert by_name["playground — stackarmor same cve"]["input_schema"]["properties"]["vuln_id"]["default"] not in memo
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-3")
+    def test_who_requires_what_leaves_out_the_memo_programs(self) -> None:
+        stamps = next(n for n in _of(self.nodes, "search") if n["node"]["name"].endswith("stackarmor stamps"))
+        assert 'WHERE NOT s.data.stamp_key STARTS_WITH "example-"' in stamps["node"]["definition"]["query"]
 
     @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-4")
     def test_only_three_panels_carry_prose(self) -> None:
@@ -129,4 +154,4 @@ class TestPage:
         ci = json.loads((PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8"))
         assert "stackarmor_vdr" not in [p["slug"] for p in ci["install"]["plugins"]]
         bundles = {s.get("bundle") for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"}
-        assert not {"stackarmor_examples", "stackarmor_page", "pain"} & bundles
+        assert not {"stackarmor_examples", "stackarmor_page", "pain", "vdr_implementations"} & bundles

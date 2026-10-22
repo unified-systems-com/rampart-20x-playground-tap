@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.pain",
         "name": "rampart-20x-playground PAIN v0.1.0",
-        "description": "The eight program stamps for the stackarmor_vdr plugin (an asset_profile node each, a PROFILES_PROGRAM edge to the program and a USES_ARCHETYPE edge to the archetype node the plugin seeds), the two module Searches that name the stackarmor_vdr runners, and the /playground/pain page with its two tables. Needs the stackarmor_vdr plugin installed."
+        "description": "The eight program stamps for the stackarmor_vdr plugin (an asset_profile node each, a PROFILES_PROGRAM edge to the program and a USES_ARCHETYPE edge to the archetype node the plugin seeds), the two module Searches that name the stackarmor_vdr runners, and the two table panels the StackArmor page uses. Needs the stackarmor_vdr plugin installed."
       },
       "nodes": [
         {
@@ -199,27 +199,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a1d005-4c1e-7a01-9b2d-5e0f1a2b0501",
-            "entity_type": "panel",
-            "name": "PAIN",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "PAIN",
-            "slug": "playground-pain-title",
-            "description": "The page title.",
-            "view": "tap_web/panels/text_panel.html",
-            "editor_view": "tap_web/panels/text_panel_editor.html",
-            "config": {
-              "text": "",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
             "entity_type": "panel",
             "name": "Findings",
@@ -245,26 +224,44 @@
               ],
               "columns": [
                 {
-                  "field": "vuln_id",
+                  "field": "cve",
                   "title": "Vuln ID",
-                  "width": 232
+                  "width": 170,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/cve?vuln_id={cve}",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "component",
                   "title": "Component",
-                  "widthGrow": 1,
-                  "minWidth": 100
+                  "widthGrow": 2,
+                  "minWidth": 165,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{component_type}/entity--{component_id}/",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "owner",
                   "title": "Owner",
                   "widthGrow": 2,
-                  "minWidth": 140
+                  "minWidth": 165,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{owner_type}/entity--{owner_id}/",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "owner_kind",
                   "title": "Owner Kind",
-                  "width": 100
+                  "width": 92
                 },
                 {
                   "field": "pain",
@@ -275,24 +272,24 @@
                 {
                   "field": "word",
                   "title": "Word",
-                  "width": 92
+                  "width": 88
                 },
                 {
                   "field": "c",
                   "title": "C",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
                   "field": "i",
                   "title": "I",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
                   "field": "a",
                   "title": "A",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
@@ -316,17 +313,17 @@
                 {
                   "field": "profile_source",
                   "title": "Profile Source",
-                  "width": 105
+                  "width": 92
                 },
                 {
                   "field": "column",
                   "title": "Exposure Column",
-                  "width": 105
+                  "width": 92
                 },
                 {
                   "field": "deadline_hours",
                   "title": "Deadline Hours",
-                  "width": 105,
+                  "width": 92,
                   "align": "right",
                   "sorter": "number",
                   "empty_text": "—"
@@ -393,55 +390,6 @@
                   "sorter": "number"
                 }
               ]
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
-            "entity_type": "page",
-            "name": "PAIN",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "PAIN",
-            "slug": "/playground/pain",
-            "description": "PAIN for every open finding on each owner, and each asset's roll-up of its programs' profiles.",
-            "layout": {
-              "columns": {
-                "col-1": {
-                  "width": "12fr",
-                  "band": 1,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-pain-title",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-2": {
-                  "width": "12fr",
-                  "band": 2,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-pain-findings",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-3": {
-                  "width": "12fr",
-                  "band": 3,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-pain-assets",
-                      "height": "auto"
-                    }
-                  }
-                }
-              }
             }
           }
         }
@@ -669,66 +617,6 @@
             "to_entity_id": "01a15f50-9633-7184-8e6c-29b9a23c5175",
             "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
             "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1d007-4c1e-7a01-9b2d-5e0f1a2b0701",
-            "entity_type": "edge",
-            "name": "PAIN page USES_PANEL playground-pain-title",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
-            "to_entity_id": "01a1d005-4c1e-7a01-9b2d-5e0f1a2b0501",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-pain-title"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1d007-4c1e-7a02-9b2d-5e0f1a2b0702",
-            "entity_type": "edge",
-            "name": "PAIN page USES_PANEL playground-pain-findings",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
-            "to_entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-pain-findings"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1d007-4c1e-7a03-9b2d-5e0f1a2b0703",
-            "entity_type": "edge",
-            "name": "PAIN page USES_PANEL playground-pain-assets",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
-            "to_entity_id": "01a1d005-4c1e-7a03-9b2d-5e0f1a2b0503",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-pain-assets"
-              }
-            }
           }
         },
         {

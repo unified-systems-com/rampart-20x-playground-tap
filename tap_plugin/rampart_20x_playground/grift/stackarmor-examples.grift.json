@@ -19,66 +19,6 @@
       "nodes": [
         {
           "entity": {
-            "entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
-            "entity_type": "compliance_core__compliance_vulnerability",
-            "name": "DEMO-2026-0001",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "node": {
-            "vuln_id": "DEMO-2026-0001",
-            "aliases": [],
-            "title": "Remote code execution in a request parser (memo examples 1 to 3)",
-            "description": "Remote code execution in a request parser (memo examples 1 to 3). A fictional vulnerability that stands in for the memo's worked example.",
-            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-            "cvss_version": "3.1",
-            "kev": false,
-            "epss_score": 0.5
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16113-c845-7132-b1e6-4c5a76560db9",
-            "entity_type": "compliance_core__compliance_vulnerability",
-            "name": "DEMO-2026-0004",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "node": {
-            "vuln_id": "DEMO-2026-0004",
-            "aliases": [],
-            "title": "Denial of service in a replication-surface parser (memo example 4)",
-            "description": "Denial of service in a replication-surface parser (memo example 4). A fictional vulnerability that stands in for the memo's worked example.",
-            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-            "cvss_version": "3.1",
-            "kev": false,
-            "epss_score": 0.76
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16113-c845-7132-b1e6-4c5b3f2cb40b",
-            "entity_type": "compliance_core__compliance_vulnerability",
-            "name": "DEMO-2026-0005",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "node": {
-            "vuln_id": "DEMO-2026-0005",
-            "aliases": [],
-            "title": "Information disclosure in a metadata service (memo example 5)",
-            "description": "Information disclosure in a metadata service (memo example 5). A fictional vulnerability that stands in for the memo's worked example.",
-            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-            "cvss_version": "3.1",
-            "kev": false,
-            "epss_score": 0.1
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16113-c845-7132-b1e6-4c5c4f98e401",
             "entity_type": "computing_core__package",
             "name": "memo-example-1-component",
@@ -687,22 +627,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16113-c845-7132-b1e6-4c67b9da7302",
-            "entity_type": "edge",
-            "name": "memo1 finding CONCERNS vulnerability",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a16113-c845-7132-b1e6-4c603ac902c6",
-            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
-            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16113-c845-7132-b1e6-4c686a9980b3",
             "entity_type": "edge",
             "name": "memo1 stamp PROFILES program",
@@ -795,22 +719,6 @@
             "from_entity_id": "01a16113-c845-7132-b1e6-4c698223d2b8",
             "to_entity_id": "01a16113-c845-7132-b1e6-4c6d66bc7a07",
             "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16113-c846-7535-b221-9ddff43eaa26",
-            "entity_type": "edge",
-            "name": "memo2 finding CONCERNS vulnerability",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a16113-c845-7132-b1e6-4c6d66bc7a07",
-            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
-            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
             "properties": {}
           }
         },
@@ -913,22 +821,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16113-c846-7535-b221-9dec08fed020",
-            "entity_type": "edge",
-            "name": "memo3 finding CONCERNS vulnerability",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a16113-c846-7535-b221-9de52fc16aa2",
-            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
-            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16113-c846-7535-b221-9ded20d00aa4",
             "entity_type": "edge",
             "name": "memo3 stamp PROFILES program",
@@ -1026,22 +918,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16113-c846-7535-b221-9df95783e864",
-            "entity_type": "edge",
-            "name": "memo4 finding CONCERNS vulnerability",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a16113-c846-7535-b221-9df23e2f39ab",
-            "to_entity_id": "01a16113-c845-7132-b1e6-4c5a76560db9",
-            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16113-c846-7535-b221-9dfa2fc1b297",
             "entity_type": "edge",
             "name": "memo4 stamp PROFILES program",
@@ -1134,22 +1010,6 @@
             "from_entity_id": "01a16113-c846-7535-b221-9dfbd433b7f8",
             "to_entity_id": "01a16113-c846-7535-b221-9dff23c10d7a",
             "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16113-c846-7535-b221-9e0676d36ff9",
-            "entity_type": "edge",
-            "name": "memo5 finding CONCERNS vulnerability",
-            "dimensions": {
-              "compliance": "vulnerability"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a16113-c846-7535-b221-9dff23c10d7a",
-            "to_entity_id": "01a16113-c845-7132-b1e6-4c5b3f2cb40b",
-            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
             "properties": {}
           }
         },
