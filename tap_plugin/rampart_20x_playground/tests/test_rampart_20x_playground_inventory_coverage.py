@@ -120,7 +120,7 @@ class TestInventoryCoverage:
         for slug, (name, order, history) in expected.items():
             config = self.panels[slug]["node"]["config"]
             assert self.panels[slug]["node"]["name"] == name
-            assert config["series_by"] == {"category": "observed_at", "series": "series", "value": "value", "order": [*order, "Overall"]}
+            assert {k: v for k, v in config["series_by"].items() if k != "overrides"} == {"category": "observed_at", "series": "series", "value": "value", "order": [*order, "Overall"]}
             option = config["option"]
             assert option["xAxis"]["type"] == "time" and (option["yAxis"]["min"], option["yAxis"]["max"]) == (0, 100)
             (series,) = option["series"]
@@ -128,7 +128,11 @@ class TestInventoryCoverage:
             # George, 2026-10-21: no legend; each line's name sits at its end, shifted apart where ends cluster.
             assert "legend" not in option and option["tooltip"]["trigger"] == "axis"
             assert series["endLabel"] == {"show": True, "formatter": "{a}", "color": "inherit", "textBorderWidth": 0, "textBorderColor": "transparent", "textShadowBlur": 0} and series["labelLayout"] == {"moveOverlap": "shiftY"}
-            assert set(config["color_map"]["map"]) == {*order, "Overall"} and config["color_map"]["map"]["Overall"] == "neutral"
+            assert set(config["color_map"]["map"]) == {*order, "Overall"}
+            # George, 2026-10-22: every category line is one muted colour at 1.5 wide; Overall alone is thick, opaque, on top and coloured.
+            assert all(config["color_map"]["map"][c] == "muted" for c in order) and config["color_map"]["map"]["Overall"] == "accent-1"
+            assert series["lineStyle"] == {"width": 1.5, "opacity": 0.55}
+            assert config["series_by"]["overrides"] == {"Overall": {"lineStyle": {"width": 6, "opacity": 1}, "z": 10}}
             assert config["types"] == {"observed_at": "time", "value": "number"}
             assert config["empty_text"] and config["max_rows"] == 5000
             assert self._search_of(self.panels[slug])["entity"]["name"] == f"playground — {history}"
