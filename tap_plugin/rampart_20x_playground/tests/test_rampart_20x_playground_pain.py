@@ -22,7 +22,7 @@ TABLE = "tap_web/panels/table_panel.html"
 TEXT = "tap_web/panels/text_panel.html"
 FINDINGS_KEY = "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-pain"
 ASSETS_KEY = "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-assets"
-# The inputs `stackarmor_vdr`'s INPUT_SCHEMA declares (searches/pain.py, v0.1.0).
+# The inputs `stackarmor_vdr`'s INPUT_SCHEMA declares (searches/pain.py, v0.3.2).
 RUNNER_INPUTS = {
     "impact_weights", "requirement_weights", "u1", "u2", "theta3", "epss_irv", "epss_non_irv", "multi_agency",
     "fedramp_class", "scheme", "evaluation_scheme", "entity_id", "max_results",
@@ -30,7 +30,8 @@ RUNNER_INPUTS = {
 FINDING_FIELDS = {
     "finding_id", "vuln_id", "component", "component_id", "container_id", "container", "owner_kind", "owner_id", "owner",
     "scheme", "profile_source", "impact_source", "c", "i", "a", "subsequent", "cr", "ir", "ar", "u", "s", "word", "m",
-    "multi_agency_source", "pain", "lev", "irv", "column", "fedramp_class", "deadline_hours",
+    "multi_agency_source", "pain", "lev", "irv", "column", "fedramp_class", "deadline_hours", "cve", "component_type",
+    "owner_type", "container_type",
 }
 ASSET_FIELDS = {"asset_id", "asset", "scheme", "programs", "classified", "cr", "ir", "ar"}
 STAMPS = {
@@ -43,7 +44,7 @@ FINDING_TITLES = [
     "Exposure Column", "Deadline Hours",
 ]
 FINDING_COLUMNS = [
-    "vuln_id", "component", "owner", "owner_kind", "pain", "word", "c", "i", "a", "cr", "ir", "ar", "profile_source",
+    "cve", "component", "owner", "owner_kind", "pain", "word", "c", "i", "a", "cr", "ir", "ar", "profile_source",
     "column", "deadline_hours",
 ]
 
@@ -199,13 +200,33 @@ class TestPage:
         column = next(c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"] if c["field"] == "deadline_hours")
         assert column["empty_text"]
 
-    def test_no_link_names_a_type_the_rows_do_not_carry(self) -> None:
-        """`page-pain-4`, partly: the runners return the CVE row's entity id as `vuln_id`, not the CVE id the CVE page opens, and
-        owners and assets are of several entity types, so a link template could not name one. Linked columns stay out until a runner
-        returns the CVE id and the entity type."""
-        for slug in ("playground-pain-findings", "playground-pain-assets"):
-            for column in self.panels[slug]["node"]["config"]["columns"]:
-                assert "formatter" not in column, column["field"]
+    def test_the_vulnerability_component_and_owner_link_by_the_type_the_row_carries(self) -> None:
+        """`page-pain-4`: the runner returns the CVE id (`cve`) and the entity type of the component and the owner, so a link
+        template fills the type from the row (`{component_type}`, `{owner_type}`) and one column serves every type."""
+        columns = {c["field"]: c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"]}
+        expected = {
+            "cve": "/playground/vulnerabilities/cve?vuln_id={cve}",
+            "component": "/object/{component_type}/entity--{component_id}/",
+            "owner": "/object/{owner_type}/entity--{owner_id}/",
+        }
+        for field, template in expected.items():
+            assert columns[field]["formatter"] == "link", field
+            assert columns[field]["formatter_params"]["href_template"] == template, field
+            assert columns[field]["formatter_params"]["external"] is False, field
+        for field in ("vuln_id", "component_id", "owner_id"):
+            assert field not in columns, field
+        used = {m for c in columns.values() for m in re.findall(r"\{(\w+)\}", c.get("formatter_params", {}).get("href_template", ""))}
+        assert used <= FINDING_FIELDS, used - FINDING_FIELDS
+
+    def test_the_assets_table_links_nothing(self) -> None:
+        """The assets Search returns no entity type, so its asset names stay plain text."""
+        for column in self.panels["playground-pain-assets"]["node"]["config"]["columns"]:
+            assert "formatter" not in column, column["field"]
+
+    def test_the_identifying_columns_are_wide_enough_not_to_truncate(self) -> None:
+        columns = {c["field"]: c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"]}
+        assert columns["cve"]["width"] >= 135
+        assert columns["component"]["minWidth"] >= 200 and columns["owner"]["minWidth"] >= 180
 
 
 class TestBootRecords:

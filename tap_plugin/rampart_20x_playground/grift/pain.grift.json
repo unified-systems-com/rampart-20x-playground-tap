@@ -245,21 +245,39 @@
               ],
               "columns": [
                 {
-                  "field": "vuln_id",
+                  "field": "cve",
                   "title": "Vuln ID",
-                  "width": 232
+                  "width": 135,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/playground/vulnerabilities/cve?vuln_id={cve}",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "component",
                   "title": "Component",
-                  "widthGrow": 1,
-                  "minWidth": 100
+                  "widthGrow": 2,
+                  "minWidth": 200,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{component_type}/entity--{component_id}/",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "owner",
                   "title": "Owner",
                   "widthGrow": 2,
-                  "minWidth": 140
+                  "minWidth": 180,
+                  "formatter": "link",
+                  "formatter_params": {
+                    "href_template": "/object/{owner_type}/entity--{owner_id}/",
+                    "external": false,
+                    "style": "plain"
+                  }
                 },
                 {
                   "field": "owner_kind",
@@ -275,24 +293,24 @@
                 {
                   "field": "word",
                   "title": "Word",
-                  "width": 92
+                  "width": 88
                 },
                 {
                   "field": "c",
                   "title": "C",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
                   "field": "i",
                   "title": "I",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
                   "field": "a",
                   "title": "A",
-                  "width": 60,
+                  "width": 50,
                   "align": "center"
                 },
                 {
@@ -316,17 +334,17 @@
                 {
                   "field": "profile_source",
                   "title": "Profile Source",
-                  "width": 105
+                  "width": 98
                 },
                 {
                   "field": "column",
                   "title": "Exposure Column",
-                  "width": 105
+                  "width": 98
                 },
                 {
                   "field": "deadline_hours",
                   "title": "Deadline Hours",
-                  "width": 105,
+                  "width": 98,
                   "align": "right",
                   "sorter": "number",
                   "empty_text": "—"
