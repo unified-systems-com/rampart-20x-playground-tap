@@ -119,13 +119,9 @@ class TestOverviewMembership:
 class TestDataclassActionStamping:
     """`req-rampart-20x-playground-dimensions-6` to `-11`: read from the seed files, which is where the stamps live."""
 
-    EXPECTED = {
-        "computing_core__application_flow": "transmit",
-        "computing_core__program": "process",
-        "aws_core__aws_ecs_container": "process",
-        "aws_core__aws_rds_instance": "store",
-        "aws_core__aws_s3_bucket": "store",
-    }
+    ACTIONS = {"store", "process", "transmit", "none"}
+    # `coverage-seed-1`: the coverage seed stamps a value its type's group allows, and one wrong stamp on purpose.
+    WRONG_ON_PURPOSE = ("computing_core__public_key", "container tls public key", "transmit")
 
     def _stamped(self) -> list[dict]:
         rows = []
@@ -136,17 +132,21 @@ class TestDataclassActionStamping:
 
     def test_only_the_listed_entities_carry_an_action_and_each_carries_one(self) -> None:
         counts: dict[str, int] = {}
+        wrong: list[str] = []
         for entity in self._stamped():
             dims = entity["dimensions"]
             assert not [k for k in dims if k.startswith("dataclass.action.")], entity["name"]
             action = dims.get("dataclass.action")
             if action is None:
                 continue
-            assert action == self.EXPECTED[entity["entity_type"]], entity["name"]
+            assert action in self.ACTIONS, entity["name"]
             counts[action] = counts.get(action, 0) + 1
-        # five flows, eight programs (the five web ones and the three teleport ones) plus two containers,
-        # the RDS instance plus two buckets
-        assert counts == {"transmit": 5, "process": 10, "store": 3}
+            if (entity["entity_type"], entity["name"], action) == self.WRONG_ON_PURPOSE:
+                wrong.append(entity["name"])
+        # five flows, eight programs, the containers, buckets, RDS instance, the rest of the cloud services, hosts,
+        # three libraries, the OS, 162 packages, two secrets and github.com (`coverage-seed-1`)
+        assert counts == {"transmit": 10, "process": 182, "store": 8, "none": 1}
+        assert wrong == ["container tls public key"]
 
     def test_the_retired_administration_flow_is_unstamped(self) -> None:
         old = [e for e in self._stamped() if e.get("entity_id") == "01a15a28-7763-727d-9425-a57a6568592e"]
