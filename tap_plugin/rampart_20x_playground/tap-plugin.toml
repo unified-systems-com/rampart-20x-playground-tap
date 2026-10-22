@@ -38,15 +38,19 @@ classification_mapping = "grift/classification-mapping.grift.json"
 data_classification_page = "grift/data-classification-page.grift.json"
 coverage_seed = "grift/coverage-seed.grift.json"
 teams = "grift/teams.grift.json"
+# The pain bundle needs the stackarmor_vdr plugin (stamps, edges to its archetype nodes, runner keys), which is NOT in
+# depends_on on purpose: the ci record installs the depends_on closure only, offline, and stackarmor_vdr is a private
+# repository. The demo record installs it and seeds this bundle; the ci record seeds every bundle but this one.
+pain = "grift/pain.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "f289eb58d367f84d4554743b8b6c17733e1b203bc8c9614de6fc3d3c3c7626a7"
+sha256 = "91ca8499a628654bc7fea1909110af39977c4d0081b20f2b8962872d42dac487"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "16bfbe67576eae05a41404d921dce1e2b46227b56b1df9c8cf63f8acc2b85c39"
+sha256 = "e7ed289885870d829f8969e18410f8be17c2892e41bab49656c8fc8ec7b0fe7f"

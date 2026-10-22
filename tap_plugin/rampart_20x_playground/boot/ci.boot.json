@@ -122,8 +122,105 @@
       {
         "type": "seed-plugin",
         "plugin": "rampart_20x_playground",
+        "bundle": "keystone",
         "enabled": true,
-        "note": "Own GRIFT: keystone, dimensions and the security-alerts batch."
+        "note": "Own GRIFT, one bundle per step: every bundle but pain, which needs stackarmor_vdr, a private repository this offline record does not install."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "dimensions",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "security_alerts",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "actor_dimensions",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "mock_inventory",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "inventory_entities",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "inventory_software",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "application_flow",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "vulnerability_enrichment",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "vulnerabilities_page",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "pages",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "inventory_coverage",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "inventory_page",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "classification_mapping",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "data_classification_page",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "coverage_seed",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "teams",
+        "enabled": true
       }
     ]
   }
