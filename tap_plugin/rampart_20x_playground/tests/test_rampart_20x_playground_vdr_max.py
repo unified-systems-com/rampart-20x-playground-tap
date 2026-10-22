@@ -109,3 +109,44 @@ def test_the_page_is_named_vdr_max_nests_under_the_section_and_a_schedule_runs_t
     manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
     order = list(manifest["grift"])
     assert order.index("vdr_max_nav") > max(order.index("vdr_implementations"), order.index("vdr_max_page"))
+
+
+def _layout_bands() -> list[list[str]]:
+    (page,) = _of("page")
+    cols = sorted(page["node"]["layout"]["columns"].values(), key=lambda c: c["band"])
+    bands: list[tuple[int, list[str]]] = []
+    for c in cols:
+        if not bands or bands[-1][0] != c["band"]:
+            bands.append((c["band"], []))
+        bands[-1][1].extend(r["panel-id"] for r in c["rows"].values())
+    return [b[1] for b in bands]
+
+
+@pytest.mark.spec("req-rampart-20x-playground-page-vdr-max-8")
+def test_the_rules_and_steps_text_is_the_last_band() -> None:
+    bands = _layout_bands()
+    assert bands[0] == ["playground-vdr-max-intro"] and bands[-1] == ["playground-vdr-max-rules", "playground-vdr-max-steps"]
+
+
+@pytest.mark.spec("req-rampart-20x-playground-page-vdr-max-9")
+def test_the_count_card_has_a_title_and_shows_the_figure_once() -> None:
+    (card,) = [n for n in _of("panel") if n["node"]["slug"] == "playground-vdr-max-cards"]
+    config = card["node"]["config"]
+    assert config["title"] == "Open Evaluations" and "title_field" not in config and "unit" not in config
+    assert config["layout"] == "figure_right" and config["value_field"] == "evaluations"
+
+
+@pytest.mark.spec("req-rampart-20x-playground-page-vdr-max-10")
+def test_the_tables_fit_and_the_page_size_is_one_the_row_selector_offers() -> None:
+    panels = {n["node"]["slug"]: n["node"]["config"] for n in _of("panel")}
+    for slug in ("picker", "timeframes"):
+        assert panels[f"playground-vdr-max-{slug}"]["default_page_size"] == 25  # the selector offers 25, 50 and All
+    # Evaluation and Reportable Incident each have a band to themselves (full width), so the unset text and headers fit.
+    bands = _layout_bands()
+    assert ["playground-vdr-max-evaluation"] in bands and ["playground-vdr-max-incident"] in bands
+    for slug in ("picker", "clock", "evaluation", "incident"):
+        columns = panels[f"playground-vdr-max-{slug}"]["columns"]
+        assert all("width" in c or "widthGrow" in c for c in columns), slug
+        assert sum(c.get("width", c.get("minWidth", 0)) for c in columns) <= 1216, slug  # widths and minimums fit a 1280 px window
+    evaluation = {c["field"]: c for c in panels["playground-vdr-max-evaluation"]["columns"]}
+    assert evaluation["likely_exploitable"]["minWidth"] >= 200 and evaluation["internet_reachable"]["minWidth"] >= 200

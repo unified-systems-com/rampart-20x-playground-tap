@@ -133,7 +133,8 @@
                   }
                 }
               }
-            }
+            },
+            "nav_weight": 20
           }
         },
         {
@@ -219,8 +220,10 @@
               "columns": [
                 {
                   "field": "owner",
-                  "title": "Owner",
-                  "widthGrow": 2
+                  "title": "Component",
+                  "widthGrow": 1,
+                  "minWidth": 160,
+                  "headerSort": false
                 },
                 {
                   "title": "Impact",
@@ -229,7 +232,6 @@
                       "field": "c",
                       "title": "C",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -241,13 +243,14 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "i",
                       "title": "I",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -259,13 +262,14 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "a",
                       "title": "A",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -277,13 +281,16 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "impact_source",
                       "title": "From",
                       "align": "center",
-                      "width": 90
+                      "width": 80,
+                      "headerSort": false
                     }
                   ]
                 },
@@ -294,7 +301,6 @@
                       "field": "cr",
                       "title": "CR",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -306,13 +312,14 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "ir",
                       "title": "IR",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -324,13 +331,14 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "ar",
                       "title": "AR",
                       "align": "center",
-                      "width": 90,
                       "formatter": "toneBadge",
                       "formatter_params": {
                         "tones": {
@@ -342,13 +350,16 @@
                           "low": "L",
                           "none": "N"
                         }
-                      }
+                      },
+                      "width": 44,
+                      "headerSort": false
                     },
                     {
                       "field": "profile_source",
                       "title": "From",
                       "align": "center",
-                      "width": 90
+                      "width": 80,
+                      "headerSort": false
                     }
                   ]
                 },
@@ -359,19 +370,22 @@
                       "field": "u",
                       "title": "U",
                       "align": "center",
-                      "width": 100
+                      "width": 76,
+                      "headerSort": false
                     },
                     {
                       "field": "s",
                       "title": "S",
                       "align": "center",
-                      "width": 100
+                      "width": 76,
+                      "headerSort": false
                     },
                     {
                       "field": "word",
                       "title": "Word",
                       "align": "center",
-                      "width": 120
+                      "width": 88,
+                      "headerSort": false
                     }
                   ]
                 },
@@ -383,13 +397,15 @@
                       "title": "Agencies",
                       "align": "center",
                       "sorter": "number",
-                      "width": 100
+                      "width": 88,
+                      "headerSort": false
                     },
                     {
                       "field": "multi_agency_source",
                       "title": "From",
                       "align": "center",
-                      "width": 90
+                      "width": 80,
+                      "headerSort": false
                     }
                   ]
                 },
@@ -400,20 +416,23 @@
                       "field": "pain",
                       "title": "PAIN",
                       "align": "center",
-                      "width": 80
+                      "width": 60,
+                      "headerSort": false
                     },
                     {
                       "field": "column",
                       "title": "Column",
                       "align": "center",
-                      "width": 100
+                      "width": 78,
+                      "headerSort": false
                     },
                     {
                       "field": "deadline_hours",
                       "title": "Hours",
                       "align": "center",
                       "sorter": "number",
-                      "width": 100
+                      "width": 64,
+                      "headerSort": false
                     }
                   ]
                 }
@@ -514,8 +533,8 @@
                   "title": "Agencies",
                   "align": "center",
                   "sorter": "number",
-                  "width": 100,
-                  "empty_text": "assumed"
+                  "empty_text": "assumed",
+                  "width": 120
                 },
                 {
                   "field": "rationale",

@@ -48,7 +48,7 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vdr-max-rules",
+                      "panel-id": "playground-vdr-max-cards",
                       "height": "auto"
                     }
                   }
@@ -58,34 +58,14 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-vdr-max-steps",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-4": {
-                  "width": "6fr",
-                  "band": 3,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-vdr-max-cards",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-5": {
-                  "width": "6fr",
-                  "band": 3,
-                  "rows": {
-                    "row-1": {
                       "panel-id": "playground-vdr-max-chart",
                       "height": "auto"
                     }
                   }
                 },
-                "col-6": {
+                "col-4": {
                   "width": "12fr",
-                  "band": 4,
+                  "band": 3,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vdr-max-picker",
@@ -93,9 +73,9 @@
                     }
                   }
                 },
-                "col-7": {
+                "col-5": {
                   "width": "12fr",
-                  "band": 5,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vdr-max-clock",
@@ -103,9 +83,9 @@
                     }
                   }
                 },
-                "col-8": {
-                  "width": "6fr",
-                  "band": 6,
+                "col-6": {
+                  "width": "12fr",
+                  "band": 5,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vdr-max-evaluation",
@@ -113,8 +93,8 @@
                     }
                   }
                 },
-                "col-9": {
-                  "width": "6fr",
+                "col-7": {
+                  "width": "12fr",
                   "band": 6,
                   "rows": {
                     "row-1": {
@@ -123,12 +103,32 @@
                     }
                   }
                 },
-                "col-10": {
+                "col-8": {
                   "width": "12fr",
                   "band": 7,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-vdr-max-timeframes",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-9": {
+                  "width": "6fr",
+                  "band": 8,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-rules",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-10": {
+                  "width": "6fr",
+                  "band": 8,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-steps",
                       "height": "auto"
                     }
                   }
@@ -233,12 +233,10 @@
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
               "hide_header": true,
-              "title_field": "evaluations",
               "title_style": "bold",
               "layout": "figure_right",
               "value_field": "evaluations",
               "value_formatter": "integer",
-              "unit": "open evaluations",
               "lines": [
                 {
                   "label": "Evaluation overdue (past 48 hours)",
@@ -276,7 +274,8 @@
                   "formatter": "integer"
                 }
               ],
-              "null_text": "not observed"
+              "null_text": "not observed",
+              "title": "Open Evaluations"
             }
           }
         },
@@ -337,7 +336,7 @@
             "config": {
               "chrome": "full",
               "striped": true,
-              "default_page_size": 10,
+              "default_page_size": 25,
               "initial_sort": [
                 {
                   "field": "remaining_hours",
@@ -361,14 +360,14 @@
                   "title": "Hours",
                   "align": "center",
                   "sorter": "number",
-                  "width": 110
+                  "width": 90
                 },
                 {
                   "field": "remaining_hours",
                   "title": "Remaining Hours",
                   "align": "center",
                   "sorter": "number",
-                  "width": 110
+                  "width": 180
                 },
                 {
                   "field": "overdue",
@@ -401,60 +400,71 @@
                 {
                   "field": "finding_source_key",
                   "title": "Finding",
-                  "widthGrow": 4
+                  "widthGrow": 4,
+                  "minWidth": 120,
+                  "headerSort": false
                 },
                 {
                   "field": "first_detected_at",
                   "title": "Detected",
-                  "widthGrow": 2
+                  "width": 206,
+                  "headerSort": false
                 },
                 {
                   "field": "anchor",
                   "title": "Counted From",
-                  "widthGrow": 2
+                  "width": 130,
+                  "headerSort": false
                 },
                 {
                   "field": "fedramp_class",
                   "title": "Class",
                   "align": "center",
-                  "width": 110
+                  "width": 72,
+                  "headerSort": false
                 },
                 {
                   "field": "class_source",
                   "title": "Class From",
                   "align": "center",
-                  "width": 110
+                  "width": 110,
+                  "headerSort": false
                 },
                 {
                   "field": "hours",
                   "title": "Hours",
                   "align": "center",
                   "sorter": "number",
-                  "width": 110
+                  "width": 72,
+                  "headerSort": false
                 },
                 {
                   "field": "due_at",
                   "title": "Due",
-                  "widthGrow": 2
+                  "width": 206,
+                  "headerSort": false
                 },
                 {
                   "field": "remaining_hours",
                   "title": "Remaining",
                   "align": "center",
                   "sorter": "number",
-                  "width": 110
+                  "width": 110,
+                  "headerSort": false
                 },
                 {
                   "field": "overdue",
                   "title": "Overdue",
                   "align": "center",
-                  "width": 110
+                  "width": 90,
+                  "headerSort": false
                 },
                 {
                   "field": "bound",
                   "title": "Bound",
                   "align": "center",
-                  "width": 110
+                  "width": 90,
+                  "headerSort": false
                 }
               ]
             }
@@ -482,37 +492,48 @@
                   "field": "scheme",
                   "title": "Scheme",
                   "align": "center",
-                  "width": 110
+                  "width": 110,
+                  "headerSort": false
                 },
                 {
                   "field": "likely_exploitable",
                   "title": "Likely Exploitable",
+                  "empty_text": "unset (worst case: yes)",
                   "widthGrow": 2,
-                  "empty_text": "unset (worst case: yes)"
+                  "minWidth": 210,
+                  "headerSort": false
                 },
                 {
                   "field": "internet_reachable",
                   "title": "Internet-Reachable",
+                  "empty_text": "unset (worst case: yes)",
                   "widthGrow": 2,
-                  "empty_text": "unset (worst case: yes)"
+                  "minWidth": 210,
+                  "headerSort": false
                 },
                 {
                   "field": "pain",
                   "title": "PAIN",
+                  "empty_text": "unset (worst case: N5)",
                   "widthGrow": 2,
-                  "empty_text": "unset (worst case: N5)"
+                  "minWidth": 170,
+                  "headerSort": false
                 },
                 {
                   "field": "evaluator",
                   "title": "Evaluator",
-                  "widthGrow": 2,
-                  "empty_text": "none"
+                  "empty_text": "none",
+                  "widthGrow": 1,
+                  "minWidth": 100,
+                  "headerSort": false
                 },
                 {
                   "field": "evaluated_at",
                   "title": "Evaluated At",
-                  "widthGrow": 2,
-                  "empty_text": "none"
+                  "empty_text": "none",
+                  "widthGrow": 1,
+                  "minWidth": 130,
+                  "headerSort": false
                 }
               ]
             }
@@ -540,43 +561,50 @@
                 {
                   "field": "finding_source_key",
                   "title": "Finding",
-                  "widthGrow": 4
+                  "widthGrow": 4,
+                  "headerSort": false
                 },
                 {
                   "field": "rule",
                   "title": "Rule",
                   "align": "center",
-                  "width": 110
+                  "width": 80,
+                  "headerSort": false
                 },
                 {
                   "field": "modal",
                   "title": "Rule Is A",
                   "align": "center",
-                  "width": 110
+                  "width": 110,
+                  "headerSort": false
                 },
                 {
                   "field": "likely_exploitable",
                   "title": "Likely Exploitable",
                   "align": "center",
-                  "width": 110
+                  "width": 170,
+                  "headerSort": false
                 },
                 {
                   "field": "internet_reachable",
                   "title": "Internet-Reachable",
                   "align": "center",
-                  "width": 110
+                  "width": 190,
+                  "headerSort": false
                 },
                 {
                   "field": "pain",
                   "title": "PAIN",
                   "align": "center",
-                  "width": 110
+                  "width": 80,
+                  "headerSort": false
                 },
                 {
                   "field": "pain_source",
                   "title": "PAIN From",
                   "align": "center",
-                  "width": 110
+                  "width": 120,
+                  "headerSort": false
                 }
               ]
             }
@@ -599,7 +627,7 @@
             "config": {
               "chrome": "full",
               "striped": true,
-              "default_page_size": 12,
+              "default_page_size": 25,
               "initial_sort": [
                 {
                   "field": "rule",

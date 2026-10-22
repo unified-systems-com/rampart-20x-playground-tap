@@ -155,6 +155,28 @@ class TestPage:
                     assert p["tones"] == {"high": "bad"} and {p["labels"][k] for k in ("high", "medium", "low")} == {"H", "M", "L"}
         assert seen == 6 + 6 + 3 + 3 + 3
 
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-12")
+    def test_the_components_table_fits_the_panel_and_names_its_first_column_component(self) -> None:
+        (t,) = [n for n in _of(self.nodes, "panel") if n["node"]["slug"] == "playground-stackarmor-one"]
+        cols = t["node"]["config"]["columns"]
+        assert cols[0]["title"] == "Component" and cols[0]["minWidth"] >= 160 and cols[0]["widthGrow"] >= 1
+
+        def leaves(cs):
+            for c in cs:
+                yield from leaves(c["columns"]) if "columns" in c else [c]
+
+        fixed = [c for c in leaves(cols)][1:]
+        assert all("width" in c and c["headerSort"] is False for c in fixed)  # two rows: nothing to sort, no arrow to crowd a header
+        assert cols[0]["minWidth"] + sum(c["width"] for c in fixed) <= 1216  # fits a 1280 px window without scrolling
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-13")
+    def test_the_page_orders_before_vdr_max_in_the_section(self) -> None:
+        (page,) = [n for n in _of(self.nodes, "page")]
+        vdr = json.loads((GRIFT / "vdr-max-page.grift.json").read_text(encoding="utf-8"))["batches"][0]
+        (vdr_page,) = [n for n in vdr["nodes"] if n["entity"]["entity_type"] == "page"]
+        # Higher nav_weight sorts first (spec-web-navigation, req-web-nav-page-weight).
+        assert page["node"]["nav_weight"] == 20 > vdr_page["node"]["nav_weight"] == 10
+
     @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-3")
     def test_who_requires_what_leaves_out_the_memo_programs(self) -> None:
         stamps = next(n for n in _of(self.nodes, "search") if n["node"]["name"].endswith("stackarmor stamps"))

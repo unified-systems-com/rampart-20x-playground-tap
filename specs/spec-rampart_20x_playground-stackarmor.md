@@ -57,6 +57,8 @@ Status: `Proposed`
 | req-rampart-20x-playground-page-stackarmor-9 | Levels As H, M, L | Proposed | In every table on the page the C, I, A, CR, IR and AR cells read H, M, L (N for none) through the table's `toneBadge` formatter (`tones` and `labels`), and High is red. | Data only: the stored word is unchanged. |
 | req-rampart-20x-playground-page-stackarmor-10 | Component Columns Not Wrapped | Proposed | The Findings table names the owner column Component and the former component column Package; the owner column is wide enough that its text is not wrapped. | |
 | req-rampart-20x-playground-page-stackarmor-11 | Dropped Panels | Proposed | The page has no Same CVE, Different Assets chart and no graph of the finding (it had no projection); their Searches went with them. | |
+| req-rampart-20x-playground-page-stackarmor-12 | Tables Fit The Panel | Proposed | The Components and Findings tables fit a 1280 px window without scrolling sideways: the first column is Component (not wrapped, not cut), the other columns have a fixed width that holds their header and values, and no table header is cut. Components has no header sort (two rows); Findings drops the Word column (the N-level carries it), keeps sorting on Vuln ID, Package and Component only, and shortens the headers Component Kind, Profile Source, Exposure Column and Deadline Hours to Kind, Profile From, Column and Hours. | Data only: widths, titles and `headerSort` in the panel config. |
+| req-rampart-20x-playground-page-stackarmor-13 | Ordered Before VDR MAX | Proposed | The page has `nav_weight` 20 so it sorts before VDR MAX (10) in the VDR Implementations section; a higher weight sorts first. | The page had no weight, so it sorted alphabetically after VDR MAX. |
 
 ## Notes
 
