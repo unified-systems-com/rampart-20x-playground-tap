@@ -1311,7 +1311,7 @@ class TestOverviewNitsSeven:
 
     def test_the_application_program_is_a_large_square_named_top_centre_and_found_by_an_edge(self) -> None:
         source = _js()
-        assert "const PROGRAM_LARGE = {width: 280, height: 140};" in source
+        assert "const PROGRAM_LARGE = {width: 280 * TASK_SCALE, height: 140 * TASK_SCALE};" in source
         assert "const PROGRAM_TALL = 1.5;" in source
         body = source.split("function _interiorHand")[1].split("\n}\n")[0]
         # The program another program runs (RUNS_PROGRAM from a program): an edge, never a name or an id.
@@ -1448,7 +1448,7 @@ class TestOverviewVulnerabilityDistribution:
         source = _js()
         assert "const PILE_CHIP_FONT = 14;" in source and "const PILE_CHIP_HEIGHT = 16;" in source
         sizing = source.split("function _syncBadgeSizes")[1].split("\n}\n")[0]
-        assert "PILE_CHIP_HEIGHT" in sizing and "PILE_CHIP_FONT * fontFactor" in sizing and "_is_interior_badge" in sizing
+        assert "PILE_CHIP_HEIGHT" in sizing and "PILE_CHIP_FONT * (inside ?" in sizing and "_is_interior_badge" in sizing
 
     def test_the_bubbles_are_circles_at_every_zoom(self) -> None:
         """`req-rampart-20x-playground-govcloud-layout-40`: width equals height (one diameter), an ellipse shape, sized to hold the digits; never a round-rectangle pill."""
@@ -1459,11 +1459,34 @@ class TestOverviewVulnerabilityDistribution:
 
     def test_the_new_exceptions_and_spec_rows_are_recorded(self) -> None:
         source = _js()
-        for n in (56, 57, 58):
+        for n in (56, 57, 58, 59):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 58 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 59 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
-        for n, exception in ((38, "exception 56"), (39, "exception 57"), (40, "exception 58")):
+        for n, exception in ((38, "exception 56"), (39, "exception 57"), (40, "exception 58"), (41, "exception 59")):
             assert f"| req-rampart-20x-playground-govcloud-layout-{n} |" in text and exception in text
 
+
+
+class TestWebTaskScale:
+    """`req-rampart-20x-playground-govcloud-layout-41`: the web task a and its interior at ONE scale (exception 59)."""
+
+    def test_one_scale_constant_drives_the_sizes_the_reveal_zoom_and_the_fonts(self) -> None:
+        source = _js()
+        assert "const TASK_SCALE = 0.5;" in source
+        assert "const ELEVATION_ZOOM_RATIO = 2 / TASK_SCALE;" in source and "const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;" in source
+        assert "const ELEVATION_REVEAL_ZOOM = 1.2 / TASK_SCALE;" in source
+        for constant in ("PROGRAM_GAP = 80", "PILE_ROW_GAP = 24", "PILE_GAP = 40", "PROGRAM_TITLE_INSET = 8", "INTERIOR_PILE_STEP = 4"):
+            assert f"const {constant} * TASK_SCALE;" in source, constant
+        assert "const INTERIOR_FONT_SCALE = INTERIOR_SCALE * Math.pow(TASK_SCALE, -FONT_ZOOM_EXPONENT);" in source
+        assert "const TASK_BADGE_SIZE = BADGE_SIZE * Math.pow(TASK_SCALE, ICON_ZOOM_EXPONENT);" in source
+
+    def test_the_task_padding_the_database_program_the_chips_and_the_label_follow_the_scale(self) -> None:
+        source = _js()
+        assert "const taskPad = {top: pad.top * TASK_SCALE" in source and "[T.task]: {...taskPad, top: taskPad.top + TASK_TOP_ROOM}" in source
+        assert "const DATABASE_PROGRAM_SCALE = 0.5;" in source and "LEAF.width * DATABASE_PROGRAM_SCALE" in source
+        assert "chip.width() * TASK_SCALE" in source and "chip.height() * TASK_SCALE" in source
+        label = source.split("function _keepTaskLabel")[1].split("\n}\n")[0]
+        assert "* TASK_SCALE" in label and "landingFontFactor" in label
+        assert "inTask(n) ? TASK_BADGE_SIZE : BADGE_SIZE" in source

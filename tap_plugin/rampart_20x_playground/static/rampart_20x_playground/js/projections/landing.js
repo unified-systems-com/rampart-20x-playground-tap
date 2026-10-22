@@ -201,6 +201,12 @@
  *      tone of their highest CVSS. The counts are one Search's rows (one per open finding on a carrier), not a constant.
  *  58. the red bubbles the size of a pile's count chip (`PILE_CHIP_FONT`, `PILE_CHIP_HEIGHT`, `_syncBadgeSizes`; should become a `badge` class of the zoom_settle
  *      config): the interior's bubbles and the web task's own take the chip's font and least height at every zoom, and are circles at every zoom.
+ *  59. the web task a at TASK_SCALE (1/2) of its former size (`TASK_SCALE`, `INTERIOR_SCALE`, `INTERIOR_FONT_SCALE`, `TASK_BADGE_SIZE`, `taskPad`, `_keepTaskLabel`, the chips' restyle in
+ *      `execute`; should become a `scale` of the web task's Elevation definition, with the zoom_settle exponents of its classes): the task box, its padding, the container,
+ *      the Wolfi box, the programs, the piles (faces, gaps, steps, count chips), the interior's text and badges and the red bubbles on its piles are TASK_SCALE of the size they had,
+ *      so the box is about half as wide and as tall and sits in proportion to the load balancer, the database and the subnets. The reveal zoom is 1.2 / TASK_SCALE, so the
+ *      interior reads on screen at the reveal as large as it did; text follows the settle `font` class (exponent 0.5) and badges its `icon` class (exponent 0.75), so their
+ *      bases are scaled by TASK_SCALE to that power. The database's box and its program are not scaled (`DATABASE_PROGRAM_SCALE`).
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -406,12 +412,17 @@ const FONT_SCALE = 2;
 //: The font size, in px, the panel's stylesheet gives a node (panel-graph.js, `node`: 11px). The settle mode starts from it, because the
 //: standard chrome's 14px and 15px do not survive the projection's later stylesheet pass; the doubled size is written over it.
 const BASE_FONT = 11;
+//: Playground exception 59 (should become a `scale` of the web task's Elevation definition): the ONE scale of the web task a box and everything inside it (its
+//: paddings, the container, the Wolfi box, the programs, the piles, their gaps and steps, the interior's fonts), relative to the size it had before
+//: (1). The interior is laid out at INTERIOR_SCALE = TASK_SCALE / 2 of the account's sizes, and the reveal zoom is 1.2 / TASK_SCALE, so the
+//: interior reads as large on screen at the reveal as it did. Ruled 2026-10-21 (George: the web task box is outsized, make it about half the size).
+const TASK_SCALE = 0.5;
 //: Playground exceptions 9 and 10 (should become the second Elevation of the projection and its per-elevation scale).
 //: The projection has two elevations: the account (the initial one) and the interior, which the zoom watcher activates at
 //: ELEVATION_REVEAL_ZOOM (the `zoom` of the second elevation in pages.grift.json, pinned by a test). The reveal zoom is
 //: ELEVATION_ZOOM_RATIO times the zoom the account is fitted to at load (about 0.6 at the demo size), so the interior,
 //: drawn at INTERIOR_SCALE of the account's sizes, reads as large on screen as the account does.
-const ELEVATION_REVEAL_ZOOM = 1.2;
+const ELEVATION_REVEAL_ZOOM = 1.2 / TASK_SCALE;
 //: Playground exception 9 switch: true reveals the task's interior past ELEVATION_REVEAL_ZOOM and lifts the flow back onto
 //: the tap-web program; false would keep the account elevation at every zoom. The deploy row's scope box used to overflow the
 //: stack on the way back out; tap_viz fixed that (tap#1077), and it is checked at 2.0 / 0.6 / 1.3 with no console errors.
@@ -426,8 +437,17 @@ const BADGE_SIZE = 24;
 const TASK_TOP_ROOM = 0;
 //: Playground exception 15: how long the interior fades in and out (milliseconds).
 const FADE_MS = 450;
-const ELEVATION_ZOOM_RATIO = 2;
+const ELEVATION_ZOOM_RATIO = 2 / TASK_SCALE;
 const INTERIOR_SCALE = 1 / ELEVATION_ZOOM_RATIO;
+//: Playground exception 59: the interior's text. The zoom_settle `font` class (pages.grift.json, exponent 0.5) draws a label at base * zoom^0.5 on screen, so a
+//: label base of INTERIOR_SCALE * TASK_SCALE^-0.5 reads at the reveal zoom as large as it did at the old scale, while the interior's boxes (zoom^1) shrank with TASK_SCALE.
+const FONT_ZOOM_EXPONENT = 0.5;
+//: Playground exception 59: the badges of the web task and of what it holds. The zoom_settle `icon` class (exponent 0.75) draws a badge at base * zoom^0.75 on screen,
+//: so at the (TASK_SCALE-times larger) reveal zoom a badge keeps its old size on screen with a base of BADGE_SIZE * TASK_SCALE^0.75; the task's own badge is as small
+//: as its box is.
+const ICON_ZOOM_EXPONENT = 0.75;
+const TASK_BADGE_SIZE = BADGE_SIZE * Math.pow(TASK_SCALE, ICON_ZOOM_EXPONENT);
+const INTERIOR_FONT_SCALE = INTERIOR_SCALE * Math.pow(TASK_SCALE, -FONT_ZOOM_EXPONENT);
 //: The `lift_edge` section: containment-style relationships (the shape of projectNested's), saying what the task holds,
 //: so an edge that ends inside it is lifted onto it while the interior is hidden.
 const LIFT_EDGE = [
@@ -463,10 +483,10 @@ const BUBBLE_DIGIT_WIDTH = 0.62;
 const BUBBLE_DIGIT_HEIGHT = 0.8;
 const BUBBLE_PAD = 0.1;
 const CVSS_TONE_STEPS = [{min: 7, tone: "bad"}, {min: 4, tone: "warn"}, {min: 0.1, tone: "good"}];
-const INTERIOR_PILE_STEP = 4;
+const INTERIOR_PILE_STEP = 4 * TASK_SCALE;
 const INTERIOR_PILE_DEPTH = 3;
 //: Playground exception 49: the gap between the two piles (model units, interior scale), wide enough for the line of sight to pass between them.
-const PILE_GAP = 40;
+const PILE_GAP = 40 * TASK_SCALE;
 //: Playground exception 48: the operating-system box inside the container: its fill, border and title colour.
 const OS_FILL = "#DCE6F2";
 const OS_BORDER = "#5B7DB1";
@@ -486,15 +506,16 @@ const CONTAINER = {width: 220, height: 110};
 //: Playground exception 51: the Wolfi OS box laid out by hand. The application program (the one another program runs) is a square of this side
 //: (model units, interior scale), the gap between the programs of the row, the gap between the programs' row and the piles' row, the piles'
 //: face (a program's size at INTERIOR_SCALE) and the spread of the cards behind a pile's face.
-const PROGRAM_LARGE = {width: 280, height: 140};
+const PROGRAM_LARGE = {width: 280 * TASK_SCALE, height: 140 * TASK_SCALE};
 //: Playground exception 51: the other programs of the row are PROGRAM_TALL times the usual program box in height.
 const PROGRAM_TALL = 1.5;
-const PROGRAM_GAP = 80;
-const PILE_ROW_GAP = 24;
+const PROGRAM_GAP = 80 * TASK_SCALE;
+const PILE_ROW_GAP = 24 * TASK_SCALE;
+const DATABASE_PROGRAM_SCALE = 0.5;
 const PROGRAM_BOX = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
 const PILE_STACK_SPREAD = INTERIOR_PILE_STEP * (INTERIOR_PILE_DEPTH - 1);
 //: Playground exception 51: the room above the application program's name, inside its square.
-const PROGRAM_TITLE_INSET = 8;
+const PROGRAM_TITLE_INSET = 8 * TASK_SCALE;
 //: Playground exception 51: the order of the piles in the row, left to right, by the derived edge that holds each.
 const PILE_ORDER = [E.containsKey, E.containsPythonPackage, E.containsLibrary, E.containsPackage];
 
@@ -513,6 +534,8 @@ export async function execute(context) {
     const labelInset = parentLabelInset({...chrome, inset: 16});
     //: The bottom edge leaves room for the name under an icon node, which is drawn outside its card.
     const pad = {top: 14 + labelInset, right: 24, bottom: 40, left: 24};
+    // Playground exception 59: the web task's own padding is TASK_SCALE of the usual.
+    const taskPad = {top: pad.top * TASK_SCALE, right: pad.right * TASK_SCALE, bottom: pad.bottom * TASK_SCALE, left: pad.left * TASK_SCALE};
     //: The interior's own chrome and padding, at INTERIOR_SCALE (playground exception 10).
     const interiorChrome = {...chrome, parentFontSize: chrome.parentFontSize * INTERIOR_SCALE, nodeFontSize: chrome.nodeFontSize * INTERIOR_SCALE};
     const interiorInset = 16 * INTERIOR_SCALE;
@@ -522,7 +545,8 @@ export async function execute(context) {
     const types = [...new Set(cy.nodes().map((n) => n.data("entity_type")).filter(Boolean))];
     const baseSizes = Object.fromEntries(types.map((t) => [t, t === T.subnet ? SUBNET : CONTAINERS.includes(t) ? CONTAINER : LEAF]));
     // The interior is sized at INTERIOR_SCALE (a leaf program, and the container's floor); the circle of the flow is half an icon.
-    baseSizes[T.program] = {width: LEAF.width * INTERIOR_SCALE, height: LEAF.height * INTERIOR_SCALE};
+    // Playground exception 59: the database's program keeps the size it had (the database box is not scaled); the web task's programs are sized by PROGRAM_BOX.
+    baseSizes[T.program] = {width: LEAF.width * DATABASE_PROGRAM_SCALE, height: LEAF.height * DATABASE_PROGRAM_SCALE};
     baseSizes[T.ecsContainer] = {width: 0, height: 0};
     baseSizes[T.os] = {width: 0, height: 0};
     baseSizes[T.lib] = baseSizes[T.pkg] = baseSizes[T.privateKey] = baseSizes[T.publicKey] = baseSizes[T.file] = baseSizes[T.program];
@@ -573,7 +597,7 @@ export async function execute(context) {
     const osFloor = _osFloor(hand.entries, interiorPad);
     baseSizes[T.os] = {width: osFloor.width, height: osFloor.height};
     const containerPad = {...interiorPad, bottom: Math.max(interiorPad.bottom,
-        pad.top + TASK_TOP_ROOM + interiorPad.top + interiorPad.top - osFloor.below - interiorPad.bottom - pad.bottom)};
+        taskPad.top + TASK_TOP_ROOM + interiorPad.top + interiorPad.top - osFloor.below - interiorPad.bottom - taskPad.bottom)};
 
     const result = await projectNested(cy, {
         relationships: [
@@ -600,7 +624,7 @@ export async function execute(context) {
         ],
         baseSizes,
         padding: 24,
-        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...pad, top: pad.top + TASK_TOP_ROOM}, [T.ecsContainer]: containerPad, [T.os]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
+        paddings: {...Object.fromEntries(CONTAINERS.map((t) => [t, pad])), [T.task]: {...taskPad, top: taskPad.top + TASK_TOP_ROOM}, [T.ecsContainer]: containerPad, [T.os]: interiorPad, [T.rds]: {...interiorPad, top: pad.top}},
         innerLayout: {name: "ranked", sort: "order", columnGap: 140, rowGap: 56, columnLayout: "flow"},
         innerLayouts: {
             [T.host]: {name: "flow", gap: 12, sort: "label"},
@@ -638,6 +662,8 @@ export async function execute(context) {
     piles.forEach((pile) => {
         applyStack(cy, pile);
     });
+    // Playground exception 59: the interior piles' count chips are TASK_SCALE of the size tap_viz's stack gives them (its least height is a fixed 16).
+    cy.nodes("[?_is_stack_chip]").filter(_interiorStackPart).forEach((chip) => chip.style({width: chip.width() * TASK_SCALE, height: chip.height() * TASK_SCALE}));
     // Playground exception 48: the container's own RUNS_PROGRAM edges are not drawn; the OS box holds the programs by the OS's own RUNS_PROGRAM edges.
     cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().data("entity_type") === T.ecsContainer)
         .addClass(HIDDEN_CONTAINMENT_CLASS);
@@ -741,8 +767,8 @@ export async function execute(context) {
         anchor: "upper-left", inset: interiorInset,
         parentFontSize: interiorChrome.parentFontSize, parentFontWeight: chrome.parentFontWeight,
     });
-    parents.filter(isInterior).style({"font-size": `${interiorChrome.parentFontSize}px`});
-    cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${interiorChrome.nodeFontSize}px`});
+    parents.filter(isInterior).style({"font-size": `${chrome.parentFontSize * INTERIOR_FONT_SCALE}px`});
+    cy.nodes().filter((n) => isInterior(n) && !n.hasClass(VIEWPORT_PARENT_CLASS)).style({"font-size": `${chrome.nodeFontSize * INTERIOR_FONT_SCALE}px`});
     // Playground exceptions 39 and 40: the interior programs' names inside their boxes, the flows' names smaller.
     _labelProgramsInside(cy.nodes().filter((n) => isInterior(n) && [T.program, T.lib, T.pkg, T.privateKey, T.publicKey, T.file].includes(n.data("entity_type"))),
         interiorChrome.nodeFontSize * FONT_SCALE * PROGRAM_FONT_FACTOR);
@@ -2300,7 +2326,11 @@ function _pinBadgeSize(cy) {
         setTimeout(() => {
             queued = false;
             cy.nodes("[?_is_status_badge]").forEach(_scaleFont);
-            cy.nodes("[?_is_badge]").forEach((n) => n.scratch("landingBadgeBase", BADGE_SIZE));
+            const held = containedNodes(cy, LIFT_EDGE).outermost;
+            const tasks = cy.nodes(`[entity_type = "${T.task}"]`).map((t) => t.id());
+            // Playground exception 59: the badge of the web task or of anything it holds takes TASK_BADGE_SIZE.
+            const inTask = (n) => tasks.includes(n.data("_badge_host")) || tasks.includes(held.get(n.data("_badge_host")));
+            cy.nodes("[?_is_badge]").forEach((n) => n.scratch("landingBadgeBase", inTask(n) ? TASK_BADGE_SIZE : BADGE_SIZE));
             _syncBadgeSizes(cy);
         }, 0);
     };
@@ -2331,8 +2361,15 @@ function _scaleFont(n, given) {
  * put each web task's label (upper-left, like every container's); the elevation watcher moves it.
  */
 function _keepTaskLabel(cy) {
-    cy.nodes(`[entity_type = "${T.task}"]`).forEach((n) => n.scratch("landing_task_label",
-        {mx: n.numericStyle("text-margin-x"), my: n.numericStyle("text-margin-y")}));
+    // Playground exception 59: the label's distance from the box's upper-left corner (the margin less the half-box the centred label starts from) is TASK_SCALE of
+    // what it was, and the label is as large on screen at the reveal zoom as it was (the settle `font` class's exponent).
+    cy.nodes(`[entity_type = "${T.task}"]`).forEach((n) => {
+        n.scratch("landing_task_label", {
+            mx: (n.numericStyle("text-margin-x") + n.width() / 2) * TASK_SCALE - n.width() / 2,
+            my: (n.numericStyle("text-margin-y") + n.height() / 2) * TASK_SCALE - n.height() / 2,
+        });
+        n.scratch("landingFontFactor", Math.pow(TASK_SCALE, FONT_ZOOM_EXPONENT));
+    });
 }
 
 /**
@@ -2378,8 +2415,11 @@ function _syncBadgeSizes(cy) {
         });
         // Playground exception 58: the red bubbles (the interior's and the web task's) take the pile chip's font and its height, drawn as a circle (width equal to height, never a pill) that grows to hold the digits.
         cy.nodes("[?_is_status_badge], [?_is_interior_badge]").forEach((n) => {
-            const font = PILE_CHIP_FONT * fontFactor;
-            const height = Math.max(PILE_CHIP_HEIGHT, font * BUBBLE_FIT);
+            // Playground exception 59: an interior bubble is as large on screen at the (TASK_SCALE-times larger) reveal zoom as it was: its font base and least height follow the
+            // interior's chips (`_scaleChips`); the web task's own bubble, drawn at the account elevation, keeps the full size.
+            const inside = Boolean(n.data("_is_interior_badge"));
+            const font = PILE_CHIP_FONT * (inside ? Math.pow(TASK_SCALE, FONT_ZOOM_EXPONENT) : 1) * fontFactor;
+            const height = Math.max(PILE_CHIP_HEIGHT * (inside ? TASK_SCALE : 1), font * BUBBLE_FIT);
             const digits = String(n.data("_status_count_label") !== undefined ? n.data("_status_count_label") : n.data("_interior_count")).length;
             n.scratch("landingFontBase", PILE_CHIP_FONT / FONT_SCALE);
             // A circle at every zoom: the diameter is the chip height, or the circle that holds the digits' box (digits * 0.62 em wide, 0.8 em tall) when that is larger.
