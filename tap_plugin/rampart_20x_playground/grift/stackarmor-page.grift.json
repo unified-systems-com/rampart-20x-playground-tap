@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.stackarmor-page",
         "name": "rampart-20x-playground stackarmor page v0.1.0",
-        "description": "The /playground/stackarmor page: the method in text, one finding followed through every number, the finding as a graph, one CVE across assets, who requires what, the archetype catalog and what is assumed. See specs/spec-rampart_20x_playground-stackarmor.md."
+        "description": "The /playground/stackarmor page: the method in text, one finding followed through every number, who requires what, the archetype catalog and what is assumed. See specs/spec-rampart_20x_playground-stackarmor.md."
       },
       "nodes": [
         {
@@ -47,7 +47,7 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-assumed",
+                      "panel-id": "playground-stackarmor-dist",
                       "height": "auto"
                     }
                   }
@@ -57,7 +57,7 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-dist",
+                      "panel-id": "playground-stackarmor-assumed",
                       "height": "auto"
                     }
                   }
@@ -72,29 +72,9 @@
                     }
                   }
                 },
-                "col-5": {
-                  "width": "6fr",
-                  "band": 4,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-stackarmor-graph",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-6": {
-                  "width": "6fr",
-                  "band": 4,
-                  "rows": {
-                    "row-1": {
-                      "panel-id": "playground-stackarmor-cve",
-                      "height": "auto"
-                    }
-                  }
-                },
                 "col-7": {
                   "width": "12fr",
-                  "band": 5,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-pain-findings",
@@ -104,7 +84,7 @@
                 },
                 "col-8": {
                   "width": "12fr",
-                  "band": 6,
+                  "band": 5,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-pain-assets",
@@ -114,7 +94,7 @@
                 },
                 "col-9": {
                   "width": "12fr",
-                  "band": 7,
+                  "band": 6,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-stamps",
@@ -124,7 +104,7 @@
                 },
                 "col-10": {
                   "width": "12fr",
-                  "band": 8,
+                  "band": 7,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-archetypes",
@@ -134,7 +114,7 @@
                 },
                 "col-11": {
                   "width": "6fr",
-                  "band": 9,
+                  "band": 8,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-method",
@@ -144,7 +124,7 @@
                 },
                 "col-12": {
                   "width": "6fr",
-                  "band": 9,
+                  "band": 8,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-steps",
@@ -223,13 +203,13 @@
           "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48d4d90733e8",
             "entity_type": "panel",
-            "name": "One Finding, Every Number",
+            "name": "Components",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "One Finding, Every Number",
+            "name": "Components",
             "slug": "playground-stackarmor-one",
             "description": "Every input and intermediate value behind the chosen finding's level.",
             "view": "tap_web/panels/table_panel.html",
@@ -249,19 +229,55 @@
                       "field": "c",
                       "title": "C",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "i",
                       "title": "I",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "a",
                       "title": "A",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "impact_source",
@@ -278,19 +294,55 @@
                       "field": "cr",
                       "title": "CR",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "ir",
                       "title": "IR",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "ar",
                       "title": "AR",
                       "align": "center",
-                      "width": 90
+                      "width": 90,
+                      "formatter": "toneBadge",
+                      "formatter_params": {
+                        "tones": {
+                          "high": "bad"
+                        },
+                        "labels": {
+                          "high": "H",
+                          "medium": "M",
+                          "low": "L",
+                          "none": "N"
+                        }
+                      }
                     },
                     {
                       "field": "profile_source",
@@ -371,64 +423,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48d5c0e90d72",
-            "entity_type": "panel",
-            "name": "The Finding In The Graph",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "The Finding In The Graph",
-            "slug": "playground-stackarmor-graph",
-            "description": "The finding, its vulnerability, component, owner, stamp and archetype as nodes and edges.",
-            "view": "tap_viz/panels/graph_panel.html",
-            "config": {
-              "height": "420px",
-              "hide_header": false
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48d67b670baf",
-            "entity_type": "panel",
-            "name": "Same CVE, Different Assets",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Same CVE, Different Assets",
-            "slug": "playground-stackarmor-cve",
-            "description": "PAIN for the chosen vulnerability on every asset it affects.",
-            "view": "tap_web/panels/chart.html",
-            "config": {
-              "option": {
-                "xAxis": {
-                  "type": "category"
-                },
-                "yAxis": {
-                  "type": "value",
-                  "min": 0,
-                  "max": 5,
-                  "name": "PAIN level"
-                },
-                "series": [
-                  {
-                    "type": "bar",
-                    "encode": {
-                      "x": "owner",
-                      "y": "pain_rank"
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48d712d9101d",
             "entity_type": "panel",
             "name": "Who Requires What",
@@ -465,19 +459,55 @@
                   "field": "cr",
                   "title": "CR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "ir",
                   "title": "IR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "ar",
                   "title": "AR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "multi_agency",
@@ -524,19 +554,55 @@
                   "field": "cr",
                   "title": "CR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "ir",
                   "title": "IR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "ar",
                   "title": "AR",
                   "align": "center",
-                  "width": 90
+                  "width": 90,
+                  "formatter": "toneBadge",
+                  "formatter_params": {
+                    "tones": {
+                      "high": "bad"
+                    },
+                    "labels": {
+                      "high": "H",
+                      "medium": "M",
+                      "low": "L",
+                      "none": "N"
+                    }
+                  }
                 },
                 {
                   "field": "description",
@@ -551,13 +617,13 @@
           "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48d99ce7377d",
             "entity_type": "panel",
-            "name": "What Is Assumed",
+            "name": "Status",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "What Is Assumed",
+            "name": "Status",
             "slug": "playground-stackarmor-assumed",
             "description": "How much of the system's result is the conservative result rather than evidence.",
             "view": "tap_web/panels/stat_card_panel.html",
@@ -612,13 +678,13 @@
           "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48da5db47706",
             "entity_type": "panel",
-            "name": "PAIN Across The System",
+            "name": "PAIN Distribution",
             "dimensions": {
               "tap.graph": "web"
             }
           },
           "node": {
-            "name": "PAIN Across The System",
+            "name": "PAIN Distribution",
             "slug": "playground-stackarmor-dist",
             "description": "How many scored rows fall at each level.",
             "view": "tap_web/panels/chart.html",
@@ -666,60 +732,6 @@
                   "type": "string",
                   "default": "220c378a-49d9-7ce4-b50f-15de8555fff5",
                   "description": "The finding: the highest-PAIN real finding on the live data when this was set (N4, glibc-2.44); a runner input that picks it on read is pending."
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48dd8f89fcad",
-            "entity_type": "search",
-            "name": "playground — stackarmor trace",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — stackarmor trace",
-            "description": "stackarmor-trace for the finding in the page's entity_id (the first memo example without one).",
-            "search_type": "module",
-            "root": "node",
-            "definition": {
-              "runner_key": "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-trace"
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "entity_id": {
-                  "type": "string",
-                  "default": "220c378a-49d9-7ce4-b50f-15de8555fff5",
-                  "description": "The finding: the highest-PAIN real finding on the live data when this was set (N4, glibc-2.44); a runner input that picks it on read is pending."
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48de08acd4c7",
-            "entity_type": "search",
-            "name": "playground — stackarmor same cve",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — stackarmor same cve",
-            "description": "stackarmor-pain for the vulnerability in the page's vuln_id (the memo's shared CVE without one).",
-            "search_type": "module",
-            "root": "node",
-            "definition": {
-              "runner_key": "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-pain"
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "vuln_id": {
-                  "type": "string",
-                  "default": "4f228b7f-45df-70df-aee5-bdc3266c4d01",
-                  "description": "The vulnerability of that finding."
                 }
               }
             }
@@ -903,46 +915,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48e988eb97dd",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL graph",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48d5c0e90d72",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-stackarmor-graph"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48ea883cb88b",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL cve",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48d67b670baf",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-stackarmor-cve"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48ebc23d59de",
             "entity_type": "edge",
             "name": "Page USES_PANEL stamps",
@@ -1031,34 +1003,6 @@
           "edge": {
             "from_entity_id": "01a16114-6c12-7238-bbd7-48d4d90733e8",
             "to_entity_id": "01a16114-6c12-7238-bbd7-48dcb8208045",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48f11d1d6d80",
-            "entity_type": "edge",
-            "name": "graph panel USES_SEARCH trace",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48d5c0e90d72",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48dd8f89fcad",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48f20db247c0",
-            "entity_type": "edge",
-            "name": "cve panel USES_SEARCH cve",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48d67b670baf",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48de08acd4c7",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

@@ -87,7 +87,7 @@ class TestPage:
         in_layout = {r["panel-id"] for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()}
         slugs = {n["node"]["slug"] for n in _of(self.nodes, "panel")}
         # the two PAIN tables are the pain bundle's panels, placed here by USES_PANEL
-        assert in_layout == slugs | {"playground-pain-findings", "playground-pain-assets"} and len(slugs) == 10
+        assert in_layout == slugs | {"playground-pain-findings", "playground-pain-assets"} and len(slugs) == 8
         used = {e["edge"]["properties"]["hotlink"]["value"] for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"}
         assert used == in_layout
 
@@ -102,7 +102,7 @@ class TestPage:
             bands[-1][1].extend(r["panel-id"] for r in c["rows"].values())
         order = [b[1] for b in bands]
         assert order[0] == ["playground-stackarmor-intro"]
-        assert order[1] == ["playground-stackarmor-assumed", "playground-stackarmor-dist"]
+        assert order[1] == ["playground-stackarmor-dist", "playground-stackarmor-assumed"]
         assert order[-1] == ["playground-stackarmor-method", "playground-stackarmor-steps"]
         assert ["playground-pain-findings"] in order and ["playground-pain-assets"] in order
         assert not [n for n in _of(self.nodes, "panel") if n["node"]["slug"].endswith("-picker")]
@@ -115,7 +115,7 @@ class TestPage:
         searches = {n["entity"]["entity_id"]: n["node"] for n in _of(self.nodes, "search")}
         bound = Counter(e["edge"]["from_entity_id"] for e in self.edges if e["edge"]["edge_type"] == "USES_SEARCH")
         data = [p for p in panels.values() if "text_panel" not in p["node"]["view"]]
-        assert len(data) == 7 and all(bound[p["entity"]["entity_id"]] == 1 for p in data)
+        assert len(data) == 5 and all(bound[p["entity"]["entity_id"]] == 1 for p in data)
         for s in searches.values():
             runner = s["definition"].get("runner_key")
             assert (runner is None and s["search_type"] == "gryphon") or runner.startswith(RUNNER)
@@ -126,10 +126,34 @@ class TestPage:
         by_name = {n["node"]["name"]: n["node"] for n in _of(self.nodes, "search")}
         assert not [n for n in by_name if "memo examples" in n]
         defaults = set()
-        for key in ("one finding", "trace"):
+        for key in ("one finding",):
             defaults.add(by_name[f"playground — stackarmor {key}"]["input_schema"]["properties"]["entity_id"]["default"])
         assert len(defaults) == 1 and not defaults & memo
-        assert by_name["playground — stackarmor same cve"]["input_schema"]["properties"]["vuln_id"]["default"] not in memo
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-11")
+    def test_the_dropped_panels_and_their_searches_are_gone(self) -> None:
+        names = {n["node"]["name"] for n in self.nodes if n["entity"]["entity_type"] in ("panel", "search")}
+        assert not {"The Finding In The Graph", "Same CVE, Different Assets"} & names
+        assert not [n for n in names if n.endswith(("stackarmor trace", "stackarmor same cve"))]
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-9")
+    def test_levels_read_h_m_l_and_high_is_red_in_every_table(self) -> None:
+        tables = [n for n in _of(self.nodes, "panel") if n["node"]["view"].endswith("table_panel.html")]
+        tables += [n for n in _nodes("pain.grift.json") if n["entity"]["entity_type"] == "panel"]
+
+        def leaves(cols):
+            for c in cols:
+                yield from leaves(c["columns"]) if "columns" in c else [c]
+
+        seen = 0
+        for t in tables:
+            for c in leaves(t["node"]["config"]["columns"]):
+                if c["field"] in ("c", "i", "a", "cr", "ir", "ar"):
+                    seen += 1
+                    assert c["formatter"] == "toneBadge", (t["node"]["name"], c["field"])
+                    p = c["formatter_params"]
+                    assert p["tones"] == {"high": "bad"} and {p["labels"][k] for k in ("high", "medium", "low")} == {"H", "M", "L"}
+        assert seen == 6 + 6 + 3 + 3 + 3
 
     @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-3")
     def test_who_requires_what_leaves_out_the_memo_programs(self) -> None:
