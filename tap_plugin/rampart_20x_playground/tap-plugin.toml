@@ -42,13 +42,17 @@ teams = "grift/teams.grift.json"
 # depends_on on purpose: the ci record installs the depends_on closure only, offline, and stackarmor_vdr is a private
 # repository. The demo record installs it and seeds this bundle; the ci record seeds every bundle but this one.
 pain = "grift/pain.grift.json"
+# The StackArmor page and its memo examples bundle need stackarmor_vdr like the pain bundle, and are left out of depends_on and
+# of the ci record for the same reason (a private repository; the demo record installs it and seeds these bundles).
+stackarmor_examples = "grift/stackarmor-examples.grift.json"
+stackarmor_page = "grift/stackarmor-page.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "91ca8499a628654bc7fea1909110af39977c4d0081b20f2b8962872d42dac487"
+sha256 = "61f177a787ded93be9ba8d0aa501266574187ebb418115f22d1a44a8ad65011f"
 
 [[boot.records]]
 name = "ci"
