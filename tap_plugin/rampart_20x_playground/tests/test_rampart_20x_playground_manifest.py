@@ -87,9 +87,11 @@ class TestSurfaces:
         assert sorted(entry.path for entry in grift) == [
             "grift/application-flow.grift.json",
             "grift/classification-mapping.grift.json",
+            "grift/coverage-seed.grift.json",
             "grift/data-classification-page.grift.json",
             "grift/dimensions-actors.grift.json",
             "grift/dimensions.grift.json",
+            "grift/inventory-coverage.grift.json",
             "grift/inventory-entities.grift.json",
             "grift/inventory-page.grift.json",
             "grift/inventory-software.grift.json",

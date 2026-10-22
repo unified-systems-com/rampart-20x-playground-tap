@@ -1,0 +1,784 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a160a8-b780-73fa-8e8a-f6d1de4a777d",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground inventory coverage v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.inventory-coverage",
+        "name": "rampart-20x-playground inventory coverage v0.1.0",
+        "description": "The responsibility coverage Search, the history and live totals Searches of both coverage charts, the eight coverage cards and the two coverage charts, mounted on the Inventory and Data Classification pages. The classification mapping summary Search and the hourly Schedule that records both summaries are in the classification mapping bundle."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40",
+            "entity_type": "search",
+            "name": "playground — responsibility coverage",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — responsibility coverage",
+            "description": "How many entities of each inventory category have a responsible team: one row per category. A module Search because Gryphon cannot write a count grouped by a dimension value taken from an input. The mapping is one row naming every entity type and the key team.responsible with no allowed values, so any set value counts as covered. Recorded every hour by the coverage_snapshot collector of fedramp_20x_vdr.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping:dimension-mapping-summary"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "mappings": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "label": "Responsibility",
+                      "entity_types": [
+                        "*"
+                      ],
+                      "keys": [
+                        {
+                          "key": "team.responsible"
+                        }
+                      ],
+                      "match": "all"
+                    }
+                  ],
+                  "description": "One row for every entity type: an entity is covered when team.responsible is set to any value."
+                },
+                "group_by": {
+                  "type": "string",
+                  "default": "inventory",
+                  "description": "The dimension key whose value is the group an entity is counted in: the inventory category."
+                },
+                "exclude_groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": [],
+                  "description": "Groups left out of the result: none."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+            "entity_type": "search",
+            "name": "playground — responsibility coverage history",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — responsibility coverage history",
+            "description": "The responsibility coverage over time, one point per category per snapshot. Reads the snapshots that coverage_snapshot (fedramp_20x_vdr) records every hour, one point per category per snapshot and a plain-average Overall line.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.snapshot_series:search-snapshot-series"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "search_id": {
+                  "type": "string",
+                  "default": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40",
+                  "description": "The entity id of the summary Search whose snapshots are read."
+                },
+                "series_field": {
+                  "type": "string",
+                  "default": "label",
+                  "description": "The row field whose value names the line: the category."
+                },
+                "value_field": {
+                  "type": "string",
+                  "default": "percent_mapped",
+                  "description": "The row field that is the point's number: the percent covered."
+                },
+                "max_snapshots": {
+                  "type": "integer",
+                  "default": 500,
+                  "description": "The most recent snapshots read: 500, so that ten lines stay inside the chart's 5000 rows."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+            "entity_type": "search",
+            "name": "playground — classification coverage history",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification coverage history",
+            "description": "The data classification coverage over time, one point per category per snapshot. Reads the snapshots that coverage_snapshot (fedramp_20x_vdr) records every hour, one point per category per snapshot and a plain-average Overall line.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.snapshot_series:search-snapshot-series"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "search_id": {
+                  "type": "string",
+                  "default": "01a15b2f-df3b-7569-bf22-9ead3f816b84",
+                  "description": "The entity id of the summary Search whose snapshots are read."
+                },
+                "series_field": {
+                  "type": "string",
+                  "default": "label",
+                  "description": "The row field whose value names the line: the category."
+                },
+                "value_field": {
+                  "type": "string",
+                  "default": "percent_mapped",
+                  "description": "The row field that is the point's number: the percent covered."
+                },
+                "max_snapshots": {
+                  "type": "integer",
+                  "default": 500,
+                  "description": "The most recent snapshots read: 500, so that ten lines stay inside the chart's 5000 rows."
+                },
+                "since": {
+                  "type": "string",
+                  "default": "2026-10-17T00:00:00Z",
+                  "description": "Only snapshots observed at or after this instant: the first point of the mock history of the coverage seed. Snapshots taken before the grouped rulebook hold one row per entity type, a different mapping, and are not read as a line."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "entity_type": "search",
+            "name": "playground — responsibility coverage totals",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — responsibility coverage totals",
+            "description": "One live row of totals for the responsibility coverage cards: the plain-average coverage and the pooled counts. Computed from the responsibility coverage Search at every run; reads no snapshot.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping_totals:dimension-mapping-totals"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "summary_search_id": {
+                  "type": "string",
+                  "default": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40",
+                  "description": "The entity id of the summary Search whose mapping the totals are computed from."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "entity_type": "search",
+            "name": "playground — classification coverage totals",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — classification coverage totals",
+            "description": "One live row of totals for the data classification coverage cards: the plain-average coverage and the pooled counts. Computed from the classification mapping summary Search at every run; reads no snapshot.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping_totals:dimension-mapping-totals"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "summary_search_id": {
+                  "type": "string",
+                  "default": "01a15b2f-df3b-7569-bf22-9ead3f816b84",
+                  "description": "The entity id of the summary Search whose mapping the totals are computed from."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40b67c950988",
+            "entity_type": "panel",
+            "name": "Overall Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Overall Coverage",
+            "slug": "playground-inventory-coverage-overall",
+            "description": "The plain average of the nine categories' coverage, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Overall Coverage",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "percent_overall",
+              "value_formatter": "number",
+              "unit": "%",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40b7e19472a5",
+            "entity_type": "panel",
+            "name": "Entries",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Entries",
+            "slug": "playground-inventory-coverage-entries",
+            "description": "The inventory entries, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Entries",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "denominator",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40b8a3032abb",
+            "entity_type": "panel",
+            "name": "With A Team",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "With A Team",
+            "slug": "playground-inventory-coverage-with-team",
+            "description": "The entries with a responsible team, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "With A Team",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "mapped",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40b96f3b19d2",
+            "entity_type": "panel",
+            "name": "Without A Team",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Without A Team",
+            "slug": "playground-inventory-coverage-without-team",
+            "description": "The entries with no responsible team, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Without A Team",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "unmapped",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40bac25f21b8",
+            "entity_type": "panel",
+            "name": "Overall Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Overall Coverage",
+            "slug": "playground-classification-coverage-overall",
+            "description": "The plain average of the categories' classification coverage, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Overall Coverage",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "percent_overall",
+              "value_formatter": "number",
+              "unit": "%",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40bbfb253ef9",
+            "entity_type": "panel",
+            "name": "Mapped",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Mapped",
+            "slug": "playground-classification-coverage-mapped",
+            "description": "The entries carrying the classification their group allows, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Mapped",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "mapped",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40bc4c49133a",
+            "entity_type": "panel",
+            "name": "Unmapped",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Unmapped",
+            "slug": "playground-classification-coverage-unmapped",
+            "description": "The entries carrying no classification, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Unmapped",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "unmapped",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40bd8dd749b4",
+            "entity_type": "panel",
+            "name": "Incorrect",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Incorrect",
+            "slug": "playground-classification-coverage-incorrect",
+            "description": "The entries carrying a classification their group does not allow, live.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title": "Incorrect",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "mapped_incorrectly",
+              "value_formatter": "integer",
+              "unit": "entries",
+              "hide_header": true,
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40becd72d37a",
+            "entity_type": "panel",
+            "name": "Responsibility Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Responsibility Coverage",
+            "slug": "playground-inventory-coverage-chart",
+            "description": "The share of entries with a responsible team in each inventory category, every hour, and their plain average.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "axis"
+                },
+                "grid": {
+                  "left": 48,
+                  "right": 150,
+                  "top": 24,
+                  "bottom": 36
+                },
+                "xAxis": {
+                  "type": "time",
+                  "splitLine": {
+                    "show": false
+                  }
+                },
+                "yAxis": {
+                  "type": "value",
+                  "min": 0,
+                  "max": 100,
+                  "name": "%",
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "series": [
+                  {
+                    "type": "line",
+                    "showSymbol": false,
+                    "lineStyle": {
+                      "width": 2
+                    },
+                    "endLabel": {
+                      "show": true,
+                      "formatter": "{a}",
+                      "color": "inherit",
+                      "textBorderWidth": 0,
+                      "textBorderColor": "transparent",
+                      "textShadowBlur": 0
+                    },
+                    "labelLayout": {
+                      "moveOverlap": "shiftY"
+                    }
+                  }
+                ]
+              },
+              "series_by": {
+                "category": "observed_at",
+                "series": "series",
+                "value": "value",
+                "order": [
+                  "Applications",
+                  "Cloud Services",
+                  "Containers",
+                  "Crypto",
+                  "Libraries",
+                  "Operating Systems",
+                  "Packages",
+                  "Third-Party SaaS",
+                  "Secrets",
+                  "Overall"
+                ]
+              },
+              "types": {
+                "observed_at": "time",
+                "value": "number"
+              },
+              "max_rows": 5000,
+              "height": 320,
+              "hide_header": false,
+              "aria_label": "Responsibility Coverage over time",
+              "empty_text": "No snapshots yet.",
+              "color_map": {
+                "map": {
+                  "Applications": "accent-1",
+                  "Cloud Services": "accent-2",
+                  "Containers": "accent-3",
+                  "Crypto": "accent-4",
+                  "Libraries": "accent-5",
+                  "Operating Systems": "accent-6",
+                  "Packages": "accent-7",
+                  "Third-Party SaaS": "accent-8",
+                  "Secrets": "accent-1",
+                  "Overall": "neutral"
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40bfd0933590",
+            "entity_type": "panel",
+            "name": "Data Classification Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Data Classification Coverage",
+            "slug": "playground-classification-coverage-chart",
+            "description": "The share of entries carrying the classification their group allows in each inventory category, every hour, and their plain average.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "tooltip": {
+                  "trigger": "axis"
+                },
+                "grid": {
+                  "left": 48,
+                  "right": 150,
+                  "top": 24,
+                  "bottom": 36
+                },
+                "xAxis": {
+                  "type": "time",
+                  "splitLine": {
+                    "show": false
+                  }
+                },
+                "yAxis": {
+                  "type": "value",
+                  "min": 0,
+                  "max": 100,
+                  "name": "%",
+                  "splitLine": {
+                    "lineStyle": {
+                      "opacity": 0.35
+                    }
+                  }
+                },
+                "series": [
+                  {
+                    "type": "line",
+                    "showSymbol": false,
+                    "lineStyle": {
+                      "width": 2
+                    },
+                    "endLabel": {
+                      "show": true,
+                      "formatter": "{a}",
+                      "color": "inherit",
+                      "textBorderWidth": 0,
+                      "textBorderColor": "transparent",
+                      "textShadowBlur": 0
+                    },
+                    "labelLayout": {
+                      "moveOverlap": "shiftY"
+                    }
+                  }
+                ]
+              },
+              "series_by": {
+                "category": "observed_at",
+                "series": "series",
+                "value": "value",
+                "order": [
+                  "Applications",
+                  "Cloud Services",
+                  "Containers",
+                  "Libraries",
+                  "Operating Systems",
+                  "Packages",
+                  "Third-Party SaaS",
+                  "Secrets",
+                  "Overall"
+                ]
+              },
+              "types": {
+                "observed_at": "time",
+                "value": "number"
+              },
+              "max_rows": 5000,
+              "height": 320,
+              "hide_header": false,
+              "aria_label": "Data Classification Coverage over time",
+              "empty_text": "No snapshots yet.",
+              "color_map": {
+                "map": {
+                  "Applications": "accent-1",
+                  "Cloud Services": "accent-2",
+                  "Containers": "accent-3",
+                  "Libraries": "accent-4",
+                  "Operating Systems": "accent-5",
+                  "Packages": "accent-6",
+                  "Third-Party SaaS": "accent-7",
+                  "Secrets": "accent-8",
+                  "Overall": "neutral"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c0f3d17b53",
+            "entity_type": "edge",
+            "name": "Overall Coverage USES_SEARCH Inventory coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40b67c950988",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c241550af4",
+            "entity_type": "edge",
+            "name": "Entries USES_SEARCH Inventory coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40b7e19472a5",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c41242603f",
+            "entity_type": "edge",
+            "name": "With A Team USES_SEARCH Inventory coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40b8a3032abb",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c64cd5d5c6",
+            "entity_type": "edge",
+            "name": "Without A Team USES_SEARCH Inventory coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40b96f3b19d2",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40c8a6970b8e",
+            "entity_type": "edge",
+            "name": "Responsibility Coverage USES_SEARCH Inventory coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40becd72d37a",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cab19cd31e",
+            "entity_type": "edge",
+            "name": "Overall Coverage USES_SEARCH Classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40bac25f21b8",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cc7b84d003",
+            "entity_type": "edge",
+            "name": "Mapped USES_SEARCH Classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40bbfb253ef9",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40cee4b75c83",
+            "entity_type": "edge",
+            "name": "Unmapped USES_SEARCH Classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40bc4c49133a",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40d0dcc3e8ec",
+            "entity_type": "edge",
+            "name": "Incorrect USES_SEARCH Classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40bd8dd749b4",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16098-57be-71da-9424-40d2fef8d10d",
+            "entity_type": "edge",
+            "name": "Data Classification Coverage USES_SEARCH Classification coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16098-57be-71da-9424-40bfd0933590",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -112,6 +112,17 @@ class TestDimensionSplit:
         assert "container" in by_name["inventory.containers"]["description"]
 
 
+    def test_a_description_begins_with_the_title_case_name_the_chart_draws(self) -> None:
+        """`inventory-coverage-7`: a category's label is its description up to the first colon, less a full stop."""
+        by_name = {n["entity"]["name"]: n["node"]["description"] for n in _nodes("dimensions.grift.json")}
+        labels = {c: by_name[f"inventory.{c}"].split(":", 1)[0].rstrip(".") for c in CATEGORIES}
+        assert labels == {
+            "applications": "Applications", "libraries": "Libraries", "packages": "Packages", "os": "Operating Systems",
+            "containers": "Containers", "crypto": "Crypto", "secrets": "Secrets", "cloud": "Cloud Services",
+            "saas": "Third-Party SaaS",
+        }
+
+
 class TestStamps:
     """`req-rampart-20x-playground-mock-inventory-4`: one category or none, and always on the design position."""
 
@@ -367,8 +378,14 @@ class TestInventoryPage:
         hotlinks = [
             e["edge"]["properties"]["hotlink"]["value"] for e in self.edges if e["edge"]["edge_type"] == "USES_PANEL"
         ]
-        assert sorted(slots) == sorted(hotlinks) == sorted(SLOTS.values())
-        assert slots == list(PAGE_ORDER)
+        # `inventory-coverage-5`, `-12`: four coverage cards and the coverage chart come first, then the nine tables.
+        coverage = [
+            "playground-inventory-coverage-overall", "playground-inventory-coverage-entries",
+            "playground-inventory-coverage-with-team", "playground-inventory-coverage-without-team",
+            "playground-inventory-coverage-chart",
+        ]
+        assert sorted(slots) == sorted(hotlinks) == sorted([*coverage, *SLOTS.values()])
+        assert slots == [*coverage, *PAGE_ORDER]
 
     def test_each_slot_mounts_the_panel_of_its_category(self) -> None:
         for category, slot in SLOTS.items():

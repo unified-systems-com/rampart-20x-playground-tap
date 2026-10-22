@@ -19,8 +19,8 @@ RUNNER = "tap_plugin.compliance_core.searches.dimension_mapping:"
 SUMMARY_SEARCH_ID = "01a15b2f-df3b-7569-bf22-9ead3f816b84"
 # uuid5(NAMESPACE_COLLECTOR, "fedramp_20x_vdr:coverage_snapshot")
 COLLECTOR_ID = "41611294-9c37-5013-8175-3b1c2c4a3908"
-SUMMARY_FIELDS = {"label", "keys_text", "denominator", "mapped", "unmapped", "mapped_incorrectly", "percent_mapped"}
-ENTITY_FIELDS = {"label", "name", "found_text", "allowed_text"}
+SUMMARY_FIELDS = {"label", "denominator", "mapped", "unmapped", "mapped_incorrectly", "no_rule", "percent_mapped"}
+ENTITY_FIELDS = {"group", "label", "name", "found_text", "allowed_text"}
 
 
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
@@ -71,23 +71,35 @@ class TestClassificationMapping:
         assert len(set(mappings)) == 1
         assert json.loads(mappings[0])
 
-    def test_the_mapping_covers_the_expected_types_and_stamps_only_what_is_approved(self) -> None:
+    def test_the_rulebook_is_groups_of_entity_types_and_stamps_only_what_is_approved(self) -> None:
+        """`classification-mapping-11`: the nine groups George approved, grouped by inventory, crypto left out."""
         rows = self.searches[0]["node"]["input_schema"]["properties"]["mappings"]["default"]
-        by_type: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+        by_label = {}
         for row in rows:
-            assert row["match"] in ("all", "any")
-            by_type.setdefault(row["entity_type"], []).extend((k["key"], tuple(k["allowed"])) for k in row["keys"])
-        assert set(by_type) == {
-            "computing_core__application_flow", "computing_core__program", "aws_core__aws_ecs_container",
-            "aws_core__aws_rds_instance", "aws_core__aws_s3_bucket", "computing_core__library",
-            "computing_core__package",
-        }
-        assert "computing_core__crypto_provider" not in by_type  # a provider is classified through its carrier (`classification-mapping`)
-        assert ("dataclass.action", ("transmit",)) in by_type["computing_core__application_flow"]
-        assert by_type["computing_core__program"] == [("dataclass.action", ("process",))]
-        assert by_type["aws_core__aws_ecs_container"] == [("dataclass.action", ("process",))]
-        assert by_type["aws_core__aws_rds_instance"] == [("dataclass.action", ("store",))]
-        assert by_type["aws_core__aws_s3_bucket"] == [("dataclass.action", ("store",))]
+            assert row["match"] == "all" and len(row["keys"]) == 1 and row["keys"][0]["key"] == "dataclass.action"
+            by_label[row["label"]] = (set(row["entity_types"]), tuple(row["keys"][0]["allowed"]))
+        assert list(by_label) == [
+            "Data Flows", "Programs", "AWS Services", "Containers", "Packages", "Libraries", "Operating Systems",
+            "Secrets", "Third-Party SaaS",
+        ]
+        assert by_label["Data Flows"] == ({"computing_core__application_flow"}, ("transmit",))
+        assert by_label["Programs"] == ({"computing_core__program"}, ("process",))
+        assert by_label["Containers"][1] == ("process", "store")
+        assert by_label["Packages"] == ({"computing_core__package"}, ("process", "none"))
+        assert by_label["Libraries"] == ({"computing_core__library"}, ("process", "none"))
+        assert by_label["Operating Systems"] == ({"computing_core__operating_system"}, ("process",))
+        assert by_label["Secrets"][1] == ("store",)
+        assert by_label["AWS Services"][1] == by_label["Third-Party SaaS"][1] == ("store", "process", "transmit", "none")
+        assert len(by_label["AWS Services"][0]) == 15
+        all_types = [t for types, _ in by_label.values() for t in types]
+        assert len(all_types) == len(set(all_types))  # a type is in one group
+        assert "computing_core__crypto_provider" not in all_types
+        for s in self.searches:
+            props = s["node"]["input_schema"]["properties"]
+            assert props["group_by"]["default"] == "inventory"
+            assert props["exclude_groups"]["default"] == ["crypto"]
+            assert "crypto" in s["node"]["description"] and "left out" in s["node"]["description"]
+            assert "crypto" in props["exclude_groups"]["description"]
 
     def test_no_entity_id_is_named_in_a_search_other_than_its_own(self) -> None:
         """`classification-mapping-4`: the mapping names types, keys and values, never an entity id."""
@@ -110,10 +122,10 @@ class TestClassificationMapping:
         """`page-data-classification-11`."""
         columns = self.panels["playground-classification-mapping-summary"]["node"]["config"]["columns"]
         assert [c["title"] for c in columns] == [
-            "Entity Type", "Classification", "Total", "Mapped", "Unmapped", "Incorrect", "%",
+            "Category", "Total", "Mapped", "Unmapped", "Incorrect", "No Rule", "%",
         ]
-        numeric = [c for c in columns if c["field"] in {"denominator", "mapped", "unmapped", "mapped_incorrectly", "percent_mapped"}]
-        assert len(numeric) == 5 and all(c["align"] == "center" for c in numeric)
+        numeric = [c for c in columns if c["field"] in {"denominator", "mapped", "unmapped", "mapped_incorrectly", "no_rule", "percent_mapped"}]
+        assert len(numeric) == 6 and all(c["align"] == "center" for c in numeric)
 
     def test_the_collector_id_is_derived_from_its_scope_and_key(self) -> None:
         namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "tap_cares.collector")

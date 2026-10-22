@@ -1281,6 +1281,8 @@ class TestOverviewNotificationCards:
         assert bands == {1: ["playground-overview-kev", "playground-overview-cwe506"], 2: ["landing"]}
         (graph,) = [c for c in columns.values() if c["band"] == 2]
         assert graph["rows"]["row-1"]["height"] == "fill"
+        # `govcloud-layout-37`: the two cards are compact tracks (a capped width, packed left), not shares of the row.
+        assert [c["width"] for c in columns.values() if c["band"] == 1] == ["compact", "compact"]
 
     def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
         manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")

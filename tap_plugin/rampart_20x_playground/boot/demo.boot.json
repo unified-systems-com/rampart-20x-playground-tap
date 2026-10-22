@@ -70,8 +70,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.8.7",
-          "commit": "9eb88bb77087ede66b0b244534f8f9846825e48a"
+          "rev": "v0.8.9",
+          "commit": "5782d93eea5b0ecad866bffe0da57ef9fa019c09"
         }
       },
       {
@@ -101,8 +101,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
-          "rev": "v0.1.0",
-          "commit": "0f1d0be19adcb599c0444b21d341476865a63ad4"
+          "rev": "v0.1.4",
+          "commit": "f4a0f16b5a8d509dde5dfc26bab5225e7a4c9450"
         },
         "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },

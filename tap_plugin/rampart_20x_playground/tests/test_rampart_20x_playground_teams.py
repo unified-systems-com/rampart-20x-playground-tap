@@ -61,10 +61,13 @@ BY_NAME = {
     ("computing_core__application_flow", "customer data"): "engineering",
     ("computing_core__application_flow", "database"): "engineering",
     ("computing_core__application_flow", "administration"): "infra",
+    # The coverage seed (`coverage-seed-2`): the public key stays unowned.
+    ("github_core__github_platform", "github.com"): "devops",
+    ("computing_core__file", "container tls certificate"): "infra",
+    ("computing_core__private_key", "container tls private key"): "infra",
 }
 UNSTAMPED_TYPES = {
-    "identity_core__human", "computing_core__os_user", "github_core__github_platform", "computing_core__file",
-    "computing_core__public_key", "computing_core__private_key", "compliance_core__compliance_finding",
+    "identity_core__human", "computing_core__os_user", "computing_core__public_key", "compliance_core__compliance_finding",
     "github_core__code_scanning_alert", "github_core__dependabot_alert",
 }
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+")
@@ -205,7 +208,7 @@ class TestStamps:
             else:
                 assert value == self.team_id[expected], (e["entity_type"], e["name"])
                 stamped[expected] += 1
-        assert stamped == Counter({"git-serious": 1, "devops": 14, "engineering": 305, "infra": 34})
+        assert stamped == Counter({"git-serious": 1, "devops": 15, "engineering": 305, "infra": 36})
 
     def test_the_unstamped_types_are_the_ones_the_spec_leaves_out(self) -> None:
         seen = {n["entity"]["entity_type"] for n in self.nodes if n["entity"]["dimensions"].get(KEY) is None}

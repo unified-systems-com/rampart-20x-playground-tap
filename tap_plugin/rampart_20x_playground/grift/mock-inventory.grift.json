@@ -202,7 +202,8 @@
               "inventory": "cloud",
               "overview": "shown",
               "label": "hidden",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "transmit"
             }
           },
           "node": {
@@ -222,7 +223,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "secrets",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -266,7 +268,8 @@
               "overview": "shown",
               "icon": "rampart_20x_playground/icons/internet-gateway-card.svg",
               "icon_form": "solo",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "transmit"
             }
           },
           "node": {
@@ -442,7 +445,8 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "transmit"
             }
           },
           "node": {
@@ -464,7 +468,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -483,7 +488,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -573,7 +579,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -592,7 +599,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -611,7 +619,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -630,7 +639,8 @@
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
-              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
+              "dataclass.action": "none"
             }
           },
           "node": {
@@ -825,7 +835,9 @@
             "dimensions": {
               "dcom": "design",
               "inventory": "saas",
-              "overview": "shown"
+              "overview": "shown",
+              "dataclass.action": "transmit",
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
           },
           "node": {
@@ -941,7 +953,8 @@
               "dcom": "design",
               "inventory": "containers",
               "overview": "shown",
-              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
+              "dataclass.action": "store"
             }
           },
           "node": {
@@ -1026,6 +1039,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
+              "inventory": "cloud",
               "dataclass.action": "store",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
@@ -1045,6 +1059,7 @@
               "dcom": "design",
               "aws_account": "100000000001",
               "aws_region": "us-gov-west-1",
+              "inventory": "cloud",
               "overview": "shown",
               "dataclass.action": "store",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
@@ -1070,7 +1085,8 @@
               "aws_region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
-              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
+              "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
+              "dataclass.action": "process"
             }
           },
           "node": {
@@ -1200,7 +1216,8 @@
               "overview": "shown",
               "label": "hidden",
               "icon": "teleport/icons/teleport-cluster.svg",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "dataclass.action": "process"
             }
           },
           "node": {

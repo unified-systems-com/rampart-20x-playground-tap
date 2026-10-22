@@ -75,6 +75,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-page-vulnerabilities | [Vulnerabilities Page](#vulnerabilities-page) | Proposed | Four cards, three charts and three searchable tables, each row drilling in to a CVE page that explains one vulnerability or a component page |
 | req-rampart-20x-playground-page-data-classification | [Data Classification Page](#data-classification-page) | Proposed | An introduction, one card per data classification key, each describing the classification and its values and counting components by value and entity type, and under the cards the four classification-mapping tables |
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
+| req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, a row of four live status cards and, below it, one line chart over time on each page: responsibility on the inventory page, data classification on the Data Classification page |
+| req-rampart-20x-playground-coverage-seed | [Coverage History Seed](#coverage-history-seed) | Proposed | Mock data: the stamps that bring the coverage figures to a high end state, and four days of snapshots, every four hours, that climb to it |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
 | req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
@@ -213,12 +215,12 @@ are neutral keys that more than one plugin could use, so extraction into a vocab
 | `inventory.applications` | `inventory: applications` | Applications: running applications inside the environment. |
 | `inventory.libraries` | `inventory: libraries` | Libraries: software libraries. |
 | `inventory.packages` | `inventory: packages` | Packages: packages a package manager installed, one row per ecosystem, name and version. |
-| `inventory.os` | `inventory: os` | Operating systems. |
+| `inventory.os` | `inventory: os` | Operating Systems. |
 | `inventory.containers` | `inventory: containers` | Containers: container images, one row per class of identical image. |
 | `inventory.crypto` | `inventory: crypto` | Crypto: cryptographic implementations found in the deployment's artifacts, with the reviewed decision about each. |
 | `inventory.secrets` | `inventory: secrets` | Secrets: secret material, keys, certificates, secrets. |
-| `inventory.cloud` | `inventory: cloud` | Cloud services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library, OS or container. |
-| `inventory.saas` | `inventory: saas` | Third-party SaaS: interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from. |
+| `inventory.cloud` | `inventory: cloud` | Cloud Services: internal AWS capabilities such as Route 53, Secrets Manager, IAM and VPCs that come from the cloud but are not an application, library, OS or container. |
+| `inventory.saas` | `inventory: saas` | Third-Party SaaS: interconnected cloud systems, including AWS where all of this is hosted and GitHub where the code comes from. |
 
 **The `dataclass` axis.** Names as given by the owner; the meanings are this spec's proposal and are for review.
 
@@ -274,6 +276,8 @@ database's volume.
 
 Anything not listed stays unstamped, which is "not observed", not a claim of `none`.
 
+**Inventory category of the containers and buckets (ruled 2026-10-21, George).** The two `aws_core__aws_ecs_container` rows and the two `aws_core__aws_s3_bucket` rows are cloud services and carry `inventory: cloud`, the category the RDS instance and the other AWS types already carry. They carried no `inventory` value, and grouped coverage (`req-compliance-core-dimension-mapping-18`) counts only entities that carry the group key, so they were in no chart line and no Summary row. The inventory page's Cloud Services table lists them once stamped.
+
 #### Implementation
 
 `grift/dimensions.grift.json`, one batch of twenty-six `inventory` and `dataclass` `dimension` nodes (ten `inventory`, sixteen `dataclass`),
@@ -292,10 +296,11 @@ the batch carry a description. Queries use the bracketed key form, `n.dimensions
 | req-rampart-20x-playground-dimensions-5 | Every Node Described | Proposed | Every node and the batch has a non-empty description. | |
 | req-rampart-20x-playground-dimensions-6 | Action Axis Enumerates | Proposed | `MATCH (d:dimension) WHERE d.name STARTS_WITH "dataclass.action." RETURN d` returns exactly the four value nodes `store`, `process`, `transmit` and `none`. | |
 | req-rampart-20x-playground-dimensions-7 | Role Values Removed | Proposed | No node named `dataclass.customer.reader`, `dataclass.customer.writer` or `dataclass.customer.storage` is in the bundle, and no entity in the seed data carries those values. | The three nodes are removed from this plugin's seed and purged from any live grid that holds them. Purge approved by George 2026-10-20 (relayed by rampart-pg); the importer cannot delete, so the purge is a separate sanctioned step. |
-| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value and no other item in the seed carries one. | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
+| req-rampart-20x-playground-dimensions-8 | Action Stamping | Proposed | Each item in the stamping table carries exactly its `dataclass.action` value, and no other item in the seed carries one except the rows the coverage seed stamps (`req-rampart-20x-playground-coverage-seed-1`). | The RDS instance stands in for the database volume. Ruled 2026-10-20 (George). |
 | req-rampart-20x-playground-dimensions-9 | One Action Per Entity | Proposed | No seed entity carries more than one `dataclass.action` value, and no seed entity carries a `dataclass.action.<value>` key. | The key is `dataclass.action`; the value is one of the three. |
 | req-rampart-20x-playground-dimensions-10 | Sanitized Value | Proposed | The bundle holds the node `dataclass.customer.sanitized` with the description in the table above, and the `database` application flow carries `dataclass.customer: sanitized` and no `data` stamp; the `customer` application flow still carries `data`. | Replaces the unspecced `data.filtered` idea. |
 | req-rampart-20x-playground-dimensions-11 | None Is A Declared Value | Proposed | `dataclass.action.none` is in the bundle with a description, so an entity stamped `dataclass.action = none` is counted as declared by `dimension-coverage`; no seed entity is stamped `none` yet. | The value exists so libraries and packages that do nothing with data can be marked. A missing key is still "not observed". |
+| req-rampart-20x-playground-dimensions-12 | Containers And Buckets Are Cloud Services | Proposed | The two `aws_core__aws_ecs_container` rows and the two `aws_core__aws_s3_bucket` rows each carry `inventory: cloud`, and the Cloud Services table of the inventory page lists them. | Ruled 2026-10-21 (George). They were counted in no coverage category before. |
 
 ### Mock Inventory
 ----
@@ -397,7 +402,7 @@ cloud services and third-party SaaS. Each category is a section listing the item
 
 #### Implementation
 
-Route `/playground/inventory`; nine Searches, one per `inventory` value, each filtering on
+Route `/playground/inventory`; above the tables, a row of four coverage cards and one coverage chart, `Responsibility Coverage` (`req-rampart-20x-playground-inventory-coverage`); nine Searches, one per `inventory` value, each filtering on
 `n.dimensions["inventory"]`; an existing table panel per section.
 
 #### Acceptance Criteria
@@ -506,7 +511,7 @@ with `components` under the number; then the classification's description as pla
 borderless table with one row per value it can take: the value, its description, and the number of components
 carrying it (0 when none does). There is no breakdown by entity type.
 
-Under the cards, four bands hold the classification-mapping tables of `req-rampart-20x-playground-classification-mapping`, each a standard table panel bound by `USES_SEARCH` to one of that requirement's four Searches, in this order: `Summary` (one row per mapping row: `label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped`), `Mapped Incorrectly`, `Unmapped` and `Mapped` (`label`, `name`, `found_text`, `allowed_text`; the name cell links to the entity's page and a row click opens it). The three entity tables have a quick filter and paging, because the unmapped table holds hundreds of rows. The tables are panels of the classification-mapping bundle; this page places them with `USES_PANEL` edges. There is no separate Classification Mapping page.
+Under the cards, four standard table panels show how much of the inventory carries the classification it should and what is missing or wrong (George, 2026-10-21: there is no separate Classification Mapping page; its tables live here). Each is bound by `USES_SEARCH` to one of the four Searches of `req-rampart-20x-playground-classification-mapping`: a summary table with one row per inventory category (columns `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule` and `percent_mapped`), then three entity tables named `Mapped Incorrectly`, `Unmapped` and `Mapped` (columns `group`, `label`, `name`, `found_text` and `allowed_text`, titled in Title Case), in the runner's order. The entity tables have a quick filter and paging, because the unmapped table holds hundreds of rows.
 
 All three cards read a `module` Search over the `compliance_core` runner `dimension-coverage` (compliance_core
 `req-compliance-core-dimension-coverage`); the Search's input `dimension_key` is the only thing that differs. Gryphon
@@ -530,10 +535,13 @@ Search, so it cannot be reused here.
 | req-rampart-20x-playground-page-data-classification-5 | Config Names Returned Fields | Proposed | Every card field names a row field of the runner (`key`, `total`, `description`, `values`) and every table column a key of its `values` elements (`value`, `description`, `count`). | |
 | req-rampart-20x-playground-page-data-classification-6 | Card Layout | Proposed | Each card uses the Stat Cards `figure_right` layout with a bold title, the unit `components`, a description line placed in the card header directly under the title (`placement: header`), and a `table` line of `value`, `description`, `count` captioned `Inventory` above the table (`label_placement: above`). | Ruled 2026-10-20 (George, Q90). The card title is still the dimension key (`dataclass.customer`): the dictionary nodes carry no plain-English name, so the title is open for a ruling. |
 | req-rampart-20x-playground-page-data-classification-7 | Named Data Classification, No Prose | Proposed | The page and its title panel are named `Data Classification`, and no panel carries explanatory prose; the only caption is `Inventory` above each values table (`-6`). | |
-| req-rampart-20x-playground-page-data-classification-9 | Mapping Tables Under The Cards | Proposed | Bands three to six are, in order, the `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped` table panels, each bound by `USES_SEARCH` to its own classification-mapping Search, its config naming only returned row fields (`label`, `keys_text`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `percent_mapped` for the summary; `label`, `name`, `found_text`, `allowed_text` for the others). | `GET /playground/classification-mapping` no longer resolves. |
-| req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Link, Filter And Page | Proposed | The panels are striped with Title Case headings; in the three entity tables the name cell is a link, the row click opens the entity's page, and there is a quick filter and paging. No panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
-| req-rampart-20x-playground-page-data-classification-11 | Summary Headings And Centred Numbers | Proposed | The `Summary` table's columns are titled `Entity Type`, `Classification`, `Total`, `Mapped`, `Unmapped`, `Incorrect` (field `mapped_incorrectly`) and `%` (field `percent_mapped`), and its five numeric columns carry `align: center` so each value sits centred under its heading. | The headings were `Mapped Incorrectly` and `Percent Mapped`. The `Unmapped` table sets `show_all_rows` to `false`, so its page-size selector offers 25, 50, 100 and 200 and no `All`; the default stays 25 a page. |
+| req-rampart-20x-playground-page-data-classification-14 | Summary Headings And Centred Numbers | Proposed | The `Summary` table's columns are titled `Category` (field `label`), `Total`, `Mapped`, `Unmapped`, `Incorrect` (field `mapped_incorrectly`), `No Rule` and `%` (field `percent_mapped`), and its six numeric columns carry `align: center` so each value sits centred under its heading. | The `Unmapped` table sets `show_all_rows` to `false`, so its page-size selector offers 25, 50, 100 and 200 and no `All`; the default stays 25 a page. |
 | req-rampart-20x-playground-page-data-classification-8 | Action Card | Proposed | The third card is bound by `USES_SEARCH` to a `module` Search over `dimension-coverage` with `dimension_key` default `dataclass.action`; its values table lists `store`, `process`, `transmit` and `none` with their counts, and it adds no page code. | The runner already reads values from the dictionary, so this is a Search, a panel and a panel edge. |
+| req-rampart-20x-playground-page-data-classification-9 | Four Mapping Tables Under The Cards | Proposed | Under the three cards the page has four table panels: the summary, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each bound by `USES_SEARCH` to its own Search of the classification mapping, and no `/playground/classification-mapping` route exists. | Ruled by George, 2026-10-21. The old page and its entity are purged. |
+| req-rampart-20x-playground-page-data-classification-10 | Mapping Tables Name Returned Fields | Proposed | The summary table's columns are `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule` and `percent_mapped`; each entity table's are `group`, `label`, `name` (a link to the entity's page), `found_text` and `allowed_text`; every title is in Title Case. | |
+| req-rampart-20x-playground-page-data-classification-11 | Entity Tables Filter And Page | Proposed | The three entity tables have a quick filter and paging, are striped, the name cell is a link and the row click opens the entity's page. | |
+| req-rampart-20x-playground-page-data-classification-12 | Mapping Tables Carry No Prose | Proposed | No mapping table panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-page-data-classification-13 | Coverage Chart Above The Cards | Proposed | Directly under the title the page has the row of four coverage cards and then the `Data Classification Coverage` chart panel of `req-rampart-20x-playground-inventory-coverage`; the three classification cards and the four mapping tables follow unchanged. | Ruled by George, 2026-10-21. |
 
 ### Classification Mapping
 ----
@@ -558,20 +566,21 @@ Which entities carry the data classification they should, which carry none, and 
 
 The summary Search's entity id is fixed because `fedramp_20x_vdr`'s collector names it in code (`req-fedramp-20x-vdr-coverage-snapshot`); the id here and there must never differ. Each Search's description says why it is a module Search (Gryphon cannot write a count grouped by a dimension value taken from an input) and where its mapping is also written, because the four copies must agree.
 
-**The mapping** (proposed for review; each row reads "an entity of this type should carry this key with one of these values"):
+**The mapping** (groups of entity types; the assignment is proposed for review). Each row reads "an entity of one of these types should carry this key with one of these values", and the value check is the group's: a value is right when the group allows it (ruled by George, 2026-10-21). The Searches work in grouped mode, `group_by` `inventory` (`req-compliance-core-dimension-mapping`), so each entity is judged by the first row that names its type and is counted in its inventory category.
 
-| entity type | key and allowed values | match |
-| --- | --- | --- |
-| `computing_core__application_flow` | `dataclass.customer`: `data`, `sanitized`, `creds`, `logs`; `dataclass.infra`: `code`, `secrets`, `logs`, `admin` | `any` |
-| `computing_core__application_flow` | `dataclass.action`: `transmit` | `all` |
-| `computing_core__program` | `dataclass.action`: `process` | `all` |
-| `aws_core__aws_ecs_container` | `dataclass.action`: `process` | `all` |
-| `aws_core__aws_rds_instance` | `dataclass.action`: `store` | `all` |
-| `aws_core__aws_s3_bucket` | `dataclass.action`: `store` | `all` |
-| `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
-| `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
+| group | entity types | key and allowed values | match |
+| --- | --- | --- | --- |
+| Data Flows | `computing_core__application_flow` | `dataclass.action`: `transmit` | `all` |
+| Programs | `computing_core__program` | `dataclass.action`: `process` | `all` |
+| AWS Services | `aws_core__aws_route53_zone`, `aws_core__aws_internet_gateway`, `aws_core__aws_alb`, `aws_core__aws_ecs_cluster`, `aws_core__aws_ecs_service`, `aws_core__aws_ecs_container`, `aws_core__aws_rds_instance`, `aws_core__aws_s3_bucket`, `aws_core__aws_secrets_manager_secret`, `aws_core__aws_kms_key`, `aws_core__aws_ecr_repository`, `aws_core__aws_iam_oidc_provider`, `aws_core__aws_codepipeline_pipeline`, `aws_core__aws_codebuild_project`, `aws_core__aws_ec2_instance` | `dataclass.action`: `store`, `process`, `transmit`, `none` | `all` |
+| Containers | `computing_core__host`, `github_core__github_package`, `github_core__github_package_version` | `dataclass.action`: `process`, `store` | `all` |
+| Packages | `computing_core__package` | `dataclass.action`: `process`, `none` | `all` |
+| Libraries | `computing_core__library` | `dataclass.action`: `process`, `none` | `all` |
+| Operating Systems | `computing_core__operating_system` | `dataclass.action`: `process` | `all` |
+| Secrets | `computing_core__file`, `computing_core__public_key`, `computing_core__private_key`, `aws_core__aws_acm_certificate` | `dataclass.action`: `store` | `all` |
+| Third-Party SaaS | `aws_core__aws_organization`, `github_core__github_platform` | `dataclass.action`: `store`, `process`, `transmit`, `none` | `all` |
 
-These are the types that exist in the seed today. A `crypto_provider` has no row: it is a finding about the code that carries it (`CARRIES_CRYPTO_PROVIDER`), and the carrier, a library, package or program, is classified instead (ruled by George, 2026-10-21). The library and package rows are expected to be mostly unmapped: nothing stamps them, which is the gap the table is there to show. A library that does nothing with data (a text editor, if the image had one) takes `none`; a library that handles secrets (OpenSSL) takes `process`.
+These are the types the seed stamps into the inventory categories, as read on 2026-10-21. Two things are deliberate. The application flows carry no `inventory` stamp, so grouped mode never counts them in a category; the row is kept for the group George named and for a flow that is later stamped. And `computing_core__crypto_provider` has no row: it is a finding about the code that carries it (`CARRIES_CRYPTO_PROVIDER`), and the carrier is classified instead (ruled by George, 2026-10-21), so the Searches leave the `crypto` category out with `exclude_groups`, and their descriptions say so. A type with no row is not hidden: grouped mode counts it `unmapped` and `no_rule`.
 
 **Four table panels.** `Summary`, `Mapped Incorrectly`, `Unmapped` and `Mapped`, each a standard table panel bound by `USES_SEARCH` to the Search of the same name above. They are shown on the Data Classification page (`req-rampart-20x-playground-page-data-classification-9`); the bundle holds no page.
 
@@ -579,11 +588,11 @@ These are the types that exist in the seed today. A `crypto_provider` has no row
 
 #### Development
 
-The mapping is stated four times because a module Search receives its inputs from its own `input_schema` defaults and there is no way for one Search to read another's. That is the duplication George accepted for the demo sprint; the fix is for the runners to read the mapping from one place, which is a change to the runners. A test pins the four `mappings` defaults as equal so they cannot drift.
+The mapping and the grouping are stated four times because a module Search receives its inputs from its own `input_schema` defaults and there is no way for one Search to read another's. That is the duplication George accepted for the demo sprint; the fix is for the runners to read the mapping from one place, which is a change to the runners. A test pins the four `mappings` defaults as equal so they cannot drift.
 
 The seed ships no wrong stamp, so the mapped-incorrectly table is empty until something is stamped with a value its row does not allow. That is the honest state of the data.
 
-Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is applied and counting the entities in the seed files as read on 2026-10-20 (the inventory-software batch is regenerated, so the package count moves): application flows 6 (customer or infra: 5 mapped, 1 unmapped, the administrator flow to the account perimeter; action: 6 mapped); programs 5 mapped; ECS containers 2 mapped; RDS instance 1 mapped; S3 buckets 2 mapped; libraries 4 unmapped; packages 180 unmapped.
+On the seed the summary lists the nine inventory categories (`crypto` left out), and the packages and libraries are unmapped because nothing stamps them: the gap the table is there to show. The mapped-incorrectly table stays empty because nothing is stamped with a value its group does not allow. The counts are not fixed here, because the inventory-software batch is regenerated.
 
 #### Acceptance Criteria
 
@@ -597,12 +606,160 @@ Expected summary on the seed, once `req-rampart-20x-playground-dimensions-8` is 
 | req-rampart-20x-playground-classification-mapping-6 | Target Resolves | Proposed | The `schedule-grift-targets` guard passes on a stack that installs this plugin and `fedramp_20x_vdr`. | |
 | req-rampart-20x-playground-classification-mapping-7 | Dependencies Declared | Proposed | `depends_on` gains `fedramp_20x_vdr`, the `demo` record installs it, and the `compliance_core` floor names the release that ships the mapping runners and the snapshot base class. | |
 | req-rampart-20x-playground-classification-mapping-8 | A Run Writes A Snapshot | Proposed | On a booted `demo` stack, one manual run of `coverage_snapshot` (the Run button on the collector's administrivia page) writes one `compliance_search_snapshot` whose `rows` are the summary rows, with an edge to the summary Search. | The demo's first data point; the schedule adds one an hour. |
-| req-rampart-20x-playground-classification-mapping-9 | Seed Counts | Proposed | After the action stamps apply, the summary reads the counts in the paragraph above for the types it lists. | The package count follows the inventory-software batch. |
+| req-rampart-20x-playground-classification-mapping-9 | Every Seeded Type Has A Rule | Proposed | After the action stamps apply, the summary reports `no_rule` 0 for every category except `crypto`, which is excluded, and `warnings` lists no type without a rule. | A new type in the seed with no row shows here as a gap. The package count follows the inventory-software batch. |
 | req-rampart-20x-playground-classification-mapping-10 | Id Pinned In This Repository | Proposed | A test in this repository asserts the summary Search's entity id is the literal `01a15b2f-df3b-7569-bf22-9ead3f816b84`, so a change to the seed shows here as well as in `fedramp_20x_vdr`. | The collector in `fedramp_20x_vdr` names this id in code and pins it in its own tests (`req-fedramp-20x-vdr-coverage-snapshot-5`); a pin on one side cannot see a change on the other. |
+| req-rampart-20x-playground-classification-mapping-11 | Grouped And Excluded | Proposed | All four Searches declare `group_by` `inventory`, and `exclude_groups` `["crypto"]` with a description that says the crypto category is left out and why. | |
 
-#### Future
+### Inventory Coverage
+----
+RID: `req-rampart-20x-playground-inventory-coverage`
 
-A coverage-over-time view: a table or chart reading the `compliance_search_snapshot` nodes of the summary Search, one row per snapshot. It reads `rows` through a `module` Search and is the reason the snapshots exist.
+Status: `Proposed`
+
+Coverage is the measure teams use to show progress toward the December 7 date. For the inventory it answers two yes-or-no questions about every entry: does it have a responsible team, and is its data classification right. Each question gives a percentage for each of the nine inventory categories, recorded every hour and drawn as a line chart with a plain-average line on top. There is one coverage chart per page (George, 2026-10-21): the responsibility chart sits at the top of the inventory page, which is about who owns what, and the data classification chart sits at the top of the Data Classification page, above its cards.
+
+#### Implementation
+
+**Six Searches**, all `search_type: module`, `root: node`, in `grift/inventory-coverage.grift.json`:
+
+| Search name | runner | entity id | what it does |
+| --- | --- | --- | --- |
+| `playground — responsibility coverage` | `dimension-mapping-summary` | `01a15fdf-61ef-710d-b5d3-e3a7ae238a40` | `group_by` `inventory`; one mapping row, `entity_types` `["*"]`, one key `team.responsible` with no `allowed`, so any set value counts; no group excluded |
+| `playground — classification mapping summary` | `dimension-mapping-summary` | `01a15b2f-df3b-7569-bf22-9ead3f816b84` | the existing summary Search of `req-rampart-20x-playground-classification-mapping`, grouped, `crypto` excluded |
+| `playground — responsibility coverage history` | `search-snapshot-series` | minted once | `search_id` the responsibility Search's id, `series_field` `label`, `value_field` `percent_mapped` |
+| `playground — classification coverage history` | `search-snapshot-series` | minted once | `search_id` `01a15b2f-df3b-7569-bf22-9ead3f816b84`, `series_field` `label`, `value_field` `percent_mapped` |
+| `playground — responsibility coverage totals` | `dimension-mapping-totals` | minted once | `summary_search_id` the responsibility Search's id; one live row for the cards |
+| `playground — classification coverage totals` | `dimension-mapping-totals` | minted once | `summary_search_id` `01a15b2f-df3b-7569-bf22-9ead3f816b84`; one live row for the cards |
+
+**Responsibility** is the `team.responsible` dimension stamped on each node (George, 2026-10-21; the Teams section stamps it, `req-rampart-20x-playground-teams`). An entry is covered when the stamp is set. An unstamped entry is uncovered, so a category with no stamps reads 0 percent; the seed's real stamps decide the starting figure, whatever it is.
+
+**Data classification** is the grouped rulebook of `req-rampart-20x-playground-classification-mapping`: an entry is covered when it carries a `dataclass.action` its group allows.
+
+**Recording.** The existing hourly Schedule runs `fedramp_20x_vdr:coverage_snapshot`, which records both summary Searches (`req-fedramp-20x-vdr-coverage-snapshot`, two ids). Nothing new is scheduled. The history is what the snapshots hold from the first run: the collector back-fills nothing. The mock history of `req-rampart-20x-playground-coverage-seed` is seed data, written once and labelled as mock.
+
+**The charts.** Two `chart` panels (`req-web-panels-chart-panel-type`), one per page: `Responsibility Coverage` at the top of the inventory page and `Data Classification Coverage` at the top of the Data Classification page, below its row of cards and above the three classification cards, each bound by `USES_SEARCH` to its history Search. Each is a line chart on a time axis, with `series_by` `{category: observed_at, series: series, value: value}`, `types` `{observed_at: time, value: number}`, a 0 to 100 value axis, and `order` listing the categories in the order of the Summary table's rows (the runner's order: the dictionary's declared values in name order, then any other found) with the aggregate last, so it draws on top. The aggregate is named `Overall`. The classification chart has eight category lines and `Overall`; the responsibility chart has nine and `Overall`. Lines are independent, not stacked (George, 2026-10-21).
+
+**Naming the lines (ruled 2026-10-21, George).** There is no legend. Each line carries its own name at its right end: the one template series sets `endLabel` to show the series name (formatter `{a}`) and `labelLayout` `moveOverlap` `shiftY`, which `series_by` copies onto every line, and the grid keeps a right margin wide enough for the longest name. The chart has an axis-triggered tooltip that names every line at a time. Colours are explicit: `color_map` maps each category name to a categorical token (`accent-1` to `accent-8`, in `order`) and `Overall` to `neutral`; the responsibility chart has nine categories, so its ninth repeats `accent-1`, and its end label and tooltip are what tell the two apart. Whether the chart panel's validation accepts `endLabel` and `labelLayout` is not known from the spec; if it refuses either, that is a question for the chart panel in core (the Backlog row `-chart-end-labels`), not a bespoke script here.
+
+**Titles.** Series names come from the dimension dictionary: a category's label is its description up to the first colon, so each `inventory.*` description starts with the Title Case name (`Operating Systems`, `Cloud Services`, `Third-Party SaaS`), and the chart shows those. The panels are named `Responsibility Coverage` and `Data Classification Coverage`. The page carries no explanatory text.
+
+**The cards.** Above the chart on each page, a horizontal row of four standard Stat Cards panels (`req-web-stdpanel-statcards`), each its own panel bound by `USES_SEARCH` to that page's totals Search, so the figures are live: the Search runs on every page load and reads the grid as it is now, while the chart's last point is up to an hour old (George, 2026-10-21). The totals come from `dimension-mapping-totals`, so the page does no arithmetic and the mapping is stated once, in the summary Search. A card's figure is a field of the totals row:
+
+| page | card (Title Case) | field | unit |
+| --- | --- | --- | --- |
+| Inventory | `Overall Coverage` | `percent_overall` | `%` |
+| Inventory | `Entries` | `denominator` | `entries` |
+| Inventory | `With A Team` | `mapped` | `entries` |
+| Inventory | `Without A Team` | `unmapped` | `entries` |
+| Data Classification | `Overall Coverage` | `percent_overall` | `%` |
+| Data Classification | `Mapped` | `mapped` | `entries` |
+| Data Classification | `Unmapped` | `unmapped` | `entries` |
+| Data Classification | `Incorrect` | `mapped_incorrectly` | `entries` |
+
+`Overall Coverage` is the plain average of the categories, the same figure the chart's `Overall` line shows (ruled by George, 2026-10-21); the other cards are the pooled counts. A card has no page-specific configuration: it is a panel node, a Search edge and nothing else, so any page mounts it with a `USES_PANEL` edge and no change (the overview will, and a consolidated coverage panel may later gather the same figures, reading the same totals Search or calling `totals_from_rows`).
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-inventory-coverage-1 | Six Searches | Proposed | The bundle holds the six `module` Searches of the table, with the runners and ids shown; the history Searches' `search_id` and the totals Searches' `summary_search_id` equal the two summary Searches' ids. | |
+| req-rampart-20x-playground-inventory-coverage-2 | Responsibility Is Presence | Proposed | The responsibility Search's only mapping row names `*` and the key `team.responsible` with no `allowed`, and excludes no group. | |
+| req-rampart-20x-playground-inventory-coverage-3 | One List Of Groups, Not Two | Proposed | The classification summary reads the grouped rulebook of the classification mapping and no other mapping, and its description says the crypto category is left out and why. | |
+| req-rampart-20x-playground-inventory-coverage-4 | Both Recorded Hourly | Proposed | One run of `coverage_snapshot` writes one snapshot for each summary Search, each with an edge `CAPTURES_SEARCH` to its Search. | Depends on the two-id change in `fedramp_20x_vdr`. |
+| req-rampart-20x-playground-inventory-coverage-5 | One Chart Per Page | Proposed | The inventory page has one `chart` panel above the tables, `Responsibility Coverage`, and the Data Classification page has one, `Data Classification Coverage`, below its row of cards and above the three classification cards; each is bound by `USES_SEARCH` to its history Search, and neither page has a second coverage chart. | Ruled by George, 2026-10-21. The inventory tables keep their Data Classification column. |
+| req-rampart-20x-playground-inventory-coverage-6 | Independent Lines, Aggregate Last | Proposed | Each chart is a line chart with `series_by`, a time axis, a 0 to 100 value axis and no `stack`; `Overall` is last in `order`. | |
+| req-rampart-20x-playground-inventory-coverage-7 | Series Named From The Dictionary | Proposed | The `label` of each series equals the Title Case name that begins its `inventory.*` description, and the three descriptions that were not Title Case are. | |
+| req-rampart-20x-playground-inventory-coverage-8 | Empty Is Stated | Proposed | Before the first snapshot a chart shows the chart panel's empty state, not a zero line. | `req-web-panels-chart-render`. |
+| req-rampart-20x-playground-inventory-coverage-9 | Rows Fit The Chart | Proposed | The chart config's `max_rows` is 5000, the panel's largest value, and each history Search's `max_snapshots` default is 500, so that the ten lines of 500 snapshots fit within it and no point is silently cut. | The runner's own default of 720 snapshots times ten lines is 7200 rows, above the panel's cap of 5000, so the Searches set 500; found while building, not as ruled. |
+| req-rampart-20x-playground-inventory-coverage-10 | No Prose | Proposed | A coverage chart's band carries the chart only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-inventory-coverage-11 | Dependencies Declared | Proposed | `depends_on` and the `compliance_core` floor name the releases that ship grouped mapping and `search-snapshot-series`, and the `fedramp_20x_vdr` floor the release that records both Searches. | |
+| req-rampart-20x-playground-inventory-coverage-12 | Four Live Cards Above The Chart | Proposed | Each page has a horizontal row of four Stat Cards panels above its coverage chart, with the titles, fields and units of the cards table, each bound by `USES_SEARCH` to the page's totals Search. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-inventory-coverage-13 | Cards Are Live | Proposed | A card reads the totals Search at page load and no `compliance_search_snapshot`, so its figure reflects the grid now. | |
+| req-rampart-20x-playground-inventory-coverage-14 | Overall Agrees With The Chart | Proposed | After a snapshot is taken and nothing changes, a page's `Overall Coverage` card equals the last point of its chart's `Overall` line. | Both use `plain_mean`. |
+| req-rampart-20x-playground-inventory-coverage-15 | Cards Are Standalone | Proposed | A card panel carries no page-specific config and is mounted on a page by `USES_PANEL` alone; mounting one of the cards on a second page changes no card. | The overview will mount them. |
+| req-rampart-20x-playground-inventory-coverage-16 | The Page Does No Arithmetic | Proposed | No card, Search or page code computes a mean or a sum; each figure is a field of the totals row. | The rule that arithmetic stays in the runner. |
+| req-rampart-20x-playground-inventory-coverage-17 | Names At The Line Ends | Proposed | Neither chart has a `legend`; the template series has `endLabel` showing the series name, flat and in its line's colour (`color` `inherit`, `textBorderWidth` 0, `textBorderColor` `transparent`, `textShadowBlur` 0, because ECharts outlines an end label by default and the panel's theme flattens only `label`, and a fixed colour cannot follow light and dark), and a `labelLayout` that shifts overlapping labels apart, and the grid has room on the right for them. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-inventory-coverage-18 | Order Follows The Summary | Proposed | Each chart's `order` lists the categories in the row order of the Summary table of the same page, `Overall` last. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-inventory-coverage-19 | Explicit Colours And A Tooltip | Proposed | Each chart has an axis-triggered tooltip and a `color_map` giving every category line a token and `Overall` the token `neutral`. | The responsibility chart's ninth category repeats a token. |
+| req-rampart-20x-playground-inventory-coverage-chart-end-labels | End Labels In The Chart Panel | Backlog | If the chart panel refuses `endLabel` or `labelLayout` in its config, the chart panel accepts them. | A core decision; core is held. |
+| req-rampart-20x-playground-inventory-coverage-views | Other Views Of The History | Backlog | A table with a small trend line in each row, or a heat grid of category by time. | Considered 2026-10-21 and deferred; each needs a core panel capability. The line chart with end labels is the view for the demo. |
+| req-rampart-20x-playground-inventory-coverage-overall-weight | Overall Line Three Times As Thick | Backlog | The `Overall` line is drawn three times as thick as the category lines. | Blocked on the chart panel: `series_by` copies one template series to every line and has no per-line override, so only the template's `lineStyle.width` can be set. A core decision, for example a `series_by.overrides` map from a series value to series options. Reported 2026-10-21; core is held. |
+| req-rampart-20x-playground-inventory-coverage-overview | Cards On The Overview, A Consolidated Panel | Backlog | The same cards mounted on the Overview page, and a consolidated coverage panel that shows every card's figure at once. | The cards and the totals calculation are built to be reused for this (`-15`); the mounting and the panel are a later step. |
+
+### Coverage History Seed
+----
+RID: `req-rampart-20x-playground-coverage-seed`
+
+Status: `Proposed`
+
+MOCK DATA, never collected from a live system. Ruled by George, 2026-10-21, so that the two coverage charts show the figures going up and to the right: the seed stamps more entities, so the coverage figures end high, and a four-day history of snapshots climbs to those figures. Both parts are seed data in `grift/`; no code, no collector. The real hourly snapshots of `fedramp_20x_vdr` continue from the last mock point.
+
+#### Implementation
+
+**End state, classification.** The stamps below bring the data classification coverage to the end state of the waypoint table (a mean of 77.6 percent over the eight categories). A value is always one its type's group allows (`req-rampart-20x-playground-classification-mapping`), except the one wrong stamp on purpose. Stamps already made (the five flows, the programs, the RDS instance, the S3 buckets and the ECS containers) stay.
+
+| Category | Stamp, `dataclass.action` | Left unstamped |
+| --- | --- | --- |
+| Cloud Services | `route53_zone`, `internet_gateway`, `alb`: `transmit`. `ecs_cluster`, `ecs_service`, `kms_key`, `codepipeline_pipeline`, `ec2_instance`: `process`. `secrets_manager_secret`, `ecr_repository`: `store`. `iam_oidc_provider`: `none` | the two `codebuild_project` rows |
+| Containers | `computing_core__host`: `process`. `github_package`: `store` | the `github_package_version` row |
+| Libraries | the first three `computing_core__library` rows in file order: `process` | the fourth |
+| Operating Systems | `Wolfi`: `process` | none |
+| Packages | every `computing_core__package` row: `process` | the rows at positions 10, 20, and so on to 180 in file order (18 rows) |
+| Secrets | the container TLS certificate (a file) and the TLS certificate (ACM): `store`. The container TLS public key: `transmit`, which the group does not allow, so it reads as mapped incorrectly | the container TLS private key |
+| Third-Party SaaS | `github.com`: `transmit` | the `AWS` organization |
+
+**End state, responsibility.** The `team.responsible` stamp (`team` ids as in the Teams section) is added to `github.com` (`devops`), the container TLS certificate and the container TLS private key (`infra`). The container TLS public key stays unowned. Every other entity that carries an `inventory` value already has an owner, so the end state is 100 percent in every category but Secrets, which is 3 of 4 (a mean of 97.2 over the nine).
+
+**The snapshots.** For each of the two summary Searches (`01a15fdf-61ef-710d-b5d3-e3a7ae238a40` and `01a15b2f-df3b-7569-bf22-9ead3f816b84`), one `compliance_search_snapshot` node every four hours from 2026-10-17 00:00Z to 2026-10-21 20:00Z inclusive: 30 per Search, 60 in all, each with one `CAPTURES_SEARCH` edge to its Search. `source` is `rampart_20x_playground`, so a mock snapshot can never share a key with a real one (`fedramp_20x_vdr`) and every mock snapshot is found by that one value; `snapshot_key` is `<search entity id>@<observed_at>` as the snapshot spec states; `name` is `<search_name> @ <observed_at>`; `truncated` is false and `row_count` is the length of `rows`; `inputs_text` is the canonical JSON of the Search's inputs, taken from the Search. Every snapshot's batch description says MOCK DATA, never collected.
+
+**The rows of a snapshot** are what the Search's runner returns: one row per `inventory` value the dictionary declares, in the runner's order (name order), with `group`, `label`, `denominator`, `mapped`, `unmapped`, `mapped_incorrectly`, `no_rule`, and `percent_mapped`. The classification Search has no `crypto` row. A category with `denominator` 0 has `percent_mapped` `null` and is no point on the chart. `mapped_incorrectly` is 0 except the Secrets row of the last classification snapshot, which is 1; `no_rule` is 0 throughout; `unmapped` is `denominator` less `mapped` less `mapped_incorrectly`; `percent_mapped` is `mapped` over `denominator` times 100 to one decimal. The labels are the Title Case names of the inventory dictionary (`Cloud Services`, `Operating Systems`, `Third-Party SaaS`).
+
+**The waypoints.** Five times: T0 2026-10-17 00:00Z, T1 2026-10-18 12:00Z, T2 2026-10-19 12:00Z, T3 2026-10-20 12:00Z and T4 2026-10-21 20:00Z. Each cell is `mapped/denominator`; a dash is denominator 0 (the category does not exist yet). Between waypoints, `mapped` and `denominator` each move in a straight line from one to the next and are rounded to whole numbers, so counts rise a few at a time and no step is a cliff. The story: owners were assigned team by team (infrastructure first, then applications), the 180 packages arrived on 10-19 and the cryptographic scan on 10-20, and the action axis (ruled 2026-10-20) began to be stamped on 10-19 and reached the cloud services today.
+
+Responsibility:
+
+| Category | T0 | T1 | T2 | T3 | T4 |
+| --- | --- | --- | --- | --- | --- |
+| Applications | 2/5 | 3/5 | 5/6 | 8/8 | 8/8 |
+| Cloud Services | 3/12 | 8/12 | 11/14 | 14/14 | 18/18 |
+| Containers | 0/2 | 1/2 | 2/3 | 3/3 | 3/3 |
+| Crypto | - | - | - | 12/31 | 31/31 |
+| Libraries | 1/4 | 2/4 | 3/4 | 4/4 | 4/4 |
+| Operating Systems | 0/1 | 0/1 | 1/1 | 1/1 | 1/1 |
+| Packages | - | - | 90/180 | 150/180 | 180/180 |
+| Secrets | 0/4 | 1/4 | 1/4 | 2/4 | 3/4 |
+| Third-Party SaaS | 0/2 | 0/2 | 1/2 | 1/2 | 2/2 |
+
+Data classification:
+
+| Category | T0 | T1 | T2 | T3 | T4 |
+| --- | --- | --- | --- | --- | --- |
+| Applications | 0/5 | 0/5 | 2/6 | 5/8 | 8/8 |
+| Cloud Services | 0/12 | 0/12 | 0/14 | 1/14 | 16/18 |
+| Containers | 0/2 | 0/2 | 0/3 | 0/3 | 2/3 |
+| Libraries | 0/4 | 0/4 | 0/4 | 1/4 | 3/4 |
+| Operating Systems | 0/1 | 0/1 | 0/1 | 0/1 | 1/1 |
+| Packages | - | - | 0/180 | 45/180 | 162/180 |
+| Secrets | 0/4 | 0/4 | 0/4 | 0/4 | 2/4 |
+| Third-Party SaaS | 0/2 | 0/2 | 0/2 | 0/2 | 1/2 |
+
+**Order of landing.** The stamps land before the first real snapshot after the build, or the real line would drop to today's figures and climb back. The last mock point (T4) is the live summary's figures after the stamps; the real snapshots then continue at those values.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-coverage-seed-1 | Classification Stamps | Proposed | The seed carries the `dataclass.action` stamps of the table above, each value one its type's group allows except the container TLS public key's `transmit`, and carries none on the rows left unstamped. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-coverage-seed-2 | Responsibility Stamps | Proposed | `github.com` carries `team.responsible` of `devops`; the container TLS certificate and private key carry `infra`; the container TLS public key carries none. | |
+| req-rampart-20x-playground-coverage-seed-3 | End State Is The Live Summary | Proposed | After the stamps, the responsibility summary Search's per-category `mapped` and `denominator` equal the T4 column of the responsibility table, and the classification summary's equal the T4 column of the classification table, with one `mapped_incorrectly` (Secrets). | Checked against the Searches, not against this spec's arithmetic. |
+| req-rampart-20x-playground-coverage-seed-4 | Wrong On Purpose | Proposed | The `Mapped Incorrectly` table of the Data Classification page lists the container TLS public key, and no other entity. | |
+| req-rampart-20x-playground-coverage-seed-5 | Thirty Snapshots Per Search | Proposed | Each of the two summary Searches has exactly 30 mock snapshots, observed every four hours from 2026-10-17 00:00Z to 2026-10-21 20:00Z, each captured by one `CAPTURES_SEARCH` edge to that Search. | |
+| req-rampart-20x-playground-coverage-seed-6 | Mock And Findable | Proposed | Every mock snapshot has `source` `rampart_20x_playground`, a `snapshot_key` of the form `<search id>@<observed_at>`, and a batch description that says MOCK DATA, never collected; deleting every snapshot of that source removes the mock history and nothing else. | A mock snapshot cannot collide with a real key. |
+| req-rampart-20x-playground-coverage-seed-7 | Rows As The Runner Writes Them | Proposed | Each snapshot's rows have the fields, the order and the labels of the summary runner's rows, the classification rows omit `crypto`, `unmapped` equals `denominator` less `mapped` less `mapped_incorrectly`, and `percent_mapped` is `mapped` over `denominator` to one decimal, `null` when `denominator` is 0. | `req-compliance-core-dimension-mapping-9`, `-10`. |
+| req-rampart-20x-playground-coverage-seed-8 | Counts Follow The Waypoints | Proposed | At each of the five waypoint times a snapshot's `mapped` and `denominator` equal the table; between them each is a straight line rounded to whole numbers. | |
+| req-rampart-20x-playground-coverage-seed-9 | Up And To The Right | Proposed | In each chart no line's value falls from one snapshot to the next, except where its category's denominator grows faster than its mapped count; and each chart's last `Overall` is higher than its first. | The classification chart's first `Overall` is 0.0. |
+| req-rampart-20x-playground-coverage-seed-10 | Charts Show It | Proposed | With the seed, both charts draw one line per category with a figure, plus `Overall`, from 2026-10-17 to 2026-10-21, and the `Overall` card of each page equals the last point of its chart. | `req-rampart-20x-playground-inventory-coverage-14`. |
+| req-rampart-20x-playground-coverage-seed-remove | Retire The Mock History | Backlog | Delete the mock snapshots once the real history is long enough to carry the charts. | A separate step; the one `source` value finds them. |
 
 ### Teams And Responsibility
 ----
