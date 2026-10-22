@@ -13,7 +13,7 @@ depends_on = [
     { slug = "identity_core", min_version = "0.1.6", note = "The mock inventory seeds identity_core__human and the HELD_BY_HUMAN edge from a local account or GitHub account to the person who holds it. The teams bundle seeds four identity_core__team nodes, thirteen more identity_core__human nodes and the BELONGS_TO_TEAM__identity_core and LEADS_TEAM__identity_core edges, first shipped in v0.1.5, and four ANSWERS_FOR_DIMENSION__identity_core edges from each team to the team.responsible dimension node, first shipped in v0.1.6; the team.responsible stamp on entities in the other bundles is the entity id of one of those teams." },
     { slug = "dcom", note = "Every mock inventory entity carries the dcom dimension value design; the dimension nodes come from the dcom plugin." },
     { slug = "compliance_core", min_version = "0.8.9", note = "The security-alerts bundle seeds compliance_core__compliance_finding (one per alert) and the CARRIES_COMPLIANCE_FINDING edge that places each finding on its repository; the mock inventory seeds one compliance_core__compliance_boundary (git-serious) and the SCOPED_TO_COMPLIANCE_BOUNDARY edge from the account to it. The Overview's task bubble uses the module Search runners findings-reached-count and findings-reached-list (compliance_core, searches/reach.py; Gryphon cannot sum two routes). The Data classification page uses the module Search runner dimension-coverage (compliance_core, searches/dimension_coverage.py; Gryphon cannot group a labelless aggregate by entity type and dimension value), which needs a compliance_core release after v0.8.4. The classification mapping and inventory coverage Searches use the module Search runners dimension-mapping-summary, dimension-mapping-entities and dimension-mapping-totals and search-snapshot-series (compliance_core, searches/dimension_mapping.py), with grouped mode and exclude_groups; the coverage_snapshot collector of fedramp_20x_vdr subclasses compliance_core's SearchSnapshotCollector. The totals and series runners and grouped mode ship by v0.8.9." },
-    { slug = "fedramp_20x_vdr", min_version = "0.1.4", note = "The classification mapping bundle seeds a Schedule whose SCHEDULED_TARGET edge names the collector fedramp_20x_vdr:coverage_snapshot (entity id 41611294-9c37-5013-8175-3b1c2c4a3908); the schedule-grift-targets guard needs that collector registered. From v0.1.4 the collector records both summary Searches (classification mapping and responsibility coverage) as compliance_search_snapshot nodes." },
+    { slug = "fedramp_20x_vdr", min_version = "0.1.5", note = "The classification mapping bundle seeds a Schedule whose SCHEDULED_TARGET edge names the collector fedramp_20x_vdr:coverage_snapshot (entity id 41611294-9c37-5013-8175-3b1c2c4a3908); the schedule-grift-targets guard needs that collector registered. From v0.1.4 the collector records both summary Searches (classification mapping and responsibility coverage) as compliance_search_snapshot nodes." },
 ]
 
 # Pure configuration: no crypto, no native deps (spec-fips.md, req-tap-plugin-manifest-v0-fips).
@@ -48,15 +48,19 @@ stackarmor_examples = "grift/stackarmor-examples.grift.json"
 stackarmor_page = "grift/stackarmor-page.grift.json"
 # The VDR Implementations navigation section nests the stackarmor page, so it is seeded after it and only where it is.
 vdr_implementations = "grift/vdr-implementations.grift.json"
+# The VDR max page needs only fedramp_20x_vdr (a declared dependency), so the ci record seeds it.
+vdr_max_page = "grift/vdr-max-page.grift.json"
+# Nests the VDR MAX page under the VDR Implementations page: demo only, because that page is not seeded in ci.
+vdr_max_nav = "grift/vdr-max-nav.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "61f177a787ded93be9ba8d0aa501266574187ebb418115f22d1a44a8ad65011f"
+sha256 = "8b06f1c6bb3fda369b840fcd81386ff9a691392bad52f2cc8f1a3619cfe819bb"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "e7ed289885870d829f8969e18410f8be17c2892e41bab49656c8fc8ec7b0fe7f"
+sha256 = "0def051003e7e0ef2ad25257eb0f51e1e6717eabd45207215da10f4606426350"

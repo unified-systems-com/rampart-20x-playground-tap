@@ -586,7 +586,7 @@ class TestVulnerabilityPages:
         (entry,) = [p for p in demo["install"]["plugins"] if p["slug"] == "vuln_mosaic"]
         assert entry["source"]["rev"] == "v0.6.0"
         assert entry["source"]["commit"] == "b0ae7728c41004aa885aac974654a16e8a13fb6a"
-        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"]]
+        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"] if "plugin" in s]
         assert ("vuln_mosaic", None) in steps
         assert steps.index(("vuln_mosaic", None)) < steps.index(("rampart_20x_playground", None))
 
@@ -595,7 +595,7 @@ class TestVulnerabilityPages:
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         (ksi,) = [p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_ksi"]
         assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.2", "5069b9d53b002a7f0626fad377f3abea0b193df6")
-        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"]]
+        steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"] if "plugin" in s]
         assert steps.index(("fedramp_20x_ksi", "ksi_schedule")) < steps.index(("rampart_20x_playground", None))
         assert "No collector runs" not in demo["description"]
         for host in ("raw.githubusercontent.com", "www.cisa.gov", "epss.empiricalsecurity.com"):

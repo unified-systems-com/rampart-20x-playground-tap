@@ -1,0 +1,1162 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a161a5-712d-725e-848c-30305f242d21",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground vdr max page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.vdr-max-page",
+        "name": "rampart-20x-playground vdr max page v0.1.0",
+        "description": "The /playground/vdr-max page (VDR MAX): the method in text, the counts as cards and bars, every open evaluation, one finding's clock, evaluation and incident check, and the FedRAMP timeframe rows. See specs/spec-rampart_20x_playground-vdr-max.md."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "entity_type": "page",
+            "name": "VDR MAX",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "VDR MAX",
+            "slug": "/playground/vdr-max",
+            "nav_weight": 10,
+            "description": "The FedRAMP VDR worst-case method as a process and as it runs on this system: the rules, the counts, one finding's evaluation and clocks, and the timeframe tables as data.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-intro",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-rules",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "6fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-steps",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "6fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-cards",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-5": {
+                  "width": "6fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-chart",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-6": {
+                  "width": "12fr",
+                  "band": 4,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-picker",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-7": {
+                  "width": "12fr",
+                  "band": 5,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-clock",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-8": {
+                  "width": "6fr",
+                  "band": 6,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-evaluation",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-9": {
+                  "width": "6fr",
+                  "band": 6,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-incident",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-10": {
+                  "width": "12fr",
+                  "band": 7,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-max-timeframes",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1640e-80ca-764f-a072-a7a9c362ff86",
+            "entity_type": "schedule",
+            "name": "playground — vdr max evaluations",
+            "dimensions": {
+              "tap_cares": "schedule"
+            }
+          },
+          "node": {
+            "name": "playground — vdr max evaluations",
+            "description": "Gives every open vulnerability-linked finding its all-null VDR max evaluation once an hour (UTC), through the vdr_max collector of fedramp_20x_vdr.",
+            "enabled": true,
+            "cron_expression": "0 * * * *",
+            "max_active_runs": 1
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-300df80f5749",
+            "entity_type": "panel",
+            "name": "VDR MAX",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "VDR MAX",
+            "slug": "playground-vdr-max-intro",
+            "description": "The page title and the method in one paragraph.",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "hide_header": false,
+              "text": "FedRAMP's vulnerability rules ask a provider to evaluate every detected vulnerability for how likely it is to be exploited, whether it can be reached from the internet and how much it matters to agencies, and set deadlines from the answers. VDR max is the method that starts from the worst answer for every vulnerability and lowers an answer only when evidence is attached. An unevaluated vulnerability is therefore never mistaken for a safe one. Everything below is computed live from this grid; no deadline is stored."
+            },
+            "editor_view": "tap_web/panels/text_panel_editor.html"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-300e221ee314",
+            "entity_type": "panel",
+            "name": "The Rules",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "The Rules",
+            "slug": "playground-vdr-max-rules",
+            "description": "What the method assumes and when it lets go.",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "hide_header": false,
+              "text": "Every open finding that concerns a vulnerability gets an evaluation under the scheme max, with every factor unset.\nAn unset factor reads as the worst case: likely exploitable, internet-reachable, PAIN N5, and the strictest FedRAMP class (D).\nA factor counts as set only with evidence: an evidence edge from the evaluation, the finding citing the same evidence, and an evaluator and time recorded. Anything else reads as unset.\nPAIN cannot be lowered in this version, because no basis for lowering it has been agreed.\nSetting a factor never removes a deadline: the deadline is a bound counted from first detection with the worst-case row, never later than the exact one."
+            },
+            "editor_view": "tap_web/panels/text_panel_editor.html"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-300f26a3f0b5",
+            "entity_type": "panel",
+            "name": "From Finding To Deadline",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "From Finding To Deadline",
+            "slug": "playground-vdr-max-steps",
+            "description": "The steps, and what does each on the system.",
+            "view": "tap_web/panels/text_panel.html",
+            "config": {
+              "hide_header": false,
+              "text": "1. A scanner finding concerns a vulnerability and is open.\n2. The VDR max collector gives it one evaluation (scheme max) with every factor unset, and never overwrites one a person has set.\n3. The effective factors are read: unset means worst case; a set factor counts only with evidence.\n4. The FedRAMP timeframe rows (seeded as data) give the hours for the class, level and exposure column: 12 hours at class D, N5, likely exploitable and reachable.\n5. The clock is counted from the finding's first detection: evaluation within 48 hours, remediation within 12 hours (the bound), acceptance after 192 days.\n6. A finding that is likely exploitable and reachable at N5 is a reportable incident under VER-TFR-IRI.\nRun by the vdr_max collector and the Searches vdr-deadlines, vdr-incidents and vdr-summary; computed on read."
+            },
+            "editor_view": "tap_web/panels/text_panel_editor.html"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3010d0aafe9e",
+            "entity_type": "panel",
+            "name": "Where The System Stands",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Where The System Stands",
+            "slug": "playground-vdr-max-cards",
+            "description": "Counts of the deadline and incident Searches.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "hide_header": true,
+              "title_field": "evaluations",
+              "title_style": "bold",
+              "layout": "figure_right",
+              "value_field": "evaluations",
+              "value_formatter": "integer",
+              "unit": "open evaluations",
+              "lines": [
+                {
+                  "label": "Evaluation overdue (past 48 hours)",
+                  "field": "evaluation_overdue",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Remediation overdue (worst-case bound)",
+                  "field": "remediation_overdue",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Acceptance limit reached (192 days)",
+                  "field": "acceptance_reached",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Evaluated, a factor set",
+                  "field": "evaluated",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Detection time unobserved",
+                  "field": "detection_unobserved",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Reportable incidents, internet-reachable",
+                  "field": "incidents_internet_reachable",
+                  "formatter": "integer"
+                },
+                {
+                  "label": "Reportable incidents, not internet-reachable",
+                  "field": "incidents_non_internet_reachable",
+                  "formatter": "integer"
+                }
+              ],
+              "null_text": "not observed"
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3011f1b90d8e",
+            "entity_type": "panel",
+            "name": "Counts By Clock",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Counts By Clock",
+            "slug": "playground-vdr-max-chart",
+            "description": "The same counts as bars.",
+            "view": "tap_web/panels/chart.html",
+            "config": {
+              "option": {
+                "xAxis": {
+                  "type": "category",
+                  "axisLabel": {
+                    "interval": 0,
+                    "rotate": 25
+                  }
+                },
+                "yAxis": {
+                  "type": "value",
+                  "name": "findings"
+                },
+                "series": [
+                  {
+                    "type": "bar",
+                    "encode": {
+                      "x": "label",
+                      "y": "count"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3012cd5249f9",
+            "entity_type": "panel",
+            "name": "Open Evaluations",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Open Evaluations",
+            "slug": "playground-vdr-max-picker",
+            "description": "Every open evaluation and its remediation clock; pick one to follow it.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "full",
+              "striped": true,
+              "default_page_size": 10,
+              "initial_sort": [
+                {
+                  "field": "remaining_hours",
+                  "dir": "asc"
+                }
+              ],
+              "row_url_template": "/playground/vdr-max?entity_id={finding_id}",
+              "columns": [
+                {
+                  "field": "finding_source_key",
+                  "title": "Finding",
+                  "widthGrow": 5
+                },
+                {
+                  "field": "first_detected_at",
+                  "title": "First Detected",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "hours",
+                  "title": "Hours",
+                  "align": "center",
+                  "sorter": "number",
+                  "width": 110
+                },
+                {
+                  "field": "remaining_hours",
+                  "title": "Remaining Hours",
+                  "align": "center",
+                  "sorter": "number",
+                  "width": 110
+                },
+                {
+                  "field": "overdue",
+                  "title": "Overdue",
+                  "align": "center",
+                  "width": 110
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3013458a7720",
+            "entity_type": "panel",
+            "name": "The Remediation Clock",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "The Remediation Clock",
+            "slug": "playground-vdr-max-clock",
+            "description": "The chosen finding's clock: counted from first detection with the worst-case row.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "minimal",
+              "striped": true,
+              "columns": [
+                {
+                  "field": "finding_source_key",
+                  "title": "Finding",
+                  "widthGrow": 4
+                },
+                {
+                  "field": "first_detected_at",
+                  "title": "Detected",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "anchor",
+                  "title": "Counted From",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "fedramp_class",
+                  "title": "Class",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "class_source",
+                  "title": "Class From",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "hours",
+                  "title": "Hours",
+                  "align": "center",
+                  "sorter": "number",
+                  "width": 110
+                },
+                {
+                  "field": "due_at",
+                  "title": "Due",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "remaining_hours",
+                  "title": "Remaining",
+                  "align": "center",
+                  "sorter": "number",
+                  "width": 110
+                },
+                {
+                  "field": "overdue",
+                  "title": "Overdue",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "bound",
+                  "title": "Bound",
+                  "align": "center",
+                  "width": 110
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3014eb15c177",
+            "entity_type": "panel",
+            "name": "The Evaluation",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "The Evaluation",
+            "slug": "playground-vdr-max-evaluation",
+            "description": "The chosen finding's evaluation: an unset factor is the worst case.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "minimal",
+              "striped": true,
+              "columns": [
+                {
+                  "field": "scheme",
+                  "title": "Scheme",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "likely_exploitable",
+                  "title": "Likely Exploitable",
+                  "widthGrow": 2,
+                  "empty_text": "unset (worst case: yes)"
+                },
+                {
+                  "field": "internet_reachable",
+                  "title": "Internet-Reachable",
+                  "widthGrow": 2,
+                  "empty_text": "unset (worst case: yes)"
+                },
+                {
+                  "field": "pain",
+                  "title": "PAIN",
+                  "widthGrow": 2,
+                  "empty_text": "unset (worst case: N5)"
+                },
+                {
+                  "field": "evaluator",
+                  "title": "Evaluator",
+                  "widthGrow": 2,
+                  "empty_text": "none"
+                },
+                {
+                  "field": "evaluated_at",
+                  "title": "Evaluated At",
+                  "widthGrow": 2,
+                  "empty_text": "none"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-30150e5ffa00",
+            "entity_type": "panel",
+            "name": "Reportable Incident?",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Reportable Incident?",
+            "slug": "playground-vdr-max-incident",
+            "description": "Whether the chosen finding is a reportable incident under VER-TFR-IRI.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "minimal",
+              "striped": true,
+              "empty_text": "Not a reportable internet-reachable incident.",
+              "columns": [
+                {
+                  "field": "finding_source_key",
+                  "title": "Finding",
+                  "widthGrow": 4
+                },
+                {
+                  "field": "rule",
+                  "title": "Rule",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "modal",
+                  "title": "Rule Is A",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "likely_exploitable",
+                  "title": "Likely Exploitable",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "internet_reachable",
+                  "title": "Internet-Reachable",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "pain",
+                  "title": "PAIN",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "pain_source",
+                  "title": "PAIN From",
+                  "align": "center",
+                  "width": 110
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3016ba02d85b",
+            "entity_type": "panel",
+            "name": "FedRAMP Timeframes",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "FedRAMP Timeframes",
+            "slug": "playground-vdr-max-timeframes",
+            "description": "The remediation, evaluation and acceptance timeframes as seeded data.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "chrome": "full",
+              "striped": true,
+              "default_page_size": 12,
+              "initial_sort": [
+                {
+                  "field": "rule",
+                  "dir": "asc"
+                }
+              ],
+              "columns": [
+                {
+                  "field": "rule",
+                  "title": "Rule",
+                  "widthGrow": 2
+                },
+                {
+                  "field": "fedramp_class",
+                  "title": "Class",
+                  "align": "center",
+                  "width": 110
+                },
+                {
+                  "field": "pain",
+                  "title": "PAIN",
+                  "align": "center",
+                  "width": 110,
+                  "empty_text": "—"
+                },
+                {
+                  "field": "exposure",
+                  "title": "Exposure",
+                  "widthGrow": 2,
+                  "empty_text": "—"
+                },
+                {
+                  "field": "hours",
+                  "title": "Hours",
+                  "align": "center",
+                  "sorter": "number",
+                  "width": 110
+                },
+                {
+                  "field": "canon_cell",
+                  "title": "FedRAMP Says",
+                  "widthGrow": 2
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3017d4895c4c",
+            "entity_type": "search",
+            "name": "playground — vdr max counts",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max counts",
+            "description": "vdr-summary, the counts row.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-summary"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "counts"
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-30186c126845",
+            "entity_type": "search",
+            "name": "playground — vdr max counts by clock",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max counts by clock",
+            "description": "vdr-summary, the counts as rows.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-summary"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "by_view"
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-30192574be0e",
+            "entity_type": "search",
+            "name": "playground — vdr max open evaluations",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max open evaluations",
+            "description": "vdr-deadlines, remediation due, for every open evaluation.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "remediation_due"
+                },
+                "max_results": {
+                  "type": "integer",
+                  "default": 1000
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301a4685b42b",
+            "entity_type": "search",
+            "name": "playground — vdr max clock",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max clock",
+            "description": "vdr-deadlines, remediation due, for the finding in entity_id (the first listed without one).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "remediation_due"
+                },
+                "entity_id": {
+                  "type": "string",
+                  "default": "021afe75-0612-7169-9d19-2aecd0642ae8",
+                  "description": "The finding."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301b121407a8",
+            "entity_type": "search",
+            "name": "playground — vdr max evaluation",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max evaluation",
+            "description": "The evaluation of the finding in entity_id.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (e:fedramp_20x_vdr__vdr_evaluation)-[:EVALUATES_COMPLIANCE_FINDING__fedramp_20x_vdr]->(f:compliance_core__compliance_finding)",
+                "WHERE f.entity_id = $entity_id",
+                "RETURN e.data.scheme AS scheme, e.data.likely_exploitable AS likely_exploitable, e.data.internet_reachable AS internet_reachable, e.data.pain AS pain, e.data.evaluator AS evaluator, e.data.evaluated_at AS evaluated_at"
+              ]
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "entity_id": {
+                  "type": "string",
+                  "default": "021afe75-0612-7169-9d19-2aecd0642ae8",
+                  "description": "The finding."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301ce62bf38c",
+            "entity_type": "search",
+            "name": "playground — vdr max incident",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max incident",
+            "description": "vdr-incidents, internet-reachable, for the finding in entity_id.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-incidents"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "internet_reachable"
+                },
+                "entity_id": {
+                  "type": "string",
+                  "default": "021afe75-0612-7169-9d19-2aecd0642ae8",
+                  "description": "The finding."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301d6af40e3f",
+            "entity_type": "search",
+            "name": "playground — vdr max timeframes",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — vdr max timeframes",
+            "description": "The seeded FedRAMP timeframe rows.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (t:fedramp_20x_vdr__vdr_timeframe)",
+                "RETURN t.data.rule AS rule, t.data.fedramp_class AS fedramp_class, t.data.pain AS pain, t.data.exposure AS exposure, t.data.hours AS hours, t.data.canon_cell AS canon_cell"
+              ]
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-301f3251c49c",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL intro",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-300df80f5749",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-intro"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-30200feb2124",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL rules",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-300e221ee314",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-rules"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3021cfde5145",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL steps",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-300f26a3f0b5",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-steps"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3022843f6dbc",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL cards",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3010d0aafe9e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-cards"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3023c0b75cf4",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL chart",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3011f1b90d8e",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-chart"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3024b4f6d182",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL picker",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3012cd5249f9",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-picker"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-30250fcb43e9",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL clock",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3013458a7720",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-clock"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3026040ce4c9",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL evaluation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3014eb15c177",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-evaluation"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302702f2e989",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL incident",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-30150e5ffa00",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-incident"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302893169931",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL timeframes",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a161a5-712d-725e-848c-3016ba02d85b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-max-timeframes"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-3029d3cfb219",
+            "entity_type": "edge",
+            "name": "cards panel USES_SEARCH cards",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3010d0aafe9e",
+            "to_entity_id": "01a161a5-712d-725e-848c-3017d4895c4c",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302a46aac2fc",
+            "entity_type": "edge",
+            "name": "chart panel USES_SEARCH chart",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3011f1b90d8e",
+            "to_entity_id": "01a161a5-712d-725e-848c-30186c126845",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302b28514747",
+            "entity_type": "edge",
+            "name": "picker panel USES_SEARCH picker",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3012cd5249f9",
+            "to_entity_id": "01a161a5-712d-725e-848c-30192574be0e",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302cb57e12b2",
+            "entity_type": "edge",
+            "name": "clock panel USES_SEARCH clock",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3013458a7720",
+            "to_entity_id": "01a161a5-712d-725e-848c-301a4685b42b",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302d758588cc",
+            "entity_type": "edge",
+            "name": "evaluation panel USES_SEARCH evaluation",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3014eb15c177",
+            "to_entity_id": "01a161a5-712d-725e-848c-301b121407a8",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302e2a5789da",
+            "entity_type": "edge",
+            "name": "incident panel USES_SEARCH incident",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-30150e5ffa00",
+            "to_entity_id": "01a161a5-712d-725e-848c-301ce62bf38c",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a161a5-712d-725e-848c-302fd078089f",
+            "entity_type": "edge",
+            "name": "timeframes panel USES_SEARCH timeframes",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-3016ba02d85b",
+            "to_entity_id": "01a161a5-712d-725e-848c-301d6af40e3f",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1640e-80ca-764f-a072-a7aa7b93b51a",
+            "entity_type": "edge",
+            "name": "vdr max evaluations SCHEDULED_TARGET vdr_max collector",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1640e-80ca-764f-a072-a7a9c362ff86",
+            "to_entity_id": "ef175d1e-f754-5818-8e0a-22c69cfe81b9",
+            "edge_type": "SCHEDULED_TARGET",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

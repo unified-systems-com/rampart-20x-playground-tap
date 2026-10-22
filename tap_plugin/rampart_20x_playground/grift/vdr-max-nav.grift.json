@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1640e-80cb-73a8-8323-2b1b9feee342",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground vdr max navigation v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.vdr-max-nav",
+        "name": "rampart-20x-playground vdr max navigation v0.1.0",
+        "description": "Nests the VDR MAX page under the VDR Implementations page (the navigation section). Seeded only where that page is (the demo record), after both: the ci record does not seed the VDR Implementations page."
+      },
+      "nodes": [],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a1640e-80cb-73a8-8323-2b1ce895e475",
+            "entity_type": "edge",
+            "name": "VDR MAX page NESTS_UNDER VDR Implementations page",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a161a5-712d-725e-848c-301e5e593fdb",
+            "to_entity_id": "01a1e001-4c1e-7b01-9b2d-5e0f1a2b0601",
+            "edge_type": "NESTS_UNDER",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}
