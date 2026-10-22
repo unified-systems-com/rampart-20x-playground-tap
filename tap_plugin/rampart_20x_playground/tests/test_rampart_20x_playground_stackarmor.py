@@ -154,4 +154,4 @@ class TestPage:
         ci = json.loads((PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8"))
         assert "stackarmor_vdr" not in [p["slug"] for p in ci["install"]["plugins"]]
         bundles = {s.get("bundle") for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"}
-        assert not {"stackarmor_examples", "stackarmor_page", "pain", "vdr_implementations"} & bundles
+        assert not {"stackarmor_examples", "stackarmor_page", "pain", "vdr_implementations", "vdr_max_nav"} & bundles
