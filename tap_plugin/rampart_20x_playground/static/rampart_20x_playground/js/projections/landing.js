@@ -207,6 +207,8 @@
  *      so the box is about half as wide and as tall and sits in proportion to the load balancer, the database and the subnets. The reveal zoom is 1.2 / TASK_SCALE, so the
  *      interior reads on screen at the reveal as large as it did; text follows the settle `font` class (exponent 0.5) and badges its `icon` class (exponent 0.75), so their
  *      bases are scaled by TASK_SCALE to that power. The database's box and its program are not scaled (`DATABASE_PROGRAM_SCALE`).
+ *  60. the interior's arrowheads at INTERIOR_ARROW_SCALE (0.6) of the base arrow (`_styleInteriorArrows`; should become a per-edge-type arrow-scale display hint);
+ *      The interior's links are 2 px lines, so a base head, grown with the zoom by the settle `arrow` class, read as outsized; the flow's own head (exception 20) is unchanged.
  * None changes the Python, the vocabulary or the data rules.
  *
  * Running parts (Wave 3): an ECS task holds its container (RUNS_CONTAINER), the container runs gunicorn and gunicorn
@@ -405,6 +407,10 @@ const FLOW_LABEL_GAP = 4;
 //: arrow. The zoom_settle `arrow` class then holds that on screen.
 //: Ruled 2026-10-20 (George: far too big, at most half): 1, half of the 2 it was.
 const FLOW_ARROW_SCALE = 1;
+//: Playground exception 60 (should become a per-edge-type arrow-scale display hint): the arrowhead of the interior's own links (gunicorn to tap-web, USES_KEY, LOADS_LIBRARY, the
+//: packages, RUNS_PACKAGE) is INTERIOR_ARROW_SCALE (0.6) of the base arrow: those lines are 2 px, so a base head (grown with the zoom by the settle `arrow` class, exponent 1)
+//: read as outsized at the reveal. The flow's own arrowhead (FLOW_ARROW_SCALE) is not changed. Ruled 2026-10-22 (George: too big, make them more subtle).
+const INTERIOR_ARROW_SCALE = 0.6;
 //: Playground exception 19 (should become a `font_scale` option of the zoom_settle config, or a larger `normal` label tier): the
 //: factor on the runtime's base font of every label. zoom_settle writes base * clamp(z^a) / z from each element's own base, so
 //: doubling the base doubles the on-screen text at every zoom (its exponent is 0, so its band never cancels it).
@@ -664,6 +670,8 @@ export async function execute(context) {
     });
     // Playground exception 59: the interior piles' count chips are TASK_SCALE of the size tap_viz's stack gives them (its least height is a fixed 16).
     cy.nodes("[?_is_stack_chip]").filter(_interiorStackPart).forEach((chip) => chip.style({width: chip.width() * TASK_SCALE, height: chip.height() * TASK_SCALE}));
+    // Playground exception 60: the interior's own arrows (every arrowed edge that is not a flow line) are INTERIOR_ARROW_SCALE of the base head.
+    _styleInteriorArrows(cy);
     // Playground exception 48: the container's own RUNS_PROGRAM edges are not drawn; the OS box holds the programs by the OS's own RUNS_PROGRAM edges.
     cy.edges().filter((e) => _edgeType(e) === E.runsProgram && e.source().data("entity_type") === T.ecsContainer)
         .addClass(HIDDEN_CONTAINMENT_CLASS);
@@ -1911,6 +1919,15 @@ function _styleFlow(cy, flows) {
         "text-wrap": "none",
     }));
     _styleFlowEdges(cy);
+}
+
+function _styleInteriorArrows(cy) {
+    cy.edges().forEach((edge) => {
+        const type = _edgeType(edge);
+        if (type === E.flowSource || type === E.flowDestination) return;
+        if (edge.style("target-arrow-shape") === "none" && edge.style("source-arrow-shape") === "none") return;
+        edge.style("arrow-scale", INTERIOR_ARROW_SCALE);
+    });
 }
 
 function _styleFlowEdges(cy) {

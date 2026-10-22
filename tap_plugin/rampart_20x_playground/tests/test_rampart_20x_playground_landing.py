@@ -1459,14 +1459,26 @@ class TestOverviewVulnerabilityDistribution:
 
     def test_the_new_exceptions_and_spec_rows_are_recorded(self) -> None:
         source = _js()
-        for n in (56, 57, 58, 59):
+        for n in (56, 57, 58, 59, 60):
             start = source.index(f" *  {n}. ")
-            end = source.index(f"\n *  {n + 1}. ", start) if n < 59 else source.index("\n * None changes", start)
+            end = source.index(f"\n *  {n + 1}. ", start) if n < 60 else source.index("\n * None changes", start)
             assert "should become" in source[start:end], n
         text = (SPECS / "spec-rampart_20x_playground-govcloud-landing.md").read_text(encoding="utf-8")
-        for n, exception in ((38, "exception 56"), (39, "exception 57"), (40, "exception 58"), (41, "exception 59")):
+        for n, exception in ((38, "exception 56"), (39, "exception 57"), (40, "exception 58"), (41, "exception 59"), (42, "exception 60")):
             assert f"| req-rampart-20x-playground-govcloud-layout-{n} |" in text and exception in text
 
+
+
+class TestInteriorArrowheads:
+    """`req-rampart-20x-playground-govcloud-layout-42`: the interior's arrowheads are 0.6 of the base head (exception 60); the flow's head is unchanged."""
+
+    def test_the_interior_arrows_are_subtle_and_the_flow_head_is_unchanged(self) -> None:
+        source = _js()
+        assert "const INTERIOR_ARROW_SCALE = 0.6;" in source and "const FLOW_ARROW_SCALE = 1;" in source
+        body = source.split("function _styleInteriorArrows")[1].split("\n}\n")[0]
+        assert 'edge.style("arrow-scale", INTERIOR_ARROW_SCALE)' in body
+        assert "E.flowSource" in body and "E.flowDestination" in body, "a flow line keeps FLOW_ARROW_SCALE"
+        assert "_styleInteriorArrows(cy);" in source.split("function _styleInteriorArrows")[0]
 
 
 class TestWebTaskScale:
