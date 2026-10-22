@@ -861,7 +861,7 @@
               "full_bleed": true,
               "columns": {
                 "col-1": {
-                  "width": "3fr",
+                  "width": "compact",
                   "band": 1,
                   "rows": {
                     "row-1": {
@@ -871,7 +871,7 @@
                   }
                 },
                 "col-2": {
-                  "width": "3fr",
+                  "width": "compact",
                   "band": 1,
                   "rows": {
                     "row-1": {
