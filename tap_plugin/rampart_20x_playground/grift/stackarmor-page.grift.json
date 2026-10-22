@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.stackarmor-page",
         "name": "rampart-20x-playground stackarmor page v0.1.0",
-        "description": "The /playground/stackarmor page: the method in text, a picker for the memo's five worked examples, one finding followed through every number, the finding as a graph, one CVE across assets, who requires what, the archetype catalog and what is assumed. See specs/spec-rampart_20x_playground-stackarmor.md."
+        "description": "The /playground/stackarmor page: the method in text, one finding followed through every number, the finding as a graph, one CVE across assets, who requires what, the archetype catalog and what is assumed. See specs/spec-rampart_20x_playground-stackarmor.md."
       },
       "nodes": [
         {
@@ -47,7 +47,7 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-method",
+                      "panel-id": "playground-stackarmor-assumed",
                       "height": "auto"
                     }
                   }
@@ -57,7 +57,7 @@
                   "band": 2,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-steps",
+                      "panel-id": "playground-stackarmor-dist",
                       "height": "auto"
                     }
                   }
@@ -67,24 +67,14 @@
                   "band": 3,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-picker",
-                      "height": "auto"
-                    }
-                  }
-                },
-                "col-5": {
-                  "width": "12fr",
-                  "band": 4,
-                  "rows": {
-                    "row-1": {
                       "panel-id": "playground-stackarmor-one",
                       "height": "auto"
                     }
                   }
                 },
-                "col-6": {
+                "col-5": {
                   "width": "6fr",
-                  "band": 5,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-graph",
@@ -92,12 +82,22 @@
                     }
                   }
                 },
-                "col-7": {
+                "col-6": {
                   "width": "6fr",
-                  "band": 5,
+                  "band": 4,
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-stackarmor-cve",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-7": {
+                  "width": "12fr",
+                  "band": 5,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-pain-findings",
                       "height": "auto"
                     }
                   }
@@ -107,7 +107,7 @@
                   "band": 6,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-stamps",
+                      "panel-id": "playground-pain-assets",
                       "height": "auto"
                     }
                   }
@@ -117,27 +117,37 @@
                   "band": 7,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-archetypes",
+                      "panel-id": "playground-stackarmor-stamps",
                       "height": "auto"
                     }
                   }
                 },
                 "col-10": {
-                  "width": "6fr",
+                  "width": "12fr",
                   "band": 8,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-assumed",
+                      "panel-id": "playground-stackarmor-archetypes",
                       "height": "auto"
                     }
                   }
                 },
                 "col-11": {
                   "width": "6fr",
-                  "band": 8,
+                  "band": 9,
                   "rows": {
                     "row-1": {
-                      "panel-id": "playground-stackarmor-dist",
+                      "panel-id": "playground-stackarmor-method",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-12": {
+                  "width": "6fr",
+                  "band": 9,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-stackarmor-steps",
                       "height": "auto"
                     }
                   }
@@ -207,45 +217,6 @@
               "text": "1. A scanner finding concerns a vulnerability (CONCERNS_COMPLIANCE_VULNERABILITY) and is carried by a component (CARRIES_COMPLIANCE_FINDING).\n2. The owner: the base reach (fedramp_20x_vdr) names the program that owns the component in a container, or the container itself.\n3. Impact: C, I and A come from the vulnerability's CVSS vector; no vector means High.\n4. Requirements: the owner program's stamp (asset_profile, PROFILES_PROGRAM) gives CR, IR and AR, from an archetype (USES_ARCHETYPE) or its own values.\n5. Score: U and S, then the word, then the N-level with the affected-agency flag (stamped, or the Search input).\n6. Exposure: likely exploitable (KEV, EPSS, or evidence) and internet-reachable choose the remediation column.\n7. Deadline: the FedRAMP timeframe row for the class, the level and the column, in hours.\nRun by the Searches stackarmor-pain, stackarmor-summary and stackarmor-trace; computed on read."
             },
             "editor_view": "tap_web/panels/text_panel_editor.html"
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48d3e6eb745a",
-            "entity_type": "panel",
-            "name": "Memo Examples",
-            "dimensions": {
-              "tap.graph": "web"
-            }
-          },
-          "node": {
-            "name": "Memo Examples",
-            "slug": "playground-stackarmor-picker",
-            "description": "The memo's five worked examples; pick one to follow it down the page.",
-            "view": "tap_web/panels/table_panel.html",
-            "config": {
-              "chrome": "minimal",
-              "striped": true,
-              "initial_sort": [
-                {
-                  "field": "example",
-                  "dir": "asc"
-                }
-              ],
-              "row_url_template": "/playground/stackarmor?entity_id={finding_id}&vuln_id={vuln_id}",
-              "columns": [
-                {
-                  "field": "example",
-                  "title": "Example",
-                  "widthGrow": 3
-                },
-                {
-                  "field": "memo_result",
-                  "title": "The Memo Says",
-                  "widthGrow": 3
-                }
-              ]
-            }
           }
         },
         {
@@ -591,9 +562,7 @@
             "description": "How much of the system's result is the conservative result rather than evidence.",
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
-              "hide_header": true,
-              "title_field": "rows",
-              "title_style": "bold",
+              "hide_header": false,
               "layout": "figure_right",
               "value_field": "rows",
               "value_formatter": "integer",
@@ -672,27 +641,6 @@
                   }
                 ]
               }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48dbca141e09",
-            "entity_type": "search",
-            "name": "playground — stackarmor memo examples",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — stackarmor memo examples",
-            "description": "The five memo examples: one row per example finding with the vulnerability it concerns.",
-            "search_type": "gryphon",
-            "root": "node",
-            "definition": {
-              "query": [
-                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability)",
-                "WHERE f.data.source = \"stackarmor-memo\"",
-                "RETURN f.entity_id AS finding_id, v.entity_id AS vuln_id, f.data.name AS example, f.data.summary AS memo_result"
-              ]
             }
           }
         },
@@ -786,12 +734,13 @@
           },
           "node": {
             "name": "playground — stackarmor stamps",
-            "description": "The programs with a stackarmor stamp and what each states.",
+            "description": "The programs with a stackarmor stamp and what each states, leaving out the memo's example programs.",
             "search_type": "gryphon",
             "root": "node",
             "definition": {
               "query": [
                 "MATCH (s:stackarmor_vdr__asset_profile)-[:PROFILES_PROGRAM__stackarmor_vdr]->(p:computing_core__program)",
+                "WHERE NOT s.data.stamp_key STARTS_WITH \"example-\"",
                 "RETURN p.name AS program, s.data.stamp_key AS stamp, s.data.cr AS cr, s.data.ir AS ir, s.data.ar AS ar, s.data.multi_agency AS multi_agency, s.data.rationale AS rationale"
               ]
             }
@@ -928,26 +877,6 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-stackarmor-steps"
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48e72d206628",
-            "entity_type": "edge",
-            "name": "Page USES_PANEL picker",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48d3e6eb745a",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-stackarmor-picker"
               }
             }
           }
@@ -1094,20 +1023,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a16114-6c12-7238-bbd7-48ef85af845c",
-            "entity_type": "edge",
-            "name": "picker panel USES_SEARCH examples",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a16114-6c12-7238-bbd7-48d3e6eb745a",
-            "to_entity_id": "01a16114-6c12-7238-bbd7-48dbca141e09",
-            "edge_type": "USES_SEARCH",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a16114-6c12-7238-bbd7-48f0bdc5e9ef",
             "entity_type": "edge",
             "name": "one panel USES_SEARCH one",
@@ -1202,6 +1117,46 @@
             "to_entity_id": "01a16114-6c12-7238-bbd7-48e210ea9a70",
             "edge_type": "USES_SEARCH",
             "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16114-6c12-7238-bbd7-49e0c42aa2e0",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL playground-pain-findings",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
+            "to_entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-pain-findings"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16114-6c12-7238-bbd7-49e0c42aa2e1",
+            "entity_type": "edge",
+            "name": "Page USES_PANEL playground-pain-assets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
+            "to_entity_id": "01a1d005-4c1e-7a03-9b2d-5e0f1a2b0503",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-pain-assets"
+              }
+            }
           }
         }
       ]

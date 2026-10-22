@@ -1200,6 +1200,7 @@
           "node": {
             "name": "Inventory",
             "slug": "/playground/inventory",
+            "nav_weight": 30,
             "description": "The deployment's inventory as nine small tables: applications, libraries, packages, operating systems, containers, crypto, secrets, cloud services and third-party SaaS.",
             "layout": {
               "columns": {
