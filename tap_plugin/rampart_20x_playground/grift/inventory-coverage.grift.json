@@ -473,7 +473,8 @@
                     "type": "line",
                     "showSymbol": false,
                     "lineStyle": {
-                      "width": 2
+                      "width": 1.5,
+                      "opacity": 0.55
                     },
                     "endLabel": {
                       "show": true,
@@ -504,7 +505,16 @@
                   "Third-Party SaaS",
                   "Secrets",
                   "Overall"
-                ]
+                ],
+                "overrides": {
+                  "Overall": {
+                    "lineStyle": {
+                      "width": 6,
+                      "opacity": 1
+                    },
+                    "z": 10
+                  }
+                }
               },
               "types": {
                 "observed_at": "time",
@@ -517,16 +527,16 @@
               "empty_text": "No snapshots yet.",
               "color_map": {
                 "map": {
-                  "Applications": "accent-1",
-                  "Cloud Services": "accent-2",
-                  "Containers": "accent-3",
-                  "Crypto": "accent-4",
-                  "Libraries": "accent-5",
-                  "Operating Systems": "accent-6",
-                  "Packages": "accent-7",
-                  "Third-Party SaaS": "accent-8",
-                  "Secrets": "accent-1",
-                  "Overall": "neutral"
+                  "Applications": "muted",
+                  "Cloud Services": "muted",
+                  "Containers": "muted",
+                  "Crypto": "muted",
+                  "Libraries": "muted",
+                  "Operating Systems": "muted",
+                  "Packages": "muted",
+                  "Third-Party SaaS": "muted",
+                  "Secrets": "muted",
+                  "Overall": "accent-1"
                 }
               }
             }
@@ -579,7 +589,8 @@
                     "type": "line",
                     "showSymbol": false,
                     "lineStyle": {
-                      "width": 2
+                      "width": 1.5,
+                      "opacity": 0.55
                     },
                     "endLabel": {
                       "show": true,
@@ -609,7 +620,16 @@
                   "Third-Party SaaS",
                   "Secrets",
                   "Overall"
-                ]
+                ],
+                "overrides": {
+                  "Overall": {
+                    "lineStyle": {
+                      "width": 6,
+                      "opacity": 1
+                    },
+                    "z": 10
+                  }
+                }
               },
               "types": {
                 "observed_at": "time",
@@ -622,15 +642,15 @@
               "empty_text": "No snapshots yet.",
               "color_map": {
                 "map": {
-                  "Applications": "accent-1",
-                  "Cloud Services": "accent-2",
-                  "Containers": "accent-3",
-                  "Libraries": "accent-4",
-                  "Operating Systems": "accent-5",
-                  "Packages": "accent-6",
-                  "Third-Party SaaS": "accent-7",
-                  "Secrets": "accent-8",
-                  "Overall": "neutral"
+                  "Applications": "muted",
+                  "Cloud Services": "muted",
+                  "Containers": "muted",
+                  "Libraries": "muted",
+                  "Operating Systems": "muted",
+                  "Packages": "muted",
+                  "Third-Party SaaS": "muted",
+                  "Secrets": "muted",
+                  "Overall": "accent-1"
                 }
               }
             }
