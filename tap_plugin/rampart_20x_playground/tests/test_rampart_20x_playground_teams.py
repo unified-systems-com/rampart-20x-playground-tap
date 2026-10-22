@@ -208,7 +208,7 @@ class TestStamps:
             else:
                 assert value == self.team_id[expected], (e["entity_type"], e["name"])
                 stamped[expected] += 1
-        assert stamped == Counter({"git-serious": 1, "devops": 15, "engineering": 305, "infra": 36})
+        assert stamped == Counter({"git-serious": 1, "devops": 15, "engineering": 315, "infra": 36})
 
     def test_the_unstamped_types_are_the_ones_the_spec_leaves_out(self) -> None:
         seen = {n["entity"]["entity_type"] for n in self.nodes if n["entity"]["dimensions"].get(KEY) is None}

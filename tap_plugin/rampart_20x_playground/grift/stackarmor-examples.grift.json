@@ -1,0 +1,1175 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a16113-c846-7535-b221-9e08106327d0",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground stackarmor memo examples v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.stackarmor-examples",
+        "name": "rampart-20x-playground stackarmor memo examples v0.1.0",
+        "description": "The five worked examples of the stackArmor memo (section 10) stood up as data: for each, a fictional component, program, container, finding and vulnerability, and the asset-profile stamp whose effective requirements and affected-agency flag the memo uses. The programs carry no inventory dimension, so the inventory and coverage pages do not count them. See specs/spec-rampart_20x_playground-stackarmor.md (req-rampart-20x-playground-stackarmor-examples)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
+            "entity_type": "compliance_core__compliance_vulnerability",
+            "name": "DEMO-2026-0001",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "node": {
+            "vuln_id": "DEMO-2026-0001",
+            "aliases": [],
+            "title": "Remote code execution in a request parser (memo examples 1 to 3)",
+            "description": "Remote code execution in a request parser (memo examples 1 to 3). A fictional vulnerability that stands in for the memo's worked example.",
+            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "cvss_version": "3.1",
+            "kev": false,
+            "epss_score": 0.5
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5a76560db9",
+            "entity_type": "compliance_core__compliance_vulnerability",
+            "name": "DEMO-2026-0004",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "node": {
+            "vuln_id": "DEMO-2026-0004",
+            "aliases": [],
+            "title": "Denial of service in a replication-surface parser (memo example 4)",
+            "description": "Denial of service in a replication-surface parser (memo example 4). A fictional vulnerability that stands in for the memo's worked example.",
+            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "cvss_version": "3.1",
+            "kev": false,
+            "epss_score": 0.76
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5b3f2cb40b",
+            "entity_type": "compliance_core__compliance_vulnerability",
+            "name": "DEMO-2026-0005",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "node": {
+            "vuln_id": "DEMO-2026-0005",
+            "aliases": [],
+            "title": "Information disclosure in a metadata service (memo example 5)",
+            "description": "Information disclosure in a metadata service (memo example 5). A fictional vulnerability that stands in for the memo's worked example.",
+            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            "cvss_version": "3.1",
+            "kev": false,
+            "epss_score": 0.1
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5c4f98e401",
+            "entity_type": "computing_core__package",
+            "name": "memo-example-1-component",
+            "dimensions": {
+              "dcom": "design",
+              "tap.computing": "runtime",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "memo-example-1-component",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5d1f414b3b",
+            "entity_type": "computing_core__program",
+            "name": "Memo Example 1",
+            "dimensions": {
+              "dcom": "design",
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "program_name": "Memo Example 1",
+            "version": "1.0.0",
+            "name": "Memo Example 1"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5e835ea2be",
+            "entity_type": "computing_core__host",
+            "name": "memo example 1 image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-1-image",
+            "kind": "container",
+            "name": "memo example 1 image"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c5f86c983d5",
+            "entity_type": "computing_core__host",
+            "name": "memo example 1 container",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-1-container",
+            "kind": "container",
+            "name": "memo example 1 container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c603ac902c6",
+            "entity_type": "compliance_core__compliance_finding",
+            "name": "Memo example 1: RCE on a crown-jewel datastore, multi-agency",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "source_key": "memo-example-1",
+            "name": "Memo example 1: RCE on a crown-jewel datastore, multi-agency",
+            "summary": "Memo says: U 0.995904, S 1.000, Debilitating, N5.",
+            "description": "Worked example 1 of the stackArmor memo (section 10), stood up as data. Memo result: U 0.995904, S 1.000, Debilitating, N5. Memo example 1: the effective profile is H/H/H (the ceiling does not bind) and more than one agency is affected.",
+            "status": "open",
+            "first_detected_at": "2026-10-20T19:00:00Z"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c615e7d9fca",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "Profile memo example 1",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "stamp_key": "example-1",
+            "scheme": "stackarmor",
+            "cr": "high",
+            "ir": "high",
+            "ar": "high",
+            "multi_agency": 1,
+            "rationale": "Memo example 1: the effective profile is H/H/H (the ceiling does not bind) and more than one agency is affected."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c698223d2b8",
+            "entity_type": "computing_core__package",
+            "name": "memo-example-2-component",
+            "dimensions": {
+              "dcom": "design",
+              "tap.computing": "runtime",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "memo-example-2-component",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6add2cb7dd",
+            "entity_type": "computing_core__program",
+            "name": "Memo Example 2",
+            "dimensions": {
+              "dcom": "design",
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "program_name": "Memo Example 2",
+            "version": "1.0.0",
+            "name": "Memo Example 2"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6b891f4c47",
+            "entity_type": "computing_core__host",
+            "name": "memo example 2 image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-2-image",
+            "kind": "container",
+            "name": "memo example 2 image"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6c673d317c",
+            "entity_type": "computing_core__host",
+            "name": "memo example 2 container",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-2-container",
+            "kind": "container",
+            "name": "memo example 2 container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6d66bc7a07",
+            "entity_type": "compliance_core__compliance_finding",
+            "name": "Memo example 2: The same CVE and datastore under a Moderate ceiling",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "source_key": "memo-example-2",
+            "name": "Memo example 2: The same CVE and datastore under a Moderate ceiling",
+            "summary": "Memo says: U 0.914816, S 0.918578, Disruptive, N4.",
+            "description": "Worked example 2 of the stackArmor memo (section 10), stood up as data. Memo result: U 0.914816, S 0.918578, Disruptive, N4. Memo example 2: the H/H/H datastore profile with a Moderate ceiling gives an effective M/M/M; multi-agency.",
+            "status": "open",
+            "first_detected_at": "2026-10-20T19:00:00Z"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6e0bb255ad",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "Profile memo example 2",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "stamp_key": "example-2",
+            "scheme": "stackarmor",
+            "cr": "medium",
+            "ir": "medium",
+            "ar": "medium",
+            "multi_agency": 1,
+            "rationale": "Memo example 2: the H/H/H datastore profile with a Moderate ceiling gives an effective M/M/M; multi-agency."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de1ab591218",
+            "entity_type": "computing_core__package",
+            "name": "memo-example-3-component",
+            "dimensions": {
+              "dcom": "design",
+              "tap.computing": "runtime",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "memo-example-3-component",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de2c24346a9",
+            "entity_type": "computing_core__program",
+            "name": "Memo Example 3",
+            "dimensions": {
+              "dcom": "design",
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "program_name": "Memo Example 3",
+            "version": "1.0.0",
+            "name": "Memo Example 3"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de3814ac67e",
+            "entity_type": "computing_core__host",
+            "name": "memo example 3 image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-3-image",
+            "kind": "container",
+            "name": "memo example 3 image"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de4d74e543d",
+            "entity_type": "computing_core__host",
+            "name": "memo example 3 container",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-3-container",
+            "kind": "container",
+            "name": "memo example 3 container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de52fc16aa2",
+            "entity_type": "compliance_core__compliance_finding",
+            "name": "Memo example 3: The same CVE on a sandbox, single agency",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "source_key": "memo-example-3",
+            "name": "Memo example 3: The same CVE on a sandbox, single agency",
+            "summary": "Memo says: U 0.626752, S 0.629330, Disruptive, N3.",
+            "description": "Worked example 3 of the stackArmor memo (section 10), stood up as data. Memo result: U 0.626752, S 0.629330, Disruptive, N3. Memo example 3: a sandbox with an effective L/L/L profile and one agency.",
+            "status": "open",
+            "first_detected_at": "2026-10-20T19:00:00Z"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de62cf81052",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "Profile memo example 3",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "stamp_key": "example-3",
+            "scheme": "stackarmor",
+            "cr": "low",
+            "ir": "low",
+            "ar": "low",
+            "multi_agency": 0,
+            "rationale": "Memo example 3: a sandbox with an effective L/L/L profile and one agency."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9deee96c0b38",
+            "entity_type": "computing_core__package",
+            "name": "memo-example-4-component",
+            "dimensions": {
+              "dcom": "design",
+              "tap.computing": "runtime",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "memo-example-4-component",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9def3d608cb5",
+            "entity_type": "computing_core__program",
+            "name": "Memo Example 4",
+            "dimensions": {
+              "dcom": "design",
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "program_name": "Memo Example 4",
+            "version": "1.0.0",
+            "name": "Memo Example 4"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df01c7c1e85",
+            "entity_type": "computing_core__host",
+            "name": "memo example 4 image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-4-image",
+            "kind": "container",
+            "name": "memo example 4 image"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df13254b426",
+            "entity_type": "computing_core__host",
+            "name": "memo example 4 container",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-4-container",
+            "kind": "container",
+            "name": "memo example 4 container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df23e2f39ab",
+            "entity_type": "compliance_core__compliance_finding",
+            "name": "Memo example 4: Availability-only DoS on a message backbone",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "source_key": "memo-example-4",
+            "name": "Memo example 4: Availability-only DoS on a message backbone",
+            "summary": "Memo says: U 0.84, S 0.843455, Disruptive, N3.",
+            "description": "Worked example 4 of the stackArmor memo (section 10), stood up as data. Memo result: U 0.84, S 0.843455, Disruptive, N3. Memo example 4: the effective profile is M/M/H, one agency. The memo also puts this finding at Class C and not internet-reachable (32 days); this system scores the level and, with the default class and reachability, shows a different deadline.",
+            "status": "open",
+            "first_detected_at": "2026-10-20T19:00:00Z"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df3dcabb883",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "Profile memo example 4",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "stamp_key": "example-4",
+            "scheme": "stackarmor",
+            "cr": "medium",
+            "ir": "medium",
+            "ar": "high",
+            "multi_agency": 0,
+            "rationale": "Memo example 4: the effective profile is M/M/H, one agency. The memo also puts this finding at Class C and not internet-reachable (32 days); this system scores the level and, with the default class and reachability, shows a different deadline."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dfbd433b7f8",
+            "entity_type": "computing_core__package",
+            "name": "memo-example-5-component",
+            "dimensions": {
+              "dcom": "design",
+              "tap.computing": "runtime",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "ecosystem": "generic",
+            "name": "memo-example-5-component",
+            "version": "1.0.0"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dfccb48ab93",
+            "entity_type": "computing_core__program",
+            "name": "Memo Example 5",
+            "dimensions": {
+              "dcom": "design",
+              "dataclass.action": "process",
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+            }
+          },
+          "node": {
+            "program_name": "Memo Example 5",
+            "version": "1.0.0",
+            "name": "Memo Example 5"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dfd65eb9ffc",
+            "entity_type": "computing_core__host",
+            "name": "memo example 5 image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-5-image",
+            "kind": "container",
+            "name": "memo example 5 image"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dfef90e6b80",
+            "entity_type": "computing_core__host",
+            "name": "memo example 5 container",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "node": {
+            "realm": "rampart-playground",
+            "stable_id": "memo-example-5-container",
+            "kind": "container",
+            "name": "memo example 5 container"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dff23c10d7a",
+            "entity_type": "compliance_core__compliance_finding",
+            "name": "Memo example 5: Information disclosure on a metadata-only service",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "source_key": "memo-example-5",
+            "name": "Memo example 5: Information disclosure on a metadata-only service",
+            "summary": "Memo says: U 0.28, S 0.281152, Narrow, N2.",
+            "description": "Worked example 5 of the stackArmor memo (section 10), stood up as data. Memo result: U 0.28, S 0.281152, Narrow, N2. Memo example 5: the effective profile is L/M/M (Low confidentiality requirement), one agency; U sits exactly on the first boundary.",
+            "status": "open",
+            "first_detected_at": "2026-10-20T19:00:00Z"
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e00673b493b",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "Profile memo example 5",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "node": {
+            "source": "stackarmor-memo",
+            "stamp_key": "example-5",
+            "scheme": "stackarmor",
+            "cr": "low",
+            "ir": "medium",
+            "ar": "medium",
+            "multi_agency": 0,
+            "rationale": "Memo example 5: the effective profile is L/M/M (Low confidentiality requirement), one agency; U sits exactly on the first boundary."
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c62a718857b",
+            "entity_type": "edge",
+            "name": "memo1 container RUNS_IMAGE image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c5f86c983d5",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5e835ea2be",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c639b349edc",
+            "entity_type": "edge",
+            "name": "memo1 image INSTALLS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c5e835ea2be",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5c4f98e401",
+            "edge_type": "INSTALLS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c64bbb47a07",
+            "entity_type": "edge",
+            "name": "memo1 container RUNS_PROGRAM program",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c5f86c983d5",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5d1f414b3b",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c659dbd018b",
+            "entity_type": "edge",
+            "name": "memo1 program RUNS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime",
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c5d1f414b3b",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5c4f98e401",
+            "edge_type": "RUNS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c6685c9db48",
+            "entity_type": "edge",
+            "name": "memo1 package CARRIES finding",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c5c4f98e401",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c603ac902c6",
+            "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c67b9da7302",
+            "entity_type": "edge",
+            "name": "memo1 finding CONCERNS vulnerability",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c603ac902c6",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
+            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c845-7132-b1e6-4c686a9980b3",
+            "entity_type": "edge",
+            "name": "memo1 stamp PROFILES program",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c615e7d9fca",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5d1f414b3b",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dda159c8a8b",
+            "entity_type": "edge",
+            "name": "memo2 container RUNS_IMAGE image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6c673d317c",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c6b891f4c47",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ddbd6f287c0",
+            "entity_type": "edge",
+            "name": "memo2 image INSTALLS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6b891f4c47",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c698223d2b8",
+            "edge_type": "INSTALLS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ddc28b3171a",
+            "entity_type": "edge",
+            "name": "memo2 container RUNS_PROGRAM program",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6c673d317c",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c6add2cb7dd",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ddde26136f9",
+            "entity_type": "edge",
+            "name": "memo2 program RUNS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime",
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6add2cb7dd",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c698223d2b8",
+            "edge_type": "RUNS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ddee9c2d895",
+            "entity_type": "edge",
+            "name": "memo2 package CARRIES finding",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c698223d2b8",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c6d66bc7a07",
+            "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ddff43eaa26",
+            "entity_type": "edge",
+            "name": "memo2 finding CONCERNS vulnerability",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6d66bc7a07",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
+            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de0581c6574",
+            "entity_type": "edge",
+            "name": "memo2 stamp PROFILES program",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c845-7132-b1e6-4c6e0bb255ad",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c6add2cb7dd",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de76a6f9903",
+            "entity_type": "edge",
+            "name": "memo3 container RUNS_IMAGE image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de4d74e543d",
+            "to_entity_id": "01a16113-c846-7535-b221-9de3814ac67e",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de878104f9b",
+            "entity_type": "edge",
+            "name": "memo3 image INSTALLS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de3814ac67e",
+            "to_entity_id": "01a16113-c846-7535-b221-9de1ab591218",
+            "edge_type": "INSTALLS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9de9fd4b7eac",
+            "entity_type": "edge",
+            "name": "memo3 container RUNS_PROGRAM program",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de4d74e543d",
+            "to_entity_id": "01a16113-c846-7535-b221-9de2c24346a9",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dea8a9d7f6e",
+            "entity_type": "edge",
+            "name": "memo3 program RUNS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime",
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de2c24346a9",
+            "to_entity_id": "01a16113-c846-7535-b221-9de1ab591218",
+            "edge_type": "RUNS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9debcbadc622",
+            "entity_type": "edge",
+            "name": "memo3 package CARRIES finding",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de1ab591218",
+            "to_entity_id": "01a16113-c846-7535-b221-9de52fc16aa2",
+            "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dec08fed020",
+            "entity_type": "edge",
+            "name": "memo3 finding CONCERNS vulnerability",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de52fc16aa2",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c59419486f8",
+            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9ded20d00aa4",
+            "entity_type": "edge",
+            "name": "memo3 stamp PROFILES program",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9de62cf81052",
+            "to_entity_id": "01a16113-c846-7535-b221-9de2c24346a9",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df48cfa4e57",
+            "entity_type": "edge",
+            "name": "memo4 container RUNS_IMAGE image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9df13254b426",
+            "to_entity_id": "01a16113-c846-7535-b221-9df01c7c1e85",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df558f18b8b",
+            "entity_type": "edge",
+            "name": "memo4 image INSTALLS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9df01c7c1e85",
+            "to_entity_id": "01a16113-c846-7535-b221-9deee96c0b38",
+            "edge_type": "INSTALLS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df6af041192",
+            "entity_type": "edge",
+            "name": "memo4 container RUNS_PROGRAM program",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9df13254b426",
+            "to_entity_id": "01a16113-c846-7535-b221-9def3d608cb5",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df7367dcf63",
+            "entity_type": "edge",
+            "name": "memo4 program RUNS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime",
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9def3d608cb5",
+            "to_entity_id": "01a16113-c846-7535-b221-9deee96c0b38",
+            "edge_type": "RUNS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df89759519e",
+            "entity_type": "edge",
+            "name": "memo4 package CARRIES finding",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9deee96c0b38",
+            "to_entity_id": "01a16113-c846-7535-b221-9df23e2f39ab",
+            "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9df95783e864",
+            "entity_type": "edge",
+            "name": "memo4 finding CONCERNS vulnerability",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9df23e2f39ab",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5a76560db9",
+            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9dfa2fc1b297",
+            "entity_type": "edge",
+            "name": "memo4 stamp PROFILES program",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9df3dcabb883",
+            "to_entity_id": "01a16113-c846-7535-b221-9def3d608cb5",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e01b538a00a",
+            "entity_type": "edge",
+            "name": "memo5 container RUNS_IMAGE image",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dfef90e6b80",
+            "to_entity_id": "01a16113-c846-7535-b221-9dfd65eb9ffc",
+            "edge_type": "RUNS_IMAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e0291c3bc28",
+            "entity_type": "edge",
+            "name": "memo5 image INSTALLS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dfd65eb9ffc",
+            "to_entity_id": "01a16113-c846-7535-b221-9dfbd433b7f8",
+            "edge_type": "INSTALLS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e0385b91807",
+            "entity_type": "edge",
+            "name": "memo5 container RUNS_PROGRAM program",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dfef90e6b80",
+            "to_entity_id": "01a16113-c846-7535-b221-9dfccb48ab93",
+            "edge_type": "RUNS_PROGRAM__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e04733e4dcc",
+            "entity_type": "edge",
+            "name": "memo5 program RUNS_PACKAGE package",
+            "dimensions": {
+              "tap.computing": "runtime",
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dfccb48ab93",
+            "to_entity_id": "01a16113-c846-7535-b221-9dfbd433b7f8",
+            "edge_type": "RUNS_PACKAGE__computing_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e055c5d67e4",
+            "entity_type": "edge",
+            "name": "memo5 package CARRIES finding",
+            "dimensions": {
+              "compliance": "finding"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dfbd433b7f8",
+            "to_entity_id": "01a16113-c846-7535-b221-9dff23c10d7a",
+            "edge_type": "CARRIES_COMPLIANCE_FINDING__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e0676d36ff9",
+            "entity_type": "edge",
+            "name": "memo5 finding CONCERNS vulnerability",
+            "dimensions": {
+              "compliance": "vulnerability"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9dff23c10d7a",
+            "to_entity_id": "01a16113-c845-7132-b1e6-4c5b3f2cb40b",
+            "edge_type": "CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a16113-c846-7535-b221-9e0705b0ad5a",
+            "entity_type": "edge",
+            "name": "memo5 stamp PROFILES program",
+            "dimensions": {
+              "fedramp.rule": "vdr"
+            }
+          },
+          "edge": {
+            "from_entity_id": "01a16113-c846-7535-b221-9e00673b493b",
+            "to_entity_id": "01a16113-c846-7535-b221-9dfccb48ab93",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

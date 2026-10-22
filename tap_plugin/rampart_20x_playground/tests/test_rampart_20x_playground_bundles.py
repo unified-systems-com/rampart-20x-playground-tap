@@ -144,8 +144,8 @@ class TestDataclassActionStamping:
             if (entity["entity_type"], entity["name"], action) == self.WRONG_ON_PURPOSE:
                 wrong.append(entity["name"])
         # five flows, eight programs, the containers, buckets, RDS instance, the rest of the cloud services, hosts,
-        # three libraries, the OS, 162 packages, two secrets and github.com (`coverage-seed-1`)
-        assert counts == {"transmit": 10, "process": 182, "store": 8, "none": 1}
+        # three libraries, the OS, 162 packages, two secrets and github.com (`coverage-seed-1`), and the five stackarmor memo-example programs
+        assert counts == {"transmit": 10, "process": 187, "store": 8, "none": 1}
         assert wrong == ["container tls public key"]
 
     def test_the_retired_administration_flow_is_unstamped(self) -> None:

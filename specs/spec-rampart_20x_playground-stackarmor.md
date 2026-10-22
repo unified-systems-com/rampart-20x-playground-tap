@@ -1,0 +1,59 @@
+# Rampart 20x Playground StackArmor Page Specification
+
+**The playground shows the stackArmor PAIN method two ways on one page: as a process (what each step is) and as it runs on this system (every number computed live from the grid by `stackarmor_vdr`). The memo's five worked examples are stood up as data, so a reader can pick one and follow it down the page.**
+
+This is an extension of `spec-rampart_20x_playground-v0.md`. It adds one page, one examples bundle and one dependency. It stores nothing derived: every figure comes from a `stackarmor_vdr` Search run when the page loads.
+
+## Requirements
+
+| RID | Name | Status | Notes |
+| --- | --- | :---: | --- |
+| req-rampart-20x-playground-stackarmor-examples | [Memo Examples](#memo-examples) | Proposed | The five worked examples of the stackArmor memo as data: a finding, vulnerability, component, program, container and stamp each. |
+| req-rampart-20x-playground-page-stackarmor | [StackArmor Page](#stackarmor-page) | Proposed | `/playground/stackarmor`: text, a picker of the five examples, and the data panels that follow the chosen one. |
+
+### Memo Examples
+----
+RID: `req-rampart-20x-playground-stackarmor-examples`
+
+Status: `Proposed`
+
+`grift/stackarmor-examples.grift.json` holds, for each of the memo's examples 1 to 5 (section 10), a fictional component (`generic` package), a program that runs it, an image host and a container that runs the image and the program, an open finding that the component carries (source `stackarmor-memo`, key `memo-example-<k>`), and the `stackarmor_vdr` asset-profile stamp pointing at the program with the memo's effective requirements and affected-agency flag. Examples 1 to 3 concern one vulnerability (`DEMO-2026-0001`); 4 and 5 have their own. The memo's own result is written in each finding's `summary`.
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-stackarmor-examples-1 | Five Examples | Proposed | The bundle holds five findings with source `stackarmor-memo`, five programs, five stamps and three vulnerabilities. | |
+| req-rampart-20x-playground-stackarmor-examples-2 | The Memo's Inputs | Proposed | The stamps carry the memo's effective requirements and flag: H/H/H and 1, M/M/M and 1, L/L/L and 0, M/M/H and 0, L/M/M and 0; the vulnerabilities carry CVSS 3.1 vectors with impact H/H/H, H/H/H, H/H/H, A only and C only. | |
+| req-rampart-20x-playground-stackarmor-examples-3 | Same Result As The Memo | Proposed | `stackarmor-pain` on each example finding returns the memo's U, S, word and N-level (N5, N4, N3, N3, N2). | Checked against a booted stack; the bundle tests read the inputs only. |
+| req-rampart-20x-playground-stackarmor-examples-4 | Stamped Like The Inventory | Proposed | The programs and components carry the Engineering `team.responsible` and the programs `dataclass.action` `process`, so the inventory guards hold; the hosts carry neither, as every other host. | The guards pin the counts. |
+| req-rampart-20x-playground-stackarmor-examples-5 | Fictional Is Said | Proposed | Every example's name begins `Memo Example` or `memo example`, and its finding says it is the memo's example. | |
+
+### StackArmor Page
+----
+RID: `req-rampart-20x-playground-page-stackarmor`
+
+Status: `Proposed`
+
+`grift/stackarmor-page.grift.json` seeds the page `/playground/stackarmor`, eleven panels and the eight Searches they use. Three panels are text (the introduction, the method, the steps). The picker is a table of the five examples whose row link reloads the page with `?entity_id=<finding>&vuln_id=<vulnerability>`; the page forwards those query parameters to the Searches that declare them, so with no parameter the page shows example 1.
+
+| Panel | Type | Search |
+| --- | --- | --- |
+| Memo Examples | Table | a Gryphon Search of the example findings |
+| One Finding, Every Number | Table with column groups | `stackarmor-pain` (`entity_id`) |
+| The Finding In The Graph | Graph | `stackarmor-trace` (`entity_id`) |
+| Same CVE, Different Assets | Bar chart | `stackarmor-pain` (`vuln_id`) |
+| Who Requires What | Table | a Gryphon Search of the stamps |
+| Archetype Catalog | Table | a Gryphon Search of the archetypes |
+| What Is Assumed | Stat card | `stackarmor-summary` (`assumptions`) |
+| PAIN Across The System | Bar chart | `stackarmor-summary` (`by_pain`) |
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-stackarmor-1 | Page And Panels | Proposed | The page has slug `/playground/stackarmor`, and every panel its layout names exists and is used by the page through `USES_PANEL`. | |
+| req-rampart-20x-playground-page-stackarmor-2 | Panels Read Searches | Proposed | Each data panel is bound by one `USES_SEARCH` edge to a Search that names a `stackarmor_vdr` runner or a Gryphon query, and no panel computes a figure itself. | Projects are data (no code in the project). |
+| req-rampart-20x-playground-page-stackarmor-3 | A Picker Reloads The Page | Proposed | The picker's `row_url_template` is `/playground/stackarmor?entity_id={finding_id}&vuln_id={vuln_id}`, and the Searches that follow the chosen example declare `entity_id` or `vuln_id` with the first example as the default. | |
+| req-rampart-20x-playground-page-stackarmor-4 | No Explanation Beyond The Method | Proposed | The only prose on the page is the three text panels; every other panel is data under a title. | |
+| req-rampart-20x-playground-page-stackarmor-5 | Private Plugin Stays Out Of CI | Proposed | The `demo` record pins `stackarmor_vdr` at v0.3.2 with its install credential and seeds it; the `ci` record installs neither it nor the examples and page bundles, and the manifest does not list it in `depends_on`. | The repository is private and CI is offline; the pain bundle is handled the same way. |
+
+## Notes
+
+The five example programs are counted by the classification mapping like every program (they carry `dataclass.action` `process`), so they raise the program rows of that summary by five mapped entries. They carry no `inventory` dimension, so the inventory tables and the coverage charts that group by it do not count them.
