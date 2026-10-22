@@ -208,6 +208,37 @@ class TestPage:
                 assert "formatter" not in column, column["field"]
 
 
+class TestVdrNavigationSection:
+    def setup_method(self) -> None:
+        self.batch = _load(GRIFT / "vdr-implementations.grift.json")
+        self.pages = {n["entity"]["entity_id"]: n for n in self.batch["nodes"] if n["entity"]["entity_type"] == "page"}
+
+    def test_one_titled_page_with_a_title_panel_only(self) -> None:
+        (page,) = self.pages.values()
+        assert page["node"]["name"] == "VDR Implementations" and page["node"]["slug"] == "/playground/vdr-implementations"
+        panels = [r["panel-id"] for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()]
+        assert panels == ["playground-vdr-implementations-title"]
+        (panel,) = [n for n in self.batch["nodes"] if n["entity"]["entity_type"] == "panel"]
+        assert panel["node"]["config"]["text"] == ""
+
+    def test_the_pain_and_stackarmor_pages_nest_under_it_and_keep_their_routes(self) -> None:
+        (section,) = self.pages
+        nests = [e["edge"] for e in self.batch["edges"] if e["edge"]["edge_type"] == "NESTS_UNDER"]
+        assert {e["to_entity_id"] for e in nests} == {section} and all(e["properties"] == {} for e in nests)
+        routes = {}
+        for name in ("pain", "stackarmor-page"):
+            for n in _load(GRIFT / f"{name}.grift.json")["nodes"]:
+                if n["entity"]["entity_type"] == "page":
+                    routes[n["entity"]["entity_id"]] = n["node"]["slug"]
+        assert {e["from_entity_id"] for e in nests} == set(routes)
+        assert sorted(routes.values()) == ["/playground/pain", "/playground/stackarmor"]
+
+    def test_it_is_seeded_after_the_pages_it_moves(self) -> None:
+        manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
+        order = list(manifest["grift"])
+        assert order.index("vdr_implementations") > max(order.index("pain"), order.index("stackarmor_page"))
+
+
 class TestBootRecords:
     @staticmethod
     def _record(name: str) -> dict:
@@ -233,5 +264,5 @@ class TestBootRecords:
         bundles = [s["bundle"] for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"]
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         # the bundles that need the private plugin: pain, and the stackarmor examples and page
-        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page")]
+        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page", "vdr_implementations")]
         assert "stackarmor_vdr" not in {d["slug"] for d in manifest["depends_on"]}

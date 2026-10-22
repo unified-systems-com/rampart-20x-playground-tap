@@ -988,6 +988,7 @@ Both tables have a quick filter and paging. Every heading and column title is in
 | req-rampart-20x-playground-page-pain-5 | Filter And Paging | Proposed | Both tables have a quick filter and paging. | |
 | req-rampart-20x-playground-page-pain-6 | No Prose | Proposed | The page carries a title and tables only. | |
 | req-rampart-20x-playground-page-pain-7 | Title Case | Proposed | Every panel name, panel title and column title is in Title Case. | |
+| req-rampart-20x-playground-page-pain-8 | Under VDR Implementations | Proposed | The PAIN page and the StackArmor page (`/playground/stackarmor`) each `NESTS_UNDER` the page `VDR Implementations` (`/playground/vdr-implementations`, a title panel only), seeded by the `vdr_implementations` bundle, so navigation shows the two under that section. | Neither route changes. The bundle needs the pain and stackarmor_page bundles, so the ci record leaves it out like them. |
 
 #### Future
 

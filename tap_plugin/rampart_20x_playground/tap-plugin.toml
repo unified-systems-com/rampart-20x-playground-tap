@@ -46,6 +46,8 @@ pain = "grift/pain.grift.json"
 # of the ci record for the same reason (a private repository; the demo record installs it and seeds these bundles).
 stackarmor_examples = "grift/stackarmor-examples.grift.json"
 stackarmor_page = "grift/stackarmor-page.grift.json"
+# The VDR Implementations navigation section nests the pain and stackarmor pages, so it is seeded after both and only where they are.
+vdr_implementations = "grift/vdr-implementations.grift.json"
 
 # In-package boot records (req-boot-bootstrap-records-in-package). Digests are the canonical sha256 of
 # each record; refresh with the core tooling, never hand-edit.

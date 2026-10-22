@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1e000-4c1e-7b00-9b2d-5e0f1a2b9b01",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground VDR Implementations v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.vdr_implementations",
+        "name": "rampart-20x-playground VDR Implementations v0.1.0",
+        "description": "The VDR Implementations navigation section: a page with a title under /playground, and the NESTS_UNDER edges that put the PAIN page and the StackArmor page under it. Needs the pain and stackarmor_page bundles, so it is seeded only where they are."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1e001-4c1e-7b02-9b2d-5e0f1a2b0602",
+            "entity_type": "panel",
+            "name": "VDR Implementations",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "VDR Implementations",
+            "slug": "playground-vdr-implementations-title",
+            "description": "The page title.",
+            "view": "tap_web/panels/text_panel.html",
+            "editor_view": "tap_web/panels/text_panel_editor.html",
+            "config": {
+              "text": "",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e001-4c1e-7b01-9b2d-5e0f1a2b0601",
+            "entity_type": "page",
+            "name": "VDR Implementations",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "VDR Implementations",
+            "slug": "/playground/vdr-implementations",
+            "description": "The navigation section for the VDR implementations: PAIN and the StackArmor method.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-vdr-implementations-title",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a1e002-4c1e-7b01-9b2d-5e0f1a2b0701",
+            "entity_type": "edge",
+            "name": "VDR Implementations page USES_PANEL playground-vdr-implementations-title",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1e001-4c1e-7b01-9b2d-5e0f1a2b0601",
+            "to_entity_id": "01a1e001-4c1e-7b02-9b2d-5e0f1a2b0602",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-vdr-implementations-title"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e002-4c1e-7b02-9b2d-5e0f1a2b0702",
+            "entity_type": "edge",
+            "name": "PAIN page NESTS_UNDER VDR Implementations page",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
+            "to_entity_id": "01a1e001-4c1e-7b01-9b2d-5e0f1a2b0601",
+            "edge_type": "NESTS_UNDER",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e002-4c1e-7b03-9b2d-5e0f1a2b0703",
+            "entity_type": "edge",
+            "name": "StackArmor Method page NESTS_UNDER VDR Implementations page",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a16114-6c12-7238-bbd7-48e3ac90e312",
+            "to_entity_id": "01a1e001-4c1e-7b01-9b2d-5e0f1a2b0601",
+            "edge_type": "NESTS_UNDER",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}
