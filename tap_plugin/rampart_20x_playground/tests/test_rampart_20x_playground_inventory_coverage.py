@@ -192,4 +192,4 @@ class TestStampsAndWindow:
         """The card and the chart's last Overall point agree only when the chart holds one mapping."""
         nodes = {n["entity"]["name"]: n for n in _batch()["nodes"] if n["entity"]["entity_type"] == "search"}
         since = nodes["playground — classification coverage history"]["node"]["input_schema"]["properties"]["since"]
-        assert since["default"] == "2026-10-21T23:00:00Z"
+        assert since["default"] == "2026-10-17T00:00:00Z"

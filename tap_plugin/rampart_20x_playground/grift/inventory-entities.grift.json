@@ -123,7 +123,9 @@
               "inventory": "secrets",
               "overview": "shown",
               "column": "2",
-              "row": "0"
+              "row": "0",
+              "dataclass.action": "store",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {
@@ -142,7 +144,8 @@
               "inventory": "secrets",
               "overview": "shown",
               "column": "2",
-              "row": "0"
+              "row": "0",
+              "dataclass.action": "transmit"
             }
           },
           "node": {
@@ -161,7 +164,8 @@
               "inventory": "secrets",
               "overview": "shown",
               "column": "2",
-              "row": "0"
+              "row": "0",
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
           "node": {

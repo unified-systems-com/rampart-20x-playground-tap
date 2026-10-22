@@ -155,8 +155,8 @@
                 },
                 "since": {
                   "type": "string",
-                  "default": "2026-10-21T23:00:00Z",
-                  "description": "Only snapshots observed at or after this instant: the first hourly snapshot taken under the grouped rulebook. Earlier snapshots hold one row per entity type, a different mapping, and are left out of the chart, not deleted."
+                  "default": "2026-10-17T00:00:00Z",
+                  "description": "Only snapshots observed at or after this instant: the first point of the mock history of the coverage seed. Snapshots taken before the grouped rulebook hold one row per entity type, a different mapping, and are not read as a line."
                 }
               }
             }
