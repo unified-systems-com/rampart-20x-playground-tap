@@ -1,0 +1,765 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1d9a0-4c1e-7a01-9b2d-5e0f1a2b9a01",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground PAIN v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.pain",
+        "name": "rampart-20x-playground PAIN v0.1.0",
+        "description": "The eight program stamps for the stackarmor_vdr plugin (an asset_profile node each, a PROFILES_PROGRAM edge to the program and a USES_ARCHETYPE edge to the archetype node the plugin seeds), the two module Searches that name the stackarmor_vdr runners, and the /playground/pain page with its two tables. Needs the stackarmor_vdr plugin installed."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a01-9b2d-5e0f1a2b0101",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "tap-web profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "tap-web",
+            "scheme": "stackarmor",
+            "rationale": "The stateless application."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a02-9b2d-5e0f1a2b0102",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "tap-web (web task b) profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "tap-web (web task b)",
+            "scheme": "stackarmor",
+            "rationale": "The stateless application."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a03-9b2d-5e0f1a2b0103",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "gunicorn profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "gunicorn",
+            "scheme": "stackarmor",
+            "rationale": "The application server of the same service."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a04-9b2d-5e0f1a2b0104",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "gunicorn (web task b) profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "gunicorn (web task b)",
+            "scheme": "stackarmor",
+            "rationale": "The application server of the same service."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a05-9b2d-5e0f1a2b0105",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "PostgreSQL database instance profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "PostgreSQL database instance",
+            "scheme": "stackarmor",
+            "rationale": "The datastore holding customer data."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a06-9b2d-5e0f1a2b0106",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "teleport proxy profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "teleport proxy",
+            "scheme": "stackarmor",
+            "rationale": "They hold access credentials and certificates and actuate administrative access."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a07-9b2d-5e0f1a2b0107",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "teleport auth profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "teleport auth",
+            "scheme": "stackarmor",
+            "rationale": "They hold access credentials and certificates and actuate administrative access."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d001-4c1e-7a08-9b2d-5e0f1a2b0108",
+            "entity_type": "stackarmor_vdr__asset_profile",
+            "name": "teleport ssh profile",
+            "dimensions": {}
+          },
+          "node": {
+            "source": "playground-seed",
+            "stamp_key": "teleport ssh",
+            "scheme": "stackarmor",
+            "rationale": "They hold access credentials and certificates and actuate administrative access."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d004-4c1e-7a01-9b2d-5e0f1a2b0401",
+            "entity_type": "search",
+            "name": "PAIN Findings",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "PAIN Findings",
+            "description": "One row per open finding per owner: the stackArmor PAIN level, its word, the impact and requirement levels behind it, where the profile came from, the exposure column and the deadline in hours. Computed on read by the stackarmor_vdr runner; a module Search because the score is not a graph query.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-pain"
+            },
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "fedramp_class": {
+                  "type": "string",
+                  "enum": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                  ],
+                  "default": "d",
+                  "description": "The FedRAMP class the deadline reads; the runner's own default."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d004-4c1e-7a02-9b2d-5e0f1a2b0402",
+            "entity_type": "search",
+            "name": "PAIN Assets",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "PAIN Assets",
+            "description": "One row per node that runs programs: the highest confidentiality, integrity and availability requirement among its programs, how many programs it runs and how many of them are classified. Computed on read by the stackarmor_vdr runner.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.stackarmor_vdr.searches.pain:stackarmor-assets"
+            },
+            "input_schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "fedramp_class": {
+                  "type": "string",
+                  "enum": [
+                    "a",
+                    "b",
+                    "c",
+                    "d"
+                  ],
+                  "default": "d",
+                  "description": "The FedRAMP class the deadline reads; the runner's own default."
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d005-4c1e-7a01-9b2d-5e0f1a2b0501",
+            "entity_type": "panel",
+            "name": "PAIN",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "PAIN",
+            "slug": "playground-pain-title",
+            "description": "The page title.",
+            "view": "tap_web/panels/text_panel.html",
+            "editor_view": "tap_web/panels/text_panel_editor.html",
+            "config": {
+              "text": "",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
+            "entity_type": "panel",
+            "name": "Findings",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Findings",
+            "slug": "playground-pain-findings",
+            "description": "Every open finding on each owner with its PAIN level.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "show_all_rows": false,
+              "striped": true,
+              "initial_sort": [
+                {
+                  "field": "deadline_hours",
+                  "dir": "asc"
+                }
+              ],
+              "columns": [
+                {
+                  "field": "vuln_id",
+                  "title": "Vuln ID",
+                  "width": 232
+                },
+                {
+                  "field": "component",
+                  "title": "Component",
+                  "widthGrow": 1,
+                  "minWidth": 100
+                },
+                {
+                  "field": "owner",
+                  "title": "Owner",
+                  "widthGrow": 2,
+                  "minWidth": 140
+                },
+                {
+                  "field": "owner_kind",
+                  "title": "Owner Kind",
+                  "width": 100
+                },
+                {
+                  "field": "pain",
+                  "title": "PAIN",
+                  "width": 66,
+                  "align": "center"
+                },
+                {
+                  "field": "word",
+                  "title": "Word",
+                  "width": 92
+                },
+                {
+                  "field": "c",
+                  "title": "C",
+                  "width": 60,
+                  "align": "center"
+                },
+                {
+                  "field": "i",
+                  "title": "I",
+                  "width": 60,
+                  "align": "center"
+                },
+                {
+                  "field": "a",
+                  "title": "A",
+                  "width": 60,
+                  "align": "center"
+                },
+                {
+                  "field": "cr",
+                  "title": "CR",
+                  "width": 70,
+                  "align": "center"
+                },
+                {
+                  "field": "ir",
+                  "title": "IR",
+                  "width": 70,
+                  "align": "center"
+                },
+                {
+                  "field": "ar",
+                  "title": "AR",
+                  "width": 70,
+                  "align": "center"
+                },
+                {
+                  "field": "profile_source",
+                  "title": "Profile Source",
+                  "width": 105
+                },
+                {
+                  "field": "column",
+                  "title": "Exposure Column",
+                  "width": 105
+                },
+                {
+                  "field": "deadline_hours",
+                  "title": "Deadline Hours",
+                  "width": 105,
+                  "align": "right",
+                  "sorter": "number",
+                  "empty_text": "—"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d005-4c1e-7a03-9b2d-5e0f1a2b0503",
+            "entity_type": "panel",
+            "name": "Assets",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Assets",
+            "slug": "playground-pain-assets",
+            "description": "Each asset with the highest requirements among its programs.",
+            "view": "tap_web/panels/table_panel.html",
+            "config": {
+              "quick_filter": true,
+              "default_page_size": 25,
+              "show_all_rows": false,
+              "striped": true,
+              "columns": [
+                {
+                  "field": "asset",
+                  "title": "Asset",
+                  "widthGrow": 3
+                },
+                {
+                  "field": "cr",
+                  "title": "CR",
+                  "width": 100,
+                  "align": "center"
+                },
+                {
+                  "field": "ir",
+                  "title": "IR",
+                  "width": 100,
+                  "align": "center"
+                },
+                {
+                  "field": "ar",
+                  "title": "AR",
+                  "width": 100,
+                  "align": "center"
+                },
+                {
+                  "field": "programs",
+                  "title": "Programs",
+                  "width": 120,
+                  "align": "right",
+                  "sorter": "number"
+                },
+                {
+                  "field": "classified",
+                  "title": "Classified",
+                  "width": 120,
+                  "align": "right",
+                  "sorter": "number"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
+            "entity_type": "page",
+            "name": "PAIN",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "PAIN",
+            "slug": "/playground/pain",
+            "description": "PAIN for every open finding on each owner, and each asset's roll-up of its programs' profiles.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-pain-title",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-pain-findings",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-3": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-pain-assets",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a01-9b2d-5e0f1a2b0201",
+            "entity_type": "edge",
+            "name": "tap-web profile PROFILES_PROGRAM tap-web",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a01-9b2d-5e0f1a2b0101",
+            "to_entity_id": "01a13be3-0373-7afc-8d07-441072bee2eb",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a01-9b2d-5e0f1a2b0301",
+            "entity_type": "edge",
+            "name": "tap-web profile USES_ARCHETYPE app_tier",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a01-9b2d-5e0f1a2b0101",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29c0ae667491",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a02-9b2d-5e0f1a2b0202",
+            "entity_type": "edge",
+            "name": "tap-web (web task b) profile PROFILES_PROGRAM tap-web (web task b)",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a02-9b2d-5e0f1a2b0102",
+            "to_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a02-9b2d-5e0f1a2b0302",
+            "entity_type": "edge",
+            "name": "tap-web (web task b) profile USES_ARCHETYPE app_tier",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a02-9b2d-5e0f1a2b0102",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29c0ae667491",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a03-9b2d-5e0f1a2b0203",
+            "entity_type": "edge",
+            "name": "gunicorn profile PROFILES_PROGRAM gunicorn",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a03-9b2d-5e0f1a2b0103",
+            "to_entity_id": "01a13be3-0373-79d4-9ae8-be13c2e3bfd5",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a03-9b2d-5e0f1a2b0303",
+            "entity_type": "edge",
+            "name": "gunicorn profile USES_ARCHETYPE app_tier",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a03-9b2d-5e0f1a2b0103",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29c0ae667491",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a04-9b2d-5e0f1a2b0204",
+            "entity_type": "edge",
+            "name": "gunicorn (web task b) profile PROFILES_PROGRAM gunicorn (web task b)",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a04-9b2d-5e0f1a2b0104",
+            "to_entity_id": "01a1c4a3-6f98-70b4-a09e-8a22c87e25ca",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a04-9b2d-5e0f1a2b0304",
+            "entity_type": "edge",
+            "name": "gunicorn (web task b) profile USES_ARCHETYPE app_tier",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a04-9b2d-5e0f1a2b0104",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29c0ae667491",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a05-9b2d-5e0f1a2b0205",
+            "entity_type": "edge",
+            "name": "PostgreSQL database instance profile PROFILES_PROGRAM PostgreSQL database instance",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a05-9b2d-5e0f1a2b0105",
+            "to_entity_id": "01a13be3-0373-79fe-a7fb-258622812532",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a05-9b2d-5e0f1a2b0305",
+            "entity_type": "edge",
+            "name": "PostgreSQL database instance profile USES_ARCHETYPE data_sensitive",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a05-9b2d-5e0f1a2b0105",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29bd8b64aad5",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a06-9b2d-5e0f1a2b0206",
+            "entity_type": "edge",
+            "name": "teleport proxy profile PROFILES_PROGRAM teleport proxy",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a06-9b2d-5e0f1a2b0106",
+            "to_entity_id": "01a15bac-3805-7538-9c48-f4394f147164",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a06-9b2d-5e0f1a2b0306",
+            "entity_type": "edge",
+            "name": "teleport proxy profile USES_ARCHETYPE identity_secrets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a06-9b2d-5e0f1a2b0106",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29b9a23c5175",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a07-9b2d-5e0f1a2b0207",
+            "entity_type": "edge",
+            "name": "teleport auth profile PROFILES_PROGRAM teleport auth",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a07-9b2d-5e0f1a2b0107",
+            "to_entity_id": "01a15bac-3805-7538-9c48-f43ad2cc4b76",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a07-9b2d-5e0f1a2b0307",
+            "entity_type": "edge",
+            "name": "teleport auth profile USES_ARCHETYPE identity_secrets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a07-9b2d-5e0f1a2b0107",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29b9a23c5175",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d002-4c1e-7a08-9b2d-5e0f1a2b0208",
+            "entity_type": "edge",
+            "name": "teleport ssh profile PROFILES_PROGRAM teleport ssh",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a08-9b2d-5e0f1a2b0108",
+            "to_entity_id": "01a15bac-3805-7538-9c48-f43b3ac0676d",
+            "edge_type": "PROFILES_PROGRAM__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d003-4c1e-7a08-9b2d-5e0f1a2b0308",
+            "entity_type": "edge",
+            "name": "teleport ssh profile USES_ARCHETYPE identity_secrets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d001-4c1e-7a08-9b2d-5e0f1a2b0108",
+            "to_entity_id": "01a15f50-9633-7184-8e6c-29b9a23c5175",
+            "edge_type": "USES_ARCHETYPE__stackarmor_vdr",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d007-4c1e-7a01-9b2d-5e0f1a2b0701",
+            "entity_type": "edge",
+            "name": "PAIN page USES_PANEL playground-pain-title",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
+            "to_entity_id": "01a1d005-4c1e-7a01-9b2d-5e0f1a2b0501",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-pain-title"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d007-4c1e-7a02-9b2d-5e0f1a2b0702",
+            "entity_type": "edge",
+            "name": "PAIN page USES_PANEL playground-pain-findings",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
+            "to_entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-pain-findings"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d007-4c1e-7a03-9b2d-5e0f1a2b0703",
+            "entity_type": "edge",
+            "name": "PAIN page USES_PANEL playground-pain-assets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d006-4c1e-7a01-9b2d-5e0f1a2b0601",
+            "to_entity_id": "01a1d005-4c1e-7a03-9b2d-5e0f1a2b0503",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-pain-assets"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d008-4c1e-7a01-9b2d-5e0f1a2b0801",
+            "entity_type": "edge",
+            "name": "findings table USES_SEARCH PAIN Findings",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d005-4c1e-7a02-9b2d-5e0f1a2b0502",
+            "to_entity_id": "01a1d004-4c1e-7a01-9b2d-5e0f1a2b0401",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1d008-4c1e-7a02-9b2d-5e0f1a2b0802",
+            "entity_type": "edge",
+            "name": "assets table USES_SEARCH PAIN Assets",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1d005-4c1e-7a03-9b2d-5e0f1a2b0503",
+            "to_entity_id": "01a1d004-4c1e-7a02-9b2d-5e0f1a2b0402",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}

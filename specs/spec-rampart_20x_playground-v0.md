@@ -84,6 +84,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-component-team | [Responsible Team On The Component Page](#responsible-team-on-the-component-page) | Backlog | A `Responsible Team` line in the component page's hero, blocked on reading a dimension value and joining it to a team |
 | req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
 | req-rampart-20x-playground-ownership-coverage | [Ownership Coverage](#ownership-coverage) | Backlog | The share of entities with a `team.responsible` stamp, by the mapping runners |
+| req-rampart-20x-playground-pain-profiles | [Program Stamps And Reach](#program-stamps-and-reach) | Proposed | The profile stamp for each program (a node and an edge), the `RUNS_PACKAGE` root packages, and the two PAIN Searches that name the `stackarmor_vdr` runners |
+| req-rampart-20x-playground-page-pain | [PAIN Page](#pain-page) | Proposed | PAIN for every finding on every owner (program or container), and each asset's roll-up of its programs' profiles |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -920,6 +922,77 @@ Status: `Backlog`
 
 How many entities carry a `team.responsible` stamp, by the mapping runners (`req-compliance-core-dimension-mapping`). Two limits to resolve first: a mapping row takes a fixed list of allowed values, so "points at a live team" cannot be written until the allowed list can come from nodes; and covering every entity means one row per type or a wildcard type in the runner.
 
+### Program Stamps And Reach
+----
+RID: `req-rampart-20x-playground-pain-profiles`
+
+Status: `Proposed`
+
+PAIN is scored by the `stackarmor_vdr` plugin on top of `fedramp_20x_vdr`'s finding reach. Both plugins own their machinery. This requirement is the instance's half, which is data only: a stamp for each program, the package each program is, and the two Searches that name the runners. A stamp is a node of `stackarmor_vdr` that points at the program, so no existing node or edge that describes the system changes (ruled by George, 2026-10-21), and the profile is stamped on the **program** and nowhere else (ruled by George, 2026-10-20). A host or container takes no stamp; its profile is computed from its programs on read.
+
+#### Implementation
+
+**Program stamps.** One `stackarmor_vdr__asset_profile` node per program the inventory seeds, with `source` `playground-seed`, `scheme` `stackarmor`, a `rationale`, a `PROFILES_PROGRAM` edge to the program and a `USES_ARCHETYPE` edge to the archetype node of the table (the plugin seeds the sixteen archetype nodes). The stamps follow the memo's control-plane-first rule: an asset that holds credentials or can actuate access is classified by that function, not by the data it stores. This table is the assignment, confirmed by George, 2026-10-21:
+
+| Program | Archetype | Why (the stamp's `rationale`) |
+| --- | --- | --- |
+| `tap-web`, `tap-web (web task b)` | `app_tier` | The stateless application. |
+| `gunicorn`, `gunicorn (web task b)` | `app_tier` | The application server of the same service. |
+| `PostgreSQL database instance` | `data_sensitive` | The datastore holding customer data. |
+| `teleport proxy`, `teleport auth`, `teleport ssh` | `identity_secrets` | They hold access credentials and certificates and actuate administrative access. |
+
+**Root packages.** `RUNS_PACKAGE` (`computing_core` 0.10.2) from each program to its root package, so the program owns that package and everything it requires: `tap-web` and `tap-web (web task b)` to the pypi package `tap`, `gunicorn` and `gunicorn (web task b)` to the pypi package `gunicorn`, `PostgreSQL database instance` to its apk package. A package outside every closure belongs to the container that runs its image, with all the container's programs involved (the base's reach). The builder confirms each target package exists in the seed; a target that does not is left out, and its findings stay on the container.
+
+**The Searches.** Two `module` Searches bound to the `stackarmor_vdr` runners by key: `PAIN Findings` (`tap_plugin.stackarmor_vdr.searches.pain:stackarmor-pain`) and `PAIN Assets` (`tap_plugin.stackarmor_vdr.searches.pain:stackarmor-assets`). The weights, thresholds, EPSS thresholds and scheme are left at the runners' defaults, which is where the memo's governed calibration lives; the Searches override only the class (`d`, assumed).
+
+**The plugins.** The instance's boot profile installs `stackarmor_vdr` and `fedramp_20x_vdr` at releases that ship the runners.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-pain-profiles-1 | Every Program Stamped | Proposed | Every program the inventory seeds has one `asset_profile` stamp per the table, with a `PROFILES_PROGRAM` edge to it and one `USES_ARCHETYPE` edge, and no host, container or instance has a stamp. | The roll-up is computed. |
+| req-rampart-20x-playground-pain-profiles-2 | Stamps Name Catalog Archetypes | Proposed | Every stamp's `USES_ARCHETYPE` edge targets an archetype node that `stackarmor_vdr` seeds. | The playground seeds no archetype of its own. |
+| req-rampart-20x-playground-pain-profiles-3 | No Override Stamped | Proposed | No seeded stamp carries `cr`, `ir` or `ar`. | |
+| req-rampart-20x-playground-pain-profiles-4 | Root Packages Seeded | Proposed | Each program in the table above has a `RUNS_PACKAGE` edge to its root package, and each edge's target exists in the seed. | A missing target is left out and reported. Built: the four edges of `inventory-software` only. The PostgreSQL edge (to `postgresql-18` 18.6-r5, which exists) is left out because it would draw an apk package on the Overview graph, which `req-rampart-20x-playground-govcloud-layout-36` pins to the two Python roots; its findings stay on the container. |
+| req-rampart-20x-playground-pain-profiles-5 | Two Searches, Runner Keys Exact | Proposed | `PAIN Findings` and `PAIN Assets` are `module` Searches with the runner keys above, and each declares only inputs the runner's schema declares. | |
+| req-rampart-20x-playground-pain-profiles-6 | Plugins Installed | Proposed | The boot profile installs `stackarmor_vdr` and `fedramp_20x_vdr`, and the seed imports against the releases that ship the runners. | The demo record pins `stackarmor_vdr` v0.1.0 by commit with the install credential `stackarmor_vdr` (the repository is private) and seeds `fedramp_20x_vdr` and `stackarmor_vdr` before this plugin. The ci record installs neither and seeds one step per bundle, every bundle but `pain`; `stackarmor_vdr` is therefore not in `depends_on`, because the ci record's coherence check demands every declared dependency, optional or not. |
+| req-rampart-20x-playground-pain-profiles-7 | Reach Is Recorded | Proposed | The build report records, read from a run of `PAIN Findings`, the number of rows by `owner_kind` and by `profile_source` (`override`, `archetype`, `container`, `unclassified`). The bundle stores no count. | A stored count goes stale on every re-import. The expected result is mostly `container`, and the root packages move some to `archetype`. |
+| req-rampart-20x-playground-pain-profiles-8 | The System Is Unchanged | Proposed | Adding the stamps changes no existing node or edge: a program has the same fields and dimensions with or without them, and a stamp adds no team or dataclass (a program keeps its `dataclass.action`). | Ruled by George, 2026-10-21. |
+
+### PAIN Page
+----
+RID: `req-rampart-20x-playground-page-pain`
+
+Status: `Proposed`
+
+The page shows PAIN for each finding on each owner (a program, or the container that runs its image), and the roll-up of programs' profiles for each asset. Route `/playground/pain`; the page is named `PAIN`, also its breadcrumb. It carries a title and tables only (`no-explanatory-text-on-pages`, ruled 2026-10-20).
+
+#### Implementation
+
+Two bands under the title panel, each a standard table panel bound by `USES_SEARCH` to one Search of `req-rampart-20x-playground-pain-profiles`:
+
+1. `Findings`, over `PAIN Findings`: the fields `vuln_id`, `component`, `owner`, `owner_kind`, `pain`, `word`, `c`, `i`, `a`, `cr`, `ir`, `ar`, `profile_source`, `column` and `deadline_hours`, titled Vuln ID, Component, Owner, Owner Kind, PAIN, Word, C, I, A, CR, IR, AR, Profile Source, Exposure Column and Deadline Hours, with the vulnerability id a link to the CVE page (`/playground/vulnerabilities/cve?vuln_id=...`) and the owner's name a link to its page when it has one.
+2. `Assets`, over `PAIN Assets`: the asset's name as a link, the maximum `cr`, `ir` and `ar` of its programs, the program count and the classified count, titled Asset, CR, IR, AR, Programs and Classified.
+
+Both tables have a quick filter and paging. Every heading and column title is in Title Case.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-pain-1 | Route Serves | Proposed | `GET /playground/pain` returns 200 and the page is in navigation. | |
+| req-rampart-20x-playground-page-pain-2 | Title Then Two Tables | Proposed | Under the title panel, band one is the findings table and band two the assets table. | |
+| req-rampart-20x-playground-page-pain-3 | Each Table Reads Its Search | Proposed | Each table panel is bound by `USES_SEARCH` to its own Search, and its config names only fields the runner returns. | |
+| req-rampart-20x-playground-page-pain-4 | Links Open Their Pages | Proposed | The vulnerability id opens the CVE page and the asset name opens the asset's page. | Not built: `PAIN Findings` returns the vulnerability node's entity id as `vuln_id`, not the CVE id the CVE page opens, and owners and assets are of several entity types (program, ECS container, RDS instance, EC2 instance, operating system), so no link template can name one. Linked columns wait on the runner returning the CVE id and the entity type. |
+| req-rampart-20x-playground-page-pain-5 | Filter And Paging | Proposed | Both tables have a quick filter and paging. | |
+| req-rampart-20x-playground-page-pain-6 | No Prose | Proposed | The page carries a title and tables only. | |
+| req-rampart-20x-playground-page-pain-7 | Title Case | Proposed | Every panel name, panel title and column title is in Title Case. | |
+
+#### Future
+
+A PAIN-by-level chart and a count of findings on unclassified programs; an hourly snapshot of the findings table through the search-snapshot collector pattern once the table is worth tracking over time.
+
 ### VDR Reports Page
 ----
 RID: `req-rampart-20x-playground-page-vdr-reports`
@@ -1072,3 +1145,4 @@ in the first cleanup by mistake and are pulled again.
 | `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass.customer` or `dataclass.infra` value, and with `dataclass.action: transmit`) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
 | `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |
 | `grift/classification-mapping.grift.json` | The four classification-mapping Searches, their four table panels, the hourly Schedule and its `SCHEDULED_TARGET` edge | `req-rampart-20x-playground-classification-mapping` |
+| `grift/pain.grift.json` | The program stamps (`asset_profile` nodes and `PROFILES_PROGRAM` edges), the `RUNS_PACKAGE` root packages, the two PAIN Searches and the PAIN page | `req-rampart-20x-playground-pain-profiles`, `req-rampart-20x-playground-page-pain` |
