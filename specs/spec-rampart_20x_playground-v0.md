@@ -1056,6 +1056,7 @@ in the first cleanup by mistake and are pulled again.
 | req-rampart-20x-playground-dependabot-pull-4 | No Code Here | Proposed | The playground package contains no collector and no script that loads alerts. | |
 | req-rampart-20x-playground-dependabot-pull-5 | One Generic Finding | Proposed | Each pulled alert is one `compliance_core__compliance_finding` with its `dependabot_alert` detail node behind it, not a Dependabot-specific finding type. | Follows `github-core-tap#89`; placement edge is `CARRIES_COMPLIANCE_FINDING`. |
 | req-rampart-20x-playground-dependabot-pull-6 | Code Scanning Kept | Proposed | The grid holds the code scanning alerts of `unified-systems-com/tap` (Trivy, Grype, SonarCloud) alongside the Dependabot alerts, and any cleanup of a wider pull keeps them. | Ruled 2026-10-14: the vulnerabilities page reads them. |
+| req-rampart-20x-playground-dependabot-pull-7 | Detection Time From The Producer | Proposed | Every seeded finding carries `first_detected_at`: a finding made from a GitHub alert takes the alert's own `created_at`, and a finding made from the SBOM takes the SBOM document's `produced_at` (the producer's record, never the time the grid saw it), so the deadline and overdue Searches have a clock to count from. | Without it every finding reads `detection time unobserved` and no deadline is computed (`req-fedramp-20x-vdr-deadlines-3`). The two bundles are re-versioned (new batch ids) so a stack that already imported them takes the change. |
 
 ## Reference data
 
