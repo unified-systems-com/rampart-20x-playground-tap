@@ -226,7 +226,7 @@
                 {
                   "field": "cve",
                   "title": "Vuln ID",
-                  "width": 135,
+                  "width": 170,
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/playground/vulnerabilities/cve?vuln_id={cve}",
@@ -238,7 +238,7 @@
                   "field": "component",
                   "title": "Component",
                   "widthGrow": 2,
-                  "minWidth": 200,
+                  "minWidth": 165,
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/object/{component_type}/entity--{component_id}/",
@@ -250,7 +250,7 @@
                   "field": "owner",
                   "title": "Owner",
                   "widthGrow": 2,
-                  "minWidth": 180,
+                  "minWidth": 165,
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/object/{owner_type}/entity--{owner_id}/",
@@ -261,7 +261,7 @@
                 {
                   "field": "owner_kind",
                   "title": "Owner Kind",
-                  "width": 100
+                  "width": 92
                 },
                 {
                   "field": "pain",
@@ -313,17 +313,17 @@
                 {
                   "field": "profile_source",
                   "title": "Profile Source",
-                  "width": 98
+                  "width": 92
                 },
                 {
                   "field": "column",
                   "title": "Exposure Column",
-                  "width": 98
+                  "width": 92
                 },
                 {
                   "field": "deadline_hours",
                   "title": "Deadline Hours",
-                  "width": 98,
+                  "width": 92,
                   "align": "right",
                   "sorter": "number",
                   "empty_text": "—"

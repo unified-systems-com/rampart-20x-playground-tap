@@ -664,8 +664,8 @@
               "properties": {
                 "entity_id": {
                   "type": "string",
-                  "default": "01a16113-c845-7132-b1e6-4c603ac902c6",
-                  "description": "The finding."
+                  "default": "220c378a-49d9-7ce4-b50f-15de8555fff5",
+                  "description": "The finding: the highest-PAIN real finding on the live data when this was set (N4, glibc-2.44); a runner input that picks it on read is pending."
                 }
               }
             }
@@ -691,8 +691,8 @@
               "properties": {
                 "entity_id": {
                   "type": "string",
-                  "default": "01a16113-c845-7132-b1e6-4c603ac902c6",
-                  "description": "The finding."
+                  "default": "220c378a-49d9-7ce4-b50f-15de8555fff5",
+                  "description": "The finding: the highest-PAIN real finding on the live data when this was set (N4, glibc-2.44); a runner input that picks it on read is pending."
                 }
               }
             }
@@ -718,8 +718,8 @@
               "properties": {
                 "vuln_id": {
                   "type": "string",
-                  "default": "01a16113-c845-7132-b1e6-4c59419486f8",
-                  "description": "The vulnerability."
+                  "default": "4f228b7f-45df-70df-aee5-bdc3266c4d01",
+                  "description": "The vulnerability of that finding."
                 }
               }
             }

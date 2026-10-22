@@ -85,7 +85,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-teams-findings | [Findings By Responsible Team](#findings-by-responsible-team) | Backlog | Open findings grouped by the team answerable for the component that carries them |
 | req-rampart-20x-playground-ownership-coverage | [Ownership Coverage](#ownership-coverage) | Backlog | The share of entities with a `team.responsible` stamp, by the mapping runners |
 | req-rampart-20x-playground-pain-profiles | [Program Stamps And Reach](#program-stamps-and-reach) | Proposed | The profile stamp for each program (a node and an edge), the `RUNS_PACKAGE` root packages, and the two PAIN Searches that name the `stackarmor_vdr` runners |
-| req-rampart-20x-playground-page-pain | [PAIN Page](#pain-page) | Proposed | PAIN for every finding on every owner (program or container), and each asset's roll-up of its programs' profiles |
+| req-rampart-20x-playground-page-pain | [PAIN Page](#pain-page) | Superseded | PAIN for every finding on every owner (program or container), and each asset's roll-up of its programs' profiles |
 | req-rampart-20x-playground-page-vdr-reports | [VDR Reports Page](#vdr-reports-page) | Proposed | VDR reports: vulnerabilities against SLA |
 | req-rampart-20x-playground-page-internals | [Web And DB Internals Page](#web-and-db-internals-page) | Backlog | TAP's web and db applications, internal processing |
 | req-rampart-20x-playground-page-dataflows | [Data Flow Pages](#data-flow-pages) | Backlog | Management, user interaction and deployment flows |
@@ -964,7 +964,9 @@ PAIN is scored by the `stackarmor_vdr` plugin on top of `fedramp_20x_vdr`'s find
 ----
 RID: `req-rampart-20x-playground-page-pain`
 
-Status: `Proposed`
+Status: `Superseded`
+
+The page `/playground/pain` is deleted; its two tables (`Findings` over `PAIN Findings`, `Assets` over `PAIN Assets`) sit on `/playground/stackarmor` (`req-rampart-20x-playground-page-stackarmor-6`). The rows below that concern the tables still hold there; rows 1, 2 and 6 are about the page and are superseded.
 
 The page shows PAIN for each finding on each owner (a program, or the container that runs its image), and the roll-up of programs' profiles for each asset. Route `/playground/pain`; the page is named `PAIN`, also its breadcrumb. It carries a title and tables only (`no-explanatory-text-on-pages`, ruled 2026-10-20).
 
@@ -981,12 +983,12 @@ Both tables have a quick filter and paging. Every heading and column title is in
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-page-pain-1 | Route Serves | Proposed | `GET /playground/pain` returns 200 and the page is in navigation. | |
-| req-rampart-20x-playground-page-pain-2 | Title Then Two Tables | Proposed | Under the title panel, band one is the findings table and band two the assets table. | |
+| req-rampart-20x-playground-page-pain-1 | Route Serves | Superseded | `GET /playground/pain` returns 200 and the page is in navigation. | |
+| req-rampart-20x-playground-page-pain-2 | Title Then Two Tables | Superseded | Under the title panel, band one is the findings table and band two the assets table. | |
 | req-rampart-20x-playground-page-pain-3 | Each Table Reads Its Search | Proposed | Each table panel is bound by `USES_SEARCH` to its own Search, and its config names only fields the runner returns. | |
 | req-rampart-20x-playground-page-pain-4 | Links Open Their Pages | Proposed | In the findings table the Vuln ID column shows the CVE id and opens the CVE page, and the Component and Owner columns open the object page of the entity, the link template filling the entity type from the row's `component_type` and `owner_type`. | `PAIN Findings` returns `cve`, `component_type`, `owner_type` and `container_type` from `stackarmor_vdr` v0.3.2. The assets table links nothing: `PAIN Assets` returns no entity type. |
 | req-rampart-20x-playground-page-pain-5 | Filter And Paging | Proposed | Both tables have a quick filter and paging. | |
-| req-rampart-20x-playground-page-pain-6 | No Prose | Proposed | The page carries a title and tables only. | |
+| req-rampart-20x-playground-page-pain-6 | No Prose | Superseded | The page carries a title and tables only. | |
 | req-rampart-20x-playground-page-pain-7 | Title Case | Proposed | Every panel name, panel title and column title is in Title Case. | |
 
 #### Future
@@ -1145,4 +1147,4 @@ in the first cleanup by mistake and are pulled again.
 | `grift/application-flow.grift.json` | The ECS container of each web task, the five application flows (keyless; the customer's, the database's, the administrator's, the laptop's and the puller's, each stamped with one `dataclass.customer` or `dataclass.infra` value, and with `dataclass.action: transmit`) and the RUNS_TASK, RUNS_CONTAINER, RUNS_IMAGE, RUNS_PROGRAM (including the RDS instance to the PostgreSQL program), APPLICATION_FLOW_SOURCE and APPLICATION_FLOW_DESTINATION edges (needs computing_core with the application flow types) | `req-rampart-20x-playground-govcloud-layout-13`, `-14`, `-15`, `-20`, `-21` |
 | `grift/inventory-page.grift.json` | The `/playground/inventory` page, its seven table panels and their Searches | `req-rampart-20x-playground-page-inventory` |
 | `grift/classification-mapping.grift.json` | The four classification-mapping Searches, their four table panels, the hourly Schedule and its `SCHEDULED_TARGET` edge | `req-rampart-20x-playground-classification-mapping` |
-| `grift/pain.grift.json` | The program stamps (`asset_profile` nodes and `PROFILES_PROGRAM` edges), the `RUNS_PACKAGE` root packages, the two PAIN Searches and the PAIN page | `req-rampart-20x-playground-pain-profiles`, `req-rampart-20x-playground-page-pain` |
+| `grift/pain.grift.json` | The program stamps (`asset_profile` nodes and `PROFILES_PROGRAM` edges), the `RUNS_PACKAGE` root packages, the two PAIN Searches and the two PAIN table panels (placed on the StackArmor page) | `req-rampart-20x-playground-pain-profiles`, `req-rampart-20x-playground-page-pain` |

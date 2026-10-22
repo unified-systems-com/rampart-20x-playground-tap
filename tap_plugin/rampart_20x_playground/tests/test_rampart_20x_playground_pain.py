@@ -136,12 +136,11 @@ class TestSearches:
             assert props["fedramp_class"]["default"] == "d"
 
 
-class TestPage:
+class TestTables:
     def setup_method(self) -> None:
         self.batch = _load(GRIFT / "pain.grift.json")
         by_id = {n["entity"]["entity_id"]: n for n in self.batch["nodes"]}
         self.by_id = by_id
-        self.page = next(n for n in by_id.values() if n["entity"]["entity_type"] == "page")
         self.panels = {n["node"]["slug"]: n for n in by_id.values() if n["entity"]["entity_type"] == "panel"}
         self.edges = [e["edge"] for e in self.batch["edges"]]
 
@@ -150,25 +149,14 @@ class TestPage:
         assert len(links) == 1
         return self.by_id[links[0]["to_entity_id"]]["node"]
 
-    def test_the_page_is_named_pain_routable_and_in_navigation(self) -> None:
-        """`page-pain-1`"""
-        assert self.page["node"]["name"] == "PAIN" and self.page["entity"]["name"] == "PAIN"
-        assert self.page["node"]["slug"] == SLUG
-        assert "discoverable" not in self.page["node"]
-
-    def test_slots_and_edges_match_and_the_bands_are_title_findings_assets(self) -> None:
-        """`page-pain-2`, `-6`"""
-        columns = self.page["node"]["layout"]["columns"]
-        ordered = sorted(columns.values(), key=lambda c: c["band"])
-        assert [c["band"] for c in ordered] == [1, 2, 3] and all(c["width"] == "12fr" for c in ordered)
-        slots = [next(iter(c["rows"].values()))["panel-id"] for c in ordered]
-        wired = {
-            e["properties"]["hotlink"]["value"]: e["to_entity_id"] for e in self.edges if e["edge_type"] == "USES_PANEL"
-        }
-        assert set(slots) == set(wired)
-        assert [self.panels[s]["node"]["view"] for s in slots] == [TEXT, TABLE, TABLE]
-        assert [self.panels[s]["node"]["name"] for s in slots] == ["PAIN", "Findings", "Assets"]
-        assert self.panels[slots[0]]["node"]["config"]["text"] == ""
+    def test_the_bundle_holds_no_page_and_the_tables_are_placed_by_the_stackarmor_page(self) -> None:
+        """`page-pain-1`, `-2`: the PAIN page is gone; its two tables sit on `/playground/stackarmor`."""
+        assert not [n for n in self.by_id.values() if n["entity"]["entity_type"] == "page"]
+        assert not [e for e in self.edges if e["edge_type"] in ("USES_PANEL", "NESTS_UNDER")]
+        assert sorted(self.panels) == ["playground-pain-assets", "playground-pain-findings"]
+        page = _load(GRIFT / "stackarmor-page.grift.json")
+        placed = {e["edge"]["to_entity_id"] for e in page["edges"] if e["edge"]["edge_type"] == "USES_PANEL"}
+        assert {p["entity"]["entity_id"] for p in self.panels.values()} <= placed
 
     def test_each_table_reads_its_search_and_names_only_returned_fields(self) -> None:
         """`page-pain-3`"""
@@ -225,8 +213,47 @@ class TestPage:
 
     def test_the_identifying_columns_are_wide_enough_not_to_truncate(self) -> None:
         columns = {c["field"]: c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"]}
-        assert columns["cve"]["width"] >= 135
-        assert columns["component"]["minWidth"] >= 200 and columns["owner"]["minWidth"] >= 180
+        assert columns["cve"]["width"] >= 170
+        assert columns["component"]["minWidth"] >= 165 and columns["owner"]["minWidth"] >= 165
+
+
+class TestVdrNavigationSection:
+    def setup_method(self) -> None:
+        self.batch = _load(GRIFT / "vdr-implementations.grift.json")
+        self.pages = {n["entity"]["entity_id"]: n for n in self.batch["nodes"] if n["entity"]["entity_type"] == "page"}
+
+    def test_one_titled_page_with_a_title_panel_only(self) -> None:
+        (page,) = self.pages.values()
+        assert page["node"]["name"] == "VDR Implementations" and page["node"]["slug"] == "/playground/vdr-implementations"
+        panels = [r["panel-id"] for c in page["node"]["layout"]["columns"].values() for r in c["rows"].values()]
+        assert panels == ["playground-vdr-implementations-title"]
+        (panel,) = [n for n in self.batch["nodes"] if n["entity"]["entity_type"] == "panel"]
+        assert panel["node"]["config"]["text"] == ""
+
+    def test_only_the_stackarmor_page_nests_under_it_and_keeps_its_route(self) -> None:
+        (section,) = self.pages
+        nests = [e["edge"] for e in self.batch["edges"] if e["edge"]["edge_type"] == "NESTS_UNDER"]
+        assert len(nests) == 1 and nests[0]["to_entity_id"] == section and nests[0]["properties"] == {}
+        stack = next(n for n in _load(GRIFT / "stackarmor-page.grift.json")["nodes"] if n["entity"]["entity_type"] == "page")
+        assert nests[0]["from_entity_id"] == stack["entity"]["entity_id"] and stack["node"]["slug"] == "/playground/stackarmor"
+
+    def test_it_is_seeded_after_the_page_it_moves(self) -> None:
+        manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
+        order = list(manifest["grift"])
+        assert order.index("vdr_implementations") > order.index("stackarmor_page")
+
+    def test_the_section_pages_order_in_the_navbar(self) -> None:
+        """Data Classification, Inventory, Vulnerabilities, VDR Implementations, then Teams (weight 0)."""
+        weights = {}
+        for name in ("data-classification-page", "inventory-page", "vulnerabilities-page", "vdr-implementations", "teams"):
+            for n in _load(GRIFT / f"{name}.grift.json")["nodes"]:
+                if n["entity"]["entity_type"] == "page" and n["node"]["slug"].count("/") == 2 and n["node"]["slug"] != "/playground/stackarmor":
+                    weights[n["node"]["slug"]] = n["node"].get("nav_weight", 0)
+        ranked = sorted(weights, key=lambda s: -weights[s])
+        assert ranked == [
+            "/playground/data-classification", "/playground/inventory", "/playground/vulnerabilities",
+            "/playground/vdr-implementations", "/playground/teams",
+        ]
 
 
 class TestBootRecords:
@@ -254,5 +281,5 @@ class TestBootRecords:
         bundles = [s["bundle"] for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"]
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         # the bundles that need the private plugin: pain, and the stackarmor examples and page
-        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page")]
+        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page", "vdr_implementations")]
         assert "stackarmor_vdr" not in {d["slug"] for d in manifest["depends_on"]}
