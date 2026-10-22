@@ -40,7 +40,7 @@ STAMPS = {
     "teleport proxy": "identity_secrets", "teleport auth": "identity_secrets", "teleport ssh": "identity_secrets",
 }
 FINDING_TITLES = [
-    "Vuln ID", "Component", "Owner", "Owner Kind", "PAIN", "Word", "C", "I", "A", "CR", "IR", "AR", "Profile Source",
+    "Vuln ID", "Package", "Component", "Component Kind", "PAIN", "Word", "C", "I", "A", "CR", "IR", "AR", "Profile Source",
     "Exposure Column", "Deadline Hours",
 ]
 FINDING_COLUMNS = [
@@ -209,12 +209,12 @@ class TestTables:
     def test_the_assets_table_links_nothing(self) -> None:
         """The assets Search returns no entity type, so its asset names stay plain text."""
         for column in self.panels["playground-pain-assets"]["node"]["config"]["columns"]:
-            assert "formatter" not in column, column["field"]
+            assert column.get("formatter", "toneBadge") == "toneBadge" and (column["field"] in ("cr", "ir", "ar") or "formatter" not in column), column["field"]
 
     def test_the_identifying_columns_are_wide_enough_not_to_truncate(self) -> None:
         columns = {c["field"]: c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"]}
         assert columns["cve"]["width"] >= 170
-        assert columns["component"]["minWidth"] >= 165 and columns["owner"]["minWidth"] >= 165
+        assert columns["component"]["minWidth"] >= 165 and columns["owner"]["width"] >= 220  # the owner (Component) text is not wrapped
 
 
 class TestVdrNavigationSection:

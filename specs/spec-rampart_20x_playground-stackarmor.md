@@ -33,29 +33,30 @@ RID: `req-rampart-20x-playground-page-stackarmor`
 
 Status: `Proposed`
 
-`grift/stackarmor-page.grift.json` seeds the page `/playground/stackarmor`, nine panels and seven Searches; the two PAIN tables of the `pain` bundle are placed on it by `USES_PANEL`. Top to bottom: the intro text, the titled card of what is assumed beside the chart of PAIN across the system, the followed finding, its graph beside the chart of the same CVE, the PAIN Findings table, the PAIN Assets table, who requires what, the archetype catalog, and last the method and steps text. The followed finding is the Search's default `entity_id`: the highest-PAIN real finding on the live data when it was set (an interim; a runner input that picks it on read is pending in `stackarmor_vdr`).
+`grift/stackarmor-page.grift.json` seeds the page `/playground/stackarmor`, eight panels and five Searches; the two PAIN tables of the `pain` bundle are placed on it by `USES_PANEL`. Top to bottom: the intro text, the PAIN Distribution chart beside the titled Status card of what is assumed, the followed finding (Components), the PAIN Findings table, the PAIN Assets table, who requires what, the archetype catalog, and last the method and steps text. The followed finding is the Search's default `entity_id`: the highest-PAIN real finding on the live data when it was set (an interim; a runner input that picks it on read is pending in `stackarmor_vdr`).
 
 | Panel | Type | Search |
 | --- | --- | --- |
-| One Finding, Every Number | Table with column groups | `stackarmor-pain` (`entity_id`) |
-| The Finding In The Graph | Graph | `stackarmor-trace` (`entity_id`); no projection or layout yet |
-| Same CVE, Different Assets | Bar chart | `stackarmor-pain` (`vuln_id`) |
+| Components | Table with column groups | `stackarmor-pain` (`entity_id`) |
 | Who Requires What | Table | a Gryphon Search of the stamps, without the memo programs |
 | Archetype Catalog | Table | a Gryphon Search of the archetypes |
-| What Is Assumed | Stat card | `stackarmor-summary` (`assumptions`) |
-| PAIN Across The System | Bar chart | `stackarmor-summary` (`by_pain`) |
+| Status | Stat card | `stackarmor-summary` (`assumptions`) |
+| PAIN Distribution | Bar chart | `stackarmor-summary` (`by_pain`) |
 | Findings, Assets | Tables | `PAIN Findings`, `PAIN Assets` |
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-stackarmor-1 | Page And Panels | Proposed | The page has slug `/playground/stackarmor`, and every panel its layout names exists and is used by the page through `USES_PANEL`. | |
 | req-rampart-20x-playground-page-stackarmor-2 | Panels Read Searches | Proposed | Each data panel is bound by one `USES_SEARCH` edge to a Search that names a `stackarmor_vdr` runner or a Gryphon query, and no panel computes a figure itself. | Projects are data (no code in the project). |
-| req-rampart-20x-playground-page-stackarmor-3 | No Picker | Proposed | There is no picker. The Searches that follow a finding declare `entity_id` or `vuln_id` with a real (non-memo) finding and its vulnerability as default; the stamps table leaves out the memo programs. | |
+| req-rampart-20x-playground-page-stackarmor-3 | No Picker | Proposed | There is no picker. The Search that follows a finding declares `entity_id` with a real (non-memo) finding as default; the stamps table leaves out the memo programs. | |
 | req-rampart-20x-playground-page-stackarmor-4 | No Explanation Beyond The Method | Proposed | The only prose on the page is the three text panels; every other panel is data under a title. | |
 | req-rampart-20x-playground-page-stackarmor-6 | PAIN Tables Merged | Proposed | The `Findings` and `Assets` tables of the `pain` bundle sit on this page (`USES_PANEL`); the bundle holds no page, and `/playground/pain` does not exist. | Supersedes `req-rampart-20x-playground-page-pain`. |
-| req-rampart-20x-playground-page-stackarmor-7 | Order | Proposed | The intro is first; the titled What Is Assumed card and the PAIN Across The System chart are the next band; the method and steps text panels are the last band. | |
+| req-rampart-20x-playground-page-stackarmor-7 | Order | Proposed | The intro is first; the PAIN Distribution chart and the titled Status card, in that order, are the next band; the method and steps text panels are the last band. | |
 | req-rampart-20x-playground-page-stackarmor-8 | Navigation Section | Proposed | The page nests (`NESTS_UNDER`) under `/playground/vdr-implementations`, a title-only page named `VDR Implementations`; the section pages order by `nav_weight`: Data Classification, Inventory, Vulnerabilities, VDR Implementations, Teams. | The route does not change. |
 | req-rampart-20x-playground-page-stackarmor-5 | Private Plugin Stays Out Of CI | Proposed | The `demo` record pins `stackarmor_vdr` at v0.3.2 with its install credential and seeds it; the `ci` record installs neither it nor the examples and page bundles, and the manifest does not list it in `depends_on`. | The repository is private and CI is offline; the pain bundle is handled the same way. |
+| req-rampart-20x-playground-page-stackarmor-9 | Levels As H, M, L | Proposed | In every table on the page the C, I, A, CR, IR and AR cells read H, M, L (N for none) through the table's `toneBadge` formatter (`tones` and `labels`), and High is red. | Data only: the stored word is unchanged. |
+| req-rampart-20x-playground-page-stackarmor-10 | Component Columns Not Wrapped | Proposed | The Findings table names the owner column Component and the former component column Package; the owner column is wide enough that its text is not wrapped. | |
+| req-rampart-20x-playground-page-stackarmor-11 | Dropped Panels | Proposed | The page has no Same CVE, Different Assets chart and no graph of the finding (it had no projection); their Searches went with them. | |
 
 ## Notes
 
