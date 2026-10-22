@@ -271,7 +271,7 @@ class TestBootRecords:
         assert re.fullmatch(r"[0-9a-f]{40}", entry["commit"])
         vdr = next(p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_vdr")["source"]["rev"]
         assert tuple(int(x) for x in vdr[1:].split(".")) >= (0, 1, 2)
-        steps = [s["plugin"] for s in demo["population"]["steps"]]
+        steps = [s["plugin"] for s in demo["population"]["steps"] if "plugin" in s]  # seed steps; a collector step has a key
         assert steps.index("fedramp_20x_vdr") < steps.index("stackarmor_vdr") < steps.index("rampart_20x_playground")
 
     def test_the_ci_record_stays_offline_and_seeds_every_bundle_but_the_stackarmor_ones(self) -> None:
@@ -281,5 +281,5 @@ class TestBootRecords:
         bundles = [s["bundle"] for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"]
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         # the bundles that need the private plugin: pain, and the stackarmor examples and page
-        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page", "vdr_implementations")]
+        assert bundles == [b for b in manifest["grift"] if b not in ("pain", "stackarmor_examples", "stackarmor_page", "vdr_implementations", "vdr_max_nav")]
         assert "stackarmor_vdr" not in {d["slug"] for d in manifest["depends_on"]}

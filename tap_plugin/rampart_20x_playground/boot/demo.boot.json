@@ -101,8 +101,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
-          "rev": "v0.1.4",
-          "commit": "f4a0f16b5a8d509dde5dfc26bab5225e7a4c9450"
+          "rev": "v0.1.5",
+          "commit": "ff9685fdee0918d1a77592ab71d2e11ed3776cc3"
         },
         "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },
@@ -217,6 +217,13 @@
         "plugin": "rampart_20x_playground",
         "enabled": true,
         "note": "This plugin's own bundles: keystone and dimensions. Last, so every dimension it references already exists."
+      },
+      {
+        "type": "fire-collector",
+        "key": "fedramp_20x_vdr:vdr_max",
+        "enabled": true,
+        "run_mode": "full",
+        "note": "Gives every open vulnerability-linked finding its all-null VDR max evaluation, once, after the playground's findings are seeded, so the VDR max page has evaluations to show."
       }
     ]
   },

@@ -104,6 +104,8 @@ class TestSurfaces:
             "grift/stackarmor-page.grift.json",
             "grift/teams.grift.json",
             "grift/vdr-implementations.grift.json",
+            "grift/vdr-max-nav.grift.json",
+            "grift/vdr-max-page.grift.json",
             "grift/vulnerabilities-page.grift.json",
             "grift/vulnerability-enrichment.grift.json",
         ]
