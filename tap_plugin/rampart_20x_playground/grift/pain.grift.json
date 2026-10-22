@@ -226,25 +226,26 @@
                 {
                   "field": "cve",
                   "title": "Vuln ID",
-                  "width": 170,
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/playground/vulnerabilities/cve?vuln_id={cve}",
                     "external": false,
                     "style": "plain"
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 186
                 },
                 {
                   "field": "component",
                   "title": "Package",
-                  "widthGrow": 2,
-                  "minWidth": 165,
                   "formatter": "link",
                   "formatter_params": {
                     "href_template": "/object/{component_type}/entity--{component_id}/",
                     "external": false,
                     "style": "plain"
-                  }
+                  },
+                  "widthGrow": 2,
+                  "minWidth": 180
                 },
                 {
                   "field": "owner",
@@ -255,28 +256,25 @@
                     "external": false,
                     "style": "plain"
                   },
-                  "width": 230
+                  "widthGrow": 1,
+                  "minWidth": 165
                 },
                 {
                   "field": "owner_kind",
-                  "title": "Component Kind",
-                  "width": 92
+                  "title": "Kind",
+                  "headerSort": false,
+                  "width": 80
                 },
                 {
                   "field": "pain",
                   "title": "PAIN",
-                  "width": 66,
-                  "align": "center"
-                },
-                {
-                  "field": "word",
-                  "title": "Word",
-                  "width": 88
+                  "align": "center",
+                  "headerSort": false,
+                  "width": 60
                 },
                 {
                   "field": "c",
                   "title": "C",
-                  "width": 50,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -289,12 +287,13 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 44
                 },
                 {
                   "field": "i",
                   "title": "I",
-                  "width": 50,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -307,12 +306,13 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 44
                 },
                 {
                   "field": "a",
                   "title": "A",
-                  "width": 50,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -325,12 +325,13 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 44
                 },
                 {
                   "field": "cr",
                   "title": "CR",
-                  "width": 70,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -343,12 +344,13 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 48
                 },
                 {
                   "field": "ir",
                   "title": "IR",
-                  "width": 70,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -361,12 +363,13 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 48
                 },
                 {
                   "field": "ar",
                   "title": "AR",
-                  "width": 70,
                   "align": "center",
                   "formatter": "toneBadge",
                   "formatter_params": {
@@ -379,25 +382,30 @@
                       "low": "L",
                       "none": "N"
                     }
-                  }
+                  },
+                  "headerSort": false,
+                  "width": 48
                 },
                 {
                   "field": "profile_source",
-                  "title": "Profile Source",
-                  "width": 92
+                  "title": "Profile From",
+                  "headerSort": false,
+                  "width": 112
                 },
                 {
                   "field": "column",
-                  "title": "Exposure Column",
-                  "width": 92
+                  "title": "Column",
+                  "headerSort": false,
+                  "width": 84
                 },
                 {
                   "field": "deadline_hours",
-                  "title": "Deadline Hours",
-                  "width": 92,
+                  "title": "Hours",
                   "align": "right",
                   "sorter": "number",
-                  "empty_text": "—"
+                  "empty_text": "—",
+                  "headerSort": false,
+                  "width": 68
                 }
               ]
             }

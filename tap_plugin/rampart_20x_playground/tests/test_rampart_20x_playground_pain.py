@@ -40,11 +40,11 @@ STAMPS = {
     "teleport proxy": "identity_secrets", "teleport auth": "identity_secrets", "teleport ssh": "identity_secrets",
 }
 FINDING_TITLES = [
-    "Vuln ID", "Package", "Component", "Component Kind", "PAIN", "Word", "C", "I", "A", "CR", "IR", "AR", "Profile Source",
-    "Exposure Column", "Deadline Hours",
+    "Vuln ID", "Package", "Component", "Kind", "PAIN", "C", "I", "A", "CR", "IR", "AR", "Profile From",
+    "Column", "Hours",
 ]
 FINDING_COLUMNS = [
-    "cve", "component", "owner", "owner_kind", "pain", "word", "c", "i", "a", "cr", "ir", "ar", "profile_source",
+    "cve", "component", "owner", "owner_kind", "pain", "c", "i", "a", "cr", "ir", "ar", "profile_source",
     "column", "deadline_hours",
 ]
 
@@ -211,10 +211,19 @@ class TestTables:
         for column in self.panels["playground-pain-assets"]["node"]["config"]["columns"]:
             assert column.get("formatter", "toneBadge") == "toneBadge" and (column["field"] in ("cr", "ir", "ar") or "formatter" not in column), column["field"]
 
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-10")
     def test_the_identifying_columns_are_wide_enough_not_to_truncate(self) -> None:
         columns = {c["field"]: c for c in self.panels["playground-pain-findings"]["node"]["config"]["columns"]}
-        assert columns["cve"]["width"] >= 170
-        assert columns["component"]["minWidth"] >= 165 and columns["owner"]["width"] >= 220  # the owner (Component) text is not wrapped
+        assert columns["cve"]["width"] >= 180
+        assert columns["component"]["minWidth"] >= 180 and columns["owner"]["minWidth"] >= 165  # the owner (Component) text is not wrapped
+
+    @pytest.mark.spec("req-rampart-20x-playground-page-stackarmor-12")
+    def test_the_findings_table_fits_the_panel_without_scrolling(self) -> None:
+        """Every column has a width or a minimum, the widths sum under 1216 px (a 1280 px window), and one column grows."""
+        columns = self.panels["playground-pain-findings"]["node"]["config"]["columns"]
+        assert all("width" in c or "minWidth" in c for c in columns)
+        assert sum(c.get("width", c.get("minWidth")) for c in columns) <= 1216
+        assert [c["field"] for c in columns if "widthGrow" in c] == ["component", "owner"]
 
 
 class TestVdrNavigationSection:
