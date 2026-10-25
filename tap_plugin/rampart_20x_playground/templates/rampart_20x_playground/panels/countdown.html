@@ -1,0 +1,13 @@
+<div class="tap-panel tap-panel--report tap-panel--countdown">
+{% if not panel.config.hide_header %}{% include "tap_web/panel_header.html" %}{% endif %}
+{% if state == "bad_config" %}
+<p class="rpt-note">Panel config invalid: {{ detail }}</p>
+{% else %}
+<article class="rpt">
+  <section class="rpt-section">
+    <h2 class="rpt-heading">{{ heading }}</h2>
+    <p class="rpt-figure"><span class="rpt-label">{{ label }}</span><span class="rpt-leader"></span><span class="rpt-value" data-rampart-countdown="{{ target_date }}">{{ target_date }}</span></p>
+  </section>
+</article>
+{% endif %}
+</div>

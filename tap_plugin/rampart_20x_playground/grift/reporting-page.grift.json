@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.reporting-page",
         "name": "rampart-20x-playground reporting page v0.1.0",
-        "description": "The /playground/reporting page (Reporting): two report panels of compliance_core, the agency part and, below the cut line, the internal part, each linked to the Searches its lines read; the report Searches they add; and one report deadlines Search over vdr-summary of fedramp_20x_vdr (the four deadline counts, worst-case bound). See req-rampart-20x-playground-page-reporting."
+        "description": "The /playground/reporting page (Reporting): two report panels of compliance_core, the agency part and, below the cut line, the internal part, each linked to the Searches its lines read; the report Searches they add; one report deadlines Search over vdr-summary of fedramp_20x_vdr (the four deadline counts, worst-case bound); the newest-scan-run Search (last refresh); and the Timeline panel of this plugin's rampart_countdown type, the Days To December 7 line under the agency part. See req-rampart-20x-playground-page-reporting."
       },
       "nodes": [
         {
@@ -38,6 +38,10 @@
                   "rows": {
                     "row-1": {
                       "panel-id": "playground-reporting-agency",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "playground-reporting-timeline",
                       "height": "auto"
                     }
                   }
@@ -144,6 +148,29 @@
         },
         {
           "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63bfccff85a",
+            "entity_type": "panel",
+            "name": "Timeline",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Timeline",
+            "slug": "playground-reporting-timeline",
+            "description": "The Days To December 7 line of the agency report, counted in the browser.",
+            "view": "rampart_20x_playground/panels/countdown.html",
+            "editor_view": "",
+            "config": {
+              "heading": "Timeline",
+              "label": "Days To December 7",
+              "target_date": "2026-12-07",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
             "entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
             "entity_type": "panel",
             "name": "Internal Report",
@@ -226,6 +253,13 @@
                   "items": [
                     {
                       "kind": "figure",
+                      "label": "Last Vulnerability Data Refresh",
+                      "search": "01a17342-e750-711b-a27f-e63d55568be6",
+                      "field": "last_vulnerability_scan",
+                      "format": "datetime"
+                    },
+                    {
+                      "kind": "figure",
                       "label": "Last Coverage Snapshot",
                       "search": "01a1714d-1e78-7757-af1c-4995a2f811bf",
                       "field": "last_snapshot",
@@ -273,6 +307,26 @@
               "query": [
                 "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND v.data.kev = true",
                 "RETURN COUNT(f) AS known_exploited"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63d55568be6",
+            "entity_type": "search",
+            "name": "playground — report last refresh",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report last refresh",
+            "description": "When the newest vulnerability scan ran: the newest observed_at of any compliance_core scan run, null when there is none (no producer writes scan runs yet, so the line reads Not observed until one does).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (r:compliance_core__compliance_scan_run)",
+                "RETURN MAX(r.data.observed_at) AS last_vulnerability_scan"
               ]
             }
           }
@@ -341,6 +395,26 @@
                 "model": "page",
                 "spec": "page-panels",
                 "value": "playground-reporting-agency"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63c85d9ab74",
+            "entity_type": "edge",
+            "name": "Reporting USES_PANEL timeline",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-499006b66edb",
+            "to_entity_id": "01a17342-e750-711b-a27f-e63bfccff85a",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-reporting-timeline"
               }
             }
           }
@@ -473,6 +547,20 @@
           "edge": {
             "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
             "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63eaf2e4727",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH report last refresh",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a17342-e750-711b-a27f-e63d55568be6",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }

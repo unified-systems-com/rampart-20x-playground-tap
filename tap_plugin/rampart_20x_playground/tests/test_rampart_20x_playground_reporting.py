@@ -41,6 +41,8 @@ def _panel(slug: str) -> dict:
 
 AGENCY = "playground-reporting-agency"
 INTERNAL = "playground-reporting-internal"
+TIMELINE = "playground-reporting-timeline"
+COUNTDOWN_VIEW = "rampart_20x_playground/panels/countdown.html"
 
 
 def _items(config: dict) -> list[dict]:
@@ -83,17 +85,19 @@ def test_the_page_is_named_reporting_routed_and_in_navigation() -> None:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-page-reporting-2")
-def test_two_report_panels_in_two_bands_and_nothing_else() -> None:
+def test_two_report_panels_in_two_bands_and_the_timeline_under_the_agency_part() -> None:
     (page,) = _of("page")
     columns = sorted(page["node"]["layout"]["columns"].values(), key=lambda c: c["band"])
-    assert [[r["panel-id"] for r in c["rows"].values()] for c in columns] == [[AGENCY], [INTERNAL]]
+    assert [[r["panel-id"] for r in c["rows"].values()] for c in columns] == [[AGENCY, TIMELINE], [INTERNAL]]
     assert len({c["band"] for c in columns}) == 2
     panels = _of("panel")
-    assert [p["node"]["slug"] for p in panels] == [AGENCY, INTERNAL]
-    assert [p["node"]["name"] for p in panels] == ["Agency Report", "Internal Report"]
-    assert all(p["node"]["view"] == REPORT_VIEW for p in panels)
+    assert [p["node"]["slug"] for p in panels] == [AGENCY, TIMELINE, INTERNAL]
+    assert [p["node"]["name"] for p in panels] == ["Agency Report", "Timeline", "Internal Report"]
+    report = [p for p in panels if p["node"]["view"] == REPORT_VIEW]
+    assert [p["node"]["slug"] for p in report] == [AGENCY, INTERNAL]  # the two report panels
+    assert _panel(TIMELINE)["node"]["view"] == COUNTDOWN_VIEW  # the one other panel; no card, table or chart
     used = [e["edge"] for e in _batch()["edges"] if e["edge"]["edge_type"] == "USES_PANEL"]
-    assert {u["properties"]["hotlink"]["value"] for u in used} == {AGENCY, INTERNAL}
+    assert {u["properties"]["hotlink"]["value"] for u in used} == {AGENCY, TIMELINE, INTERNAL}
     assert {u["to_entity_id"] for u in used} == {p["entity"]["entity_id"] for p in panels}
 
 
@@ -123,10 +127,11 @@ def test_each_panel_is_linked_to_exactly_the_searches_its_lines_name() -> None:
         assert named <= searches, slug  # every one is a Search of this plugin's bundles
 
 
-def test_the_agency_lines_built_so_far() -> None:
-    """The agency lines that exist today. Not marked `-6`: the severity figures (no severity field or conditional count;
-    George has not ruled) and `Days To December 7` (the report panel carries no script and no Search can compute the
-    days; a client-side countdown needs a panel type that ships JS) are not built, so `-6` is not met yet."""
+@pytest.mark.spec("req-rampart-20x-playground-page-reporting-6")
+def test_the_agency_items() -> None:
+    """The agency table as ruled: coverage (two figures and the trend), the two vulnerability counts (the per-severity
+    figures are dropped, George 2026-10-25) and `Days To December 7`, which is the `Timeline` panel under the report panel
+    because a report panel line cannot run a script."""
     config = _panel(AGENCY)["node"]["config"]
     assert [s["heading"] for s in config["sections"]] == ["Coverage", "Vulnerabilities"]
     coverage, vulnerabilities = config["sections"]
@@ -140,11 +145,13 @@ def test_the_agency_lines_built_so_far() -> None:
     assert [(line["label"], line["search"]) for line in trend["lines"]] == [
         ("Responsibility", RESP_HISTORY), ("Data Classification", CLASS_HISTORY)]
     assert [i["label"] for i in vulnerabilities["items"]] == ["Open Vulnerabilities", "Known Exploited"]
+    timeline = _panel(TIMELINE)["node"]
+    assert timeline["config"]["heading"] == "Timeline" and timeline["config"]["label"] == "Days To December 7"
 
 
-def test_the_internal_lines_built_so_far() -> None:
-    """Not marked `-7`: `Last Vulnerability Data Refresh` is not built (George's answer on it is pending, and no field
-    records it)."""
+@pytest.mark.spec("req-rampart-20x-playground-page-reporting-7")
+def test_the_internal_items() -> None:
+    """Every internal line of the table that is not Backlog (the Teams list waits on `-teams`)."""
     config = _panel(INTERNAL)["node"]["config"]
     assert [s["heading"] for s in config["sections"]] == ["Deadlines", "Coverage Gaps", "Data Freshness"]
     deadlines, gaps, freshness = config["sections"]
@@ -154,7 +161,8 @@ def test_the_internal_lines_built_so_far() -> None:
         ("Unmapped Classification Entries", CLASS_TOTALS, "unmapped", "count"),
         ("Incorrect Classification Entries", CLASS_TOTALS, "mapped_incorrectly", "count"),
     ]
-    (snapshot,) = freshness["items"]
+    refresh, snapshot = freshness["items"]
+    assert (refresh["label"], refresh["field"], refresh["format"]) == ("Last Vulnerability Data Refresh", "last_vulnerability_scan", "datetime")
     assert (snapshot["label"], snapshot["format"]) == ("Last Coverage Snapshot", "datetime")
 
 
@@ -170,6 +178,7 @@ def test_nothing_internal_above_the_line() -> None:
     assert people and not [name for name in people if name in text]
     for word in ("Deadline", "Overdue", "Team", "Internal"):
         assert word not in text, word
+    assert not any(w in json.dumps(_panel(TIMELINE)["node"]["config"]) for w in ("Deadline", "Overdue", "Team", "Internal"))
 
 
 @pytest.mark.spec("req-rampart-20x-playground-page-reporting-9")
@@ -205,7 +214,7 @@ def test_configs_are_valid_report_configs_so_the_panel_owns_not_observed() -> No
 @pytest.mark.spec("req-rampart-20x-playground-page-reporting-12")
 def test_no_panel_header_chrome() -> None:
     """The print layout itself (agency part on the first page) is checked in a browser print preview, not here."""
-    for slug in (AGENCY, INTERNAL):
+    for slug in (AGENCY, TIMELINE, INTERNAL):
         assert _panel(slug)["node"]["config"]["hide_header"] is True, slug
 
 
@@ -213,6 +222,8 @@ def test_no_panel_header_chrome() -> None:
 def test_titles_headings_and_figures_only_in_title_case() -> None:
     assert not [n for n in _of("panel") if "text_panel" in n["node"]["view"]]
     words: list[str] = [_of("page")[0]["node"]["name"]]
+    timeline = _panel(TIMELINE)
+    words += [timeline["node"]["name"], timeline["node"]["config"]["heading"], timeline["node"]["config"]["label"]]
     for slug in (AGENCY, INTERNAL):
         panel = _panel(slug)
         config = panel["node"]["config"]
@@ -225,7 +236,7 @@ def test_titles_headings_and_figures_only_in_title_case() -> None:
                 words += [line["label"] for line in item.get("lines", [])]
     for text in words:
         assert len(text) <= 40, text  # a label, not a sentence
-        assert all(w[0].isupper() for w in text.split()), text
+        assert all(w[0].isupper() or w[0].isdigit() for w in text.split()), text
 
 
 @pytest.mark.spec("req-rampart-20x-playground-page-reporting-14")
@@ -273,8 +284,12 @@ def test_report_searches_count_in_the_query_and_the_page_does_no_arithmetic() ->
     assert 'f.data.status = "open"' in open_q and open_q.endswith("RETURN COUNT(f) AS open_vulnerabilities")
     assert 'f.data.status = "open"' in kev_q and "v.data.kev = true" in kev_q and kev_q.endswith("RETURN COUNT(f) AS known_exploited")
     assert snap_q.endswith("RETURN MAX(s.data.observed_at) AS last_snapshot")
+    scan_q = " ".join(by_name["playground — report last refresh"]["definition"]["query"])
+    assert scan_q == ("MATCH (r:compliance_core__compliance_scan_run) "
+                      "RETURN MAX(r.data.observed_at) AS last_vulnerability_scan")
     for slug in (AGENCY, INTERNAL):
-        assert "2026-12-07" not in json.dumps(_panel(slug)["node"]["config"])  # a date lives in a Search, never a panel
+        assert "2026-12-07" not in json.dumps(_panel(slug)["node"]["config"])  # a report panel line does no date arithmetic
+    assert _panel(TIMELINE)["node"]["config"]["target_date"] == "2026-12-07"  # the date is the countdown panel's config
 
 
 def test_ids_are_unique_version_7_uuids_new_to_this_plugin() -> None:
