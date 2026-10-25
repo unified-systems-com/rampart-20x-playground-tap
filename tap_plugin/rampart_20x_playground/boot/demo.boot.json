@@ -20,8 +20,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/administrivia-tap",
-          "rev": "v0.2.1",
-          "commit": "f2431b90222b1e7e116067a9ccd1cd88847fe755"
+          "rev": "v0.2.2",
+          "commit": "7656f2912f8355a5129ef299ae5e99d8b61821ba"
         }
       },
       {

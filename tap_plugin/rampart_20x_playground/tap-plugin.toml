@@ -58,7 +58,7 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "8b06f1c6bb3fda369b840fcd81386ff9a691392bad52f2cc8f1a3619cfe819bb"
+sha256 = "2e2ad26d180f7e9bda39b4a05e29e341e8fa8d97b4fb2e126e026cff6d50c74c"
 
 [[boot.records]]
 name = "ci"
