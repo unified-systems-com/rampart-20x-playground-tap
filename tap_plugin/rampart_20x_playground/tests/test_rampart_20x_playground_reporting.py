@@ -17,12 +17,13 @@ GRIFT = PACKAGE_ROOT / "grift"
 FILE = "reporting-page.grift.json"
 SLUG = "/playground/reporting"
 REPORT_VIEW = "compliance_core/panels/report.html"
-DEADLINES = "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
+SUMMARY = "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-summary"
+DEADLINES_SEARCH = "playground — report deadlines"
 RESP_TOTALS = "01a16098-57bd-7444-a312-2ffdd24c4174"
 CLASS_TOTALS = "01a16098-57be-71da-9424-40b57d974dd7"
 RESP_HISTORY = "01a16098-57bd-7444-a312-2ffbc5719ad7"
 CLASS_HISTORY = "01a16098-57bd-7444-a312-2ffc2d3549d0"
-DEADLINE_VIEWS = ("evaluation_overdue", "remediation_overdue", "acceptance_reached", "detection_unobserved")
+DEADLINE_FIELDS = ("evaluation_overdue", "remediation_overdue", "acceptance_reached", "detection_unobserved")
 
 
 def _batch(name: str = FILE) -> dict:
@@ -123,8 +124,9 @@ def test_each_panel_is_linked_to_exactly_the_searches_its_lines_name() -> None:
 
 
 def test_the_agency_lines_built_so_far() -> None:
-    """The agency lines that exist today. Not marked `-6`: the severity figures and `Days To December 7` are not built
-    (no severity field or conditional count, and no date difference in Gryphon), so `-6` is not met yet."""
+    """The agency lines that exist today. Not marked `-6`: the severity figures (no severity field or conditional count;
+    George has not ruled) and `Days To December 7` (the report panel carries no script and no Search can compute the
+    days; a client-side countdown needs a panel type that ships JS) are not built, so `-6` is not met yet."""
     config = _panel(AGENCY)["node"]["config"]
     assert [s["heading"] for s in config["sections"]] == ["Coverage", "Vulnerabilities"]
     coverage, vulnerabilities = config["sections"]
@@ -141,11 +143,12 @@ def test_the_agency_lines_built_so_far() -> None:
 
 
 def test_the_internal_lines_built_so_far() -> None:
-    """Not marked `-7`: the Deadlines section is not built (the report panel shows a field of a row and cannot count the
-    rows a `vdr-deadlines` view returns) and neither is `Last Vulnerability Data Refresh` (no field records it)."""
+    """Not marked `-7`: `Last Vulnerability Data Refresh` is not built (George's answer on it is pending, and no field
+    records it)."""
     config = _panel(INTERNAL)["node"]["config"]
-    assert [s["heading"] for s in config["sections"]] == ["Coverage Gaps", "Data Freshness"]
-    gaps, freshness = config["sections"]
+    assert [s["heading"] for s in config["sections"]] == ["Deadlines", "Coverage Gaps", "Data Freshness"]
+    deadlines, gaps, freshness = config["sections"]
+    assert [(i["kind"], i["field"], i["format"]) for i in deadlines["items"]] == [("figure", f, "count") for f in DEADLINE_FIELDS]
     assert [(i["label"], i["search"], i["field"], i["format"]) for i in gaps["items"]] == [
         ("Entries Without A Team", RESP_TOTALS, "unmapped", "count"),
         ("Unmapped Classification Entries", CLASS_TOTALS, "unmapped", "count"),
@@ -159,7 +162,7 @@ def test_the_internal_lines_built_so_far() -> None:
 def test_nothing_internal_above_the_line() -> None:
     config = _panel(AGENCY)["node"]["config"]
     text = json.dumps(config)
-    deadline_ids = {n["entity"]["entity_id"] for n in _of("search") if n["node"]["definition"].get("runner_key") == DEADLINES}
+    deadline_ids = {n["entity"]["entity_id"] for n in _of("search") if n["node"]["definition"].get("runner_key") == SUMMARY}
     assert not deadline_ids & _named_searches(config)
     assert all(i["kind"] in ("figure", "trend") for i in _items(config))  # no list, so no finding detail
     people = [n["node"]["name"] for n in _batch("teams.grift.json")["nodes"]
@@ -237,15 +240,29 @@ def test_floors_and_pins_name_the_report_panel_and_deadline_releases() -> None:
         assert _floor(revs["fedramp_20x_vdr"]) >= (0, 1, 3), record
 
 
-def test_four_deadline_searches_name_the_runner_and_say_they_are_a_bound() -> None:
-    """The Search nodes for the four `vdr-deadlines` views the Deadlines section names (`req-fedramp-20x-vdr-deadlines-4`:
-    each remediation and acceptance Search says it is a bound). No panel line reads them yet; see the internal test."""
-    deadline = [n["node"] for n in _of("search") if n["node"]["definition"].get("runner_key") == DEADLINES]
-    assert [s["input_schema"]["properties"]["view"]["default"] for s in deadline] == list(DEADLINE_VIEWS)
-    for s in deadline:
-        assert s["search_type"] == "module" and s["root"] == "node"
-        if s["input_schema"]["properties"]["view"]["default"] != "detection_unobserved":
-            assert "worst-case bound" in s["description"], s["name"]
+def test_the_deadlines_read_one_summary_row_and_say_they_are_a_bound() -> None:
+    """One `vdr-summary` Search (view `counts`, the same row VDR MAX reads) feeds all four Deadlines figures, so the four
+    counts come from one run of the runner and match the lists they summarise (`req-fedramp-20x-vdr-summary-1`). The
+    remediation and acceptance labels say they are a bound (`req-fedramp-20x-vdr-deadlines-4`); the Search says so too."""
+    summaries = [n for n in _of("search") if n["node"]["definition"].get("runner_key") == SUMMARY]
+    (summary,) = summaries
+    node = summary["node"]
+    assert node["name"] == DEADLINES_SEARCH and node["search_type"] == "module" and node["root"] == "node"
+    assert node["input_schema"]["properties"]["view"]["default"] == "counts"
+    assert "worst-case bound" in node["description"]
+    assert not [n for n in _of("search") if "vdr-deadlines" in json.dumps(n["node"]["definition"])]  # no list-returning runner
+    internal = _panel(INTERNAL)
+    deadlines = [s for s in internal["node"]["config"]["sections"] if s["heading"] == "Deadlines"]
+    (section,) = deadlines
+    assert {i["search"] for i in section["items"]} == {summary["entity"]["entity_id"]}
+    assert summary["entity"]["entity_id"] in _linked(internal)
+    for item in section["items"]:
+        if item["field"] != "detection_unobserved":
+            assert "Worst-Case Bound" in item["label"], item["label"]
+    # the same runner and view as the VDR MAX counts card, so one definition of each count
+    vdr_max = [n["node"] for n in _batch("vdr-max-page.grift.json")["nodes"] if n["entity"]["entity_type"] == "search"
+               and n["node"]["definition"].get("runner_key") == SUMMARY and n["node"]["input_schema"]["properties"]["view"]["default"] == "counts"]
+    assert vdr_max, "VDR MAX reads the same vdr-summary counts row"
 
 
 def test_report_searches_count_in_the_query_and_the_page_does_no_arithmetic() -> None:

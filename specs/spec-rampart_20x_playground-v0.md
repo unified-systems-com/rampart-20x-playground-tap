@@ -832,7 +832,7 @@ Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-cor
 
 | section | item | source Search | state |
 | --- | --- | --- | --- |
-| Deadlines | `Evaluation Overdue`, `Remediation Overdue`, `Acceptance Reached`, `Detection Time Unobserved`, each a count | the four views of `vdr-deadlines` | runner released in `fedramp_20x_vdr` v0.1.3; Search nodes are new |
+| Deadlines | `Evaluation Overdue`, `Remediation Overdue`, `Acceptance Reached`, `Detection Time Unobserved`, each a count | the counts row of `vdr-summary` (`playground — report deadlines`), the same row VDR MAX reads; one Search, four fields (George, 2026-10-25) | runner in `fedramp_20x_vdr`; Search node is new |
 | Coverage Gaps | `Entries Without A Team`, `Unmapped Classification Entries`, `Incorrect Classification Entries` | the two totals Searches | in `req-rampart-20x-playground-inventory-coverage` |
 | Teams | a list of teams with entries owned, open findings and past due | `playground — report teams` | Backlog (`req-rampart-20x-playground-reporting-teams`) |
 | Data Freshness | `Last Vulnerability Data Refresh`, `Last Coverage Snapshot` | `playground — report last refresh`, `playground — report last snapshot` | new |

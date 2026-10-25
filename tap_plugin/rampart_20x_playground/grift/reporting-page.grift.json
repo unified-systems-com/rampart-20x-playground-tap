@@ -14,7 +14,7 @@
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.reporting-page",
         "name": "rampart-20x-playground reporting page v0.1.0",
-        "description": "The /playground/reporting page (Reporting): two report panels of compliance_core, the agency part and, below the cut line, the internal part, each linked to the Searches its lines read; the report Searches they add; and the four vdr-deadlines Searches (worst-case bound) of fedramp_20x_vdr. See req-rampart-20x-playground-page-reporting."
+        "description": "The /playground/reporting page (Reporting): two report panels of compliance_core, the agency part and, below the cut line, the internal part, each linked to the Searches its lines read; the report Searches they add; and one report deadlines Search over vdr-summary of fedramp_20x_vdr (the four deadline counts, worst-case bound). See req-rampart-20x-playground-page-reporting."
       },
       "nodes": [
         {
@@ -163,6 +163,39 @@
               "hide_header": true,
               "sections": [
                 {
+                  "heading": "Deadlines",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Evaluation Overdue, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "evaluation_overdue",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Remediation Overdue, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "remediation_overdue",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Acceptance Reached, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "acceptance_reached",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Detection Time Unobserved",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "detection_unobserved",
+                      "format": "count"
+                    }
+                  ]
+                },
+                {
                   "heading": "Coverage Gaps",
                   "items": [
                     {
@@ -266,103 +299,25 @@
         },
         {
           "entity": {
-            "entity_id": "01a1714d-1e78-7757-af1c-4996dfeffff1",
+            "entity_id": "01a17339-8ab3-7025-b71e-cac113451e11",
             "entity_type": "search",
-            "name": "playground — report evaluation overdue",
+            "name": "playground — report deadlines",
             "dimensions": {}
           },
           "node": {
-            "name": "playground — report evaluation overdue",
-            "description": "vdr-deadlines, evaluation overdue: open evaluations not complete by first_detected_at plus the VER-TFR-EVU hours. A worst-case bound: in v0 no evaluation is complete, so every one past its evaluation deadline is listed.",
+            "name": "playground — report deadlines",
+            "description": "vdr-summary, the counts row for the Deadlines section: evaluation_overdue, remediation_overdue, acceptance_reached and detection_unobserved in one row. Remediation and acceptance are a worst-case bound: in v0 every finding is counted from first detection under the worst-case row and no evaluation is complete (req-fedramp-20x-vdr-deadlines-4).",
             "search_type": "module",
             "root": "node",
             "definition": {
-              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-summary"
             },
             "input_schema": {
               "type": "object",
               "properties": {
                 "view": {
                   "type": "string",
-                  "default": "evaluation_overdue"
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1714d-1e78-7757-af1c-49972e056555",
-            "entity_type": "search",
-            "name": "playground — report remediation overdue",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — report remediation overdue",
-            "description": "vdr-deadlines, remediation overdue: open evaluations past first_detected_at plus the worst-case VDR-TFR-PVR row (the class, N5, lev_irv). A worst-case bound, never later than the exact deadline.",
-            "search_type": "module",
-            "root": "node",
-            "definition": {
-              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "view": {
-                  "type": "string",
-                  "default": "remediation_overdue"
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1714d-1e78-7757-af1c-4998d34ac57b",
-            "entity_type": "search",
-            "name": "playground — report acceptance reached",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — report acceptance reached",
-            "description": "vdr-deadlines, acceptance reached: open evaluations past first_detected_at plus the VER-TFR-MAV hours. A worst-case bound: counted from detection, the earliest possible anchor.",
-            "search_type": "module",
-            "root": "node",
-            "definition": {
-              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "view": {
-                  "type": "string",
-                  "default": "acceptance_reached"
-                }
-              }
-            }
-          }
-        },
-        {
-          "entity": {
-            "entity_id": "01a1714d-1e78-7757-af1c-49995ac9215b",
-            "entity_type": "search",
-            "name": "playground — report detection time unobserved",
-            "dimensions": {}
-          },
-          "node": {
-            "name": "playground — report detection time unobserved",
-            "description": "vdr-deadlines, detection time unobserved: open evaluations whose finding has a null first_detected_at; no deadline is computed or defaulted for them.",
-            "search_type": "module",
-            "root": "node",
-            "definition": {
-              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-deadlines"
-            },
-            "input_schema": {
-              "type": "object",
-              "properties": {
-                "view": {
-                  "type": "string",
-                  "default": "detection_unobserved"
+                  "default": "counts"
                 }
               }
             }
@@ -532,6 +487,20 @@
           "edge": {
             "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
             "to_entity_id": "01a1714d-1e78-7757-af1c-4995a2f811bf",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17339-8ab3-7025-b71e-cac2497dd1dd",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH report deadlines",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a17339-8ab3-7025-b71e-cac113451e11",
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
