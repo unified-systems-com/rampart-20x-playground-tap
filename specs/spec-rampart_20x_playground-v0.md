@@ -77,6 +77,8 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, a row of four live status cards and, below it, one line chart over time on each page: responsibility on the inventory page, data classification on the Data Classification page |
 | req-rampart-20x-playground-coverage-seed | [Coverage History Seed](#coverage-history-seed) | Proposed | Mock data: the stamps that bring the coverage figures to a high end state, and four days of snapshots, every four hours, that climb to it |
+| req-rampart-20x-playground-coverage-panel | [Coverage Panel](#coverage-panel) | Proposed | The coverage figures and both histories in one plain report panel on the landing page |
+| req-rampart-20x-playground-page-reporting | [Reporting Page](#reporting-page) | Proposed | The overall status report: an agency part and, below a cut line, an internal part, as two plain print-ready `report` panels |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
 | req-rampart-20x-playground-teams-viz | [Teams Graph](#teams-graph) | Proposed | A full-width graph at the top of the Teams page: each person (a solo icon) inside their team, each team inside its parent, the child teams in a row, the people of a team stacked with the leader first |
@@ -658,7 +660,7 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 | Data Classification | `Unmapped` | `unmapped` | `entries` |
 | Data Classification | `Incorrect` | `mapped_incorrectly` | `entries` |
 
-`Overall Coverage` is the plain average of the categories, the same figure the chart's `Overall` line shows (ruled by George, 2026-10-21); the other cards are the pooled counts. A card has no page-specific configuration: it is a panel node, a Search edge and nothing else, so any page mounts it with a `USES_PANEL` edge and no change (the overview will, and a consolidated coverage panel may later gather the same figures, reading the same totals Search or calling `totals_from_rows`).
+`Overall Coverage` is the plain average of the categories, the same figure the chart's `Overall` line shows (ruled by George, 2026-10-21); the other cards are the pooled counts. A card has no page-specific configuration: it is a panel node, a Search edge and nothing else, so any page mounts it with a `USES_PANEL` edge and no change (the overview will, and the consolidated coverage panel (`req-rampart-20x-playground-coverage-panel`) gathers the same figures from the same totals Searches).
 
 #### Acceptance Criteria
 
@@ -686,7 +688,7 @@ Coverage is the measure teams use to show progress toward the December 7 date. F
 | req-rampart-20x-playground-inventory-coverage-chart-end-labels | End Labels In The Chart Panel | Backlog | If the chart panel refuses `endLabel` or `labelLayout` in its config, the chart panel accepts them. | A core decision; core is held. |
 | req-rampart-20x-playground-inventory-coverage-views | Other Views Of The History | Backlog | A table with a small trend line in each row, or a heat grid of category by time. | Considered 2026-10-21 and deferred; each needs a core panel capability. The line chart with end labels is the view for the demo. |
 | req-rampart-20x-playground-inventory-coverage-overall-weight | Overall Line Thick, Opaque, On Top | Proposed | The template series draws every category line at `lineStyle` width 1.5 and opacity 0.55; `series_by.overrides` gives `Overall` width 6 (about four times), opacity 1 and `z` 10. | Needs tap with `series_by.overrides` (tap PR 1103). Ruled 2026-10-22, George. |
-| req-rampart-20x-playground-inventory-coverage-overview | Cards On The Overview, A Consolidated Panel | Backlog | The same cards mounted on the Overview page, and a consolidated coverage panel that shows every card's figure at once. | The cards and the totals calculation are built to be reused for this (`-15`); the mounting and the panel are a later step. |
+| req-rampart-20x-playground-inventory-coverage-overview | Cards On The Overview | Backlog | The same cards mounted on the Overview page. | The cards and the totals calculation are built to be reused for this (`-15`). The consolidated panel is `req-rampart-20x-playground-coverage-panel`. |
 
 ### Coverage History Seed
 ----
@@ -762,6 +764,104 @@ Data classification:
 | req-rampart-20x-playground-coverage-seed-9 | Up And To The Right | Proposed | In each chart no line's value falls from one snapshot to the next, except where its category's denominator grows faster than its mapped count; and each chart's last `Overall` is higher than its first. | The classification chart's first `Overall` is 0.0. |
 | req-rampart-20x-playground-coverage-seed-10 | Charts Show It | Proposed | With the seed, both charts draw one line per category with a figure, plus `Overall`, from 2026-10-17 to 2026-10-21, and the `Overall` card of each page equals the last point of its chart. | `req-rampart-20x-playground-inventory-coverage-14`. |
 | req-rampart-20x-playground-coverage-seed-remove | Retire The Mock History | Backlog | Delete the mock snapshots once the real history is long enough to carry the charts. | A separate step; the one `source` value finds them. |
+
+### Coverage Panel
+----
+RID: `req-rampart-20x-playground-coverage-panel`
+
+Status: `Proposed`
+
+Every coverage figure of the playground at once, in one panel on the front page: the four figures of each coverage card and the trend of both coverage histories, in the plain report style. Ruled by George, 2026-10-24 (a consolidated coverage panel for the front page, to be built by the `fedramp_20x_vdr` session). It is the coverage section of the Reporting page (`req-rampart-20x-playground-page-reporting`) on its own, so a reader of the front page sees the same figures an agency report carries.
+
+#### Implementation
+
+One `panel` node of the `report` type of `compliance_core` (`req-compliance-core-panel-report`, released in v0.8.10), `title` `Coverage`, `show_as_of` on, no `cut_line`, no `page_break_before`. It is data only: no code, no template and no script is added to this plugin. It is linked by `USES_SEARCH` to the four Searches its lines name and to no other: the two totals Searches and the two history Searches of `req-rampart-20x-playground-inventory-coverage`. The landing page mounts it with one `USES_PANEL` edge, as a band under the design graph; nothing already on the landing page changes. All figures are live except the trend, which reads the recorded snapshots; all arithmetic stays in the runners (`req-compliance-core-dimension-mapping-totals`), and the panel only formats.
+
+| section | item | source Search | field |
+| --- | --- | --- | --- |
+| Responsibility | `Overall Coverage`, `percent` | `playground — responsibility coverage totals` | `percent_overall` |
+| Responsibility | `Entries`, `count` | the same | `denominator` |
+| Responsibility | `With A Team`, `count` | the same | `mapped` |
+| Responsibility | `Without A Team`, `count` | the same | `unmapped` |
+| Data Classification | `Overall Coverage`, `percent` | `playground — classification coverage totals` | `percent_overall` |
+| Data Classification | `Mapped`, `count` | the same | `mapped` |
+| Data Classification | `Unmapped`, `count` | the same | `unmapped` |
+| Data Classification | `Incorrect`, `count` | the same | `mapped_incorrectly` |
+| Coverage Over Time | one `trend`, two lines: `Responsibility` and `Data Classification`, each the series `Overall` (`series_field` `series`) | the two history Searches | `percent` of `value` over `observed_at` |
+
+The labels are the titles of the cards table of `req-rampart-20x-playground-inventory-coverage`, so a figure on the front page reads the same as on its own page. Headings and labels are in Title Case. A figure whose Search fails or returns `null` shows `Not observed`, and a trend with no snapshots shows `No data yet` (`req-compliance-core-panel-report-6`, `-11`).
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-coverage-panel-1 | One Report Panel | Proposed | The bundle holds one `panel` node of the `report` type titled `Coverage`, with no `cut_line`, whose sections and items are exactly those of the table above. | Data only; no template or script is added. |
+| req-rampart-20x-playground-coverage-panel-2 | Linked To The Four Searches | Proposed | The panel has a `USES_SEARCH` edge to each of the two totals Searches and the two history Searches, and to no other Search. | `req-compliance-core-panel-report-2`. |
+| req-rampart-20x-playground-coverage-panel-3 | On The Landing Page | Proposed | The landing page has a `USES_PANEL` edge to the panel, and `GET /playground` returns 200 with the panel under the design graph. | The graph and its projection are unchanged. |
+| req-rampart-20x-playground-coverage-panel-4 | Figures Match The Cards | Proposed | Each figure equals the card of the same title on its own page, and the `Overall Coverage` of each section equals the last point of that page's chart `Overall` line when nothing has changed since the last snapshot. | One mean, `plain_mean`. |
+| req-rampart-20x-playground-coverage-panel-5 | Same Figures As The Agency Report | Proposed | The two `Overall Coverage` figures and the trend equal the Coverage section of the Reporting page's `Agency Report`. | Both read the same Searches. |
+| req-rampart-20x-playground-coverage-panel-6 | The Panel Does No Arithmetic | Proposed | No figure of the panel is computed in the panel, a Search added for it, or page code; each is a field of a totals row or a history series. | The rule that arithmetic stays in the runner. |
+| req-rampart-20x-playground-coverage-panel-7 | Not Observed Is Shown | Proposed | A figure whose Search fails or returns `null` shows `Not observed`, not 0, and a trend with no snapshots shows `No data yet`. | `req-compliance-core-panel-report-6`, `-11`. |
+| req-rampart-20x-playground-coverage-panel-8 | No Prose | Proposed | The panel carries a title, headings and figures only; no text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-coverage-panel-9 | Dependencies Declared | Proposed | The `compliance_core` floor names v0.8.10, the release that ships the `report` panel. | |
+
+### Reporting Page
+----
+RID: `req-rampart-20x-playground-page-reporting`
+
+Status: `Proposed`
+
+The overall status of the system under management, in the form leadership reads and agencies are sent: a plain, print-ready report with a few figures and trend lines. Route `/playground/reporting`; the page is named `Reporting`, which is also its breadcrumb. It has two parts, divided by a cut line (George, 2026-10-21): the top part is written to be sent to agencies, and everything below the line is for internal use only. The VDR Reports page is the drill-down below this summary (`req-rampart-20x-playground-page-vdr-reports`). The look is low-key and minimal: no boxes, no cards, no colour; something you could print and send, or screenshot into a presentation.
+
+#### Implementation
+
+Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-core-panel-report`), one per part, in two bands under the page's title, and nothing else on the page. They are separate nodes, not one panel with a divider, so an export or a print of the agency part cannot include the internal part. Each is linked by `USES_SEARCH` to every Search its lines name, as the panel requires. All figures are live: the Searches run on every page load. All arithmetic stays in the runners (`req-compliance-core-dimension-mapping-totals`, `req-fedramp-20x-vdr-deadlines`); the panel only formats. Names and headings are in Title Case.
+
+**Agency Report** (the first panel; no cut line; `title` `Status Report`, as-of line on):
+
+| section | item | source Search | state |
+| --- | --- | --- | --- |
+| Coverage | `Responsibility Coverage`: `percent_overall`, `of` `denominator` entries | `playground — responsibility coverage totals` | in `req-rampart-20x-playground-inventory-coverage` |
+| Coverage | `Data Classification Coverage`: `percent_overall`, `of` `denominator` entries | `playground — classification coverage totals` | in `req-rampart-20x-playground-inventory-coverage` |
+| Coverage | a trend, `Coverage Over Time`: two lines, `Responsibility` and `Data Classification`, each the series `Overall` | the two coverage history Searches | in `req-rampart-20x-playground-inventory-coverage` |
+| Vulnerabilities | `Open Vulnerabilities` and one figure per severity (`Critical`, `High`, `Medium`, `Low`) | `playground — report open vulnerabilities` | new |
+| Vulnerabilities | `Known Exploited` (open findings whose vulnerability is on the CISA list) | `playground — report known exploited` | new |
+| Timeline | `Days To December 7` | `playground — report days to december 7` | new; uses Gryphon's date arithmetic |
+
+**Internal Report** (the second panel; `cut_line` `Internal`; `page_break_before` true):
+
+| section | item | source Search | state |
+| --- | --- | --- | --- |
+| Deadlines | `Evaluation Overdue`, `Remediation Overdue`, `Acceptance Reached`, `Detection Time Unobserved`, each a count | the four views of `vdr-deadlines` | runner released in `fedramp_20x_vdr` v0.1.3; Search nodes are new |
+| Coverage Gaps | `Entries Without A Team`, `Unmapped Classification Entries`, `Incorrect Classification Entries` | the two totals Searches | in `req-rampart-20x-playground-inventory-coverage` |
+| Teams | a list of teams with entries owned, open findings and past due | `playground — report teams` | Backlog (`req-rampart-20x-playground-reporting-teams`) |
+| Data Freshness | `Last Vulnerability Data Refresh`, `Last Coverage Snapshot` | `playground — report last refresh`, `playground — report last snapshot` | new |
+
+**The deadline figures are a worst-case bound** (`req-fedramp-20x-vdr-deadlines`: in v0 every finding is counted from detection under the worst-case row, 12 hours for class D, and no evaluation is complete), so they read as nearly everything overdue. They are stated as such in their labels, and they sit in the internal part: an agency copy would overstate the position until evaluations exist. Moving them above the line is a ruling for George after the evaluation work (`req-rampart-20x-playground-reporting-deadlines-up`).
+
+**Not on the page yet.** The open-vulnerabilities trend (a count Search the snapshot collector would record), the burn-down of opened against closed, the PAIN breakdown (it waits on `stackarmor_vdr` and its playground wiring), and a KSI figure (the KSI plugin is a catalog only, with no evidence to count) are Backlog.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-reporting-1 | Route Serves | Proposed | `GET /playground/reporting` returns 200 and the page is in navigation, named `Reporting`. | |
+| req-rampart-20x-playground-page-reporting-2 | Two Report Panels, Nothing Else | Proposed | The page's bands are two `report` panels, `Agency Report` then `Internal Report`, under the title; it holds no card, table or chart panel. | The charts are drawn inside the panels. |
+| req-rampart-20x-playground-page-reporting-3 | Separate Nodes | Proposed | The two parts are two `panel` nodes with different entity ids, so a print or export of one cannot contain the other. | Ruled by George, 2026-10-21. |
+| req-rampart-20x-playground-page-reporting-4 | Cut Line Above The Internal Part | Proposed | The internal panel's config has `cut_line` `Internal` and `page_break_before` true; the agency panel has no `cut_line`. | |
+| req-rampart-20x-playground-page-reporting-5 | Linked To Every Search It Names | Proposed | Each panel has a `USES_SEARCH` edge to every Search named by a line of its config, and to no other. | `req-compliance-core-panel-report-2`. |
+| req-rampart-20x-playground-page-reporting-6 | Agency Items | Proposed | The agency panel holds exactly the sections and items of the agency table, with the stated fields and `of` counts. | |
+| req-rampart-20x-playground-page-reporting-7 | Internal Items | Proposed | The internal panel holds the sections and items of the internal table, and the deadline items say in their labels that they are a worst-case bound. | |
+| req-rampart-20x-playground-page-reporting-8 | Nothing Internal Above The Line | Proposed | No team name, person, finding detail or deadline figure appears in the agency panel's config. | The agency copy is safe to send. |
+| req-rampart-20x-playground-page-reporting-9 | Overall Matches The Cards And Chart | Proposed | Each coverage figure equals the matching `Overall Coverage` card of its page and the last point of its coverage trend's `Overall` line, when nothing has changed since the last snapshot. | One mean, `plain_mean`. |
+| req-rampart-20x-playground-page-reporting-10 | Days To December 7 | Proposed | `Days To December 7` is the whole days from now to 2026-12-07 as computed by its Search's date arithmetic, and is shown as `Not observed` if the Search fails; the date is in the Search, not in the panel. | |
+| req-rampart-20x-playground-page-reporting-11 | Not Observed Is Shown | Proposed | A figure whose Search fails or returns `null` shows `Not observed`, not 0. | `req-compliance-core-panel-report-6`. |
+| req-rampart-20x-playground-page-reporting-12 | Plain And Printable | Proposed | The page has no panel header chrome, box, colour or shadow beyond the report panel's own style, and a browser print of the page puts the agency part on the first page and the internal part on the next. | `req-compliance-core-panel-report-13` and `-14`. |
+| req-rampart-20x-playground-page-reporting-13 | No Prose | Proposed | The page and panels carry a title, headings and figures only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-page-reporting-14 | Dependencies Declared | Proposed | `depends_on` and the floors name `compliance_core` v0.8.10, the release that ships the `report` panel (the totals runner and the series reader shipped before it), and `fedramp_20x_vdr` v0.1.3 or later, the release that ships `vdr-deadlines`. | |
+| req-rampart-20x-playground-reporting-teams | Teams List | Backlog | The internal list of teams with entries owned, open findings and past due. | Needs a findings-by-responsible-team Search (the `req-rampart-20x-playground-teams-findings` Backlog row). |
+| req-rampart-20x-playground-reporting-deadlines-up | Deadlines In The Agency Part | Backlog | Moving the deadline figures above the cut line once evaluations exist and the bound is exact. | A ruling for George. |
+| req-rampart-20x-playground-reporting-trends | More Trends | Backlog | Open vulnerabilities over time, opened against closed, and the PAIN breakdown. | Each needs a recorded Search or the StackArmor wiring. |
 
 ### Teams And Responsibility
 ----
