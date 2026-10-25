@@ -6,7 +6,7 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a13b2c-82d6-73d2-baa8-17342d832cab",
+        "entity_id": "01a17148-9e9d-7308-85c4-c40f8c133a2e",
         "entity_type": "batch",
         "name": "rampart-20x-playground pages",
         "dimensions": {}
@@ -887,6 +887,16 @@
                     "row-1": {
                       "panel-id": "landing",
                       "height": "fill"
+                    }
+                  }
+                },
+                "col-4": {
+                  "width": "12fr",
+                  "band": 3,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-overview-coverage",
+                      "height": "auto"
                     }
                   }
                 }

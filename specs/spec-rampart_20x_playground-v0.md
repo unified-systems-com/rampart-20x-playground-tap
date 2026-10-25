@@ -77,7 +77,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-classification-mapping | [Classification Mapping](#classification-mapping) | Proposed | The mapping of entity types to the data classifications they should carry, held in four Searches, and the hourly snapshot of its summary |
 | req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, a row of four live status cards and, below it, one line chart over time on each page: responsibility on the inventory page, data classification on the Data Classification page |
 | req-rampart-20x-playground-coverage-seed | [Coverage History Seed](#coverage-history-seed) | Proposed | Mock data: the stamps that bring the coverage figures to a high end state, and four days of snapshots, every four hours, that climb to it |
-| req-rampart-20x-playground-coverage-panel | [Coverage Panel](#coverage-panel) | Proposed | The coverage figures and both histories in one plain report panel on the landing page |
+| req-rampart-20x-playground-coverage-panel | [Coverage Panel](#coverage-panel) | In Development | The coverage figures and both histories in one plain report panel on the landing page |
 | req-rampart-20x-playground-page-reporting | [Reporting Page](#reporting-page) | Proposed | The overall status report: an agency part and, below a cut line, an internal part, as two plain print-ready `report` panels |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
@@ -769,7 +769,7 @@ Data classification:
 ----
 RID: `req-rampart-20x-playground-coverage-panel`
 
-Status: `Proposed`
+Status: `In Development`
 
 Every coverage figure of the playground at once, in one panel on the front page: the four figures of each coverage card and the trend of both coverage histories, in the plain report style. Ruled by George, 2026-10-24 (a consolidated coverage panel for the front page, to be built by the `fedramp_20x_vdr` session). It is the coverage section of the Reporting page (`req-rampart-20x-playground-page-reporting`) on its own, so a reader of the front page sees the same figures an agency report carries.
 
@@ -795,15 +795,15 @@ The labels are the titles of the cards table of `req-rampart-20x-playground-inve
 
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
-| req-rampart-20x-playground-coverage-panel-1 | One Report Panel | Proposed | The bundle holds one `panel` node of the `report` type titled `Coverage`, with no `cut_line`, whose sections and items are exactly those of the table above. | Data only; no template or script is added. |
-| req-rampart-20x-playground-coverage-panel-2 | Linked To The Four Searches | Proposed | The panel has a `USES_SEARCH` edge to each of the two totals Searches and the two history Searches, and to no other Search. | `req-compliance-core-panel-report-2`. |
-| req-rampart-20x-playground-coverage-panel-3 | On The Landing Page | Proposed | The landing page has a `USES_PANEL` edge to the panel, and `GET /playground` returns 200 with the panel under the design graph. | The graph and its projection are unchanged. |
-| req-rampart-20x-playground-coverage-panel-4 | Figures Match The Cards | Proposed | Each figure equals the card of the same title on its own page, and the `Overall Coverage` of each section equals the last point of that page's chart `Overall` line when nothing has changed since the last snapshot. | One mean, `plain_mean`. |
-| req-rampart-20x-playground-coverage-panel-5 | Same Figures As The Agency Report | Proposed | The two `Overall Coverage` figures and the trend equal the Coverage section of the Reporting page's `Agency Report`. | Both read the same Searches. |
-| req-rampart-20x-playground-coverage-panel-6 | The Panel Does No Arithmetic | Proposed | No figure of the panel is computed in the panel, a Search added for it, or page code; each is a field of a totals row or a history series. | The rule that arithmetic stays in the runner. |
-| req-rampart-20x-playground-coverage-panel-7 | Not Observed Is Shown | Proposed | A figure whose Search fails or returns `null` shows `Not observed`, not 0, and a trend with no snapshots shows `No data yet`. | `req-compliance-core-panel-report-6`, `-11`. |
-| req-rampart-20x-playground-coverage-panel-8 | No Prose | Proposed | The panel carries a title, headings and figures only; no text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
-| req-rampart-20x-playground-coverage-panel-9 | Dependencies Declared | Proposed | The `compliance_core` floor names v0.8.10, the release that ships the `report` panel. | |
+| req-rampart-20x-playground-coverage-panel-1 | One Report Panel | In Development | The bundle holds one `panel` node of the `report` type titled `Coverage`, with no `cut_line`, whose sections and items are exactly those of the table above. | Data only; no template or script is added. |
+| req-rampart-20x-playground-coverage-panel-2 | Linked To The Four Searches | In Development | The panel has a `USES_SEARCH` edge to each of the two totals Searches and the two history Searches, and to no other Search. | `req-compliance-core-panel-report-2`. |
+| req-rampart-20x-playground-coverage-panel-3 | On The Landing Page | In Development | The landing page has a `USES_PANEL` edge to the panel, and `GET /playground` returns 200 with the panel under the design graph. | The graph and its projection are unchanged. |
+| req-rampart-20x-playground-coverage-panel-4 | Figures Match The Cards | In Development | Each figure equals the card of the same title on its own page, and the `Overall Coverage` of each section equals the last point of that page's chart `Overall` line when nothing has changed since the last snapshot. | One mean, `plain_mean`. |
+| req-rampart-20x-playground-coverage-panel-5 | Same Figures As The Agency Report | In Development | The two `Overall Coverage` figures and the trend equal the Coverage section of the Reporting page's `Agency Report`. | Both read the same Searches. |
+| req-rampart-20x-playground-coverage-panel-6 | The Panel Does No Arithmetic | In Development | No figure of the panel is computed in the panel, a Search added for it, or page code; each is a field of a totals row or a history series. | The rule that arithmetic stays in the runner. |
+| req-rampart-20x-playground-coverage-panel-7 | Not Observed Is Shown | In Development | A figure whose Search fails or returns `null` shows `Not observed`, not 0, and a trend with no snapshots shows `No data yet`. | `req-compliance-core-panel-report-6`, `-11`. |
+| req-rampart-20x-playground-coverage-panel-8 | No Prose | In Development | The panel carries a title, headings and figures only; no text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-coverage-panel-9 | Dependencies Declared | In Development | The `compliance_core` floor names v0.8.10, the release that ships the `report` panel. | |
 
 ### Reporting Page
 ----
