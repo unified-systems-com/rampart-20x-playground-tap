@@ -46,6 +46,8 @@ pain = "grift/pain.grift.json"
 # of the ci record for the same reason (a private repository; the demo record installs it and seeds these bundles).
 stackarmor_examples = "grift/stackarmor-examples.grift.json"
 stackarmor_page = "grift/stackarmor-page.grift.json"
+# The finding walk-through page needs stackarmor_vdr v0.5.0 (the stackarmor-finding Search and the stackarmor_finding panel type), so like the StackArmor page it is left out of depends_on and the ci record.
+stackarmor_finding_page = "grift/stackarmor-finding-page.grift.json"
 # The VDR Implementations navigation section nests the stackarmor page, so it is seeded after it and only where it is.
 vdr_implementations = "grift/vdr-implementations.grift.json"
 # The VDR max page needs only fedramp_20x_vdr (a declared dependency), so the ci record seeds it.
@@ -58,7 +60,7 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "2e2ad26d180f7e9bda39b4a05e29e341e8fa8d97b4fb2e126e026cff6d50c74c"
+sha256 = "900840964349027daea9dcde042c704917cdc549bc95cc6ad4eaa3655173c7ac"
 
 [[boot.records]]
 name = "ci"

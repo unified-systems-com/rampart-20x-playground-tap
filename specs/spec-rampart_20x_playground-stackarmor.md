@@ -10,6 +10,7 @@ This is an extension of `spec-rampart_20x_playground-v0.md`. It adds one page, o
 | --- | --- | :---: | --- |
 | req-rampart-20x-playground-stackarmor-examples | [Memo Examples](#memo-examples) | Proposed | The five worked examples of the stackArmor memo as data: a finding, component, program, container and stamp each (no vulnerability: the three DEMO vulnerabilities are removed). |
 | req-rampart-20x-playground-page-stackarmor | [StackArmor Page](#stackarmor-page) | Proposed | `/playground/stackarmor`: the system's PAIN figures, the PAIN tables, the followed finding and the method. |
+| req-rampart-20x-playground-page-stackarmor-finding | [Finding Walk-Through Page](#finding-walk-through-page) | Proposed | `/playground/stackarmor/finding`: one vulnerability on one component under one owner, followed step by step from the finding to its deadline; opened from a row of the StackArmor page's findings table. |
 
 ### Memo Examples
 ----
@@ -63,3 +64,26 @@ Status: `Proposed`
 ## Notes
 
 The five example findings concern no vulnerability, so `stackarmor-pain` returns no row for them; their components, programs and stamps remain. The five example programs are counted by the classification mapping like every program (they carry `dataclass.action` `process`), so they raise the program rows of that summary by five mapped entries. They carry no `inventory` dimension, so the inventory tables and the coverage charts that group by it do not count them.
+
+### Finding Walk-Through Page
+----
+RID: `req-rampart-20x-playground-page-stackarmor-finding`
+
+Status: `Proposed`
+
+The page that explains one StackArmor result in context: vulnerability X on library Y used by program Z. Route `/playground/stackarmor/finding`, not listed in the navigation (`discoverable` false). Ruled by George, 2026-10-26: the unit is finding, component and owner; container rows link too; StackArmor only.
+
+#### Implementation
+
+Data only: no code, template or script is added to this plugin. `grift/stackarmor-finding-page.grift.json` holds one `page`, two `panel` nodes of `stackarmor_vdr`'s `stackarmor_finding` type (`req-stackarmor-vdr-panel-finding`), the first with `part` `breakdown` (header hidden) in the first band and the second with `part` `walkthrough` in the second, one `module` Search node whose runner is `stackarmor_vdr`'s `stackarmor-finding` (`req-stackarmor-vdr-finding`), a `USES_SEARCH` edge from each panel to it and a `USES_PANEL` edge from the page to each panel. The Search's `input_schema` names `finding_id`, `component_id`, `owner_id` and `container_id`, so the page forwards those query parameters to it. The `Findings` table of the StackArmor page (`playground-pain-findings`) gets `row_url_template` `/playground/stackarmor/finding?finding_id={finding_id}&component_id={component_id}&owner_id={owner_id}`, so every row opens its page, program-owned or container-owned; the container is left out because it changes no number of the row. The bundle needs `stackarmor_vdr` v0.5.0, so it is seeded only by the demo record, which pins that release, and like the StackArmor page it is not in `depends_on`.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-page-stackarmor-finding-1 | Page And Panels | Proposed | The bundle holds one page with slug `/playground/stackarmor/finding` and `discoverable` false, whose layout names exactly two panels, `breakdown` above `walkthrough`, each mounted by one `USES_PANEL` edge. | |
+| req-rampart-20x-playground-page-stackarmor-finding-2 | One Search, Linked | Proposed | Both panels are linked by `USES_SEARCH` to the one Search, whose runner key is `tap_plugin.stackarmor_vdr.searches.finding:stackarmor-finding` and whose `input_schema` has `finding_id`, `component_id`, `owner_id` and `container_id`. | `req-stackarmor-vdr-panel-finding`. |
+| req-rampart-20x-playground-page-stackarmor-finding-3 | Every Findings Row Opens It | Proposed | The `Findings` table's `row_url_template` carries `finding_id`, `component_id` and `owner_id`, and the three are fields of every row of its Search. | A null placeholder leaves a row with no link, so the optional container is not in the template. |
+| req-rampart-20x-playground-page-stackarmor-finding-4 | Data Only | Proposed | The bundle holds no search of another kind, no text panel and no script, and no panel text is written for the page. | The explanation is the plugin's. |
+| req-rampart-20x-playground-page-stackarmor-finding-5 | Demo Only, Pinned | Proposed | The demo record pins `stackarmor_vdr` v0.5.0 with its credential and the ci record seeds neither the bundle nor the plugin. | As `req-rampart-20x-playground-page-stackarmor-5`. |
+| req-rampart-20x-playground-page-stackarmor-finding-6 | A Row Opens And Walks | Proposed | Against a booted demo stack, a row of the `Findings` table opens the page, which returns 200 and shows the breakdown and the twelve steps of that row, and each breakdown value jumps to its step. | Checked against a booted stack, not by the bundle tests. |

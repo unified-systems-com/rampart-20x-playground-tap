@@ -195,9 +195,9 @@ class TestPage:
         assert "stackarmor_vdr" not in [d["slug"] for d in manifest["depends_on"]]
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         entry = next(p for p in demo["install"]["plugins"] if p["slug"] == "stackarmor_vdr")
-        assert entry["source"]["rev"] == "v0.3.2" and entry["source"]["credential"] == "stackarmor_vdr"
+        assert entry["source"]["rev"] == "v0.5.0" and entry["source"]["credential"] == "stackarmor_vdr"
         assert "stackarmor_vdr" in [s.get("plugin") for s in demo["population"]["steps"]]
         ci = json.loads((PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8"))
         assert "stackarmor_vdr" not in [p["slug"] for p in ci["install"]["plugins"]]
         bundles = {s.get("bundle") for s in ci["population"]["steps"] if s.get("plugin") == "rampart_20x_playground"}
-        assert not {"stackarmor_examples", "stackarmor_page", "pain", "vdr_implementations", "vdr_max_nav"} & bundles
+        assert not {"stackarmor_examples", "stackarmor_page", "pain", "vdr_implementations", "vdr_max_nav", "stackarmor_finding_page"} & bundles
