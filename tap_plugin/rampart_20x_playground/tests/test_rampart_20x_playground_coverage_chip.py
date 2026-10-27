@@ -1,4 +1,4 @@
-"""The Overview's coverage chip: one stat card, one Search, one row (`req-rampart-20x-playground-coverage-chip`)."""
+"""The Overview's coverage widget: one stat-card panel, one Search, a card per dimension (`req-rampart-20x-playground-coverage-chip`)."""
 
 from __future__ import annotations
 
@@ -24,10 +24,10 @@ def _panel() -> dict:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-coverage-chip-1")
-def test_one_stat_card_with_one_search() -> None:
+def test_one_stat_card_panel_with_one_search() -> None:
     panel = _panel()
     assert panel["node"]["view"] == "tap_web/panels/stat_card_panel.html"
-    assert panel["node"]["config"]["title"] == "Coverage"
+    assert panel["node"]["config"]["layout"] == "figure_right"
     edges = [e for e in _batch()["edges"] if e["edge"]["from_entity_id"] == panel["entity"]["entity_id"]]
     assert [e["edge"]["edge_type"] for e in edges] == ["USES_SEARCH"]
 
@@ -41,12 +41,12 @@ def test_the_search_is_the_set_runner_over_the_two_summaries() -> None:
     assert search["node"]["definition"]["runner_key"].endswith("dimension_mapping_totals:dimension-mapping-totals-set")
     default = search["node"]["input_schema"]["properties"]["summaries"]["default"]
     assert default == [
-        {"key": "responsibility", "summary_search_id": RESPONSIBILITY_SUMMARY},
-        {"key": "classification", "summary_search_id": CLASSIFICATION_SUMMARY},
+        {"key": "responsibility", "label": "Responsibility (%)", "summary_search_id": RESPONSIBILITY_SUMMARY},
+        {"key": "classification", "label": "Data Classification (%)", "summary_search_id": CLASSIFICATION_SUMMARY},
     ]
     config = panel["node"]["config"]
-    fields = {config["value_field"], *(line["field"] for line in config["lines"])}
-    assert fields == {"responsibility_percent_overall", "classification_percent_overall"}
+    assert (config["title_field"], config["value_field"]) == ("label", "percent_overall")
+    assert "lines" not in config  # one line a card, the height of the notification cards
 
 
 @pytest.mark.spec("req-rampart-20x-playground-coverage-chip-3")
@@ -57,7 +57,8 @@ def test_the_chip_is_in_the_card_row() -> None:
     for column in columns.values():
         bands.setdefault(column["band"], []).extend(row["panel-id"] for row in column["rows"].values())
     assert bands == {1: ["playground-overview-kev", "playground-overview-cwe506", SLUG], 2: ["landing"]}
-    assert all(c["width"] == "compact" for c in columns.values() if c["band"] == 1)
+    widths = {row["panel-id"]: c["width"] for c in columns.values() if c["band"] == 1 for row in c["rows"].values()}
+    assert widths[SLUG] != "compact" and widths["playground-overview-kev"] == "compact"  # the widget is wider than the cards
     (mount,) = [e for e in _batch()["edges"] if e["edge"]["to_entity_id"] == _panel()["entity"]["entity_id"] and e["edge"]["edge_type"] == "USES_PANEL"]
     assert mount["edge"]["from_entity_id"] == OVERVIEW and mount["edge"]["properties"]["hotlink"]["value"] == SLUG
 
@@ -72,5 +73,5 @@ def test_the_chip_does_no_arithmetic() -> None:
 @pytest.mark.spec("req-rampart-20x-playground-coverage-chip-6")
 def test_no_prose() -> None:
     config = _panel()["node"]["config"]
-    assert config["title"] == "Coverage" and [line["label"] for line in config["lines"]] == ["Data Classification"]
+    assert "title" not in config and "lines" not in config  # each card is a label and a figure
     assert "." not in json.dumps(config).replace("0.", "")

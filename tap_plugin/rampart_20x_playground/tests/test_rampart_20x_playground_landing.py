@@ -1284,7 +1284,8 @@ class TestOverviewNotificationCards:
         (graph,) = [c for c in columns.values() if c["band"] == 2]
         assert graph["rows"]["row-1"]["height"] == "fill"
         # `govcloud-layout-37`: the two cards are compact tracks (a capped width, packed left), not shares of the row.
-        assert [c["width"] for c in columns.values() if c["band"] == 1] == ["compact", "compact", "compact"]
+        # The coverage widget is wider than the cards (`coverage-chip-3`), so its column is not compact.
+        assert [c["width"] for c in columns.values() if c["band"] == 1] == ["compact", "compact", "auto"]
 
     def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
         manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")

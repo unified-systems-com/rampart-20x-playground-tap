@@ -891,7 +891,7 @@
                   }
                 },
                 "col-4": {
-                  "width": "compact",
+                  "width": "auto",
                   "band": 1,
                   "rows": {
                     "row-1": {
@@ -1051,24 +1051,30 @@
               "properties": {
                 "summaries": {
                   "type": "array",
-                  "description": "The summary Searches whose totals are returned, each under the key that prefixes its fields.",
+                  "description": "The summary Searches whose totals are returned, one row each, in this order.",
                   "default": [
                     {
                       "key": "responsibility",
+                      "label": "Responsibility (%)",
                       "summary_search_id": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40"
                     },
                     {
                       "key": "classification",
+                      "label": "Data Classification (%)",
                       "summary_search_id": "01a15b2f-df3b-7569-bf22-9ead3f816b84"
                     }
                   ],
                   "items": {
                     "type": "object",
-                    "description": "One summary Search and the key that prefixes its totals.",
+                    "description": "One summary Search and the row its totals become.",
                     "properties": {
                       "key": {
                         "type": "string",
-                        "description": "Prefix of this summary's fields in the row."
+                        "description": "Identifies this summary's row."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "The row's label, shown as the card title; defaults to the key."
                       },
                       "summary_search_id": {
                         "type": "string",
@@ -1093,26 +1099,16 @@
           "node": {
             "name": "Overview Coverage",
             "slug": "playground-overview-coverage-chip",
-            "description": "One chip on the Overview with the coverage of the responsibility mapping and of the data classification mapping, beside the notification cards.",
+            "description": "One widget on the Overview with the coverage of the responsibility mapping and of the data classification mapping, a card each on one line, beside the notification cards.",
             "view": "tap_web/panels/stat_card_panel.html",
             "config": {
-              "title": "Coverage",
-              "title_style": "bold",
+              "title_field": "label",
               "layout": "figure_right",
-              "value_field": "responsibility_percent_overall",
+              "value_field": "percent_overall",
               "value_formatter": "number",
               "value_decimals": 1,
-              "unit": "% Responsibility",
               "hide_header": true,
-              "null_text": "not observed",
-              "lines": [
-                {
-                  "label": "Data Classification",
-                  "field": "classification_percent_overall",
-                  "formatter": "number",
-                  "decimals": 1
-                }
-              ]
+              "null_text": "not observed"
             }
           }
         }
