@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a17a18-27f3-7192-8334-76d914e288dc",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground stackarmor finding page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.stackarmor-finding-page",
+        "name": "rampart-20x-playground stackarmor finding page v0.1.0",
+        "description": "The /playground/stackarmor/finding page: the breakdown and the walk-through of one finding on one component under one owner, drawn by stackarmor_vdr's stackarmor_finding panel type from its stackarmor-finding Search. Needs stackarmor_vdr v0.5.0, so it is seeded only where that plugin is (the demo record)."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a17a18-2712-7285-ad73-9352e9ae236f",
+            "entity_type": "page",
+            "name": "Finding Walk-Through",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Finding Walk-Through",
+            "slug": "/playground/stackarmor/finding",
+            "discoverable": false,
+            "description": "One vulnerability on one component under one owner, followed step by step from the finding to its deadline. Open it from a row of the findings table on the StackArmor page.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-stackarmor-finding-breakdown",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-stackarmor-finding-walk",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-2754-7037-8631-30732951b09d",
+            "entity_type": "panel",
+            "name": "Breakdown",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Breakdown",
+            "slug": "playground-stackarmor-finding-breakdown",
+            "description": "Each field of the finding's evaluation, linked to the step that explains it.",
+            "view": "stackarmor_vdr/panels/finding.html",
+            "config": {
+              "part": "breakdown",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-2788-777e-be17-aee6ee947687",
+            "entity_type": "panel",
+            "name": "Walk-Through",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Walk-Through",
+            "slug": "playground-stackarmor-finding-walk",
+            "description": "The steps from the finding to its deadline: the description at the left, the values at the right.",
+            "view": "stackarmor_vdr/panels/finding.html",
+            "config": {
+              "part": "walkthrough",
+              "hide_header": false
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-27bb-76b7-a167-64e6f797b129",
+            "entity_type": "search",
+            "name": "playground — stackarmor finding walk-through",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — stackarmor finding walk-through",
+            "description": "stackarmor-finding for the finding, component and owner in the page's query string.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.stackarmor_vdr.searches.finding:stackarmor-finding"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "finding_id": {
+                  "type": "string",
+                  "description": "The finding."
+                },
+                "component_id": {
+                  "type": "string",
+                  "description": "The component it is on."
+                },
+                "owner_id": {
+                  "type": "string",
+                  "description": "The owner: a program or a container."
+                },
+                "container_id": {
+                  "type": "string",
+                  "description": "The container, when one owner is reached through several."
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a17a18-2827-7559-be93-1d12190bfb9e",
+            "entity_type": "edge",
+            "name": "Breakdown USES_SEARCH finding walk-through",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17a18-2754-7037-8631-30732951b09d",
+            "to_entity_id": "01a17a18-27bb-76b7-a167-64e6f797b129",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-2860-71b3-a282-2b5146fb2dce",
+            "entity_type": "edge",
+            "name": "Walk-Through USES_SEARCH finding walk-through",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17a18-2788-777e-be17-aee6ee947687",
+            "to_entity_id": "01a17a18-27bb-76b7-a167-64e6f797b129",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-2899-744a-9a66-2751fc7e50c9",
+            "entity_type": "edge",
+            "name": "Finding USES_PANEL breakdown",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17a18-2712-7285-ad73-9352e9ae236f",
+            "to_entity_id": "01a17a18-2754-7037-8631-30732951b09d",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-stackarmor-finding-breakdown"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17a18-28d2-708c-8595-2e1da0d5d737",
+            "entity_type": "edge",
+            "name": "Finding USES_PANEL walk-through",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17a18-2712-7285-ad73-9352e9ae236f",
+            "to_entity_id": "01a17a18-2788-777e-be17-aee6ee947687",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-stackarmor-finding-walk"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

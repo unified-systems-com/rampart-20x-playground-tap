@@ -219,6 +219,12 @@
       {
         "type": "seed-plugin",
         "plugin": "rampart_20x_playground",
+        "bundle": "coverage_panel",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
         "bundle": "teams",
         "enabled": true
       },
