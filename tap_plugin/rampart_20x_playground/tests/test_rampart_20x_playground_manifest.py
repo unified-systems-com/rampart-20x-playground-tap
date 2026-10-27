@@ -137,6 +137,15 @@ class TestBootRecords:
             commit = entry["source"].get("commit", "")
             assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), entry["slug"]
 
+    def test_demo_names_a_credential_for_every_criticalsec_source(self) -> None:
+        """A git source under CriticalSecLLC is a private repository. The host preflight only counts
+        credentials a record declares, so an undeclared one passes it and then crash-loops the web
+        container on git's `could not read Username`."""
+        for entry in _record("demo")["install"]["plugins"]:
+            source = entry["source"]
+            if source.get("type") == "git" and "/CriticalSecLLC/" in source["url"]:
+                assert source.get("credential"), entry["slug"]
+
     def test_demo_installs_siblings_in_dependency_order(self) -> None:
         """`req-rampart-20x-playground-boot-5`. Each entry is installed on its own, so a sibling distribution
         it requires must come earlier in the list. Known constraints from the pinned releases' pyprojects;

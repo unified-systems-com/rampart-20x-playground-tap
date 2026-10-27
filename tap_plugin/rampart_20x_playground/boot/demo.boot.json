@@ -1,7 +1,7 @@
 {
   "version": 1,
   "profile_kind": "dev_local",
-  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr, stackarmor_vdr, vuln_mosaic and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). One install credential is required: `stackarmor_vdr`, for the private stackarmor_vdr repository. Three hourly schedules run: the classification mapping snapshot (minute 0, reads the local grid only), the KSI catalog (minute 17, fetches from raw.githubusercontent.com) and the vuln_mosaic refresh (minute 41, fetches public CVE data from github.com, www.cisa.gov and epss.empiricalsecurity.com). The inventory and findings are mock data. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr, stackarmor_vdr, vuln_mosaic and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). Two install credentials are required, both kind github_pat under scope tap_plugins.source: `stackarmor_vdr`, for the private stackarmor_vdr repository, and `criticalsec_rampart`, for the private rampart_20x repository and this plugin's own repository. Three hourly schedules run: the classification mapping snapshot (minute 0, reads the local grid only), the KSI catalog (minute 17, fetches from raw.githubusercontent.com) and the vuln_mosaic refresh (minute 41, fetches public CVE data from github.com, www.cisa.gov and epss.empiricalsecurity.com). The inventory and findings are mock data. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
   "install": {
     "plugins": [
       {
@@ -135,9 +135,10 @@
           "type": "git",
           "url": "https://github.com/CriticalSecLLC/rampart-20x-tap",
           "rev": "d97460e11141623ead50074e463353c9f280d83c",
-          "commit": "d97460e11141623ead50074e463353c9f280d83c"
+          "commit": "d97460e11141623ead50074e463353c9f280d83c",
+          "credential": "criticalsec_rampart"
         },
-        "note": "Untagged: rampart-20x-tap has no release tags, so this pins the SHA of its main at the time this record was written (2026-10-13)."
+        "note": "Untagged: rampart-20x-tap has no release tags, so this pins the SHA of its main at the time this record was written (2026-10-13). The repository is private, so the source declares the install credential `criticalsec_rampart` (scope tap_plugins.source, kind github_pat)."
       },
       {
         "slug": "rampart_20x_playground",
@@ -145,7 +146,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/CriticalSecLLC/rampart-20x-playground-tap",
-          "rev": "v0.1.0"
+          "rev": "v0.1.0",
+          "credential": "criticalsec_rampart"
         },
         "note": "Self entry: pinned to its own release tag, which scripts/release-plugin.sh cuts after the scaffold merges (a record cannot carry the commit that introduces it; self is exempt from `commit` only when `rev` is its release tag). Until then `spawn --dev-plugins` needs a record copy pointing self at a branch."
       }
