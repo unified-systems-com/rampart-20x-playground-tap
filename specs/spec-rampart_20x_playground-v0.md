@@ -100,8 +100,8 @@ RID: `req-rampart-20x-playground-nongoals`
 
 Status: `Proposed`
 
-The playground contributes no TAP-managed entity types: no models, no edges, no collectors, no panel
-types, and no Python beyond what the plugin package requires to install. It makes no AWS calls and holds no
+The playground contributes no TAP-managed entity types: no models, no edges and no collectors, and no Python
+beyond what the plugin package requires to install and the one panel type below. It makes no AWS calls and holds no
 credential other than the local passkey login. It draws one authorization boundary around the git-serious account,
 as data (a compliance_core boundary node and one scoped-to edge); it claims no authorization for it.
 
@@ -112,8 +112,13 @@ manifest's `depends_on` is empty, because nothing here imports another plugin's 
 written so far use core entity types only; the composed plugins are installed by the `demo` record, not by
 pip resolution (the `dcom` shape, whose `ci` record installs itself alone). When the mock inventory and
 findings land they seed other plugins' types by string, which is a vocabulary dependency, so `depends_on`
-gains those plugins (with a `note`) in the same change (`new-plugin` Tier 1b). The one permitted code path is a programmatic JavaScript
-layout, written through the `create-layout` skill, if a page cannot be drawn from data.
+gains those plugins (with a `note`) in the same change (`new-plugin` Tier 1b). The permitted code paths are a programmatic JavaScript
+layout, written through the `create-layout` skill, if a page cannot be drawn from data, and one panel type,
+`rampart_countdown` (`panels/countdown.py`, its template and `static/rampart_20x_playground/js/countdown.js`), which
+counts the days to a date in the browser for the Reporting page (George, 2026-10-25: a plugin may ship its own panel
+type and the panel's script). The panel type is registered in the app's `ready()`, takes only its own config
+(`additionalProperties` false), runs no Search and writes no markup; its script is an external static file named in
+the type's `js` list, as every panel script is, never inline.
 
 **Standing exception (George, 2026-10-19, the "make it work" phase).** Custom tweaks are permitted in the
 playground's layout JavaScript (`landing.js` and its sibling modules), and only there. This relaxes, for the
@@ -815,7 +820,7 @@ The overall status of the system under management, in the form leadership reads 
 
 #### Implementation
 
-Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-core-panel-report`), one per part, in two bands under the page's title, and nothing else on the page. They are separate nodes, not one panel with a divider, so an export or a print of the agency part cannot include the internal part. Each is linked by `USES_SEARCH` to every Search its lines name, as the panel requires. All figures are live: the Searches run on every page load. All arithmetic stays in the runners (`req-compliance-core-dimension-mapping-totals`, `req-fedramp-20x-vdr-deadlines`); the panel only formats. Names and headings are in Title Case.
+Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-core-panel-report`), one per part, in two bands under the page's title, and one small `Timeline` panel of this plugin's `rampart_countdown` type under the Agency Report in the same band (so it prints with the agency part), and nothing else on the page. They are separate nodes, not one panel with a divider, so an export or a print of the agency part cannot include the internal part. Each is linked by `USES_SEARCH` to every Search its lines name, as the panel requires. All figures are live: the Searches run on every page load. All arithmetic stays in the runners (`req-compliance-core-dimension-mapping-totals`, `req-fedramp-20x-vdr-deadlines`); the panel only formats. Names and headings are in Title Case.
 
 **Agency Report** (the first panel; no cut line; `title` `Status Report`, as-of line on):
 
@@ -824,18 +829,18 @@ Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-cor
 | Coverage | `Responsibility Coverage`: `percent_overall`, `of` `denominator` entries | `playground — responsibility coverage totals` | in `req-rampart-20x-playground-inventory-coverage` |
 | Coverage | `Data Classification Coverage`: `percent_overall`, `of` `denominator` entries | `playground — classification coverage totals` | in `req-rampart-20x-playground-inventory-coverage` |
 | Coverage | a trend, `Coverage Over Time`: two lines, `Responsibility` and `Data Classification`, each the series `Overall` | the two coverage history Searches | in `req-rampart-20x-playground-inventory-coverage` |
-| Vulnerabilities | `Open Vulnerabilities` and one figure per severity (`Critical`, `High`, `Medium`, `Low`) | `playground — report open vulnerabilities` | new |
+| Vulnerabilities | `Open Vulnerabilities` | `playground — report open vulnerabilities` | new |
 | Vulnerabilities | `Known Exploited` (open findings whose vulnerability is on the CISA list) | `playground — report known exploited` | new |
-| Timeline | `Days To December 7` | `playground — report days to december 7` | new; uses Gryphon's date arithmetic |
+| Timeline | `Days To December 7`: the whole days from now to 2026-12-07 | none; the `Timeline` panel (`rampart_countdown`) under the Agency Report, counted in the browser | new; the page shows the date `2026-12-07` where the script has not run |
 
 **Internal Report** (the second panel; `cut_line` `Internal`; `page_break_before` true):
 
 | section | item | source Search | state |
 | --- | --- | --- | --- |
-| Deadlines | `Evaluation Overdue`, `Remediation Overdue`, `Acceptance Reached`, `Detection Time Unobserved`, each a count | the four views of `vdr-deadlines` | runner released in `fedramp_20x_vdr` v0.1.3; Search nodes are new |
+| Deadlines | `Evaluation Overdue`, `Remediation Overdue`, `Acceptance Reached`, `Detection Time Unobserved`, each a count | the counts row of `vdr-summary` (`playground — report deadlines`), the same row VDR MAX reads; one Search, four fields (George, 2026-10-25) | runner in `fedramp_20x_vdr`; Search node is new |
 | Coverage Gaps | `Entries Without A Team`, `Unmapped Classification Entries`, `Incorrect Classification Entries` | the two totals Searches | in `req-rampart-20x-playground-inventory-coverage` |
 | Teams | a list of teams with entries owned, open findings and past due | `playground — report teams` | Backlog (`req-rampart-20x-playground-reporting-teams`) |
-| Data Freshness | `Last Vulnerability Data Refresh`, `Last Coverage Snapshot` | `playground — report last refresh`, `playground — report last snapshot` | new |
+| Data Freshness | `Last Vulnerability Data Refresh` (the time of the newest vulnerability scan: the newest `observed_at` of a `compliance_core__compliance_scan_run`; null, so `Not observed`, until a producer writes scan runs), `Last Coverage Snapshot` | `playground — report last refresh`, `playground — report last snapshot` | new |
 
 **The deadline figures are a worst-case bound** (`req-fedramp-20x-vdr-deadlines`: in v0 every finding is counted from detection under the worst-case row, 12 hours for class D, and no evaluation is complete), so they read as nearly everything overdue. They are stated as such in their labels, and they sit in the internal part: an agency copy would overstate the position until evaluations exist. Moving them above the line is a ruling for George after the evaluation work (`req-rampart-20x-playground-reporting-deadlines-up`).
 
@@ -846,15 +851,15 @@ Two `panel` nodes of the `report` type of `compliance_core` (`req-compliance-cor
 | ACID | Title | Status | Description | Notes |
 | --- | --- | :---: | --- | --- |
 | req-rampart-20x-playground-page-reporting-1 | Route Serves | Proposed | `GET /playground/reporting` returns 200 and the page is in navigation, named `Reporting`. | |
-| req-rampart-20x-playground-page-reporting-2 | Two Report Panels, Nothing Else | Proposed | The page's bands are two `report` panels, `Agency Report` then `Internal Report`, under the title; it holds no card, table or chart panel. | The charts are drawn inside the panels. |
+| req-rampart-20x-playground-page-reporting-2 | Two Report Panels And The Timeline | Proposed | The page's bands are the `report` panels `Agency Report` then `Internal Report`, under the title, and the agency band also holds the `Timeline` panel below `Agency Report`; the page holds no card, table or chart panel. | The charts are drawn inside the panels. The Timeline is the `Days To December 7` line (`-10`). |
 | req-rampart-20x-playground-page-reporting-3 | Separate Nodes | Proposed | The two parts are two `panel` nodes with different entity ids, so a print or export of one cannot contain the other. | Ruled by George, 2026-10-21. |
 | req-rampart-20x-playground-page-reporting-4 | Cut Line Above The Internal Part | Proposed | The internal panel's config has `cut_line` `Internal` and `page_break_before` true; the agency panel has no `cut_line`. | |
 | req-rampart-20x-playground-page-reporting-5 | Linked To Every Search It Names | Proposed | Each panel has a `USES_SEARCH` edge to every Search named by a line of its config, and to no other. | `req-compliance-core-panel-report-2`. |
-| req-rampart-20x-playground-page-reporting-6 | Agency Items | Proposed | The agency panel holds exactly the sections and items of the agency table, with the stated fields and `of` counts. | |
-| req-rampart-20x-playground-page-reporting-7 | Internal Items | Proposed | The internal panel holds the sections and items of the internal table, and the deadline items say in their labels that they are a worst-case bound. | |
+| req-rampart-20x-playground-page-reporting-6 | Agency Items | Proposed | The agency part holds exactly the sections and items of the agency table, with the stated fields and `of` counts: the Coverage and Vulnerabilities sections in the `Agency Report` panel and the Timeline item in the `Timeline` panel. | The per-severity figures are dropped from the plan for now (George, 2026-10-25). |
+| req-rampart-20x-playground-page-reporting-7 | Internal Items | Proposed | The internal panel holds the sections and items of the internal table, and the deadline items say in their labels that they are a worst-case bound. | `Last Vulnerability Data Refresh` is the newest vulnerability scan (George, 2026-10-25); the Teams list is Backlog (`-teams`). |
 | req-rampart-20x-playground-page-reporting-8 | Nothing Internal Above The Line | Proposed | No team name, person, finding detail or deadline figure appears in the agency panel's config. | The agency copy is safe to send. |
 | req-rampart-20x-playground-page-reporting-9 | Overall Matches The Cards And Chart | Proposed | Each coverage figure equals the matching `Overall Coverage` card of its page and the last point of its coverage trend's `Overall` line, when nothing has changed since the last snapshot. | One mean, `plain_mean`. |
-| req-rampart-20x-playground-page-reporting-10 | Days To December 7 | Proposed | `Days To December 7` is the whole days from now to 2026-12-07 as computed by its Search's date arithmetic, and is shown as `Not observed` if the Search fails; the date is in the Search, not in the panel. | |
+| req-rampart-20x-playground-page-reporting-10 | Days To December 7 | Proposed | The `Timeline` panel, of this plugin's `rampart_countdown` type, shows `Days To December 7` as the whole days from now to 00:00 UTC of 2026-12-07, counted by an external static script (`countdown.js`, named in the type's `js` list, never inline); with no script it shows the date `2026-12-07`. The date is the panel's config; the panel runs no Search and its config refuses unknown keys. | Ruled by George, 2026-10-25: a plugin may ship its own panel type and script. The count is 0 on the date and `Passed` after it. |
 | req-rampart-20x-playground-page-reporting-11 | Not Observed Is Shown | Proposed | A figure whose Search fails or returns `null` shows `Not observed`, not 0. | `req-compliance-core-panel-report-6`. |
 | req-rampart-20x-playground-page-reporting-12 | Plain And Printable | Proposed | The page has no panel header chrome, box, colour or shadow beyond the report panel's own style, and a browser print of the page puts the agency part on the first page and the internal part on the next. | `req-compliance-core-panel-report-13` and `-14`. |
 | req-rampart-20x-playground-page-reporting-13 | No Prose | Proposed | The page and panels carry a title, headings and figures only; no panel holds text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |

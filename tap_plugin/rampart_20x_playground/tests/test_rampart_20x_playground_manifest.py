@@ -100,6 +100,7 @@ class TestSurfaces:
             "grift/mock-inventory.grift.json",
             "grift/pages.grift.json",
             "grift/pain.grift.json",
+            "grift/reporting-page.grift.json",
             "grift/security-alerts.grift.json",
             "grift/stackarmor-examples.grift.json",
             "grift/stackarmor-finding-page.grift.json",

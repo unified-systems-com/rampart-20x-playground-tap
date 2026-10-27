@@ -231,6 +231,12 @@
       {
         "type": "seed-plugin",
         "plugin": "rampart_20x_playground",
+        "bundle": "reporting_page",
+        "enabled": true
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
         "bundle": "vdr_max_page",
         "enabled": true
       }

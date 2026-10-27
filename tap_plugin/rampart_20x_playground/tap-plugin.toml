@@ -40,6 +40,8 @@ coverage_seed = "grift/coverage-seed.grift.json"
 # The Overview's Coverage report panel; after the inventory coverage and classification bundles whose Searches it reads.
 coverage_panel = "grift/coverage-panel.grift.json"
 teams = "grift/teams.grift.json"
+# The Reporting page reads the coverage totals and history Searches, so it is seeded after the inventory coverage bundle.
+reporting_page = "grift/reporting-page.grift.json"
 # The pain bundle needs the stackarmor_vdr plugin (stamps, edges to its archetype nodes, runner keys), which is NOT in
 # depends_on on purpose: the ci record installs the depends_on closure only, offline, and stackarmor_vdr is a private
 # repository. The demo record installs it and seeds this bundle; the ci record seeds every bundle but this one.
@@ -67,4 +69,4 @@ sha256 = "adfbc9d34b07fba95752c92a9fa69a0111c9e73ce5f2ddf98bd974d0a440a8eb"
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "8c3024361682c74d5fa2dd143d50d347c2ded8b811f1f50359dc0c33a5dae76c"
+sha256 = "0fa38135ed5a1288c3ddbfaa610d71bd00ffdc765fa1296a86c8d8f90426a668"

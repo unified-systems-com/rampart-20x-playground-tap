@@ -1,0 +1,599 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1714d-1e78-7757-af1c-498fe26653ab",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground reporting page v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.reporting-page",
+        "name": "rampart-20x-playground reporting page v0.1.0",
+        "description": "The /playground/reporting page (Reporting): two report panels of compliance_core, the agency part and, below the cut line, the internal part, each linked to the Searches its lines read; the report Searches they add; one report deadlines Search over vdr-summary of fedramp_20x_vdr (the four deadline counts, worst-case bound); the newest-scan-run Search (last refresh); and the Timeline panel of this plugin's rampart_countdown type, the Days To December 7 line under the agency part. See req-rampart-20x-playground-page-reporting."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499006b66edb",
+            "entity_type": "page",
+            "name": "Reporting",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Reporting",
+            "slug": "/playground/reporting",
+            "description": "The overall status of the system under management as a plain, print-ready report: an agency part and, below the cut line, an internal part.",
+            "layout": {
+              "columns": {
+                "col-1": {
+                  "width": "12fr",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-reporting-agency",
+                      "height": "auto"
+                    },
+                    "row-2": {
+                      "panel-id": "playground-reporting-timeline",
+                      "height": "auto"
+                    }
+                  }
+                },
+                "col-2": {
+                  "width": "12fr",
+                  "band": 2,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-reporting-internal",
+                      "height": "auto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "entity_type": "panel",
+            "name": "Agency Report",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Agency Report",
+            "slug": "playground-reporting-agency",
+            "description": "The part of the status report written to be sent to agencies: coverage and vulnerabilities, live.",
+            "view": "compliance_core/panels/report.html",
+            "editor_view": "",
+            "config": {
+              "title": "Status Report",
+              "show_as_of": true,
+              "hide_header": true,
+              "sections": [
+                {
+                  "heading": "Coverage",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Responsibility Coverage",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "percent_overall",
+                      "format": "percent",
+                      "of": "denominator"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Data Classification Coverage",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "percent_overall",
+                      "format": "percent",
+                      "of": "denominator"
+                    },
+                    {
+                      "kind": "trend",
+                      "label": "Coverage Over Time",
+                      "lines": [
+                        {
+                          "label": "Responsibility",
+                          "search": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+                          "x_field": "observed_at",
+                          "value_field": "value",
+                          "series_field": "series",
+                          "series": "Overall"
+                        },
+                        {
+                          "label": "Data Classification",
+                          "search": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+                          "x_field": "observed_at",
+                          "value_field": "value",
+                          "series_field": "series",
+                          "series": "Overall"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "heading": "Vulnerabilities",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Open Vulnerabilities",
+                      "search": "01a1714d-1e78-7757-af1c-499307627d3d",
+                      "field": "open_vulnerabilities",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Known Exploited",
+                      "search": "01a1714d-1e78-7757-af1c-4994d7d354c6",
+                      "field": "known_exploited",
+                      "format": "count"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63bfccff85a",
+            "entity_type": "panel",
+            "name": "Timeline",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Timeline",
+            "slug": "playground-reporting-timeline",
+            "description": "The Days To December 7 line of the agency report, counted in the browser.",
+            "view": "rampart_20x_playground/panels/countdown.html",
+            "editor_view": "",
+            "config": {
+              "heading": "Timeline",
+              "label": "Days To December 7",
+              "target_date": "2026-12-07",
+              "hide_header": true
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "entity_type": "panel",
+            "name": "Internal Report",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Internal Report",
+            "slug": "playground-reporting-internal",
+            "description": "The part of the status report below the cut line, for internal use only: coverage gaps and data freshness, live.",
+            "view": "compliance_core/panels/report.html",
+            "editor_view": "",
+            "config": {
+              "cut_line": "Internal",
+              "page_break_before": true,
+              "hide_header": true,
+              "sections": [
+                {
+                  "heading": "Deadlines",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Evaluation Overdue, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "evaluation_overdue",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Remediation Overdue, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "remediation_overdue",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Acceptance Reached, Worst-Case Bound",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "acceptance_reached",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Detection Time Unobserved",
+                      "search": "01a17339-8ab3-7025-b71e-cac113451e11",
+                      "field": "detection_unobserved",
+                      "format": "count"
+                    }
+                  ]
+                },
+                {
+                  "heading": "Coverage Gaps",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Entries Without A Team",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "unmapped",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Unmapped Classification Entries",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "unmapped",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Incorrect Classification Entries",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "mapped_incorrectly",
+                      "format": "count"
+                    }
+                  ]
+                },
+                {
+                  "heading": "Data Freshness",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Last Vulnerability Data Refresh",
+                      "search": "01a17342-e750-711b-a27f-e63d55568be6",
+                      "field": "last_vulnerability_scan",
+                      "format": "datetime"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Last Coverage Snapshot",
+                      "search": "01a1714d-1e78-7757-af1c-4995a2f811bf",
+                      "field": "last_snapshot",
+                      "format": "datetime"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499307627d3d",
+            "entity_type": "search",
+            "name": "playground — report open vulnerabilities",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report open vulnerabilities",
+            "description": "Open findings that concern a vulnerability, counted.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\"",
+                "RETURN COUNT(f) AS open_vulnerabilities"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-4994d7d354c6",
+            "entity_type": "search",
+            "name": "playground — report known exploited",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report known exploited",
+            "description": "Open findings whose vulnerability is on CISA's Known Exploited Vulnerabilities catalog, counted.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (f:compliance_core__compliance_finding)-[:CONCERNS_COMPLIANCE_VULNERABILITY__compliance_core]->(v:compliance_core__compliance_vulnerability) WHERE f.data.status = \"open\" AND v.data.kev = true",
+                "RETURN COUNT(f) AS known_exploited"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63d55568be6",
+            "entity_type": "search",
+            "name": "playground — report last refresh",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report last refresh",
+            "description": "When the newest vulnerability scan ran: the newest observed_at of any compliance_core scan run, null when there is none (no producer writes scan runs yet, so the line reads Not observed until one does).",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (r:compliance_core__compliance_scan_run)",
+                "RETURN MAX(r.data.observed_at) AS last_vulnerability_scan"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-4995a2f811bf",
+            "entity_type": "search",
+            "name": "playground — report last snapshot",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report last snapshot",
+            "description": "When the latest Search snapshot was observed: the newest observed_at of any compliance_search_snapshot, null when there is none.",
+            "search_type": "gryphon",
+            "root": "node",
+            "definition": {
+              "query": [
+                "MATCH (s:compliance_core__compliance_search_snapshot)",
+                "RETURN MAX(s.data.observed_at) AS last_snapshot"
+              ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17339-8ab3-7025-b71e-cac113451e11",
+            "entity_type": "search",
+            "name": "playground — report deadlines",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — report deadlines",
+            "description": "vdr-summary, the counts row for the Deadlines section: evaluation_overdue, remediation_overdue, acceptance_reached and detection_unobserved in one row. Remediation and acceptance are a worst-case bound: in v0 every finding is counted from first detection under the worst-case row and no evaluation is complete (req-fedramp-20x-vdr-deadlines-4).",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.fedramp_20x_vdr.searches.clocks:vdr-summary"
+            },
+            "input_schema": {
+              "type": "object",
+              "properties": {
+                "view": {
+                  "type": "string",
+                  "default": "counts"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499aa257b378",
+            "entity_type": "edge",
+            "name": "Reporting USES_PANEL agency",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-499006b66edb",
+            "to_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-reporting-agency"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63c85d9ab74",
+            "entity_type": "edge",
+            "name": "Reporting USES_PANEL timeline",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-499006b66edb",
+            "to_entity_id": "01a17342-e750-711b-a27f-e63bfccff85a",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-reporting-timeline"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499b7a7a5225",
+            "entity_type": "edge",
+            "name": "Reporting USES_PANEL internal",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-499006b66edb",
+            "to_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-reporting-internal"
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499cb1700ed4",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH responsibility coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499d8ad76693",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499e0338e7f7",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH responsibility coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-499f4ee2261e",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH classification coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49a0974c4d4d",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH report open vulnerabilities",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a1714d-1e78-7757-af1c-499307627d3d",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49a1fec73f5b",
+            "entity_type": "edge",
+            "name": "Agency Report USES_SEARCH report known exploited",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49915687491b",
+            "to_entity_id": "01a1714d-1e78-7757-af1c-4994d7d354c6",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49a258d99cfe",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH responsibility coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49a34dd5e518",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17342-e750-711b-a27f-e63eaf2e4727",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH report last refresh",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a17342-e750-711b-a27f-e63d55568be6",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1714d-1e78-7757-af1c-49a434285e39",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH report last snapshot",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a1714d-1e78-7757-af1c-4995a2f811bf",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17339-8ab3-7025-b71e-cac2497dd1dd",
+            "entity_type": "edge",
+            "name": "Internal Report USES_SEARCH report deadlines",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a1714d-1e78-7757-af1c-49920b89c98b",
+            "to_entity_id": "01a17339-8ab3-7025-b71e-cac113451e11",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        }
+      ]
+    }
+  ]
+}
