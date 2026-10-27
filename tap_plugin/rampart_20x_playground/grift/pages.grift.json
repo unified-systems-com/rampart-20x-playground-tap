@@ -1055,12 +1055,12 @@
                   "default": [
                     {
                       "key": "responsibility",
-                      "label": "Responsibility (%)",
+                      "label": "Responsibility",
                       "summary_search_id": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40"
                     },
                     {
                       "key": "classification",
-                      "label": "Data Classification (%)",
+                      "label": "Data Classification",
                       "summary_search_id": "01a15b2f-df3b-7569-bf22-9ead3f816b84"
                     }
                   ],
@@ -1104,9 +1104,8 @@
             "config": {
               "title_field": "label",
               "layout": "figure_right",
-              "value_field": "percent_overall",
-              "value_formatter": "number",
-              "value_decimals": 1,
+              "value_field": "percent_text",
+              "value_formatter": "text",
               "hide_header": true,
               "null_text": "not observed"
             }

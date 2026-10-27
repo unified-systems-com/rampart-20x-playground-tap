@@ -41,11 +41,11 @@ def test_the_search_is_the_set_runner_over_the_two_summaries() -> None:
     assert search["node"]["definition"]["runner_key"].endswith("dimension_mapping_totals:dimension-mapping-totals-set")
     default = search["node"]["input_schema"]["properties"]["summaries"]["default"]
     assert default == [
-        {"key": "responsibility", "label": "Responsibility (%)", "summary_search_id": RESPONSIBILITY_SUMMARY},
-        {"key": "classification", "label": "Data Classification (%)", "summary_search_id": CLASSIFICATION_SUMMARY},
+        {"key": "responsibility", "label": "Responsibility", "summary_search_id": RESPONSIBILITY_SUMMARY},
+        {"key": "classification", "label": "Data Classification", "summary_search_id": CLASSIFICATION_SUMMARY},
     ]
     config = panel["node"]["config"]
-    assert (config["title_field"], config["value_field"]) == ("label", "percent_overall")
+    assert (config["title_field"], config["value_field"]) == ("label", "percent_text")
     assert "lines" not in config  # one line a card, the height of the notification cards
 
 
@@ -66,7 +66,7 @@ def test_the_chip_is_in_the_card_row() -> None:
 @pytest.mark.spec("req-rampart-20x-playground-coverage-chip-5")
 def test_the_chip_does_no_arithmetic() -> None:
     config = _panel()["node"]["config"]
-    assert config["value_formatter"] == "number"  # shown as returned, never divided or summed here
+    assert config["value_formatter"] == "text"  # shown as returned, never divided or summed here
     assert not [k for k in config if k in ("of", "where", "row", "formula")]
 
 
