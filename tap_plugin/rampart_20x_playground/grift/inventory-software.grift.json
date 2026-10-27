@@ -20368,6 +20368,21 @@
         },
         {
           "entity": {
+            "ref": "edge:LOADS_LIBRARY__computing_core:01a1c453-b1c0-7baf-989a-834ff276c1b9>penssl-fips-provider\",\"version\":\"3.5.8\"}",
+            "entity_type": "edge",
+            "dimensions": {
+              "dcom": "design"
+            }
+          },
+          "edge": {
+            "edge_type": "LOADS_LIBRARY__computing_core",
+            "properties": {},
+            "from_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
+            "to_ref": "computing_core__library\u001f{\"ecosystem\":\"generic\",\"name\":\"openssl-fips-provider\",\"version\":\"3.5.8\"}"
+          }
+        },
+        {
+          "entity": {
             "ref": "edge:CARRIES_CRYPTO_PROVIDER__computing_core:i\",\"name\":\"psycopg-c\",\"version\":\"3.3.4\"}>01a13c38-4f78-7159-8af3-1c9a8652513a",
             "entity_type": "edge",
             "dimensions": {

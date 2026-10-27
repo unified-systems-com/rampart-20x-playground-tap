@@ -68,6 +68,6 @@ def test_demo_only_and_pinned() -> None:
     assert "stackarmor_vdr" not in [d["slug"] for d in manifest["depends_on"]]
     demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
     entry = next(p for p in demo["install"]["plugins"] if p["slug"] == "stackarmor_vdr")
-    assert entry["source"]["rev"] == "v0.5.0" and entry["source"]["credential"] == "stackarmor_vdr"
+    assert entry["source"]["rev"] == "v0.5.0" and entry["source"]["credential"] == "criticalsec_rampart"
     ci = json.loads((PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8"))
     assert "stackarmor_finding_page" not in {s.get("bundle") for s in ci["population"]["steps"]}
