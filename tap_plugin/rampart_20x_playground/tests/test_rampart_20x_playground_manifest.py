@@ -101,6 +101,7 @@ class TestSurfaces:
             "grift/pain.grift.json",
             "grift/security-alerts.grift.json",
             "grift/stackarmor-examples.grift.json",
+            "grift/stackarmor-finding-page.grift.json",
             "grift/stackarmor-page.grift.json",
             "grift/teams.grift.json",
             "grift/vdr-implementations.grift.json",

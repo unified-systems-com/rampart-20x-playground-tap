@@ -112,8 +112,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/CriticalSecLLC/stackarmor-vdr-tap",
-          "rev": "v0.3.2",
-          "commit": "14ad58d64fc726df2dfc1b2b0724bf6c7aa1756c",
+          "rev": "v0.5.0",
+          "commit": "80b94913fa8bed70c77ae76f714c7c746e46697d",
           "credential": "stackarmor_vdr"
         },
         "note": "The PAIN method for FedRAMP VDR. The repository is private, so the source declares the install credential `stackarmor_vdr` (scope tap_plugins.source, kind github_pat); the record is not installable until that envelope exists. Installed after fedramp_20x_vdr, whose finding reach its runners import; it seeds the sixteen archetype nodes the pain bundle's stamps point at."
