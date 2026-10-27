@@ -438,22 +438,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a1c73e-560a-7d33-9e7d-774db7f2bbcb",
-            "entity_type": "edge",
-            "name": "01a1c453-b1c0-7baf-989a-834ff276c1b9 --[LOADS_LIBRARY__computing_core]--> 01a13c38-4f77-76da-a965-3c6ed63426de",
-            "dimensions": {
-              "dcom": "design"
-            }
-          },
-          "edge": {
-            "from_entity_id": "01a1c453-b1c0-7baf-989a-834ff276c1b9",
-            "to_entity_id": "01a13c38-4f77-76da-a965-3c6ed63426de",
-            "edge_type": "LOADS_LIBRARY__computing_core",
-            "properties": {}
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a1c75a-a556-7560-bfb7-628abdf81bf3",
             "entity_type": "edge",
             "name": "01a1c453-b1c0-7baf-989a-834ff276c1b9 --[LOADS_LIBRARY__computing_core]--> 01a13c38-4f78-7159-8af3-1c9736dfff85",

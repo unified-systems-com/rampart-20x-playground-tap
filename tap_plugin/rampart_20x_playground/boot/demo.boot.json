@@ -1,7 +1,7 @@
 {
   "version": 1,
   "profile_kind": "dev_local",
-  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr, stackarmor_vdr, vuln_mosaic and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). Two install credentials are required, both kind github_pat under scope tap_plugins.source: `stackarmor_vdr`, for the private stackarmor_vdr repository, and `criticalsec_rampart`, for the private rampart_20x repository and this plugin's own repository. Three hourly schedules run: the classification mapping snapshot (minute 0, reads the local grid only), the KSI catalog (minute 17, fetches from raw.githubusercontent.com) and the vuln_mosaic refresh (minute 41, fetches public CVE data from github.com, www.cisa.gov and epss.empiricalsecurity.com). The inventory and findings are mock data. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
+  "description": "rampart_20x_playground demo record: identity_core, administrivia, dcom, aws_core, computing_core, git_core, compliance_core, github_core, fedramp_20x_ksi, fedramp_20x_vdr, stackarmor_vdr, vuln_mosaic and rampart_20x, plus this plugin, each pinned by the peeled commit SHA beside its tag (rampart_20x is untagged and pinned by its main SHA). One install credential is required, kind github_pat under scope tap_plugins.source: `criticalsec_rampart`, for the three private CriticalSecLLC repositories (stackarmor_vdr, rampart_20x and this plugin's own). Three hourly schedules run: the classification mapping snapshot (minute 0, reads the local grid only), the KSI catalog (minute 17, fetches from raw.githubusercontent.com) and the vuln_mosaic refresh (minute 41, fetches public CVE data from github.com, www.cisa.gov and epss.empiricalsecurity.com). The inventory and findings are mock data. Okta, Duo, Teleport and highbar are deliberately absent. Login is by the local passkey that spawn-session.sh replays into the stack (req-tap-auth-passkey-dev-bootstrap), not by anything in this record.",
   "install": {
     "plugins": [
       {
@@ -80,8 +80,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.13.3",
-          "commit": "41a67b72e8a7fba6f9ea50c7f857e7f55c498da1"
+          "rev": "v0.13.4",
+          "commit": "18ea63aa5f25df0976f6df1b31d52805339c7949"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
@@ -114,9 +114,9 @@
           "url": "https://github.com/CriticalSecLLC/stackarmor-vdr-tap",
           "rev": "v0.5.0",
           "commit": "80b94913fa8bed70c77ae76f714c7c746e46697d",
-          "credential": "stackarmor_vdr"
+          "credential": "criticalsec_rampart"
         },
-        "note": "The PAIN method for FedRAMP VDR. The repository is private, so the source declares the install credential `stackarmor_vdr` (scope tap_plugins.source, kind github_pat); the record is not installable until that envelope exists. Installed after fedramp_20x_vdr, whose finding reach its runners import; it seeds the sixteen archetype nodes the pain bundle's stamps point at."
+        "note": "The PAIN method for FedRAMP VDR. The repository is private, so the source declares the install credential `criticalsec_rampart` (scope tap_plugins.source, kind github_pat); the record is not installable until that envelope exists. Installed after fedramp_20x_vdr, whose finding reach its runners import; it seeds the sixteen archetype nodes the pain bundle's stamps point at."
       },
       {
         "slug": "vuln_mosaic",

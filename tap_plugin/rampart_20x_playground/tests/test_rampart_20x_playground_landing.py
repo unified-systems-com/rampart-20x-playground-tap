@@ -606,7 +606,9 @@ class TestTaskBubbleSearches:
         programs = {n["entity"]["entity_id"]: n["entity"]["name"] for n in _batch_nodes(ENTITIES)}
         libs = {e["to_entity_id"] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
         sources = {programs[e["from_entity_id"]] for e in _batch_edges(APPLICATION_FLOW) if e["edge_type"] == "LOADS_LIBRARY__computing_core"}
-        assert sources == {"tap-web (web task b)"} and len(libs) == 2  # task a's two are in the software bundle
+        # Task b's cryptography edge is here; its openssl-fips-provider edge is in the software bundle, where the
+        # library node lives, because a ref-keyed node can be named by to_ref only inside its own file.
+        assert sources == {"tap-web (web task b)"} and len(libs) == 1  # task a's two are in the software bundle
 
 
 class TestVulnerabilityWindowColumns:

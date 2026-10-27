@@ -189,26 +189,6 @@
             "edge_type": "USES_SEARCH",
             "properties": {}
           }
-        },
-        {
-          "entity": {
-            "entity_id": "01a17148-0203-746b-bbf7-fe36ad05f69f",
-            "entity_type": "edge",
-            "name": "Overview USES_PANEL Coverage",
-            "dimensions": {}
-          },
-          "edge": {
-            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
-            "to_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
-            "edge_type": "USES_PANEL",
-            "properties": {
-              "hotlink": {
-                "model": "page",
-                "spec": "page-panels",
-                "value": "playground-overview-coverage"
-              }
-            }
-          }
         }
       ]
     }

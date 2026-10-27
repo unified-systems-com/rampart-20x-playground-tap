@@ -72,10 +72,13 @@ def test_linked_to_the_four_searches_and_no_other() -> None:
 @pytest.mark.spec("req-rampart-20x-playground-coverage-panel-3")
 def test_mounted_on_the_landing_page_under_the_graph() -> None:
     panel_id = _panel()["entity"]["entity_id"]
-    (mount,) = [e for e in _batch()["edges"] if e["edge"]["edge_type"] == "USES_PANEL"]
+    assert not [e for e in _batch()["edges"] if e["edge"]["edge_type"] == "USES_PANEL"]  # the mount is in pages
+    pages_batch = json.loads((GRIFT / "pages.grift.json").read_text(encoding="utf-8"))["batches"][0]
+    # The page-panels hotlink needs this edge when the Overview is created, so it lives with the page.
+    (mount,) = [e for e in pages_batch["edges"] if e["edge"].get("to_entity_id") == panel_id]
     assert (mount["edge"]["from_entity_id"], mount["edge"]["to_entity_id"]) == (OVERVIEW, panel_id)
     assert mount["edge"]["properties"]["hotlink"]["value"] == SLUG
-    pages = json.loads((GRIFT / "pages.grift.json").read_text(encoding="utf-8"))["batches"][0]["nodes"]
+    pages = pages_batch["nodes"]
     (landing,) = [n for n in pages if n["entity"]["entity_id"] == OVERVIEW]
     columns = landing["node"]["layout"]["columns"]
     band = {r["panel-id"]: c["band"] for c in columns.values() for r in c["rows"].values()}

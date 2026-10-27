@@ -31,7 +31,6 @@ inventory_software = "grift/inventory-software.grift.json"
 application_flow = "grift/application-flow.grift.json"
 vulnerability_enrichment = "grift/vulnerability-enrichment.grift.json"
 vulnerabilities_page = "grift/vulnerabilities-page.grift.json"
-pages = "grift/pages.grift.json"
 inventory_coverage = "grift/inventory-coverage.grift.json"
 inventory_page = "grift/inventory-page.grift.json"
 classification_mapping = "grift/classification-mapping.grift.json"
@@ -39,6 +38,9 @@ data_classification_page = "grift/data-classification-page.grift.json"
 coverage_seed = "grift/coverage-seed.grift.json"
 # The Overview's Coverage report panel; after the inventory coverage and classification bundles whose Searches it reads.
 coverage_panel = "grift/coverage-panel.grift.json"
+# The Overview page is seeded after the Coverage panel: its layout names that panel, and the page-panels hotlink
+# needs the USES_PANEL edge to exist when the page is created, so the edge lives here, in the pages bundle.
+pages = "grift/pages.grift.json"
 teams = "grift/teams.grift.json"
 # The Reporting page reads the coverage totals and history Searches, so it is seeded after the inventory coverage bundle.
 reporting_page = "grift/reporting-page.grift.json"
@@ -64,9 +66,9 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "fe431a2ff2c21e752fce6e1591f75ebc6cc267350cdde69ae543eebfe6830c36"
+sha256 = "d993aa7167c370e8b34d077ef6cf067824b2a03afe80d40b29bcd04ae9bea945"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "0fa38135ed5a1288c3ddbfaa610d71bd00ffdc765fa1296a86c8d8f90426a668"
+sha256 = "ef867ea27f48df3cc4ba464aeabe5b9b472d5d109e147d2625ef41b911f48f0e"
