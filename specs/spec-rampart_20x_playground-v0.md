@@ -78,6 +78,7 @@ the demo boot record's passkey loading.
 | req-rampart-20x-playground-inventory-coverage | [Inventory Coverage](#inventory-coverage) | Proposed | Responsibility and data classification coverage by inventory category, a row of four live status cards and, below it, one line chart over time on each page: responsibility on the inventory page, data classification on the Data Classification page |
 | req-rampart-20x-playground-coverage-seed | [Coverage History Seed](#coverage-history-seed) | Proposed | Mock data: the stamps that bring the coverage figures to a high end state, and four days of snapshots, every four hours, that climb to it |
 | req-rampart-20x-playground-coverage-panel | [Coverage Panel](#coverage-panel) | In Development | The coverage figures and both histories in one plain report panel on the landing page |
+| req-rampart-20x-playground-coverage-chip | [Coverage Chip](#coverage-chip) | In Development | One small chip on the landing page, in the row of the notification cards, with the responsibility and data classification coverage percentages |
 | req-rampart-20x-playground-page-reporting | [Reporting Page](#reporting-page) | Proposed | The overall status report: an agency part and, below a cut line, an internal part, as two plain print-ready `report` panels |
 | req-rampart-20x-playground-teams | [Teams And Responsibility](#teams-and-responsibility) | Proposed | Four teams (three under `git-serious`), a generic roster, and a `team.responsible` stamp on the systems each team answers for |
 | req-rampart-20x-playground-page-teams | [Teams Page](#teams-page) | Proposed | The teams, their leaders and their members, under the teams graph |
@@ -809,6 +810,30 @@ The labels are the titles of the cards table of `req-rampart-20x-playground-inve
 | req-rampart-20x-playground-coverage-panel-7 | Not Observed Is Shown | In Development | A figure whose Search fails or returns `null` shows `Not observed`, not 0, and a trend with no snapshots shows `No data yet`. | `req-compliance-core-panel-report-6`, `-11`. |
 | req-rampart-20x-playground-coverage-panel-8 | No Prose | In Development | The panel carries a title, headings and figures only; no text written to orient the reader. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
 | req-rampart-20x-playground-coverage-panel-9 | Dependencies Declared | In Development | The `compliance_core` floor names v0.8.10, the release that ships the `report` panel. | |
+
+### Coverage Chip
+----
+RID: `req-rampart-20x-playground-coverage-chip`
+
+Status: `In Development`
+
+One small chip on the front page, in the row of the CISA Known Exploited List card, that says how covered the playground is: the plain-average coverage of the responsibility mapping and of the data classification mapping. The rest of the page is the diagram. Ruled by George, 2026-10-27, replacing the full-width panel of `req-rampart-20x-playground-coverage-panel`.
+
+#### Implementation
+
+One `panel` node of the `stat_card_panel` type of `tap_web`, titled `Coverage`, `layout` `figure_right`, the main figure the responsibility percentage and one line, `Data Classification`, the other. One `module` Search of `compliance_core`, `dimension-mapping-totals-set`, returns both as one row, so the chip reads one Search. The Search names the two summary Searches by id and does no arithmetic; every figure is `coverage.totals_from_rows` of a summary. The Overview layout gains a compact column in the first band beside the two cards, and the `USES_PANEL` edge sits in the pages bundle with the page.
+
+#### Acceptance Criteria
+
+| ACID | Title | Status | Description | Notes |
+| --- | --- | :---: | --- | --- |
+| req-rampart-20x-playground-coverage-chip-1 | One Chip | In Development | The pages bundle holds one `panel` node of the `stat_card_panel` view titled `Coverage` with a `USES_SEARCH` edge to exactly one Search. | |
+| req-rampart-20x-playground-coverage-chip-2 | One Search, One Row | In Development | That Search is a `module` Search of the runner `dimension-mapping-totals-set` whose default `summaries` are the responsibility and the classification summary Searches, keyed `responsibility` and `classification`. | The chip's two fields are `responsibility_percent_overall` and `classification_percent_overall`. |
+| req-rampart-20x-playground-coverage-chip-3 | In The Card Row | In Development | The Overview layout names the chip in a compact column of the same band as the two notification cards, and the graph is the only other band. | `govcloud-layout-37`. |
+| req-rampart-20x-playground-coverage-chip-4 | Figures Match The Cards | In Development | Each figure equals the `Overall Coverage` card of its own page. | Both read the same summary. |
+| req-rampart-20x-playground-coverage-chip-5 | No Arithmetic | In Development | No figure is computed in the chip, the Search node or page code. | `req-rampart-20x-playground-coverage-panel-6`. |
+| req-rampart-20x-playground-coverage-chip-6 | No Prose | In Development | The chip carries a title, two labels and two figures; no explanatory text. | `no-explanatory-text-on-pages`, ruled 2026-10-20. |
+| req-rampart-20x-playground-coverage-chip-7 | Dependencies Declared | In Development | The `compliance_core` floor and both records name the release that ships `dimension-mapping-totals-set`. | Pending its release. |
 
 ### Reporting Page
 ----
