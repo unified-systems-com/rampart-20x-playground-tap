@@ -1,0 +1,216 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a17148-00fb-7702-ac35-bd74cff74eff",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground coverage panel v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.coverage-panel",
+        "name": "rampart-20x-playground coverage panel v0.1.0",
+        "description": "The Coverage report panel of the Overview: the coverage figures of both pages and the trend of both histories, linked to the four coverage Searches."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "entity_type": "panel",
+            "name": "Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Coverage",
+            "slug": "playground-overview-coverage",
+            "description": "Every coverage figure of the playground and the trend of both histories, as a plain report.",
+            "view": "compliance_core/panels/report.html",
+            "config": {
+              "title": "Coverage",
+              "show_as_of": true,
+              "sections": [
+                {
+                  "heading": "Responsibility",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Overall Coverage",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "percent_overall",
+                      "format": "percent"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Entries",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "denominator",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "With A Team",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "mapped",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Without A Team",
+                      "search": "01a16098-57bd-7444-a312-2ffdd24c4174",
+                      "field": "unmapped",
+                      "format": "count"
+                    }
+                  ]
+                },
+                {
+                  "heading": "Data Classification",
+                  "items": [
+                    {
+                      "kind": "figure",
+                      "label": "Overall Coverage",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "percent_overall",
+                      "format": "percent"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Mapped",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "mapped",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Unmapped",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "unmapped",
+                      "format": "count"
+                    },
+                    {
+                      "kind": "figure",
+                      "label": "Incorrect",
+                      "search": "01a16098-57be-71da-9424-40b57d974dd7",
+                      "field": "mapped_incorrectly",
+                      "format": "count"
+                    }
+                  ]
+                },
+                {
+                  "heading": "Coverage Over Time",
+                  "items": [
+                    {
+                      "kind": "trend",
+                      "label": "Overall Coverage",
+                      "lines": [
+                        {
+                          "label": "Responsibility",
+                          "search": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+                          "x_field": "observed_at",
+                          "value_field": "value",
+                          "series_field": "series",
+                          "series": "Overall"
+                        },
+                        {
+                          "label": "Data Classification",
+                          "search": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+                          "x_field": "observed_at",
+                          "value_field": "value",
+                          "series_field": "series",
+                          "series": "Overall"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "entity": {
+            "entity_id": "01a17148-0128-76ff-824e-eb5d0db57640",
+            "entity_type": "edge",
+            "name": "Coverage USES_SEARCH Responsibility coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffdd24c4174",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17148-015e-7290-9257-51deb2167f5a",
+            "entity_type": "edge",
+            "name": "Coverage USES_SEARCH Classification coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "to_entity_id": "01a16098-57be-71da-9424-40b57d974dd7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17148-01a5-7324-bc51-a6730b77f1ac",
+            "entity_type": "edge",
+            "name": "Coverage USES_SEARCH Responsibility coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffbc5719ad7",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17148-01d3-7308-8b16-5a59734d1e0a",
+            "entity_type": "edge",
+            "name": "Coverage USES_SEARCH Classification coverage history",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "to_entity_id": "01a16098-57bd-7444-a312-2ffc2d3549d0",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17148-0203-746b-bbf7-fe36ad05f69f",
+            "entity_type": "edge",
+            "name": "Overview USES_PANEL Coverage",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "to_entity_id": "01a17148-00c2-708e-a4c7-0076ce836f53",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-overview-coverage"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

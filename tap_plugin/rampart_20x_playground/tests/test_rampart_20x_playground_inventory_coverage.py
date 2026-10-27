@@ -165,12 +165,12 @@ class TestInventoryCoverage:
 
 class TestDependencies:
     def test_floors_and_boot_pins_name_the_releases_that_ship_the_runners(self) -> None:
-        """`inventory-coverage-11`: compliance_core v0.8.9 and fedramp_20x_vdr v0.1.5 (the release with the summary and the one-finding filter)."""
+        """`inventory-coverage-11`: compliance_core v0.8.10 and fedramp_20x_vdr v0.1.5 (the release with the summary and the one-finding filter)."""
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         floors = {d["slug"]: d.get("min_version") for d in manifest["depends_on"]}
-        assert floors["compliance_core"] == "0.8.9" and floors["fedramp_20x_vdr"] == "0.1.5"
+        assert floors["compliance_core"] == "0.8.10" and floors["fedramp_20x_vdr"] == "0.1.5"
         pins = {
-            "compliance_core": ("v0.8.9", "5782d93eea5b0ecad866bffe0da57ef9fa019c09"),
+            "compliance_core": ("v0.8.10", "1661fa3accdf68d3d911b70df14e7d9ce4e542a7"),
             "fedramp_20x_vdr": ("v0.1.5", "ff9685fdee0918d1a77592ab71d2e11ed3776cc3"),
         }
         for name in ("ci", "demo"):
