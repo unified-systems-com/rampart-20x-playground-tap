@@ -8,12 +8,12 @@
       "batch_entity": {
         "entity_id": "01a13c39-3f6e-7448-a223-a802d2e1f0b3",
         "entity_type": "batch",
-        "name": "rampart-20x-playground inventory page v0.4.0",
+        "name": "rampart-20x-playground inventory page v0.4.1",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.inventory-page",
-        "name": "rampart-20x-playground inventory page v0.4.0",
+        "name": "rampart-20x-playground inventory page v0.4.1",
         "description": "The /playground/inventory page: a row of four coverage cards, the coverage chart and nine standard table panels, each bound by USES_SEARCH to a Search over the inventory dimension (req-rampart-20x-playground-inventory-tables). Carries no dcom value (req-rampart-20x-playground-nongoals-4)."
       },
       "nodes": [
@@ -61,14 +61,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__program": "/static/computing_core/icons/program.svg"
-                    },
-                    "labels": {
-                      "computing_core__program": "Program"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -165,14 +160,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__library": "/static/computing_core/icons/library.svg"
-                    },
-                    "labels": {
-                      "computing_core__library": "Library"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -296,14 +286,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__package": "/static/computing_core/icons/package.svg"
-                    },
-                    "labels": {
-                      "computing_core__package": "Package"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -419,14 +404,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__operating_system": "/static/computing_core/icons/operating-system.svg"
-                    },
-                    "labels": {
-                      "computing_core__operating_system": "Operating System"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -546,18 +526,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__host": "/static/computing_core/icons/host.svg",
-                      "github_core__github_package_version": "/static/github_core/icons/github-package-version.svg",
-                      "github_core__github_package": "/static/github_core/icons/github-package.svg"
-                    },
-                    "labels": {
-                      "computing_core__host": "Host",
-                      "github_core__github_package_version": "GitHub Package Version",
-                      "github_core__github_package": "GitHub Package"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -571,18 +542,10 @@
                   "field": "entity_type",
                   "title": "Kind",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "computing_core__host": "muted",
-                      "github_core__github_package_version": "muted",
-                      "github_core__github_package": "muted"
-                    },
-                    "labels": {
-                      "computing_core__host": "Host",
-                      "github_core__github_package_version": "GitHub Package Version",
-                      "github_core__github_package": "GitHub Package"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -688,14 +651,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__crypto_provider": "/static/computing_core/icons/crypto-provider.svg"
-                    },
-                    "labels": {
-                      "computing_core__crypto_provider": "Crypto Provider"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -787,20 +745,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "computing_core__file": "/static/computing_core/icons/file.svg",
-                      "computing_core__public_key": "/static/computing_core/icons/public-key.svg",
-                      "computing_core__private_key": "/static/computing_core/icons/private-key.svg",
-                      "aws_core__aws_acm_certificate": "/static/aws_core/icons/aws-acm.svg"
-                    },
-                    "labels": {
-                      "computing_core__file": "File",
-                      "computing_core__public_key": "Public Key",
-                      "computing_core__private_key": "Private Key",
-                      "aws_core__aws_acm_certificate": "ACM Certificate"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -814,20 +761,10 @@
                   "field": "entity_type",
                   "title": "Kind",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "computing_core__file": "muted",
-                      "computing_core__public_key": "muted",
-                      "computing_core__private_key": "muted",
-                      "aws_core__aws_acm_certificate": "muted"
-                    },
-                    "labels": {
-                      "computing_core__file": "File",
-                      "computing_core__public_key": "Public Key",
-                      "computing_core__private_key": "Private Key",
-                      "aws_core__aws_acm_certificate": "ACM Certificate"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -937,38 +874,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "aws_core__aws_alb": "/static/aws_core/icons/aws-alb.svg",
-                      "aws_core__aws_codebuild_project": "/static/aws_core/icons/aws-codebuild.svg",
-                      "aws_core__aws_codepipeline_pipeline": "/static/aws_core/icons/aws-codepipeline.svg",
-                      "aws_core__aws_ec2_instance": "/static/aws_core/icons/aws-ec2.svg",
-                      "aws_core__aws_ecr_repository": "/static/aws_core/icons/aws-ecr.svg",
-                      "aws_core__aws_ecs_cluster": "/static/aws_core/icons/aws-ecs.svg",
-                      "aws_core__aws_ecs_service": "/static/aws_core/icons/aws-ecs.svg",
-                      "aws_core__aws_iam_oidc_provider": "/static/aws_core/icons/aws-iam.svg",
-                      "aws_core__aws_internet_gateway": "/static/aws_core/icons/aws-internet-gateway.svg",
-                      "aws_core__aws_kms_key": "/static/aws_core/icons/aws-kms.svg",
-                      "aws_core__aws_rds_instance": "/static/aws_core/icons/aws-rds.svg",
-                      "aws_core__aws_route53_zone": "/static/aws_core/icons/aws-route53.svg",
-                      "aws_core__aws_secrets_manager_secret": "/static/aws_core/icons/aws-secrets-manager.svg"
-                    },
-                    "labels": {
-                      "aws_core__aws_alb": "Application Load Balancer",
-                      "aws_core__aws_codebuild_project": "CodeBuild",
-                      "aws_core__aws_codepipeline_pipeline": "CodePipeline",
-                      "aws_core__aws_ec2_instance": "EC2",
-                      "aws_core__aws_ecr_repository": "ECR",
-                      "aws_core__aws_ecs_cluster": "ECS Cluster",
-                      "aws_core__aws_ecs_service": "ECS Service",
-                      "aws_core__aws_iam_oidc_provider": "IAM OIDC Provider",
-                      "aws_core__aws_internet_gateway": "Internet Gateway",
-                      "aws_core__aws_kms_key": "KMS",
-                      "aws_core__aws_rds_instance": "RDS",
-                      "aws_core__aws_route53_zone": "Route 53",
-                      "aws_core__aws_secrets_manager_secret": "Secrets Manager"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -982,38 +890,10 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "aws_core__aws_alb": "muted",
-                      "aws_core__aws_codebuild_project": "muted",
-                      "aws_core__aws_codepipeline_pipeline": "muted",
-                      "aws_core__aws_ec2_instance": "muted",
-                      "aws_core__aws_ecr_repository": "muted",
-                      "aws_core__aws_ecs_cluster": "muted",
-                      "aws_core__aws_ecs_service": "muted",
-                      "aws_core__aws_iam_oidc_provider": "muted",
-                      "aws_core__aws_internet_gateway": "muted",
-                      "aws_core__aws_kms_key": "muted",
-                      "aws_core__aws_rds_instance": "muted",
-                      "aws_core__aws_route53_zone": "muted",
-                      "aws_core__aws_secrets_manager_secret": "muted"
-                    },
-                    "labels": {
-                      "aws_core__aws_alb": "Application Load Balancer",
-                      "aws_core__aws_codebuild_project": "CodeBuild",
-                      "aws_core__aws_codepipeline_pipeline": "CodePipeline",
-                      "aws_core__aws_ec2_instance": "EC2",
-                      "aws_core__aws_ecr_repository": "ECR",
-                      "aws_core__aws_ecs_cluster": "ECS Cluster",
-                      "aws_core__aws_ecs_service": "ECS Service",
-                      "aws_core__aws_iam_oidc_provider": "IAM OIDC Provider",
-                      "aws_core__aws_internet_gateway": "Internet Gateway",
-                      "aws_core__aws_kms_key": "KMS",
-                      "aws_core__aws_rds_instance": "RDS",
-                      "aws_core__aws_route53_zone": "Route 53",
-                      "aws_core__aws_secrets_manager_secret": "Secrets Manager"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },
@@ -1114,16 +994,9 @@
                   "title": "Icon",
                   "width": 80,
                   "align": "center",
-                  "formatter": "iconMap",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "icons": {
-                      "aws_core__aws_organization": "/static/aws_core/icons/aws-organizations.svg",
-                      "github_core__github_platform": "/static/github_core/icons/github-platform.svg"
-                    },
-                    "labels": {
-                      "aws_core__aws_organization": "AWS Organization",
-                      "github_core__github_platform": "GitHub"
-                    }
+                    "show": "icon"
                   },
                   "header_tooltip": "The icon of the entity's type."
                 },
@@ -1137,16 +1010,10 @@
                   "field": "entity_type",
                   "title": "Service",
                   "widthGrow": 2,
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "aws_core__aws_organization": "muted",
-                      "github_core__github_platform": "muted"
-                    },
-                    "labels": {
-                      "aws_core__aws_organization": "AWS Organization",
-                      "github_core__github_platform": "GitHub"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "header_tooltip": "What kind of entity the row is, from its grid type."
                 },

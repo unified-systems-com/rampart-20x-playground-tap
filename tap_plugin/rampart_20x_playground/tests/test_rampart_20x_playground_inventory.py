@@ -433,24 +433,27 @@ class TestInventoryPage:
     def test_the_first_column_is_the_type_icon_and_no_table_has_an_id_column(self) -> None:
         for panel in self._of("panel"):
             icon = panel["node"]["config"]["columns"][0]
-            assert icon["field"] == "entity_type" and icon["formatter"] == "iconMap", panel["entity"]["name"]
-            icons = icon["formatter_params"]["icons"]
-            assert icons and all(re.fullmatch(r"/static/\w+/icons/[\w-]+\.svg", u) for u in icons.values()), panel["entity"]["name"]
-            assert set(icon["formatter_params"]["labels"]) == set(icons), panel["entity"]["name"]
+            assert icon["field"] == "entity_type" and icon["formatter"] == "entityType", panel["entity"]["name"]
+            assert icon["formatter_params"] == {"show": "icon"}, panel["entity"]["name"]  # the type's own published icon, no map in the page
             assert "ID" not in [c["title"] for c in panel["node"]["config"]["columns"]], panel["entity"]["name"]
 
-    def test_entity_type_columns_say_the_standard_service_name(self) -> None:
+    def test_entity_type_columns_say_the_types_published_name(self) -> None:
         for panel in self._of("panel"):
             for column in panel["node"]["config"]["columns"][1:]:
                 if column.get("field") == "entity_type":
-                    assert column["formatter"] == "toneBadge", panel["entity"]["name"]
-                    labels = column["formatter_params"]["labels"]
-                    assert labels and not any(v.startswith(("aws_", "github_", "computing_")) for v in labels.values())
+                    assert column["formatter"] == "entityType", panel["entity"]["name"]
+                    assert column["formatter_params"] == {"show": "name", "tone": "muted"}, panel["entity"]["name"]
         cloud = next(p for p in self._of("panel") if p["entity"]["name"] == "Cloud Services")
-        labels = next(c for c in cloud["node"]["config"]["columns"] if c["title"] == "Service")["formatter_params"]["labels"]
-        assert labels["aws_core__aws_alb"] == "Application Load Balancer" and labels["aws_core__aws_rds_instance"] == "RDS"
-        assert labels["aws_core__aws_route53_zone"] == "Route 53" and labels["aws_core__aws_kms_key"] == "KMS"
         assert "Scheme" not in [c["title"] for c in cloud["node"]["config"]["columns"]]
+
+    def test_no_page_carries_a_hand_written_type_map(self) -> None:
+        """`page-inventory-5`/`-6`: icon and name come from the entity-type catalog, never from `iconMap` or per-type `labels`."""
+        for panel in self._of("panel"):
+            for column in panel["node"]["config"]["columns"]:
+                assert column.get("formatter") != "iconMap", panel["entity"]["name"]
+                params = column.get("formatter_params", {})
+                assert not any("__" in k for k in {**params.get("labels", {}), **params.get("tones", {}), **params.get("icons", {})}), (
+                    panel["entity"]["name"], column.get("title"))
 
     def test_every_name_and_title_is_in_title_case(self) -> None:
         for panel in self._of("panel"):
