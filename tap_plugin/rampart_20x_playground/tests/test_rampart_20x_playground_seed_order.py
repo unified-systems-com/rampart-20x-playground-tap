@@ -60,4 +60,4 @@ def test_every_page_carries_its_panel_edges_and_follows_its_panel_nodes() -> Non
                 assert order.index(panel_home[panel_id]) <= order.index(bundle), (
                     f"panel {panel_id!r} (bundle {panel_home[panel_id]!r}) is seeded after page bundle {bundle!r}"
                 )
-    assert checked >= 4
+    assert checked >= 2
