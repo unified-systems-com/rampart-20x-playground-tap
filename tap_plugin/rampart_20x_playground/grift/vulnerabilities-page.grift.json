@@ -8,12 +8,12 @@
       "batch_entity": {
         "entity_id": "01a13c36-8c0d-78bf-85cd-fa41721c4ef1",
         "entity_type": "batch",
-        "name": "rampart-20x-playground vulnerabilities page v0.9.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.9.1",
         "dimensions": {}
       },
       "batch_node": {
         "source": "tap_plugin.rampart_20x_playground.grift.vulnerabilities-page",
-        "name": "rampart-20x-playground vulnerabilities page v0.9.0",
+        "name": "rampart-20x-playground vulnerabilities page v0.9.1",
         "description": "The /playground/vulnerabilities page (four cards, three charts, a table of open vulnerabilities and two tables of affected components) with a drill-in page per component, a short older vulnerability page, and the CVE page that explains one vulnerability: the answer first, how bad and how urgent, what it is, where it affects us, then the details and sources. Everything reads Searches over the compliance_core vulnerability, finding and scanner nodes; nothing names a scanner, a node id or a value."
       },
       "nodes": [
@@ -757,20 +757,10 @@
                   "field": "type",
                   "title": "Type",
                   "header_tooltip": "What kind of component it is.",
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "computing_core__package": "muted",
-                      "computing_core__library": "muted",
-                      "computing_core__operating_system": "muted",
-                      "computing_core__crypto_provider": "muted"
-                    },
-                    "labels": {
-                      "computing_core__package": "Package",
-                      "computing_core__library": "Library",
-                      "computing_core__operating_system": "Operating system",
-                      "computing_core__crypto_provider": "Crypto provider"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "width": 140
                 },
@@ -1163,20 +1153,10 @@
                 {
                   "field": "type",
                   "title": "Type",
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "computing_core__package": "muted",
-                      "computing_core__library": "muted",
-                      "computing_core__operating_system": "muted",
-                      "computing_core__crypto_provider": "muted"
-                    },
-                    "labels": {
-                      "computing_core__package": "Package",
-                      "computing_core__library": "Library",
-                      "computing_core__operating_system": "Operating system",
-                      "computing_core__crypto_provider": "Crypto provider"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "width": 140
                 },
@@ -2806,20 +2786,10 @@
                 {
                   "field": "type",
                   "title": "Type",
-                  "formatter": "toneBadge",
+                  "formatter": "entityType",
                   "formatter_params": {
-                    "tones": {
-                      "computing_core__package": "muted",
-                      "computing_core__library": "muted",
-                      "computing_core__operating_system": "muted",
-                      "computing_core__crypto_provider": "muted"
-                    },
-                    "labels": {
-                      "computing_core__package": "Package",
-                      "computing_core__library": "Library",
-                      "computing_core__operating_system": "Operating system",
-                      "computing_core__crypto_provider": "Crypto provider"
-                    }
+                    "show": "name",
+                    "tone": "muted"
                   },
                   "width": 140
                 },

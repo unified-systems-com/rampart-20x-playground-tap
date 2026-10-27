@@ -6,7 +6,7 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a1d9a0-4c1e-7a01-9b2d-5e0f1a2b9a01",
+        "entity_id": "01a17a18-290e-7058-ae61-eee42f3cd04d",
         "entity_type": "batch",
         "name": "rampart-20x-playground PAIN v0.1.0",
         "dimensions": {}
@@ -407,7 +407,8 @@
                   "headerSort": false,
                   "width": 68
                 }
-              ]
+              ],
+              "row_url_template": "/playground/stackarmor/finding?finding_id={finding_id}&component_id={component_id}&owner_id={owner_id}"
             }
           }
         },
