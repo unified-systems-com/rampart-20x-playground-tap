@@ -1273,18 +1273,19 @@ class TestOverviewNotificationCards:
             if e["edge"]["edge_type"] == "USES_SEARCH" and e["edge"]["from_entity_id"] == original["entity"]["entity_id"]}}
         assert len(searches) == 1
 
-    def test_the_overview_is_the_cards_then_the_graph(self) -> None:
+    def test_the_overview_is_the_cards_and_the_chip_then_the_graph(self) -> None:
         pages = json.loads(PAGES.read_text(encoding="utf-8"))["batches"][0]
         (page,) = [n for n in pages["nodes"] if n["entity"]["entity_id"] == self.OVERVIEW]
         columns = page["node"]["layout"]["columns"]
         bands = {}
         for col in columns.values():
             bands.setdefault(col["band"], []).extend(row["panel-id"] for row in col["rows"].values())
-        assert bands == {1: ["playground-overview-kev", "playground-overview-cwe506"], 2: ["landing"]}  # coverage-panel-3
+        assert bands == {1: ["playground-overview-kev", "playground-overview-cwe506", "playground-overview-coverage-chip"], 2: ["landing"]}  # coverage-chip-3
         (graph,) = [c for c in columns.values() if c["band"] == 2]
         assert graph["rows"]["row-1"]["height"] == "fill"
         # `govcloud-layout-37`: the two cards are compact tracks (a capped width, packed left), not shares of the row.
-        assert [c["width"] for c in columns.values() if c["band"] == 1] == ["compact", "compact"]
+        # The coverage widget is wider than the cards (`coverage-chip-3`), so its column is not compact.
+        assert [c["width"] for c in columns.values() if c["band"] == 1] == ["compact", "compact", "auto"]
 
     def test_the_pages_bundle_is_imported_after_the_bundle_that_holds_the_cards_search(self) -> None:
         manifest = (PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8")

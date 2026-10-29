@@ -889,6 +889,16 @@
                       "height": "fill"
                     }
                   }
+                },
+                "col-4": {
+                  "width": "auto",
+                  "band": 1,
+                  "rows": {
+                    "row-1": {
+                      "panel-id": "playground-overview-coverage-chip",
+                      "height": "auto"
+                    }
+                  }
                 }
               }
             }
@@ -1017,6 +1027,87 @@
                 "WHERE a.dimensions[\"overview\"] = \"shown\" AND b.dimensions[\"overview\"] = \"shown\"",
                 "RETURN a, b"
               ]
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17e4d-e6d2-712d-8ea6-4d12dc22c898",
+            "entity_type": "search",
+            "name": "playground — overview coverage totals",
+            "dimensions": {}
+          },
+          "node": {
+            "name": "playground — overview coverage totals",
+            "description": "One live row with the plain-average coverage of the responsibility mapping and of the data classification mapping, for the chip on the Overview. Computed from the two summary Searches at every run; reads no snapshot.",
+            "search_type": "module",
+            "root": "node",
+            "definition": {
+              "runner_key": "tap_plugin.compliance_core.searches.dimension_mapping_totals:dimension-mapping-totals-set"
+            },
+            "input_schema": {
+              "type": "object",
+              "description": "Inputs of the runner; every one has a default, so the Search runs with none.",
+              "properties": {
+                "summaries": {
+                  "type": "array",
+                  "description": "The summary Searches whose totals are returned, one row each, in this order.",
+                  "default": [
+                    {
+                      "key": "responsibility",
+                      "label": "Responsibility",
+                      "summary_search_id": "01a15fdf-61ef-710d-b5d3-e3a7ae238a40"
+                    },
+                    {
+                      "key": "classification",
+                      "label": "Data Classification",
+                      "summary_search_id": "01a15b2f-df3b-7569-bf22-9ead3f816b84"
+                    }
+                  ],
+                  "items": {
+                    "type": "object",
+                    "description": "One summary Search and the row its totals become.",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "description": "Identifies this summary's row."
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "The row's label, shown as the card title; defaults to the key."
+                      },
+                      "summary_search_id": {
+                        "type": "string",
+                        "description": "The entity id of the dimension-mapping-summary Search."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17e4d-e6d2-712d-8ea6-4d13dd132690",
+            "entity_type": "panel",
+            "name": "Overview Coverage",
+            "dimensions": {
+              "tap.graph": "web"
+            }
+          },
+          "node": {
+            "name": "Overview Coverage",
+            "slug": "playground-overview-coverage-chip",
+            "description": "One widget on the Overview with the coverage of the responsibility mapping and of the data classification mapping, a card each on one line, beside the notification cards.",
+            "view": "tap_web/panels/stat_card_panel.html",
+            "config": {
+              "title_field": "label",
+              "layout": "figure_right",
+              "value_field": "percent_text",
+              "value_formatter": "text",
+              "hide_header": true,
+              "null_text": "not observed"
             }
           }
         }
@@ -1616,6 +1707,40 @@
             "to_entity_id": "01a1c42b-e01e-74fc-b2d0-31c41885221c",
             "edge_type": "USES_SEARCH",
             "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17e4d-e6d2-712d-8ea6-4d148d6594b1",
+            "entity_type": "edge",
+            "name": "Overview Coverage USES_SEARCH overview coverage totals",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a17e4d-e6d2-712d-8ea6-4d13dd132690",
+            "to_entity_id": "01a17e4d-e6d2-712d-8ea6-4d12dc22c898",
+            "edge_type": "USES_SEARCH",
+            "properties": {}
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a17e4d-e6d2-712d-8ea6-4d1549d00f9b",
+            "entity_type": "edge",
+            "name": "Overview USES_PANEL overview-coverage-chip",
+            "dimensions": {}
+          },
+          "edge": {
+            "from_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+            "to_entity_id": "01a17e4d-e6d2-712d-8ea6-4d13dd132690",
+            "edge_type": "USES_PANEL",
+            "properties": {
+              "hotlink": {
+                "model": "page",
+                "spec": "page-panels",
+                "value": "playground-overview-coverage-chip"
+              }
+            }
           }
         }
       ]
