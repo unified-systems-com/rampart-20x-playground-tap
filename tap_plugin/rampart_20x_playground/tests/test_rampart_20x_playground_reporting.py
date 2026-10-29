@@ -243,7 +243,7 @@ def test_titles_headings_and_figures_only_in_title_case() -> None:
 def test_floors_and_pins_name_the_report_panel_and_deadline_releases() -> None:
     manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
     floors = {d["slug"]: d.get("min_version") for d in manifest["depends_on"]}
-    assert floors["compliance_core"] == "0.8.10" and _floor(floors["fedramp_20x_vdr"]) >= (0, 1, 3)
+    assert floors["compliance_core"] == "0.8.11" and _floor(floors["fedramp_20x_vdr"]) >= (0, 1, 3)
     for record in ("ci", "demo"):
         data = json.loads((PACKAGE_ROOT / "boot" / f"{record}.boot.json").read_text(encoding="utf-8"))
         revs = {p["slug"]: p["source"]["rev"] for p in data["install"]["plugins"]}

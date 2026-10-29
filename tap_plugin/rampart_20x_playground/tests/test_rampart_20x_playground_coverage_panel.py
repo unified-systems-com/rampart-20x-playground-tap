@@ -101,9 +101,9 @@ def test_no_prose() -> None:
 def test_floor_and_pins_name_the_release_with_the_report_panel() -> None:
     manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
     floors = {d["slug"]: d.get("min_version") for d in manifest["depends_on"]}
-    assert floors["compliance_core"] == "0.8.10"
+    assert floors["compliance_core"] == "0.8.11"
     assert manifest["grift"]["coverage_panel"] == "grift/coverage-panel.grift.json"
     for name in ("ci", "demo"):
         record = json.loads((PACKAGE_ROOT / "boot" / f"{name}.boot.json").read_text(encoding="utf-8"))
         entry = next(e for e in record["install"]["plugins"] if e["slug"] == "compliance_core")
-        assert entry["source"]["rev"] == "v0.8.10"
+        assert entry["source"]["rev"] == "v0.8.11"
