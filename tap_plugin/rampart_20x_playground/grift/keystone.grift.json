@@ -6,7 +6,7 @@
   "batches": [
     {
       "batch_entity": {
-        "entity_id": "01a1361f-005d-7567-922b-1c9fe442ec22",
+        "entity_id": "01a1a97a-2cc9-7063-a4ef-0e76fe020669",
         "entity_type": "batch",
         "name": "rampart-20x-playground keystone v0.1.0",
         "dimensions": {}
@@ -28,7 +28,7 @@
           },
           "node": {
             "name": "rampart-20x-playground",
-            "description": "rampart-20x-playground is a quick-hit prototype that shows how a FedRAMP 20x Vulnerability Detection and Response (VDR) process, and later Key Security Indicators (KSI), can be a query over a graph instead of a spreadsheet. It carries a TAP deployment designed for AWS GovCloud, an inventory of that system in six categories, vulnerabilities organized by source (Dependabot first, then code scanning), and VDR reports that set vulnerabilities against their remediation SLAs. It is built for a podcast demo from existing plugins (identity_core, administrivia, dcom, aws_core, computing_core, github_core, compliance_core, fedramp_20x_ksi, rampart_20x) and holds data only. All inventory and findings here are MOCK DATA, never collected from a live system, and no FedRAMP authorization has been granted. The design draws one authorization boundary, around the git-serious account and everything in it (a compliance_core boundary node); GitHub and the people stand outside it. Every node seeded from the design carries the dcom `design` dimension.",
+            "description": "rampart-20x-playground is a quick-hit prototype that shows how a FedRAMP 20x Vulnerability Detection and Response (VDR) process, and later Key Security Indicators (KSI), can be a query over a graph instead of a spreadsheet. It carries a TAP deployment designed for AWS GovCloud, an inventory of that system in six categories, vulnerabilities organized by source (Dependabot first, then code scanning), and VDR reports that set vulnerabilities against their remediation SLAs. It is built for a podcast demo from existing plugins (identity_core, administrivia, dcom, aws_core, computing_core, github_core, compliance_core, fedramp_20x_ksi, rampart_20x) and holds data only. The inventory is MOCK DATA, never collected from a live system; the findings are a captured snapshot of real scans of TAP itself (its code-scanning and Dependabot alerts and the vulnerabilities in the signed SBOM of a published tap-web image), attached to the mock inventory; and no FedRAMP authorization has been granted. The design draws one authorization boundary, around the git-serious account and everything in it (a compliance_core boundary node); GitHub and the people stand outside it. Every node seeded from the design carries the dcom `design` dimension.",
             "context_json": {
               "project": "rampart-20x-playground",
               "purpose": "Demonstrate FedRAMP 20x VDR, later KSI, on a mocked AWS GovCloud TAP deployment.",
@@ -40,7 +40,7 @@
                 "inventory": "inventory.<category>",
                 "dataclass": "dataclass.<customer|infra>.<class>"
               },
-              "repository": "CriticalSecLLC/rampart-20x-playground-tap"
+              "repository": "unified-systems-com/rampart-20x-playground-tap"
             },
             "context_schema_json": {
               "$schema": "https://json-schema.org/draft/2020-12/schema",

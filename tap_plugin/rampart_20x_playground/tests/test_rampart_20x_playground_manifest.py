@@ -137,14 +137,14 @@ class TestBootRecords:
             commit = entry["source"].get("commit", "")
             assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), entry["slug"]
 
-    def test_demo_names_a_credential_for_every_criticalsec_source(self) -> None:
-        """A git source under CriticalSecLLC is a private repository. The host preflight only counts
-        credentials a record declares, so an undeclared one passes it and then crash-loops the web
-        container on git's `could not read Username`."""
-        for entry in _record("demo")["install"]["plugins"]:
-            source = entry["source"]
-            if source.get("type") == "git" and "/CriticalSecLLC/" in source["url"]:
-                assert source.get("credential"), entry["slug"]
+    def test_no_source_needs_a_credential_and_none_is_under_criticalsecllc(self) -> None:
+        """Every plugin the records install is a public repository under unified-systems-com, so no source declares
+        an install credential (the three formerly private repositories moved and went public on 2026-11-04)."""
+        for name in ("demo", "ci"):
+            for entry in _record(name)["install"]["plugins"]:
+                source = entry["source"]
+                assert "credential" not in source, (name, entry["slug"])
+                assert "/CriticalSecLLC/" not in source.get("url", ""), (name, entry["slug"])
 
     def test_demo_installs_siblings_in_dependency_order(self) -> None:
         """`req-rampart-20x-playground-boot-5`. Each entry is installed on its own, so a sibling distribution
