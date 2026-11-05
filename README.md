@@ -2,7 +2,7 @@
 
 > **Early-release software.** This is a working prototype. Pages change often, some are unfinished, and the specs are still moving. The vulnerabilities are real, the deployment is a mock-up. The code is published publicly to demonstrate capabilities in flight now and gather collaborators working on FedRAMP 20x vulnerability detection and response (VDR). If you're interested in participating please reach out to [george@criticalsec.com](mailto:george@criticalsec.com).
 
-![Responsibility coverage: the share of inventory with a responsible team, per category, over time](docs/images/07-coverage.png)
+![The mock deployment as drawn from the graph: an AWS GovCloud account inside its authorization boundary, with the data flows, and cards for known-exploited vulnerabilities, embedded malicious code and coverage](docs/images/01-overview.png)
 
 ## What this is
 
