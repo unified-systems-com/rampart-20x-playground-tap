@@ -1,6 +1,6 @@
 # Rampart 20x Playground
 
-> **Early-release software.** This is a working prototype. Pages change often, some are unfinished, and the specs are still moving. The deployment you will see is a mock. Nothing here is a FedRAMP authorization, an assessment, or advice about your own system. It is published early so that people working on FedRAMP 20x vulnerability detection and response (VDR) can see one approach and tell us what is wrong with it.
+> **Early-release software.** This is a working prototype. Pages change often, some are unfinished, and the specs are still moving. The vulnerabilities are real, the deployment is a mock-up. The code is published publicly to demonstrate capabilities in flight now and gather collaborators working on FedRAMP 20x vulnerability detection and response (VDR). If you're interested in participating please reach out to [george@criticalsec.com](mailto:george@criticalsec.com).
 
 ![Responsibility coverage: the share of inventory with a responsible team, per category, over time](docs/images/07-coverage.png)
 
