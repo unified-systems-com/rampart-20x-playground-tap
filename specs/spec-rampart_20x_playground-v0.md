@@ -165,7 +165,7 @@ data, and no boot step type writes them, so a fresh stack starts on vuln_mosaic'
 wanted list until the operator sets them; the record cannot declare them. Every plugin is pinned by the **peeled commit SHA** beside its
 tag (`git ls-remote <url> 'refs/tags/<tag>*'`, the `^{}` line). `rampart_20x` has no tag, so it is pinned
 by the SHA of its `main` at the time the record is written, and the record says so in a `note`. This
-plugin's own entry pins its release tag (`v0.1.0`), which the release script cuts after the scaffold merges:
+plugin's own entry pins its release tag (`v0.2.0`, the first release carrying the pages):
 a record cannot carry the commit that introduces it, and the validator exempts a self entry from `commit`
 only when `rev` is its own release tag. Until then a development spawn uses a copy of the record whose self
 entry names a branch. Login uses the local passkey that `spawn-session.sh` replays into the stack

@@ -18,7 +18,20 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 
 ## The pages
 
-![The Overview](docs/images/01-overview.png)
+<table>
+<tr>
+<td align="center" valign="top"><a href="docs/images/01-overview.png"><img src="docs/images/thumbs/01-overview.png" width="260" alt="The Overview page"></a><br><sub><b>Overview</b><br>the mock deployment</sub></td>
+<td align="center" valign="top"><a href="docs/images/02-vulnerabilities.png"><img src="docs/images/thumbs/02-vulnerabilities.png" width="260" alt="The Vulnerabilities page"></a><br><sub><b>Vulnerabilities</b><br>open and closed counts, CVSS and age</sub></td>
+<td align="center" valign="top"><a href="docs/images/04-stackarmor.png"><img src="docs/images/thumbs/04-stackarmor.png" width="260" alt="The StackArmor page"></a><br><sub><b>StackArmor</b><br>PAIN distribution, every finding scored</sub></td>
+</tr>
+<tr>
+<td align="center" valign="top"><a href="docs/images/05-finding-walkthrough.png"><img src="docs/images/thumbs/05-finding-walkthrough.png" width="260" alt="One finding walked through step by step"></a><br><sub><b>Finding walk-through</b><br>one vulnerability, twelve steps</sub></td>
+<td align="center" valign="top"><a href="docs/images/06-reporting.png"><img src="docs/images/thumbs/06-reporting.png" width="260" alt="The status report"></a><br><sub><b>Reporting</b><br>agency part and internal part</sub></td>
+<td align="center" valign="top"><a href="docs/images/07-coverage.png"><img src="docs/images/thumbs/07-coverage.png" width="260" alt="Responsibility coverage over time"></a><br><sub><b>Coverage</b><br>per category, hourly</sub></td>
+</tr>
+</table>
+
+<sub>Click a thumbnail for the full-size screenshot.</sub>
 
 | Page | Contents |
 | --- | --- |
@@ -30,10 +43,6 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 | **Reporting** | A print-ready status report in two parts, an agency part and an internal part below a cut line, with coverage figures, coverage trends and a countdown to 7 December 2026. |
 | **Inventory, Data Classification, Teams** | The mock inventory in nine tables, the kinds of data it holds and which components carry each, and the teams that own things. The coverage charts are drawn here. |
 
-![The StackArmor page](docs/images/04-stackarmor.png)
-
-![One finding, step by step](docs/images/05-finding-walkthrough.png)
-
 
 ## Where the data comes from
 
@@ -42,6 +51,21 @@ The deployment is a mock: accounts, resources, people and laptops are invented, 
 ## Try it
 
 A one-click GitHub Codespaces launch is in preparation and will be linked here. To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
+
+## Run it locally
+
+You need git, Docker (Docker Desktop, or Docker Engine with the Compose v2 plugin) and Python 3 on the host. The instance runs in containers; nothing is installed on the host.
+
+```bash
+mkdir -p ~/tap-sessions
+git clone https://github.com/unified-systems-com/tap ~/tap-sessions/main
+cd ~/tap-sessions/main
+scripts/spawn-session.sh playground --from 'git+https://github.com/unified-systems-com/rampart-20x-playground-tap@v0.2.0#demo'
+```
+
+The script fetches this repository's demo record at the tagged release, checks it against its published digest, pulls the TAP images, installs the plugins the record pins from their public repositories, seeds the data and starts the hourly jobs. The first run takes several minutes. When it finishes it prints the URL and the sign-in details; the instance opens on `/playground`. The hourly jobs fetch the KSI catalogue and public vulnerability data, so the instance needs outbound network access. To remove it: `scripts/despawn-session.sh playground`.
+
+TAP's own [README](https://github.com/unified-systems-com/tap#get-it-running) covers host prerequisites for Linux and what a session is.
 
 ## Under the hood
 
