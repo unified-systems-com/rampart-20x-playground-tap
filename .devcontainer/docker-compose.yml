@@ -1,0 +1,71 @@
+# The stack a GitHub Codespace launched from this repository runs: the PUBLISHED tap-web and tap-db images and nothing
+# else. No tap checkout is mounted; this repository supplies only the boot record. Why each non-obvious line is here is
+# in specs/spec-rampart_20x_playground-codespaces.md (req-rampart-20x-playground-codespaces-*).
+name: rampart-20x-playground
+services:
+  db:
+    image: ghcr.io/unified-systems-com/tap-db:${TAP_IMAGE_TAG:-latest}
+    command:
+      - postgres
+      - -c
+      - max_connections=150
+      - -c
+      - max_locks_per_transaction=512
+      - -c
+      - fsync=off
+      - -c
+      - synchronous_commit=off
+      - -c
+      - full_page_writes=off
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: tap
+      POSTGRES_USER: tap
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?generated into .devcontainer/.env by the devcontainer's initializeCommand}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tap -d tap"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  web:
+    image: ghcr.io/unified-systems-com/tap-web:${TAP_IMAGE_TAG:-latest}
+    ports:
+      - "8000:8000"
+    volumes:
+      # The record this repository ships; the entrypoint selects it by name (TAP_CODESPACE_BOOT_PROFILE).
+      - ../tap_plugin/rampart_20x_playground/boot/codespace.boot.json:/app/boot/codespace.boot.json:ro
+      # Two files the image's entrypoint writes but a non-root container cannot create in the root-owned /app and /run;
+      # initializeCommand creates them world-writable on the Codespace host, gitignored.
+      - ./.codespace-secret-key:/app/.codespace-secret-key
+      - ./tap-codespace.env:/run/tap-codespace.env
+      - venv:/app/.venv
+      - uv_cache:/home/nonroot/.cache/uv
+    tmpfs:
+      - /run/tap-gunicorn:size=4m,mode=1777
+      # Where the boot record is written; /app is root-owned in the published image.
+      - /app/logs:size=64m,uid=65532,gid=65532,mode=0775
+    environment:
+      DATABASE_URL: "postgres://tap:${POSTGRES_PASSWORD}@db:5432/tap"
+      TAP_SEARCH_READONLY_PASSWORD: "${TAP_SEARCH_READONLY_PASSWORD:?generated into .devcontainer/.env by the devcontainer's initializeCommand}"
+      TAP_SERVE_PROFILE: development
+      DEBUG: "false"
+      # A fresh database has nothing to snapshot, and /app is not writable for the snapshot directory.
+      TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE: "false"
+      TAP_GRID_ID: 019c2a9a-cfdb-768e-82c5-7a037556064d
+      TAP_PRODUCT_NAME: RAMPART
+      # The entrypoint derives the forwarded origin, the trusted-proxy header, SECRET_KEY and the owner from these.
+      CODESPACES: "${CODESPACES:-}"
+      CODESPACE_NAME: "${CODESPACE_NAME:-}"
+      GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}"
+      GITHUB_USER: "${GITHUB_USER:-}"
+      GITHUB_API_URL: "${GITHUB_API_URL:-}"
+      TAP_CODESPACE_BOOT_PROFILE: codespace
+      TAP_BOOT_PROFILE: codespace
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:
+  venv:
+  uv_cache:

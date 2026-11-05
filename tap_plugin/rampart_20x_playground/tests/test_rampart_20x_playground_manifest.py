@@ -120,9 +120,9 @@ class TestSurfaces:
 class TestBootRecords:
     """`req-rampart-20x-playground-boot`. The validator checks digests, closure and credential-freedom."""
 
-    def test_both_records_declared(self) -> None:
+    def test_the_records_are_declared(self) -> None:
         names = {entry["name"] for entry in _raw_manifest()["boot"]["records"]}
-        assert names == {"ci", "demo"}
+        assert names == {"ci", "demo", "codespace"}
 
     def test_ci_installs_the_dependency_closure_and_itself(self) -> None:
         installed = [entry["slug"] for entry in _record("ci")["install"]["plugins"]]
