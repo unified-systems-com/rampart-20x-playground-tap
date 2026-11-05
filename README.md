@@ -2,6 +2,8 @@
 
 > **Early-release software.** This is a working prototype. Pages change often, some are unfinished, and the specs are still moving. The deployment you will see is a mock. Nothing here is a FedRAMP authorization, an assessment, or advice about your own system. It is published early so that people working on FedRAMP 20x vulnerability detection and response (VDR) can see one approach and tell us what is wrong with it.
 
+![Responsibility coverage: the share of inventory with a responsible team, per category, over time](docs/images/07-coverage.png)
+
 ## What this is
 
 FedRAMP 20x VDR requires a provider to evaluate every vulnerability on every asset: assign a Potential Agency Impact level (PAIN, N1 to N5) and meet the remediation time that level carries. FedRAMP publishes the levels and the timeframe matrix. It does not publish how to get from one vulnerability on one asset to a level.
@@ -28,13 +30,10 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 | **Reporting** | A print-ready status report in two parts, an agency part and an internal part below a cut line, with coverage figures, coverage trends and a countdown to 7 December 2026. |
 | **Inventory, Data Classification, Teams** | The mock inventory in nine tables, the kinds of data it holds and which components carry each, and the teams that own things. The coverage charts are drawn here. |
 
-![VDR MAX](docs/images/03-vdr-max.png)
+![The StackArmor page](docs/images/04-stackarmor.png)
 
 ![One finding, step by step](docs/images/05-finding-walkthrough.png)
 
-![Reporting](docs/images/06-reporting.png)
-
-![Coverage](docs/images/07-coverage.png)
 
 ## Where the data comes from
 
