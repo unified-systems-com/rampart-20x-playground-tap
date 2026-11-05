@@ -20,7 +20,7 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 
 | Page | Contents |
 | --- | --- |
-| **Overview** | The mock deployment (an AWS GovCloud account hosting the `git-serious` service) drawn from the graph, with cards for open known-exploited vulnerabilities and embedded-malicious-code findings, and a coverage chip. |
+| **Overview** | The mock deployment (an AWS GovCloud account hosting the `git-serious` service, inside its authorization boundary) drawn from the graph, with cards for open known-exploited vulnerabilities, embedded-malicious-code findings and the two coverage figures. The red badge on a component is its count of open findings. |
 | **Vulnerabilities** | Cards, charts and tables of every open vulnerability and affected component. A CVE page gives its score, exploitation signals, and the components and systems here that carry it. |
 | **VDR MAX** | The baseline method. Each open finding gets an evaluation at the worst case (likely exploitable, internet-reachable, highest PAIN); a factor is lowered only by an evaluation backed by evidence. Shows the rules, counts, one finding's evaluation and the remediation clocks computed from FedRAMP's timeframe tables. No evidence is attached in the demo, so expect the clocks to read overdue. |
 | **StackArmor** | The stackArmor method: the vulnerability's CVSS impact combined with what the asset requires for confidentiality, integrity and availability gives a PAIN level. Shows the formula, the whitepaper's five worked examples as data, every finding scored, and how many results rest on an assumption. |
@@ -33,6 +33,8 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 ![One finding, step by step](docs/images/05-finding-walkthrough.png)
 
 ![Reporting](docs/images/06-reporting.png)
+
+![Coverage](docs/images/07-coverage.png)
 
 ## Where the data comes from
 
