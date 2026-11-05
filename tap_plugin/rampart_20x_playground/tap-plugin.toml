@@ -1,6 +1,6 @@
 manifest_version = "0"
 plugin_version = "0.1.0"
-requires_tap = ">=0.2.1"
+requires_tap = ">=0.3.0"
 slug = "rampart_20x_playground"
 name = "TAP Rampart 20x Playground"
 description = "A data-only instance plugin: the keystone, mocked GovCloud inventory and findings, and the pages that show a deployment design, an inventory, vulnerabilities and VDR reports."
