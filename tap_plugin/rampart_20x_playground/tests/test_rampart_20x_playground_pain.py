@@ -276,7 +276,7 @@ class TestBootRecords:
         slugs = [p["slug"] for p in demo["install"]["plugins"]]
         assert slugs.index("fedramp_20x_vdr") < slugs.index("stackarmor_vdr")
         entry = next(p for p in demo["install"]["plugins"] if p["slug"] == "stackarmor_vdr")["source"]
-        assert entry["type"] == "git" and entry["rev"] == "v0.5.0" and entry["credential"] == "criticalsec_rampart"
+        assert entry["type"] == "git" and entry["rev"] == "v0.5.0" and "credential" not in entry
         assert re.fullmatch(r"[0-9a-f]{40}", entry["commit"])
         vdr = next(p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_vdr")["source"]["rev"]
         assert tuple(int(x) for x in vdr[1:].split(".")) >= (0, 1, 2)

@@ -90,7 +90,7 @@
         "enabled": true,
         "source": {
           "type": "git",
-          "url": "https://github.com/CriticalSecLLC/rampart-20x-playground-tap",
+          "url": "https://github.com/unified-systems-com/rampart-20x-playground-tap",
           "rev": "v0.1.0"
         }
       }

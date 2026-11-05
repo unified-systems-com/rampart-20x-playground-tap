@@ -195,7 +195,7 @@ class TestPage:
         assert "stackarmor_vdr" not in [d["slug"] for d in manifest["depends_on"]]
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         entry = next(p for p in demo["install"]["plugins"] if p["slug"] == "stackarmor_vdr")
-        assert entry["source"]["rev"] == "v0.5.0" and entry["source"]["credential"] == "criticalsec_rampart"
+        assert entry["source"]["rev"] == "v0.5.0" and "credential" not in entry["source"]
         assert "stackarmor_vdr" in [s.get("plugin") for s in demo["population"]["steps"]]
         ci = json.loads((PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8"))
         assert "stackarmor_vdr" not in [p["slug"] for p in ci["install"]["plugins"]]
