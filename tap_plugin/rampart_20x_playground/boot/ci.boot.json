@@ -91,7 +91,7 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/rampart-20x-playground-tap",
-          "rev": "v0.1.0"
+          "rev": "v0.2.0"
         }
       }
     ]
