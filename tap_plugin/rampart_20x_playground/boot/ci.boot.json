@@ -69,8 +69,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.13.3",
-          "commit": "41a67b72e8a7fba6f9ea50c7f857e7f55c498da1"
+          "rev": "v0.13.4",
+          "commit": "18ea63aa5f25df0976f6df1b31d52805339c7949"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
