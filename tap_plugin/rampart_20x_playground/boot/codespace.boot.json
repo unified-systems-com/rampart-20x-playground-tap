@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "profile_kind": "deploy",
+  "description": "rampart_20x_playground Codespaces record: the demo record's plugins and population, booted by a GitHub Codespace launched from this repository. profile_kind is deploy, not dev_local: the instance is served on a forwarded hostname and the dev passkey replay does not apply. Sign-in is GitHub device flow admitting only the account that opened the Codespace (owner_only), the auth section tap's own codespace_demo profile uses. Every plugin is pinned as in the demo record, from public repositories; the hourly jobs need outbound network access. The deployment is a mock-up and the vulnerabilities are real.",
+  "auth": {
+    "description": "One provider, device flow, admitting exactly one account. The redirect flow cannot serve this deployment at all — a Codespace's hostname is generated per instance, so a callback URL would need wildcard matching against a GitHub-owned domain shared with every Codespace user (GitHub advises against it) AND a client_secret shipped in a public template, where it is not a secret. Device flow has no callback and needs no secret, so the only credential here is a PUBLIC client_id that may be committed. KNOWN GAP, recorded rather than papered over: this admits the owner but grants them no ROLE. `initial_admins` / `initial_grants` are keyed on a VERIFIED EMAIL, and nothing can know the visitor's address in advance — the Codespace token is repository-scoped, so `/user` may not be readable and the public `/users/<login>` returns an email only when the visitor has published one. Deriving it would therefore fail silently for most people. Observed live 2026-09-21: an admitted account got 403 on `/` with its session cookie and 302 without, i.e. authenticated with no role. The right fix is a grant keyed on the same numeric identity `owner_only` already matches, which is a code change and its own issue — not an email guess wired in here. `allow_admin_lockout` is true for that reason: with no resolvable admin address, the last-admin invariant would otherwise abort the boot of a demo that is working as designed.",
+    "providers": [
+      {
+        "id": "demo-github",
+        "type": "github_oauth",
+        "display_name": "GitHub",
+        "description": "GitHub OAuth App Ov23li7DZ17aqmEpyHSL (org-owned, unified-systems-com, Device Flow enabled). The client_id is PUBLIC by design and carries no secret — see the auth section description. Proven live 2026-09-21: page renders, /start/ reaches GitHub, a granted token establishes a session, and ExternalIdentity is keyed on the NUMERIC subject.",
+        "device_flow": true,
+        "client_id": "Ov23li7DZ17aqmEpyHSL",
+        "owner_only": true,
+        "auto_provision": true,
+        "critical_for_boot": false
+      }
+    ],
+    "local_password_enabled": false,
+    "allow_admin_lockout": true
+  },
+  "install": {
+    "plugins": [
+      {
+        "slug": "identity_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/identity-core-tap",
+          "rev": "v0.1.6",
+          "commit": "11f087954ff5d06792abc4a3994d7eae77bbcb5b"
+        }
+      },
+      {
+        "slug": "administrivia",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/administrivia-tap",
+          "rev": "v0.2.2",
+          "commit": "7656f2912f8355a5129ef299ae5e99d8b61821ba"
+        }
+      },
+      {
+        "slug": "dcom",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/dcom-tap",
+          "rev": "v0.1.0",
+          "commit": "932762f34a2cdbc112f66be18babbb4488ce929b"
+        }
+      },
+      {
+        "slug": "aws_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/aws-core-tap",
+          "rev": "v0.8.0",
+          "commit": "9b3496c38d23aafd29feadbd68b2ea640dce4225"
+        }
+      },
+      {
+        "slug": "computing_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/computing-core-tap",
+          "rev": "v0.10.2",
+          "commit": "cbba1966296c04f2695e0e5af2bb65e3957facca"
+        }
+      },
+      {
+        "slug": "git_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/git-core-tap",
+          "rev": "v0.1.1",
+          "commit": "9e941010f155f1223340ff404d7cbd14cd1db1e0"
+        }
+      },
+      {
+        "slug": "compliance_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/compliance-core-tap",
+          "rev": "v0.8.11",
+          "commit": "54e450e99c9b483aeb5ad3d7f646205b0843dbe2"
+        }
+      },
+      {
+        "slug": "github_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/github-core-tap",
+          "rev": "v0.13.4",
+          "commit": "18ea63aa5f25df0976f6df1b31d52805339c7949"
+        },
+        "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
+      },
+      {
+        "slug": "fedramp_20x_ksi",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
+          "rev": "v0.4.2",
+          "commit": "5069b9d53b002a7f0626fad377f3abea0b193df6"
+        }
+      },
+      {
+        "slug": "fedramp_20x_vdr",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
+          "rev": "v0.1.5",
+          "commit": "ff9685fdee0918d1a77592ab71d2e11ed3776cc3"
+        },
+        "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
+      },
+      {
+        "slug": "stackarmor_vdr",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/stackarmor-vdr-tap",
+          "rev": "v0.5.0",
+          "commit": "80b94913fa8bed70c77ae76f714c7c746e46697d"
+        },
+        "note": "The PAIN method for FedRAMP VDR (the stackArmor method). Installed after fedramp_20x_vdr, whose finding reach its runners import; it seeds the sixteen archetype nodes the pain bundle's stamps point at."
+      },
+      {
+        "slug": "vuln_mosaic",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/vuln-mosaic-tap",
+          "rev": "v0.6.0",
+          "commit": "b0ae7728c41004aa885aac974654a16e8a13fb6a"
+        }
+      },
+      {
+        "slug": "rampart_20x",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/rampart-20x-tap",
+          "rev": "v0.1.0",
+          "commit": "28942f27671d47c7e91790177bb1263a825736ce"
+        },
+        "note": "Pinned by its release tag v0.1.0 (commit 28942f2), the first release of rampart-20x-tap (2026-11-05)."
+      },
+      {
+        "slug": "rampart_20x_playground",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/rampart-20x-playground-tap",
+          "rev": "v0.2.0",
+          "commit": "50a85f94b8bab99bafb518a35d2f174cd8e15bf6"
+        },
+        "note": "Self entry: pinned to its own release v0.2.0 by tag and by commit, like every other plugin. v0.2.0 predates this record, which reaches the Codespace by a mount from the workspace, not from the installed package; a release that carries a newer record moves both fields."
+      }
+    ]
+  },
+  "population": {
+    "on_failure": "continue",
+    "steps": [
+      {
+        "type": "seed-plugin",
+        "plugin": "administrivia",
+        "enabled": true,
+        "note": "TAP admin pages and grid landing."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "dcom",
+        "enabled": true,
+        "note": "The dcom axis, so the `design` dimension node exists for seeded entities to carry."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "aws_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "aws_core's vocabulary dimension nodes only; its pages and region seed arrive when a page mounts them."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "computing_core",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "computing_core's vocabulary dimension nodes only."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_ksi",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "fedramp_20x_ksi's vocabulary dimension nodes only; its KSI seed and pages stay out until a page needs them, and its hourly schedule is the next step."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_ksi",
+        "bundle": "ksi_schedule",
+        "enabled": true,
+        "note": "fedramp_20x_ksi's hourly KSI catalog Schedule (minute 17); the collector's only egress is raw.githubusercontent.com and it needs no credential."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "vuln_mosaic",
+        "enabled": true,
+        "note": "vuln_mosaic's hourly refresh Schedule (minute 41), so the local CVE stores stay current."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_vdr",
+        "enabled": true,
+        "note": "The 53 timeframe rows the PAIN deadline reads."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "stackarmor_vdr",
+        "enabled": true,
+        "note": "Own GRIFT: the sixteen archetypes the program stamps point at."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "enabled": true,
+        "note": "This plugin's own bundles: keystone and dimensions. Last, so every dimension it references already exists."
+      },
+      {
+        "type": "fire-collector",
+        "key": "fedramp_20x_vdr:vdr_max",
+        "enabled": true,
+        "run_mode": "full",
+        "note": "Gives every open vulnerability-linked finding its all-null VDR max evaluation, once, after the playground's findings are seeded, so the VDR max page has evaluations to show."
+      }
+    ]
+  },
+  "web": {
+    "landing_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
+    "landing_slug": "/playground"
+  }
+}

@@ -5,3 +5,8 @@ __pycache__/
 .ruff_cache/
 dist/
 *.egg-info/
+
+# Written by the devcontainer's initializeCommand on a Codespace host (generated secrets and two entrypoint files).
+/.devcontainer/.env
+/.devcontainer/.codespace-secret-key
+/.devcontainer/tap-codespace.env
