@@ -39,6 +39,8 @@ def test_published_images_only() -> None:
     compose = _compose()
     images = re.findall(r"^\s+image:\s*(\S+)", compose, flags=re.M)
     assert images and all(i.startswith("ghcr.io/unified-systems-com/tap-") for i in images)
+    # Immutable: a digest and nothing else (a tag is movable, and tag@digest does not parse in Codespaces).
+    assert all(re.fullmatch(r"ghcr\.io/unified-systems-com/tap-(web|db)@sha256:[0-9a-f]{64}", i) for i in images), images
     assert not re.search(r"^\s+build:", compose, flags=re.M)
     assert not re.search(r"-\s*\.\.?/?:/app\b|:/app\s*$", compose, flags=re.M)  # no checkout mounted over /app
 
@@ -68,7 +70,15 @@ def test_deploy_profile_with_owner_only_device_flow() -> None:
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-4")
 def test_the_same_plugins_as_the_demo_and_no_credential() -> None:
     mine, demo = _record(), _demo()
-    assert mine["install"] == demo["install"]
+    # The self entry is the one place the records differ: the demo record ships inside the release it
+    # installs, so it cannot carry that release's commit; this record is mounted from the workspace and
+    # does carry it (the Codespaces review, High: no mutable tag). Same repo and tag, plus the commit.
+    me = "rampart_20x_playground"
+    mine_self = next(p for p in mine["install"]["plugins"] if p["slug"] == me)
+    demo_self = next(p for p in demo["install"]["plugins"] if p["slug"] == me)
+    assert (mine_self["source"]["url"], mine_self["source"]["rev"]) == (demo_self["source"]["url"], demo_self["source"]["rev"])
+    assert re.fullmatch(r"[0-9a-f]{40}", mine_self["source"]["commit"])
+    assert [p for p in mine["install"]["plugins"] if p["slug"] != me] == [p for p in demo["install"]["plugins"] if p["slug"] != me]
     assert mine["population"]["steps"] == demo["population"]["steps"]
     assert not any("credential" in p["source"] for p in mine["install"]["plugins"])
     assert mine["web"] == demo["web"]

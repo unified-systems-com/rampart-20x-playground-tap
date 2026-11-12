@@ -162,9 +162,10 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/rampart-20x-playground-tap",
-          "rev": "v0.2.0"
+          "rev": "v0.2.0",
+          "commit": "50a85f94b8bab99bafb518a35d2f174cd8e15bf6"
         },
-        "note": "Self entry: pinned to its own release tag v0.2.0. The tag is cut on the commit that carries this record, so a boot from the tag installs the plugin it was booted from (a record cannot carry the commit that introduces it; self is exempt from `commit` only when `rev` is its release tag)."
+        "note": "Self entry: pinned to its own release v0.2.0 by tag and by commit, like every other plugin. v0.2.0 predates this record, which reaches the Codespace by a mount from the workspace, not from the installed package; a release that carries a newer record moves both fields."
       }
     ]
   },
