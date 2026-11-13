@@ -67,6 +67,11 @@ def test_deploy_profile_with_owner_only_device_flow() -> None:
     assert record["auth"]["local_password_enabled"] is False
 
 
+def _without_wait(steps: list[dict]) -> list[dict]:
+    """Steps with the fields that only say how long a fire-collector step waits removed."""
+    return [{k: v for k, v in s.items() if not (s["type"] == "fire-collector" and k in ("timeout_seconds", "note"))} for s in steps]
+
+
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-4")
 def test_the_same_plugins_as_the_demo_and_no_credential() -> None:
     mine, demo = _record(), _demo()
@@ -79,7 +84,8 @@ def test_the_same_plugins_as_the_demo_and_no_credential() -> None:
     assert (mine_self["source"]["url"], mine_self["source"]["rev"]) == (demo_self["source"]["url"], demo_self["source"]["rev"])
     assert re.fullmatch(r"[0-9a-f]{40}", mine_self["source"]["commit"])
     assert [p for p in mine["install"]["plugins"] if p["slug"] != me] == [p for p in demo["install"]["plugins"] if p["slug"] != me]
-    assert mine["population"]["steps"] == demo["population"]["steps"]
+    # The population is the demo's except for how the one fire-collector step waits (see the next test).
+    assert _without_wait(mine["population"]["steps"]) == _without_wait(demo["population"]["steps"])
     assert not any("credential" in p["source"] for p in mine["install"]["plugins"])
     assert mine["web"] == demo["web"]
 
@@ -128,3 +134,14 @@ def test_the_port_is_forwarded_and_stays_private() -> None:
     assert dev["service"] == "web" and dev["overrideCommand"] is False and dev["forwardPorts"] == [8000]
     assert dev["portsAttributes"]["8000"]["onAutoForward"] == "openBrowser"
     assert "visibility" not in json.dumps(dev).lower() and "public" not in json.dumps(dev["portsAttributes"]).lower()
+
+
+@pytest.mark.spec("req-rampart-20x-playground-codespaces-7")
+def test_the_first_boot_does_not_wait_for_a_worker_that_does_not_exist() -> None:
+    """The entrypoint boots before it starts the job workers, so the preflight would wait its full 60 s for nothing and the
+    step itself waits only briefly; the queued job runs once the workers start."""
+    pop = _record()["population"]
+    assert pop["collector_preflight"] is False
+    step = next(s for s in pop["steps"] if s["type"] == "fire-collector")
+    assert step["timeout_seconds"] <= 30
+    assert "collector_preflight" not in _demo()["population"]
