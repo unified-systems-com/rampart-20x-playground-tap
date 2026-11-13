@@ -50,7 +50,11 @@ The deployment is a mock: accounts, resources, people and laptops are invented, 
 
 ## Try it
 
-A one-click GitHub Codespaces launch is in preparation and will be linked here. **Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/unified-systems-com/rampart-20x-playground-tap)
+
+This opens your own private instance of the playground in a GitHub Codespace. When it asks, sign in with the GitHub account that opened it; the playground pages are under `/playground`.
+
+**Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
 
 ```
 gh codespace ssh -c <name> -- bash -lc 'cd /workspace && git pull && docker ps'
