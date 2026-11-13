@@ -247,6 +247,9 @@
   },
   "web": {
     "landing_entity_id": "01a13b2c-82d6-73d2-baa8-17415ac66a72",
-    "landing_slug": "/playground"
+    "landing_slug": "/playground",
+    "branding": {
+      "name": "20x Playground"
+    }
   }
 }
