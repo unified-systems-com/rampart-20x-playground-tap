@@ -50,7 +50,9 @@ The deployment is a mock: accounts, resources, people and laptops are invented, 
 
 ## Try it
 
-A one-click GitHub Codespaces launch is in preparation and will be linked here. To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/unified-systems-com/rampart-20x-playground-tap)
+
+This opens your own private instance of the playground in a GitHub Codespace. When it asks, sign in with the GitHub account that opened it; the playground pages are under `/playground`. To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
 
 ## Run it locally
 
