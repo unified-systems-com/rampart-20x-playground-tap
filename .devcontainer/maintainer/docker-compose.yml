@@ -1,0 +1,26 @@
+# The maintainer overlay: a `devbox` service stacked on ../docker-compose.yml, chosen ONLY by
+# .devcontainer/maintainer/devcontainer.json. A visitor's Codespace uses ../devcontainer.json and never
+# sees this file. Same pattern as tap's maintainer dev box (tap: specs/spec-dev-maintainer-devbox.md,
+# .devcontainer/maintainer/): the published `web` image is Wolfi and cannot take the sshd Feature, so
+# the shell lives in its own Debian service that reaches `web` through the Docker socket.
+#
+# Relative paths resolve against the FIRST compose file's directory (.devcontainer/), not this one.
+services:
+  devbox:
+    # Digest only, the same base image tap's own devbox uses. A tag@digest reference fails to parse in
+    # Codespaces and silently falls back to a recovery container (tap's creation-log finding, 2026-09-22).
+    image: mcr.microsoft.com/devcontainers/base@sha256:3aacff4130e6cf04709f9cab1d7a6d3e1cc4bff6202bc61611831a18d3755673
+    # Required: the devcontainer CLI's overlay supplies an entrypoint, and this is its argument.
+    command: sleep infinity
+    volumes:
+      # This repository, so a maintainer or an agent can edit, commit, push and pull it.
+      - ..:/workspace
+      # Reaches `web` and `db` with `docker exec`. Root-equivalent on the Codespace VM: a Codespace is
+      # single-user, and `web` (the visitor's image) never mounts the socket.
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - web
+    working_dir: /workspace
+    environment:
+      CODESPACES: "${CODESPACES:-}"
+      CODESPACE_NAME: "${CODESPACE_NAME:-}"
