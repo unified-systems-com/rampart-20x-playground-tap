@@ -171,6 +171,7 @@
   },
   "population": {
     "on_failure": "continue",
+    "collector_preflight": false,
     "steps": [
       {
         "type": "seed-plugin",
@@ -241,7 +242,8 @@
         "key": "fedramp_20x_vdr:vdr_max",
         "enabled": true,
         "run_mode": "full",
-        "note": "Gives every open vulnerability-linked finding its all-null VDR max evaluation, once, after the playground's findings are seeded, so the VDR max page has evaluations to show."
+        "note": "Gives every open vulnerability-linked finding its all-null VDR max evaluation, once, after the playground's findings are seeded, so the VDR max page has evaluations to show. The first boot runs before the queue worker exists, so this step cannot finish there and gives up after 20 s (the preflight, which would wait 60 s for the same missing worker, is off); the second boot, run once the worker is up, completes it.",
+        "timeout_seconds": 20
       }
     ]
   },
