@@ -122,10 +122,10 @@ def test_the_writable_paths_the_entrypoint_needs_are_provided() -> None:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-7")
-def test_the_collector_fires_after_the_server_is_up() -> None:
+def test_the_collector_runs_when_the_workers_start_and_nothing_boots_twice() -> None:
     assert _record()["population"]["on_failure"] == "continue"
-    post = _devcontainer()["postStartCommand"]
-    assert "healthz" in post and ". /run/tap-codespace.env" in post and post.rstrip().endswith("manage.py boot")
+    # The first boot queues the job; the workers claim it once they start. No second `manage.py boot`.
+    assert "postStartCommand" not in _devcontainer()
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-8")
