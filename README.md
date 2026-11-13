@@ -4,6 +4,22 @@
 
 ![The mock deployment as drawn from the graph: an AWS GovCloud account inside its authorization boundary, with the data flows, and cards for known-exploited vulnerabilities, embedded malicious code and coverage](docs/images/01-overview.png)
 
+## Try it
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/unified-systems-com/rampart-20x-playground-tap)
+
+This opens your own private instance of the playground in a GitHub Codespace. When it asks, sign in with the GitHub account that opened it; the playground pages are under `/playground`.
+
+**Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
+
+```
+gh codespace ssh -c <name> -- bash -lc 'cd /workspace && git pull && docker ps'
+```
+
+Use `bash -lc` so the command gets the Codespace's GitHub credential for `git push` and `gh`. The repository is at `/workspace`; the app containers are `web` and `db`, reached with `docker exec`.
+
+To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
+
 ## What this is
 
 FedRAMP 20x VDR requires a provider to evaluate every vulnerability on every asset: assign a Potential Agency Impact level (PAIN, N1 to N5) and meet the remediation time that level carries. FedRAMP publishes the levels and the timeframe matrix. It does not publish how to get from one vulnerability on one asset to a level.
@@ -47,22 +63,6 @@ Everything domain-specific in TAP is a plugin, so a method, a collector, a page 
 ## Where the data comes from
 
 The deployment is a mock: accounts, resources, people and laptops are invented, and a keystone node in the graph says so. The vulnerabilities and findings are real, and static. They were generated from the CycloneDX SBOM, with vulnerability data, that TAP's own build produced for a published `tap-web` container image, and from a snapshot of the code-scanning and Dependabot alerts on TAP's repository. They are attached to components of the mock deployment so the methods have something to evaluate. Nothing is collected live from a real system.
-
-## Try it
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/unified-systems-com/rampart-20x-playground-tap)
-
-This opens your own private instance of the playground in a GitHub Codespace. When it asks, sign in with the GitHub account that opened it; the playground pages are under `/playground`.
-
-**Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
-
-```
-gh codespace ssh -c <name> -- bash -lc 'cd /workspace && git pull && docker ps'
-```
-
-Use `bash -lc` so the command gets the Codespace's GitHub credential for `git push` and `gh`. The repository is at `/workspace`; the app containers are `web` and `db`, reached with `docker exec`.
-
-To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
 
 ## Run it locally
 
