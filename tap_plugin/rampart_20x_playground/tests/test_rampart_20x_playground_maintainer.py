@@ -62,10 +62,9 @@ def test_everything_beside_the_socket_is_pinned_by_digest() -> None:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-13")
-def test_the_box_mounts_the_checkout_and_the_socket_and_boots_web_from_inside() -> None:
+def test_the_box_mounts_the_checkout_and_the_socket_and_does_not_boot_web_again() -> None:
     devbox = _service_block((MAINTAINER / "docker-compose.yml").read_text(encoding="utf-8"), "devbox")
     assert "..:/workspace" in devbox and "/var/run/docker.sock:/var/run/docker.sock" in devbox
     assert "sleep infinity" in devbox
-    script = (MAINTAINER / "post-start.sh").read_text(encoding="utf-8")
-    assert "docker exec" in script and "manage.py boot" in script and "/run/tap-codespace.env" in script
-    assert _maintainer()["postStartCommand"].endswith("/.devcontainer/maintainer/post-start.sh")
+    assert "postStartCommand" not in _maintainer()
+    assert not (MAINTAINER / "post-start.sh").exists()

@@ -20,6 +20,5 @@
       "label": "Rampart 20x Playground",
       "onAutoForward": "openBrowser"
     }
-  },
-  "postStartCommand": "until [ \"$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: localhost' http://127.0.0.1:8000/healthz)\" != 000 ]; do sleep 5; done; set -a; . /run/tap-codespace.env; set +a; uv run python manage.py boot"
+  }
 }
