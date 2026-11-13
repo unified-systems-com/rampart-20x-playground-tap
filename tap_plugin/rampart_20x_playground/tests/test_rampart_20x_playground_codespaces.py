@@ -84,6 +84,14 @@ def test_the_same_plugins_as_the_demo_and_no_credential() -> None:
     assert mine["web"] == demo["web"]
 
 
+@pytest.mark.spec("req-rampart-20x-playground-codespaces-4")
+def test_the_instance_is_named_in_the_record_not_in_the_environment() -> None:
+    """The header and page title carry the record's branding name; the compose file no longer sets TAP_PRODUCT_NAME."""
+    assert _record()["web"]["branding"] == {"name": "20x Playground"}
+    assert _demo()["web"]["branding"] == _record()["web"]["branding"]
+    assert "TAP_PRODUCT_NAME" not in _compose()
+
+
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-5")
 def test_no_secret_ships() -> None:
     compose = _compose()

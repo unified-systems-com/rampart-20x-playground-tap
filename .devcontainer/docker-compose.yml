@@ -56,7 +56,6 @@ services:
       # A fresh database has nothing to snapshot, and /app is not writable for the snapshot directory.
       TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE: "false"
       TAP_GRID_ID: 019c2a9a-cfdb-768e-82c5-7a037556064d
-      TAP_PRODUCT_NAME: RAMPART
       # The entrypoint derives the forwarded origin, the trusted-proxy header, SECRET_KEY and the owner from these.
       CODESPACES: "${CODESPACES:-}"
       CODESPACE_NAME: "${CODESPACE_NAME:-}"
