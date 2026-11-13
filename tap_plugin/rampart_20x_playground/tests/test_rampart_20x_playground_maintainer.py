@@ -53,6 +53,8 @@ def test_the_maintainer_configuration_is_separate_and_stacks_the_overlay() -> No
 def test_everything_beside_the_socket_is_pinned_by_digest() -> None:
     cfg = _maintainer()
     assert any(f.startswith("ghcr.io/devcontainers/features/sshd@sha256:") for f in cfg["features"])
+    # node on PATH: the Codespaces agent reaches the unpublished sshd port by running a bare `node` in the box.
+    assert any(f.startswith("ghcr.io/devcontainers/features/node@sha256:") for f in cfg["features"])
     assert all(re.fullmatch(r"[^@:]+/[^@:]+@sha256:[0-9a-f]{64}", f) for f in cfg["features"]), cfg["features"]
     overlay = (MAINTAINER / "docker-compose.yml").read_text(encoding="utf-8")
     images = re.findall(r"^\s+image:\s*(\S+)", overlay, flags=re.M)

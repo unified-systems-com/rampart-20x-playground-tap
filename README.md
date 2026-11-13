@@ -50,7 +50,15 @@ The deployment is a mock: accounts, resources, people and laptops are invented, 
 
 ## Try it
 
-A one-click GitHub Codespaces launch is in preparation and will be linked here. To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
+A one-click GitHub Codespaces launch is in preparation and will be linked here. **Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
+
+```
+gh codespace ssh -c <name> -- bash -lc 'cd /workspace && git pull && docker ps'
+```
+
+Use `bash -lc` so the command gets the Codespace's GitHub credential for `git push` and `gh`. The repository is at `/workspace`; the app containers are `web` and `db`, reached with `docker exec`.
+
+To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
 
 ## Run it locally
 
