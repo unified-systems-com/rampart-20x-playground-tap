@@ -9,9 +9,9 @@
         "id": "demo-github",
         "type": "github_oauth",
         "display_name": "GitHub",
-        "description": "GitHub OAuth App Ov23li7DZ17aqmEpyHSL (org-owned, unified-systems-com, Device Flow enabled). The client_id is PUBLIC by design and carries no secret — see the auth section description. Proven live 2026-09-21: page renders, /start/ reaches GitHub, a granted token establishes a session, and ExternalIdentity is keyed on the NUMERIC subject.",
+        "description": "GitHub OAuth App Ov23ctxWGaTmdJUM6ItQ (\"20x Playground\", owned by the unified-systems-com organization, Device Flow enabled), so the consent screen and the device page name the playground. The client_id is PUBLIC by design and carries no secret — see the auth section description. ExternalIdentity is keyed on the NUMERIC subject. The device-code endpoint answered for this id on 2026-11-13; a sign-in with it in a real Codespace is not yet confirmed.",
         "device_flow": true,
-        "client_id": "Ov23li7DZ17aqmEpyHSL",
+        "client_id": "Ov23ctxWGaTmdJUM6ItQ",
         "owner_only": true,
         "auto_provision": true,
         "critical_for_boot": false
