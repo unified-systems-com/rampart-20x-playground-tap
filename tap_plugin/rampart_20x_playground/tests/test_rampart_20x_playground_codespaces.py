@@ -145,3 +145,11 @@ def test_the_first_boot_does_not_wait_for_a_worker_that_does_not_exist() -> None
     step = next(s for s in pop["steps"] if s["type"] == "fire-collector")
     assert step["timeout_seconds"] <= 30
     assert "collector_preflight" not in _demo()["population"]
+
+
+@pytest.mark.spec("req-rampart-20x-playground-codespaces-3")
+def test_the_login_uses_the_playgrounds_own_oauth_app_not_the_git_serious_demos() -> None:
+    """GitHub names the app on the consent screen and the device page, so the playground must not borrow git-serious-demo's."""
+    provider = _record()["auth"]["providers"][0]
+    assert provider["client_id"] == "Ov23ctxWGaTmdJUM6ItQ"
+    assert provider["client_id"] != "Ov23li7DZ17aqmEpyHSL"  # tap's own git-serious Codespace demo app
