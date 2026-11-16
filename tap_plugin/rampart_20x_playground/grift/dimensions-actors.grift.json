@@ -285,6 +285,106 @@
         }
       ],
       "edges": []
+    },
+    {
+      "batch_entity": {
+        "entity_id": "01a1e5a7-f563-730a-9386-83a6e29cf1c1",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground Layout Hint Dimensions v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.dimensions-actors",
+        "name": "rampart-20x-playground Layout Hint Dimensions v0.1.0",
+        "description": "Six layout hint keys as six dimension nodes: `icon`, `icon_form`, `icon_angle`, `label`, `line` and `place`. The mock inventory and application-flow bundles stamp them and the landing projection reads them. Declared so each key has a node now that the dimension map is keyed by node id (tap#708, tap#711). Declared here, not in core, because no core module reads them yet (George, 2026-11-16); each is meant to become a tap_viz display hint, and a node keeps its id when it moves to another seed. Each node carries `tap.meta: dimension`. A separate batch from the placement dimensions, so a grid that already holds that batch imports this one."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a0f97a6bdf",
+            "entity_type": "dimension",
+            "name": "icon",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "icon",
+            "description": "Layout hint for the Overview board: gives a node an icon of its own. The value is a static icon path in the grid's icon convention, `<app>/icons/<key>.svg`; any other shape is ignored. Read by the playground's landing projection (playground exception 32); meant to become a display hint of the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a1c2da0e00",
+            "entity_type": "dimension",
+            "name": "icon_form",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "icon_form",
+            "description": "Layout hint for the Overview board: how a node's own `icon` is drawn. `solo` draws the icon as a whole card of its own. Read by the playground's landing projection (playground exception 42); meant to become a display hint of the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a218c90752",
+            "entity_type": "dimension",
+            "name": "icon_angle",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "icon_angle",
+            "description": "Layout hint for the Overview board: the way an application flow points, in degrees. 0 is north (up), 90 east, 180 south, 270 west. Read by the playground's landing projection (playground exception 38); meant to become a per-node display hint of the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a3b01db297",
+            "entity_type": "dimension",
+            "name": "label",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "label",
+            "description": "Layout hint for the Overview board: `hidden` hides a node's name. Read by the playground's landing projection (playground exceptions 31 and 45); meant to become a display hint of the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a40feca1cd",
+            "entity_type": "dimension",
+            "name": "line",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "line",
+            "description": "Layout hint for the Overview board: `delivery` puts a person or a computer on the delivery line. Read by the playground's landing projection (playground exception 29); meant to become an align-to-line of a named group in the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        },
+        {
+          "entity": {
+            "entity_id": "01a1e5a7-f563-730a-9386-83a54dae6a60",
+            "entity_type": "dimension",
+            "name": "place",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "place",
+            "description": "Layout hint for the Overview board: gives a VPC a slot of its own; `bottom-center` is the one slot. Read by the playground's landing projection (playground exception 30); meant to become a placement hint of the tap_viz runtime, and this node moves to tap_viz with its id when it does."
+          }
+        }
+      ],
+      "edges": []
     }
   ]
 }
