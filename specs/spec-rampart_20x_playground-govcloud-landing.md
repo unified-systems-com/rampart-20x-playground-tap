@@ -383,6 +383,12 @@ their computer are different things. They carry no access meaning. The row reads
 customer, the product account's machinery, GitHub, the developer, with the administrator beneath the
 organization.
 
+The same file declares, in a batch of its own, the six layout hint keys the bundles stamp and the layout reads:
+`icon`, `icon_form`, `icon_angle`, `label`, `line` and `place` (playground exceptions 29, 30, 31, 32, 38 and 42).
+Each needs a declared Dimension node because the grid refuses a dimension key no seed declares. They are declared
+here and not in core because no core module reads them yet; each is meant to become a tap_viz display hint, and a
+node keeps its id when it moves to another seed, so the move changes no stored row.
+
 The GitHub side of the deploy path is in the data as `github_core` nodes: the platform, an organization account
 and the developer's account, the repository, its workflow and a run, and the container package with a version.
 The run builds the version (`BUILDS_PACKAGE_VERSION`); the repository federates into the product account's
