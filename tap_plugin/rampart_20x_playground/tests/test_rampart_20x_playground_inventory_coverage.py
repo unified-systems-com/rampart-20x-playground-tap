@@ -169,15 +169,17 @@ class TestDependencies:
         manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
         floors = {d["slug"]: d.get("min_version") for d in manifest["depends_on"]}
         assert floors["compliance_core"] == "0.8.11" and floors["fedramp_20x_vdr"] == "0.1.5"
-        pins = {
-            "compliance_core": ("v0.8.11", "54e450e99c9b483aeb5ad3d7f646205b0843dbe2"),
-            "fedramp_20x_vdr": ("v0.1.5", "ff9685fdee0918d1a77592ab71d2e11ed3776cc3"),
-        }
+        # Each record pins a release at or above the floor, by tag and full commit. The two records may differ:
+        # the ci record moves to the releases whose seeds declare the dimension keys core main requires.
+        minimum = {"compliance_core": (0, 8, 11), "fedramp_20x_vdr": (0, 1, 5)}
         for name in ("ci", "demo"):
             record = json.loads((PACKAGE_ROOT / "boot" / f"{name}.boot.json").read_text(encoding="utf-8"))
             for entry in record["install"]["plugins"]:
-                if entry["slug"] in pins:
-                    assert (entry["source"]["rev"], entry["source"]["commit"]) == pins[entry["slug"]], (name, entry["slug"])
+                if entry["slug"] in minimum:
+                    rev = tuple(int(n) for n in entry["source"]["rev"].lstrip("v").split("."))
+                    assert rev >= minimum[entry["slug"]], (name, entry["slug"])
+                    commit = entry["source"]["commit"]
+                    assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), (name, entry["slug"])
 
 
 class TestStampsAndWindow:

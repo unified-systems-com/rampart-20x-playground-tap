@@ -23,7 +23,7 @@
             "entity_type": "aws_core__aws_organization",
             "name": "AWS",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "inventory": "saas",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
@@ -46,7 +46,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "git-serious",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
@@ -85,7 +85,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "org-management",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -107,7 +107,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "security",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -129,7 +129,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "log-archive",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -151,7 +151,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "backup",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -173,7 +173,7 @@
             "entity_type": "aws_core__aws_account",
             "name": "remote-access",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -195,10 +195,10 @@
             "entity_type": "aws_core__aws_route53_zone",
             "name": "git-serious.example.invalid",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "label": "hidden",
@@ -218,10 +218,10 @@
             "entity_type": "aws_core__aws_acm_certificate",
             "name": "tls certificate",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "secrets",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
               "dataclass.action": "store"
@@ -239,10 +239,10 @@
             "entity_type": "aws_core__aws_vpc",
             "name": "Production",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -260,10 +260,10 @@
             "entity_type": "aws_core__aws_internet_gateway",
             "name": "IGW",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "icon": "rampart_20x_playground/icons/internet-gateway-card.svg",
@@ -283,10 +283,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "public-a",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -309,10 +309,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "public-b",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -335,10 +335,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "private-a",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -361,10 +361,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "private-b",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -387,10 +387,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "database-a",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -413,10 +413,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "database-b",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -439,10 +439,10 @@
             "entity_type": "aws_core__aws_alb",
             "name": "ALB",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
@@ -463,10 +463,10 @@
             "entity_type": "aws_core__aws_ecs_cluster",
             "name": "cluster",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
               "dataclass.action": "process"
@@ -483,10 +483,10 @@
             "entity_type": "aws_core__aws_ecs_service",
             "name": "web",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
               "dataclass.action": "process"
@@ -507,10 +507,10 @@
             "entity_type": "aws_core__aws_ecs_task",
             "name": "web task a",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -528,10 +528,10 @@
             "entity_type": "aws_core__aws_ecs_task",
             "name": "web task b",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -549,10 +549,10 @@
             "entity_type": "aws_core__aws_rds_instance",
             "name": "RDS A",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "dataclass.action": "store",
@@ -574,10 +574,10 @@
             "entity_type": "aws_core__aws_secrets_manager_secret",
             "name": "runtime secrets",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
               "dataclass.action": "store"
@@ -594,10 +594,10 @@
             "entity_type": "aws_core__aws_kms_key",
             "name": "DB Encryption Key",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
               "dataclass.action": "process"
@@ -614,10 +614,10 @@
             "entity_type": "aws_core__aws_ecr_repository",
             "name": "images",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
               "dataclass.action": "store"
@@ -634,10 +634,10 @@
             "entity_type": "aws_core__aws_iam_oidc_provider",
             "name": "github actions oidc provider",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
               "dataclass.action": "none"
@@ -994,10 +994,10 @@
             "entity_type": "aws_core__aws_lambda",
             "name": "terraform source puller",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "label": "hidden",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
@@ -1017,10 +1017,10 @@
             "entity_type": "aws_core__aws_secrets_manager_secret",
             "name": "github app token",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
           },
@@ -1035,10 +1035,10 @@
             "entity_type": "aws_core__aws_s3_bucket",
             "name": "terraform bundle",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "dataclass.action": "store",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
@@ -1055,10 +1055,10 @@
             "entity_type": "aws_core__aws_s3_bucket",
             "name": "terraform state",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "dataclass.action": "store",
@@ -1079,10 +1079,10 @@
             "entity_type": "aws_core__aws_codepipeline_pipeline",
             "name": "terraform pipeline",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954",
@@ -1112,10 +1112,10 @@
             "entity_type": "aws_core__aws_codebuild_project",
             "name": "terraform plan",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
@@ -1136,10 +1136,10 @@
             "entity_type": "aws_core__aws_codebuild_project",
             "name": "terraform apply",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "team.responsible": "01a15c19-6922-734d-9272-20196bb8a954"
             }
@@ -1160,10 +1160,10 @@
             "entity_type": "aws_core__aws_vpc",
             "name": "Admin Access",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "place": "bottom-center",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
@@ -1182,10 +1182,10 @@
             "entity_type": "aws_core__aws_subnet",
             "name": "public",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
             }
@@ -1208,10 +1208,10 @@
             "entity_type": "aws_core__aws_ec2_instance",
             "name": "teleport",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "label": "hidden",

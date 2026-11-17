@@ -9,8 +9,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/identity-core-tap",
-          "rev": "v0.1.6",
-          "commit": "11f087954ff5d06792abc4a3994d7eae77bbcb5b"
+          "rev": "v0.1.7",
+          "commit": "853ac4eeb7efebdd85e4baa2bfbde850c842d477"
         }
       },
       {
@@ -29,8 +29,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/aws-core-tap",
-          "rev": "v0.8.0",
-          "commit": "9b3496c38d23aafd29feadbd68b2ea640dce4225"
+          "rev": "v0.8.1",
+          "commit": "af9d2a54c8f94440eb602c3658034e722dfda838"
         }
       },
       {
@@ -39,8 +39,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/computing-core-tap",
-          "rev": "v0.10.2",
-          "commit": "cbba1966296c04f2695e0e5af2bb65e3957facca"
+          "rev": "v0.10.8",
+          "commit": "f244539e7626cb8996238b32a53f0010eafe09d0"
         }
       },
       {
@@ -49,8 +49,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/git-core-tap",
-          "rev": "v0.1.1",
-          "commit": "9e941010f155f1223340ff404d7cbd14cd1db1e0"
+          "rev": "v0.1.2",
+          "commit": "141b268de216402a643cbe1141642e697dd98bec"
         }
       },
       {
@@ -59,8 +59,18 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.8.11",
-          "commit": "54e450e99c9b483aeb5ad3d7f646205b0843dbe2"
+          "rev": "v0.8.12",
+          "commit": "93083982d2c5b165a43ef0458e6ca22bf9c71ac0"
+        }
+      },
+      {
+        "slug": "sigstore_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/sigstore-core-tap",
+          "rev": "v0.5.1",
+          "commit": "b368fa2d4b53a7b4bc8247d9598beb059d31287e"
         }
       },
       {
@@ -69,8 +79,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.13.4",
-          "commit": "18ea63aa5f25df0976f6df1b31d52805339c7949"
+          "rev": "v0.14.1",
+          "commit": "f4ac200fcc2a2b4d51ed3900dd22184598f05937"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
@@ -80,8 +90,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
-          "rev": "v0.1.5",
-          "commit": "ff9685fdee0918d1a77592ab71d2e11ed3776cc3"
+          "rev": "v0.1.6",
+          "commit": "6472dfd784d19da28f749534fcb20bbf4ab47960"
         },
         "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },

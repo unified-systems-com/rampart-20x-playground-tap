@@ -766,9 +766,9 @@ class TestTeleportVpc:
         production = self._named("aws_core__aws_vpc", "Production")
         for node in (vpc, subnet, instance):
             dims = node["entity"]["dimensions"]
-            assert dims["dcom"] == "design" and dims["overview"] == "shown" and dims["tap.cloud"] == "aws"
-            assert dims["aws_account"] == production["entity"]["dimensions"]["aws_account"] == "100000000001"
-            assert dims["aws_region"] == production["entity"]["dimensions"]["aws_region"]
+            assert dims["dcom"] == "design" and dims["overview"] == "shown" and dims["tap.computing.cloud"] == "aws"
+            assert dims["aws.account"] == production["entity"]["dimensions"]["aws.account"] == "100000000001"
+            assert dims["aws.region"] == production["entity"]["dimensions"]["aws.region"]
         assert vpc["entity"]["dimensions"]["place"] == "bottom-center" and "place" not in production["entity"]["dimensions"]
         assert subnet["node"]["tags"] == {"tier": "public", "layout:order": "0"}
         assert instance["entity"]["dimensions"]["inventory"] == "cloud"

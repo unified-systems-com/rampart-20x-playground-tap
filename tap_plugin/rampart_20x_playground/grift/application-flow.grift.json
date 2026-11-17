@@ -23,10 +23,10 @@
             "entity_type": "aws_core__aws_ecs_container",
             "name": "tap-web",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "overview": "shown",
               "dataclass.action": "process",
@@ -48,10 +48,10 @@
             "entity_type": "aws_core__aws_ecs_container",
             "name": "web task b container",
             "dimensions": {
-              "tap.cloud": "aws",
+              "tap.computing.cloud": "aws",
               "dcom": "design",
-              "aws_account": "100000000001",
-              "aws_region": "us-gov-west-1",
+              "aws.account": "100000000001",
+              "aws.region": "us-gov-west-1",
               "inventory": "cloud",
               "dataclass.action": "process",
               "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
