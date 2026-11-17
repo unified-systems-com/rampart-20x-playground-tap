@@ -10,7 +10,7 @@
 
 This opens your own private instance of the playground in a GitHub Codespace. What you see first is a code editor, not the playground. To get to the playground:
 
-1. Wait for the editor to finish loading. Its terminal says the playground is starting. A new Codespace takes about eight minutes.
+1. Wait for the editor to finish loading. It opens on a short page with these same steps, and its terminal says the playground is starting. A new Codespace takes about eight minutes.
 2. When the terminal prints "The 20x Playground is ready:" with a link, open that link. You can also open the editor's Ports panel and click the globe beside "Rampart 20x Playground".
 3. Sign in with the GitHub account that opened the Codespace. The playground pages are under `/playground`.
 

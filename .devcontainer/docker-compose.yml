@@ -42,6 +42,10 @@ services:
       # initializeCommand creates them world-writable on the Codespace host, gitignored.
       - ./.codespace-secret-key:/app/.codespace-secret-key
       - ./tap-codespace.env:/run/tap-codespace.env
+      # What a visitor's editor opens on (a page that says where the site is) and the script its terminal runs to print
+      # the site's address; both read-only. The editor does not open on /app, which is tap's own code in the image.
+      - ./welcome:/welcome:ro
+      - ./site-ready.sh:/opt/playground/site-ready.sh:ro
       - venv:/app/.venv
       - uv_cache:/home/nonroot/.cache/uv
     tmpfs:

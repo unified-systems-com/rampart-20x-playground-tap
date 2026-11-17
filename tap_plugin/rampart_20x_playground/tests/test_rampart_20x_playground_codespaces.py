@@ -157,14 +157,23 @@ def test_the_login_uses_the_playgrounds_own_oauth_app_not_the_git_serious_demos(
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-14")
 def test_the_visitor_is_told_where_the_site_is() -> None:
-    """The editor opens first and is not the playground, so its terminal prints the site's address and the README says so."""
-    command = _devcontainer()["postAttachCommand"]
-    assert "http://127.0.0.1:8000/" in command  # waits for the site itself, inside the container
-    assert "https://$CODESPACE_NAME-8000.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN" in command
-    assert "manage.py" not in command  # a message, not a second boot (req-rampart-20x-playground-codespaces-7)
+    """The editor opens first and is not the playground, so it opens on a page that says so and its terminal prints the address."""
+    dev, compose = _devcontainer(), _compose()
+    # The editor opens on a folder holding one page, not on /app (tap's own code and README in the image).
+    assert dev["workspaceFolder"] == "/welcome" and "./welcome:/welcome:ro" in compose
+    assert dev["customizations"]["vscode"]["settings"]["workbench.startupEditor"] == "readme"
+    assert [p.name for p in (DEVCONTAINER / "welcome").iterdir()] == ["README.md"]
+    welcome = (DEVCONTAINER / "welcome" / "README.md").read_text(encoding="utf-8")
+    assert "not the playground" in welcome and "The 20x Playground is ready:" in welcome and "Ports" in welcome
+    # The terminal runs a mounted script (a short command line, since the terminal echoes it) that waits and prints the link.
+    assert dev["postAttachCommand"] == "sh /opt/playground/site-ready.sh"
+    assert "./site-ready.sh:/opt/playground/site-ready.sh:ro" in compose
+    script = (DEVCONTAINER / "site-ready.sh").read_text(encoding="utf-8")
+    assert "http://127.0.0.1:8000/" in script  # waits for the site itself, inside the container
+    assert "The 20x Playground is ready: https://$CODESPACE_NAME-8000.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN" in script
+    assert "manage.py" not in script  # a message, not a second boot (req-rampart-20x-playground-codespaces-7)
     maintainer = json.loads((DEVCONTAINER / "maintainer" / "devcontainer.json").read_text(encoding="utf-8"))
-    assert "postAttachCommand" not in maintainer  # its editor attaches to devbox, where port 8000 is not local
+    assert "postAttachCommand" not in maintainer and maintainer["workspaceFolder"] == "/workspace"
     readme = (REPO / "README.md").read_text(encoding="utf-8")
     try_it = readme.split("## Try it", 1)[1].split("\n## ", 1)[0]
     assert "not the playground" in try_it and "The 20x Playground is ready:" in try_it and "Ports panel" in try_it
-    assert "The 20x Playground is ready:" in command
