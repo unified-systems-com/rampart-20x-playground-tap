@@ -64,6 +64,16 @@
         }
       },
       {
+        "slug": "sigstore_core",
+        "enabled": true,
+        "source": {
+          "type": "git",
+          "url": "https://github.com/unified-systems-com/sigstore-core-tap",
+          "rev": "v0.5.1",
+          "commit": "b368fa2d4b53a7b4bc8247d9598beb059d31287e"
+        }
+      },
+      {
         "slug": "github_core",
         "enabled": true,
         "source": {
