@@ -4,7 +4,7 @@
     "docker-compose.yml"
   ],
   "service": "web",
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/welcome",
   "overrideCommand": false,
   "shutdownAction": "stopCompose",
   "hostRequirements": {
@@ -12,9 +12,17 @@
     "memory": "16gb"
   },
   "initializeCommand": "cd .devcontainer && touch .codespace-secret-key tap-codespace.env && chmod 666 .codespace-secret-key tap-codespace.env && { [ -s .env ] || printf 'POSTGRES_PASSWORD=%s\\nTAP_SEARCH_READONLY_PASSWORD=%s\\n' \"$(openssl rand -hex 24)\" \"$(openssl rand -hex 24)\" > .env; }",
+  "postAttachCommand": "sh /opt/playground/site-ready.sh",
   "forwardPorts": [
     8000
   ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.startupEditor": "readme"
+      }
+    }
+  },
   "portsAttributes": {
     "8000": {
       "label": "Rampart 20x Playground",

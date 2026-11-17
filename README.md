@@ -8,7 +8,11 @@
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/unified-systems-com/rampart-20x-playground-tap)
 
-This opens your own private instance of the playground in a GitHub Codespace. When it asks, sign in with the GitHub account that opened it; the playground pages are under `/playground`.
+This opens your own private instance of the playground in a GitHub Codespace. What you see first is a code editor, not the playground. To get to the playground:
+
+1. Wait for the editor to finish loading. It opens on a short page with these same steps, and its terminal says the playground is starting. A new Codespace takes about eight minutes.
+2. When the terminal prints "The 20x Playground is ready:" with a link, open that link. You can also open the editor's Ports panel and click the globe beside "Rampart 20x Playground".
+3. Sign in with the GitHub account that opened the Codespace. The playground pages are under `/playground`.
 
 **Connect your own agent or shell.** Choose the maintainer configuration when you create the Codespace (Code, Codespaces, New with options, then the configuration named "Rampart 20x Playground - maintainer"). It adds a Debian dev box beside the app with ssh, git, the GitHub CLI and Docker access to the running instance. Then, from your machine:
 
