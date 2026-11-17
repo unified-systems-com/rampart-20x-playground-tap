@@ -109,3 +109,5 @@ def test_floor_and_pins_name_the_release_with_the_report_panel() -> None:
         # At or above the floor: the ci record moves to later releases (the ones whose seeds declare the
         # dimension keys core main requires) while the demo record stays where it is.
         assert tuple(int(n) for n in entry["source"]["rev"].lstrip("v").split(".")) >= (0, 8, 11), name
+        commit = entry["source"]["commit"]
+        assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), name

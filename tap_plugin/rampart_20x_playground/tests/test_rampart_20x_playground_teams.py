@@ -235,7 +235,8 @@ class TestManifest:
             entry = next(p for p in record["install"]["plugins"] if p["slug"] == "identity_core")
             # At or above the floor, by tag and full commit; the ci record may be ahead of the demo record.
             assert tuple(int(n) for n in entry["source"]["rev"].lstrip("v").split(".")) >= (0, 1, 6), name
-            assert len(entry["source"]["commit"]) == 40, name
+            commit = entry["source"]["commit"]
+            assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), name
 
 
 class TestTeamsPage:

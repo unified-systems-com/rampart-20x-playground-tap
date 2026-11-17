@@ -178,7 +178,8 @@ class TestDependencies:
                 if entry["slug"] in minimum:
                     rev = tuple(int(n) for n in entry["source"]["rev"].lstrip("v").split("."))
                     assert rev >= minimum[entry["slug"]], (name, entry["slug"])
-                    assert len(entry["source"]["commit"]) == 40, (name, entry["slug"])
+                    commit = entry["source"]["commit"]
+                    assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), (name, entry["slug"])
 
 
 class TestStampsAndWindow:
