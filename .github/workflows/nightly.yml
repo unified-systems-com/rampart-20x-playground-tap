@@ -27,4 +27,7 @@ jobs:
       issues: write
     with:
       plugin_slug: rampart_20x_playground
+      # aws_core v0.8.1 takes longer to boot than the shared workflow's 25-minute default allows
+      # (unified-systems-com/rampart-20x-playground-tap#117). Lower this again once aws_core boots faster.
+      boot_and_test_timeout_minutes: 60
       assignee: notgeorge   # no CODEOWNERS in this repo — the org's maintainer login

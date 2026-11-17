@@ -29,3 +29,6 @@ jobs:
     uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@1d033ea42bc7766c42008a5acb82bf6f1a5ac166
     with:
       plugin_slug: rampart_20x_playground
+      # aws_core v0.8.1 takes longer to boot than the shared workflow's 25-minute default allows
+      # (unified-systems-com/rampart-20x-playground-tap#117). Lower this again once aws_core boots faster.
+      boot_and_test_timeout_minutes: 60
