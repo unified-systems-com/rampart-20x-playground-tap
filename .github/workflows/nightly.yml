@@ -30,6 +30,8 @@ jobs:
       # aws_core takes longer to boot than the shared workflow's 25-minute default allows
       # (unified-systems-com/rampart-20x-playground-tap#117). Harness dfade0de (tap 8505ba9e onward) makes the
       # boot's readiness waits follow this input; the older pin waited a fixed ~15 min regardless. Lower this again
-      # once aws_core boots faster.
-      boot_and_test_timeout_minutes: 60
+      # once aws_core boots faster. Measured on this PR's first run on dfade0de (run of 2026-11-19): the stack took
+      # 54.5 min to become healthy and the 60-min job was cancelled 3 min into the tests, so 90. The boot cost is
+      # aws_core's migration re-render (aws-build Q97); lower this when that lands.
+      boot_and_test_timeout_minutes: 90
       assignee: notgeorge   # no CODEOWNERS in this repo — the org's maintainer login
