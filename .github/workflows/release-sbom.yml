@@ -24,6 +24,6 @@ jobs:
       contents: read
       id-token: write
       attestations: write
-    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@1d033ea42bc7766c42008a5acb82bf6f1a5ac166
+    uses: unified-systems-com/tap/.github/workflows/plugin-release-sbom.yml@dfade0de97ff98b240c622effdd4ae7b5aae3965
     with:
       plugin_slug: rampart_20x_playground

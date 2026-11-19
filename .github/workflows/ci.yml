@@ -26,9 +26,13 @@ jobs:
       contents: read
       security-events: write
     # Pinned to a tap main commit (the same one the release-sbom caller uses).
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@1d033ea42bc7766c42008a5acb82bf6f1a5ac166
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@dfade0de97ff98b240c622effdd4ae7b5aae3965
     with:
       plugin_slug: rampart_20x_playground
-      # aws_core v0.8.1 takes longer to boot than the shared workflow's 25-minute default allows
-      # (unified-systems-com/rampart-20x-playground-tap#117). Lower this again once aws_core boots faster.
-      boot_and_test_timeout_minutes: 60
+      # aws_core takes longer to boot than the shared workflow's 25-minute default allows
+      # (unified-systems-com/rampart-20x-playground-tap#117). Harness dfade0de (tap 8505ba9e onward) makes the
+      # boot's readiness waits follow this input; the older pin waited a fixed ~15 min regardless. Lower this again
+      # once aws_core boots faster. Measured on this PR's first run on dfade0de (run of 2026-11-19): the stack took
+      # 54.5 min to become healthy and the 60-min job was cancelled 3 min into the tests, so 90. The boot cost is
+      # aws_core's migration re-render (aws-build Q97); lower this when that lands.
+      boot_and_test_timeout_minutes: 90

@@ -126,10 +126,11 @@ class TestBootRecords:
 
     def test_ci_installs_the_dependency_closure_and_itself(self) -> None:
         """sigstore_core is not a vocabulary dependency of this plugin: github_core v0.14.1 requires it at install,
-        so it sits ahead of github_core."""
+        so it sits ahead of github_core. computing_core sits ahead of aws_core: aws_core v0.8.2 depends on it, and
+        pre-boot installs in list order (#123, unified-systems-com/tap#1240)."""
         installed = [entry["slug"] for entry in _record("ci")["install"]["plugins"]]
         assert installed == [
-            "identity_core", "dcom", "aws_core", "computing_core", "git_core", "compliance_core",
+            "identity_core", "dcom", "computing_core", "aws_core", "git_core", "compliance_core",
             "sigstore_core", "github_core", "fedramp_20x_vdr", SLUG,
         ]  # fmt: skip
 
