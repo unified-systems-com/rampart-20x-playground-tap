@@ -26,7 +26,7 @@ jobs:
       contents: read
       security-events: write
     # Pinned to a tap main commit (the same one the release-sbom caller uses).
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@dfade0de97ff98b240c622effdd4ae7b5aae3965
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@c3b64dffca512afa852f588560f774e2b357b655
     with:
       plugin_slug: rampart_20x_playground
       # aws_core takes longer to boot than the shared workflow's 25-minute default allows
