@@ -19,8 +19,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/dcom-tap",
-          "rev": "v0.1.0",
-          "commit": "932762f34a2cdbc112f66be18babbb4488ce929b"
+          "rev": "v0.1.1",
+          "commit": "991d938e8a3de23d42c4a4780478fda10ce24b05"
         }
       },
       {
@@ -128,6 +128,13 @@
         "bundle": "dimension",
         "enabled": true,
         "note": "computing_core's vocabulary dimension nodes only."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "rampart_20x_playground",
+        "bundle": "dimension",
+        "enabled": true,
+        "note": "The dimension vocabulary, first: the bundles after it stamp `team.responsible`. Core 0.4 and later imports it on its own before any step; this step is what seeds it on an older core."
       },
       {
         "type": "seed-plugin",

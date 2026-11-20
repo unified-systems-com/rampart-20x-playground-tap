@@ -21,6 +21,8 @@ depends_on = [
 status = "compatible"
 
 [grift]
+# The dimension vocabulary: core 0.4 and later imports this bundle before any other, on every boot.
+dimension = "grift/dimension.grift.json"
 keystone = "grift/keystone.grift.json"
 dimensions = "grift/dimensions.grift.json"
 security_alerts = "grift/security-alerts.grift.json"
@@ -66,14 +68,14 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "2c2ffe29894cdcd68d5b544d1e3eb8539826e325d598e492b7ea929e6d744a7d"
+sha256 = "68562f7e9627d770c0a6b376006171d1ef56dd2ae02388219963bc35d8324203"
 
 [[boot.records]]
 name = "codespace"
 description = "The record a GitHub Codespace launched from this repository boots: the demo record's plugins and population with GitHub device-flow sign-in for the account that opened it (profile_kind deploy)."
-sha256 = "4ac93e2ef73e14b423febbb796cd6556c14c17585354c23c003358f27b61f004"
+sha256 = "9d197bd62e34f6823b9b3d90f779fb0273063dc49e6a5508b36a1afa417cfb90"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "aca9973dd661c018e91450bcc996683af591ce10f8b9068c58309e6a995a76ce"
+sha256 = "da2a1f9107963b4b3b670b89f5a508969a6bfeabb1f341bfc4a542f99ded17d2"
