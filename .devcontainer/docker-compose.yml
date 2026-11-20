@@ -4,9 +4,9 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.3.3, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # tap v0.4.1, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
     # bare tag is mutable). Refresh both digests together with `docker buildx imagetools inspect`.
-    image: ghcr.io/unified-systems-com/tap-db@sha256:94bc2638a4ea613b69bb3a2b548a0a99370163f167433b3684b8cb05595f8c50
+    image: ghcr.io/unified-systems-com/tap-db@sha256:037c0abf4943479517aeefb1205b21aa8645bc05a8b43e935b10bbc85d67a97f
     command:
       - postgres
       - -c
@@ -31,8 +31,8 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # tap v0.3.3 (see the db service above for why a digest).
-    image: ghcr.io/unified-systems-com/tap-web@sha256:78663907c39413671690b316aaf23092a705c1b7611092ead6bea959d2247839
+    # tap v0.4.1 (see the db service above for why a digest).
+    image: ghcr.io/unified-systems-com/tap-web@sha256:4743bcf2ead26ae163fb5e02a5fec21ec18abafe9e6ff23368ff6cc37a6fc6d4
     ports:
       - "8000:8000"
     volumes:

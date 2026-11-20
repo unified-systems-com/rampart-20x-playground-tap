@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "grift_version": "0"
+  },
+  "_reserved": {},
+  "batches": [
+    {
+      "batch_entity": {
+        "entity_id": "01a1fa89-1cef-7d59-8889-2a76b7010cb9",
+        "entity_type": "batch",
+        "name": "rampart-20x-playground dimension vocabulary v0.1.0",
+        "dimensions": {}
+      },
+      "batch_node": {
+        "source": "tap_plugin.rampart_20x_playground.grift.dimension",
+        "name": "rampart-20x-playground dimension vocabulary v0.1.0",
+        "description": "The dimension names this plugin's bundles stamp before the bundle that documents them is seeded. A grid that only accepts declared dimensions imports this vocabulary bundle ahead of every other bundle, so `team.responsible` exists when the security alerts, the inventory and the application flow carry it. Dimension nodes only, no edges. The node keeps the id it had in the teams bundle, where the teams that answer for it are seeded."
+      },
+      "nodes": [
+        {
+          "entity": {
+            "entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
+            "entity_type": "dimension",
+            "name": "team.responsible",
+            "dimensions": {
+              "tap.meta": "dimension"
+            }
+          },
+          "node": {
+            "name": "team.responsible",
+            "description": "The team answerable for an entity. The value is the entity id of an identity_core team, so the values are not nodes: a team is added or removed with no change to this dictionary. An entity carries one value or none; none means not yet assigned."
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}

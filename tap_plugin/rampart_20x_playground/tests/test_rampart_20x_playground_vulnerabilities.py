@@ -584,8 +584,8 @@ class TestVulnerabilityPages:
         assert "vuln_mosaic" not in (PACKAGE_ROOT / "boot" / "ci.boot.json").read_text(encoding="utf-8").replace("-", "_")
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         (entry,) = [p for p in demo["install"]["plugins"] if p["slug"] == "vuln_mosaic"]
-        assert entry["source"]["rev"] == "v0.6.0"
-        assert entry["source"]["commit"] == "b0ae7728c41004aa885aac974654a16e8a13fb6a"
+        assert entry["source"]["rev"] == "v0.7.1"
+        assert entry["source"]["commit"] == "4a8c2376e29c74d29ae2c03a97b2badfe04e29c1"
         steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"] if "plugin" in s]
         assert ("vuln_mosaic", None) in steps
         assert steps.index(("vuln_mosaic", None)) < steps.index(("rampart_20x_playground", None))
@@ -594,7 +594,7 @@ class TestVulnerabilityPages:
         """`req-rampart-20x-playground-boot-7`: fedramp_20x_ksi v0.4.2 with its schedule bundle seeded; the description no longer claims that no collector runs."""
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         (ksi,) = [p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_ksi"]
-        assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.2", "5069b9d53b002a7f0626fad377f3abea0b193df6")
+        assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.3", "3cd9070c8d9b530dbb23852996cba31e1e51d782")
         steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"] if "plugin" in s]
         assert steps.index(("fedramp_20x_ksi", "ksi_schedule")) < steps.index(("rampart_20x_playground", None))
         assert "No collector runs" not in demo["description"]

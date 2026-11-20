@@ -90,6 +90,7 @@ class TestSurfaces:
             "grift/coverage-panel.grift.json",
             "grift/coverage-seed.grift.json",
             "grift/data-classification-page.grift.json",
+            "grift/dimension.grift.json",
             "grift/dimensions-actors.grift.json",
             "grift/dimensions.grift.json",
             "grift/inventory-coverage.grift.json",

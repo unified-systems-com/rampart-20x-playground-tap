@@ -117,7 +117,7 @@ class TestTeamsBundle:
 
     def test_each_team_answers_for_the_team_responsible_dimension_node(self) -> None:
         """`teams-9`: one ANSWERS_FOR_DIMENSION edge per team, each to the `team.responsible` dimension node."""
-        key_id = next(n["entity"]["entity_id"] for n in self.nodes if n["entity"]["name"] == KEY)
+        key_id = next(n["entity"]["entity_id"] for n in _all_nodes() if n["entity"]["name"] == KEY)
         team_ids = {n["entity"]["entity_id"]: h for h, n in self.teams.items()}
         answers = self._edges(ANSWERS)
         assert sorted(team_ids[e["from_entity_id"]] for e in answers) == sorted(HANDLES)
@@ -160,7 +160,9 @@ class TestTeamsBundle:
         """`teams-5`."""
         dims = [n for n in _all_nodes() if n["entity"]["entity_type"] == "dimension"]
         assert [n["entity"]["name"] for n in dims if n["entity"]["name"].startswith("team.")] == [KEY]
-        node = next(n for n in self.nodes if n["entity"]["name"] == KEY)
+        # The node lives in the dimension vocabulary bundle, which a grid imports before the bundles that stamp the key.
+        node = next(n for n in _all_nodes() if n["entity"]["name"] == KEY)
+        assert KEY not in {n["entity"]["name"] for n in self.nodes}
         assert node["entity"]["entity_type"] == "dimension" and node["node"]["description"]
         assert "dcom" not in node["entity"]["dimensions"]
 
