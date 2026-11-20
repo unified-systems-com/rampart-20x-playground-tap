@@ -66,14 +66,14 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "2c2ffe29894cdcd68d5b544d1e3eb8539826e325d598e492b7ea929e6d744a7d"
+sha256 = "2732a12dcc2feb0986757e134aa5074d907c35c1f06d5d86a7ef078e528bd83a"
 
 [[boot.records]]
 name = "codespace"
 description = "The record a GitHub Codespace launched from this repository boots: the demo record's plugins and population with GitHub device-flow sign-in for the account that opened it (profile_kind deploy)."
-sha256 = "4ac93e2ef73e14b423febbb796cd6556c14c17585354c23c003358f27b61f004"
+sha256 = "87f5d67ea27d6309e17d16d06b15fa03b52759f24c43b980d90a64c5056af588"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "aca9973dd661c018e91450bcc996683af591ce10f8b9068c58309e6a995a76ce"
+sha256 = "c1bf1539909543f2f794e24a85fe3e42857689f52f1264dd43e5c9171286c404"
