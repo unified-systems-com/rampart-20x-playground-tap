@@ -1,5 +1,5 @@
 manifest_version = "0"
-plugin_version = "0.2.0"
+plugin_version = "0.3.0"
 requires_tap = ">=0.3.1"
 slug = "rampart_20x_playground"
 name = "TAP Rampart 20x Playground"
@@ -68,7 +68,7 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "68562f7e9627d770c0a6b376006171d1ef56dd2ae02388219963bc35d8324203"
+sha256 = "7a1065bf506dcd8ba0eb834faf1d30d1df7de679556fcab122bf5bf939224016"
 
 [[boot.records]]
 name = "codespace"
@@ -78,4 +78,4 @@ sha256 = "9d197bd62e34f6823b9b3d90f779fb0273063dc49e6a5508b36a1afa417cfb90"
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "da2a1f9107963b4b3b670b89f5a508969a6bfeabb1f341bfc4a542f99ded17d2"
+sha256 = "a742be694d0516eb1d8155ed531b25be8a8ada5f3f007817bb772a34e39460d5"
