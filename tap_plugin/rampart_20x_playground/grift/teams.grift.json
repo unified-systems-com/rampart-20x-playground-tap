@@ -79,20 +79,6 @@
         },
         {
           "entity": {
-            "entity_id": "01a15c19-6922-734d-9272-201c92d93ecd",
-            "entity_type": "dimension",
-            "name": "team.responsible",
-            "dimensions": {
-              "tap.meta": "dimension"
-            }
-          },
-          "node": {
-            "name": "team.responsible",
-            "description": "The team answerable for an entity. The value is the entity id of an identity_core team, so the values are not nodes: a team is added or removed with no change to this dictionary. An entity carries one value or none; none means not yet assigned."
-          }
-        },
-        {
-          "entity": {
             "entity_id": "01a15c19-6922-734d-9272-201d289ab696",
             "entity_type": "identity_core__human",
             "name": "git-serious Team Lead",
