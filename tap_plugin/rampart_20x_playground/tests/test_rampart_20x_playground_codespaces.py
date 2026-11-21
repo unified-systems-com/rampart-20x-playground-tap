@@ -117,6 +117,8 @@ def test_the_writable_paths_the_entrypoint_needs_are_provided() -> None:
     assert "./tap-codespace.env:/run/tap-codespace.env" in compose and "tap-codespace.env" in init
     assert re.search(r"/app/logs:[^\n]*uid=65532", compose)
     assert re.search(r"TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE:\s*\"false\"", compose)
+    # A new Codespace builds its empty database from the models instead of replaying every migration.
+    assert re.search(r"TAP_BOOT_INSTALL__SCHEMA_FROM_MODELS:\s*\"true\"", compose)
     for var in ("CODESPACES", "CODESPACE_NAME", "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN", "GITHUB_USER", "GITHUB_API_URL"):
         assert f"{var}:" in compose
 

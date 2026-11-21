@@ -4,9 +4,9 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.1, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # tap v0.4.2, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
     # bare tag is mutable). Refresh both digests together with `docker buildx imagetools inspect`.
-    image: ghcr.io/unified-systems-com/tap-db@sha256:037c0abf4943479517aeefb1205b21aa8645bc05a8b43e935b10bbc85d67a97f
+    image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
       - postgres
       - -c
@@ -31,8 +31,8 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # tap v0.4.1 (see the db service above for why a digest).
-    image: ghcr.io/unified-systems-com/tap-web@sha256:4743bcf2ead26ae163fb5e02a5fec21ec18abafe9e6ff23368ff6cc37a6fc6d4
+    # tap v0.4.2 (see the db service above for why a digest).
+    image: ghcr.io/unified-systems-com/tap-web@sha256:7ae89ba66d97021e3889c1531db87ce73912f1d4994b4c7dc958dd6ce21fb607
     ports:
       - "8000:8000"
     volumes:
@@ -59,6 +59,10 @@ services:
       DEBUG: "false"
       # A fresh database has nothing to snapshot, and /app is not writable for the snapshot directory.
       TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE: "false"
+      # A new Codespace always starts on an empty database, so its tables are built from the models and every
+      # migration is recorded as applied, in place of replaying each one (tap 0.4.2, req-boot-schema-from-models).
+      # A database that already has a schema (a restarted Codespace) is migrated normally by the same command.
+      TAP_BOOT_INSTALL__SCHEMA_FROM_MODELS: "true"
       TAP_GRID_ID: 019c2a9a-cfdb-768e-82c5-7a037556064d
       # The entrypoint derives the forwarded origin, the trusted-proxy header, SECRET_KEY and the owner from these.
       CODESPACES: "${CODESPACES:-}"
