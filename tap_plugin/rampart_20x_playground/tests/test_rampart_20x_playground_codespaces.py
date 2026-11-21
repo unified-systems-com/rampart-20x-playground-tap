@@ -139,14 +139,13 @@ def test_the_port_is_forwarded_and_stays_private() -> None:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-7")
-def test_the_first_boot_does_not_wait_for_a_worker_that_does_not_exist() -> None:
-    """The entrypoint boots before it starts the job workers, so the preflight would wait its full 60 s for nothing and the
-    step itself waits only briefly; the queued job runs once the workers start."""
+def test_the_collector_step_is_the_demo_records_and_runs_in_the_first_boot() -> None:
+    """tap starts the job workers before the Codespace boot, so the step needs no shortened wait and the preflight stays on."""
     pop = _record()["population"]
-    assert pop["collector_preflight"] is False
+    assert "collector_preflight" not in pop and "collector_preflight" not in _demo()["population"]
     step = next(s for s in pop["steps"] if s["type"] == "fire-collector")
-    assert step["timeout_seconds"] <= 30
-    assert "collector_preflight" not in _demo()["population"]
+    assert "timeout_seconds" not in step
+    assert pop["on_failure"] == "continue"
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-3")
