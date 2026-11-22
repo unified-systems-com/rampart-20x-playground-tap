@@ -4,7 +4,7 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.2, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # tap v0.4.5, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
     # bare tag is mutable). Refresh both digests together with `docker buildx imagetools inspect`.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
@@ -31,8 +31,8 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # tap v0.4.2 (see the db service above for why a digest).
-    image: ghcr.io/unified-systems-com/tap-web@sha256:7ae89ba66d97021e3889c1531db87ce73912f1d4994b4c7dc958dd6ce21fb607
+    # tap v0.4.5 (see the db service above for why a digest).
+    image: ghcr.io/unified-systems-com/tap-web@sha256:da3c1c0a432617e3f0d6c70e8a1fbc5bb03b53e838c6e7c56f18b6995925a48e
     ports:
       - "8000:8000"
     volumes:
@@ -42,10 +42,15 @@ services:
       # initializeCommand creates them world-writable on the Codespace host, gitignored.
       - ./.codespace-secret-key:/app/.codespace-secret-key
       - ./tap-codespace.env:/run/tap-codespace.env
+      # The Codespace's name, forwarding domain and user, written by postStartCommand on every start
+      # (codespace-identity.sh) and read by the entrypoint at TAP_CODESPACE_IDENTITY. initializeCommand creates it
+      # empty; gitignored.
+      - ./codespace-identity.env:/run/tap-codespace-identity.env
       # What a visitor's editor opens on (a page that says where the site is) and the script its terminal runs to print
       # the site's address; both read-only. The editor does not open on /app, which is tap's own code in the image.
       - ./welcome:/welcome:ro
       - ./site-ready.sh:/opt/playground/site-ready.sh:ro
+      - ./codespace-identity.sh:/opt/playground/codespace-identity.sh:ro
       - venv:/app/.venv
       - uv_cache:/home/nonroot/.cache/uv
     tmpfs:
@@ -70,6 +75,10 @@ services:
       GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}"
       GITHUB_USER: "${GITHUB_USER:-}"
       GITHUB_API_URL: "${GITHUB_API_URL:-}"
+      # A prebuilt Codespace's `web` was created with no name and is only restarted on resume, so the entrypoint
+      # waits up to TAP_CODESPACE_NAME_WAIT (180 s) for postStartCommand to write the name here, and takes the three
+      # values from this file over the environment above (tap v0.4.5, req-tap-serving-codespace-9).
+      TAP_CODESPACE_IDENTITY: /run/tap-codespace-identity.env
       TAP_CODESPACE_BOOT_PROFILE: codespace
       TAP_BOOT_PROFILE: codespace
     depends_on:

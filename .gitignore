@@ -6,7 +6,8 @@ __pycache__/
 dist/
 *.egg-info/
 
-# Written by the devcontainer's initializeCommand on a Codespace host (generated secrets and two entrypoint files).
+# Written by the devcontainer's initializeCommand on a Codespace host (generated secrets, two entrypoint files and the Codespace identity).
 /.devcontainer/.env
 /.devcontainer/.codespace-secret-key
 /.devcontainer/tap-codespace.env
+/.devcontainer/codespace-identity.env
