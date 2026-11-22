@@ -7,6 +7,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess  # nosec B404
 import tomllib
 from pathlib import Path
 
@@ -32,6 +33,9 @@ def _devcontainer() -> dict:
 
 def _compose() -> str:
     return (DEVCONTAINER / "docker-compose.yml").read_text(encoding="utf-8")
+
+
+VISITOR_IDENTITY = "sh /opt/playground/codespace-identity.sh /run/tap-codespace-identity.env"
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-1")
@@ -106,7 +110,7 @@ def test_no_secret_ships() -> None:
     init = _devcontainer()["initializeCommand"]
     assert "openssl rand" in init and ".env" in init
     ignore = (REPO / ".gitignore").read_text(encoding="utf-8")
-    for name in (".env", ".codespace-secret-key", "tap-codespace.env"):
+    for name in (".env", ".codespace-secret-key", "tap-codespace.env", "codespace-identity.env"):
         assert f"/.devcontainer/{name}" in ignore
 
 
@@ -126,8 +130,10 @@ def test_the_writable_paths_the_entrypoint_needs_are_provided() -> None:
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-7")
 def test_the_collector_runs_when_the_workers_start_and_nothing_boots_twice() -> None:
     assert _record()["population"]["on_failure"] == "continue"
-    # The first boot queues the job; the workers claim it once they start. No second `manage.py boot`.
-    assert "postStartCommand" not in _devcontainer()
+    # The first boot queues the job; the workers claim it once they start. No second `manage.py boot`: the one
+    # postStartCommand writes the identity file and nothing else (req-rampart-20x-playground-codespaces-15).
+    assert _devcontainer()["postStartCommand"] == VISITOR_IDENTITY
+    assert "manage.py" not in (DEVCONTAINER / "codespace-identity.sh").read_text(encoding="utf-8")
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-8")
@@ -178,3 +184,37 @@ def test_the_visitor_is_told_where_the_site_is() -> None:
     readme = (REPO / "README.md").read_text(encoding="utf-8")
     try_it = readme.split("## Try it", 1)[1].split("\n## ", 1)[0]
     assert "not the playground" in try_it and "The 20x Playground is ready:" in try_it and "Ports panel" in try_it
+
+
+def _write_identity(tmp_path: Path, shared: str) -> tuple[subprocess.CompletedProcess[str], Path]:
+    """Run codespace-identity.sh against a stand-in for Codespaces' shared env file."""
+    src = tmp_path / "shared.env"
+    src.write_text(shared, encoding="utf-8")
+    script = tmp_path / "codespace-identity.sh"
+    body = (DEVCONTAINER / "codespace-identity.sh").read_text(encoding="utf-8")
+    assert body.count("/workspaces/.codespaces/shared/.env") == 1
+    script.write_text(body.replace("/workspaces/.codespaces/shared/.env", str(src)), encoding="utf-8")
+    dst = tmp_path / "identity.env"
+    dst.write_text("", encoding="utf-8")
+    run = subprocess.run(["sh", str(script), str(dst)], capture_output=True, text=True, timeout=30, check=False)  # noqa: S603, S607
+    return run, dst
+
+
+@pytest.mark.spec("req-rampart-20x-playground-codespaces-15")
+def test_a_prebuilt_codespace_is_named_at_start(tmp_path: Path) -> None:
+    compose, dev = _compose(), _devcontainer()
+    assert "./codespace-identity.env:/run/tap-codespace-identity.env" in compose
+    assert "TAP_CODESPACE_IDENTITY: /run/tap-codespace-identity.env" in compose
+    assert "./codespace-identity.sh:/opt/playground/codespace-identity.sh:ro" in compose
+    assert dev["postStartCommand"] == VISITOR_IDENTITY and "codespace-identity.env" in dev["initializeCommand"]
+    # The shared file is never mounted: it carries the Codespace's tokens.
+    assert ".codespaces" not in compose
+    run, dst = _write_identity(
+        tmp_path,
+        'GITHUB_TOKEN=ghu_secret\nCODESPACE_NAME="cs-abc"\nGITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=app.github.dev\n'
+        "GITHUB_USER=octocat\nGITHUB_CODESPACE_TOKEN=cs_secret\n",
+    )
+    assert run.returncode == 0, run.stderr
+    assert dst.read_text(encoding="utf-8") == (
+        "CODESPACE_NAME=cs-abc\nGITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=app.github.dev\nGITHUB_USER=octocat\n"
+    )

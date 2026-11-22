@@ -66,5 +66,8 @@ def test_the_box_mounts_the_checkout_and_the_socket_and_does_not_boot_web_again(
     devbox = _service_block((MAINTAINER / "docker-compose.yml").read_text(encoding="utf-8"), "devbox")
     assert "..:/workspace" in devbox and "/var/run/docker.sock:/var/run/docker.sock" in devbox
     assert "sleep infinity" in devbox
-    assert "postStartCommand" not in _maintainer()
+    # Its one postStartCommand writes the identity file `web` reads (req-rampart-20x-playground-codespaces-15).
+    assert _maintainer()["postStartCommand"] == (
+        "sh /workspace/.devcontainer/codespace-identity.sh /workspace/.devcontainer/codespace-identity.env"
+    )
     assert not (MAINTAINER / "post-start.sh").exists()
