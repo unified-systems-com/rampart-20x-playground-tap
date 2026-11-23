@@ -22,6 +22,15 @@ gh codespace ssh -c <name> -- bash -lc 'cd /workspace && git pull && docker ps'
 
 Use `bash -lc` so the command gets the Codespace's GitHub credential for `git push` and `gh`. The repository is at `/workspace`; the app containers are `web` and `db`, reached with `docker exec`.
 
+**Run it on your own machine.** You need Docker, or rootless Podman, on an amd64 or arm64 machine, and no checkout. Download [`deploy/compose.yml`](deploy/compose.yml) and run:
+
+```
+docker compose -f compose.yml up -d            # or: podman compose -f compose.yml up -d
+docker compose -f compose.yml logs -f web      # wait for the admin enrolment link
+```
+
+The first start takes about two minutes once the images are downloaded. It prints one admin enrolment link; open it to register a passkey, then sign in at http://localhost:8000. The link is printed once and expires in an hour. `docker compose -f compose.yml down` stops it and keeps the data; add `-v` to delete it.
+
 To learn more or to talk about applying this to your own VDR work, write to [george@criticalsec.com](mailto:george@criticalsec.com).
 
 ## What this is
