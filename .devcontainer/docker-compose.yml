@@ -1,11 +1,12 @@
-# The stack a GitHub Codespace launched from this repository runs: the PUBLISHED tap-web and tap-db images and nothing
-# else. No tap checkout is mounted; this repository supplies only the boot record. Why each non-obvious line is here is
+# The stack a GitHub Codespace launched from this repository runs: the PUBLISHED images and nothing else. No tap
+# checkout is mounted. `web` is the playground's product image, tap-web with this repository's `codespace` record and
+# every plugin it installs already built in (publish-image.yml), so a start installs nothing. Why each non-obvious line is here is
 # in specs/spec-rampart_20x_playground-codespaces.md (req-rampart-20x-playground-codespaces-*).
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.5, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
-    # bare tag is mutable). Refresh both digests together with `docker buildx imagetools inspect`.
+    # tap v0.4.6, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # bare tag is mutable). It moves with the tap release `web` is built on.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
       - postgres
@@ -31,13 +32,13 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # tap v0.4.5 (see the db service above for why a digest).
-    image: ghcr.io/unified-systems-com/tap-web@sha256:da3c1c0a432617e3f0d6c70e8a1fbc5bb03b53e838c6e7c56f18b6995925a48e
+    # The product image publish-image.yml built from main at 59f1d44 on tap v0.4.6, by digest (see the db service
+    # above). A change to the codespace record publishes a new image; move this digest to it in the next change
+    # (`docker buildx imagetools inspect ghcr.io/unified-systems-com/rampart-20x-playground-web:sha-<commit>`).
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:4a913c677dfe27d24f6a578da876d14b956d142f941639536e2ba256d7fe3534
     ports:
       - "8000:8000"
     volumes:
-      # The record this repository ships; the entrypoint selects it by name (TAP_CODESPACE_BOOT_PROFILE).
-      - ../tap_plugin/rampart_20x_playground/boot/codespace.boot.json:/app/boot/codespace.boot.json:ro
       # Two files the image's entrypoint writes but a non-root container cannot create in the root-owned /app and /run;
       # initializeCommand creates them world-writable on the Codespace host, gitignored.
       - ./.codespace-secret-key:/app/.codespace-secret-key
@@ -51,12 +52,11 @@ services:
       - ./welcome:/welcome:ro
       - ./site-ready.sh:/opt/playground/site-ready.sh:ro
       - ./codespace-identity.sh:/opt/playground/codespace-identity.sh:ro
-      - venv:/app/.venv
-      - uv_cache:/home/nonroot/.cache/uv
     tmpfs:
       - /run/tap-gunicorn:size=4m,mode=1777
-      # Where the boot record is written; /app is root-owned in the published image.
-      - /app/logs:size=64m,uid=65532,gid=65532,mode=0775
+      # Where the boot record is written; /app is root-owned in the published image. World-writable rather than owned
+      # by uid, which rootless Podman refuses.
+      - /app/logs:size=64m,mode=1777
     environment:
       DATABASE_URL: "postgres://tap:${POSTGRES_PASSWORD}@db:5432/tap"
       TAP_SEARCH_READONLY_PASSWORD: "${TAP_SEARCH_READONLY_PASSWORD:?generated into .devcontainer/.env by the devcontainer's initializeCommand}"
@@ -86,5 +86,3 @@ services:
         condition: service_healthy
 volumes:
   postgres_data:
-  venv:
-  uv_cache:

@@ -1,0 +1,59 @@
+# The playground on your own machine, from the published images alone: no checkout, no build and no secret. Download
+# this one file and run, with Docker or rootless Podman:
+#
+#     docker compose -f compose.yml up -d        # or: podman compose -f compose.yml up -d
+#
+# then open the one-time admin enrolment link the web container prints (`docker compose -f compose.yml logs web`) to
+# register a passkey. The site is at http://localhost:8000 (PORT=... changes it). Why each line is here is in
+# specs/spec-rampart_20x_playground-codespaces.md (req-rampart-20x-playground-codespaces-17).
+#
+# The database password below is a bootstrap value: on the first start tap's initializer mints this installation's
+# own secret key, database passwords and grid id into the `installation` volume and re-keys the database away from it.
+name: rampart-20x-playground
+services:
+  db:
+    # tap v0.4.6, by digest; it moves with the tap release `web` is built on.
+    image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
+    command: [postgres, -c, max_connections=150, -c, max_locks_per_transaction=512]
+    environment:
+      POSTGRES_DB: tap
+      POSTGRES_USER: tap
+      POSTGRES_PASSWORD: bootstrap-replaced-at-first-start
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tap -d tap"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  web:
+    # The playground's product image, the same digest as .devcontainer/docker-compose.yml.
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:4a913c677dfe27d24f6a578da876d14b956d142f941639536e2ba256d7fe3534
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Loopback only: rootless Podman would otherwise publish on every interface.
+      - "127.0.0.1:${PORT:-8000}:8000"
+    volumes:
+      # This installation's identity; it must outlive the container.
+      - installation:/var/lib/tap/installation
+    tmpfs:
+      - /run/tap-gunicorn:size=4m,mode=1777
+      # World-writable rather than owned by uid, which rootless Podman refuses.
+      - /app/logs:size=64m,mode=1777
+    environment:
+      DATABASE_URL: postgres://tap:bootstrap-replaced-at-first-start@db:5432/tap
+      TAP_INSTALLATION_DIR: /var/lib/tap/installation
+      TAP_BASE_URL: http://localhost:${PORT:-8000}
+      TAP_PASSKEY_ORIGIN: http://localhost:${PORT:-8000}
+      CSRF_TRUSTED_ORIGINS: http://localhost:${PORT:-8000}
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      TAP_SERVE_PROFILE: development
+      DEBUG: "false"
+      TAP_BOOT_PROFILE: codespace
+      TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE: "false"
+      TAP_BOOT_INSTALL__SCHEMA_FROM_MODELS: "true"
+volumes:
+  db: {}
+  installation: {}
