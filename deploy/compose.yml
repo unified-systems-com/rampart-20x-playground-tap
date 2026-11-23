@@ -12,7 +12,7 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.6, by digest; it moves with the tap release `web` is built on.
+    # tap v0.4.8, by digest; it moves with the tap release `web` is built on.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command: [postgres, -c, max_connections=150, -c, max_locks_per_transaction=512]
     environment:
@@ -28,7 +28,7 @@ services:
       retries: 30
   web:
     # The playground's product image, the same digest as .devcontainer/docker-compose.yml.
-    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:4a913c677dfe27d24f6a578da876d14b956d142f941639536e2ba256d7fe3534
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:b96318200054a25002ac36986e55e8fb0bd83268d883b0cce4d9be17795073a0
     depends_on:
       db:
         condition: service_healthy

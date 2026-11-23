@@ -5,7 +5,7 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.6, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # tap v0.4.8, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
     # bare tag is mutable). It moves with the tap release `web` is built on.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
@@ -34,10 +34,10 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # The product image publish-image.yml built from main at 59f1d44 on tap v0.4.6, by digest (see the db service
+    # The product image publish-image.yml built from main at 307acea on tap v0.4.8, by digest (see the db service
     # above). A change to the codespace record publishes a new image; move this digest to it in the next change
     # (`docker buildx imagetools inspect ghcr.io/unified-systems-com/rampart-20x-playground-web:sha-<commit>`).
-    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:4a913c677dfe27d24f6a578da876d14b956d142f941639536e2ba256d7fe3534
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:b96318200054a25002ac36986e55e8fb0bd83268d883b0cce4d9be17795073a0
     ports:
       - "8000:8000"
     volumes:
