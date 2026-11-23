@@ -30,8 +30,8 @@ jobs:
     # The called workflow refuses any ref but the default branch; this says so here as well, so a
     # dispatch from another branch skips before anything is granted.
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-    # tap v0.4.6
-    uses: unified-systems-com/tap/.github/workflows/bake-product-image.yml@be3c01532f46af5678548abd0449e7875774898d
+    # tap v0.4.8
+    uses: unified-systems-com/tap/.github/workflows/bake-product-image.yml@34fbda8a1a533dd62866142be69a20cde269967c
     # REQUIRED on this job: a called workflow's jobs get no more than the caller grants.
     # `packages: write` pushes the image; `id-token` and `attestations` sign its provenance.
     permissions:
@@ -42,6 +42,6 @@ jobs:
     with:
       record: tap_plugin/rampart_20x_playground/boot/codespace.boot.json
       profile: codespace
-      # tap v0.4.6, by digest
-      tap-web: ghcr.io/unified-systems-com/tap-web@sha256:ee3306019981fb3cac6e3c54e9acf3ef751a68081708e819f3e16879be1ac9c1
+      # tap v0.4.8, by digest
+      tap-web: ghcr.io/unified-systems-com/tap-web@sha256:46222a3db1035220df2e5a9a8feb094be3412f7523fe817aaadfb3e3447c5504
       image: ghcr.io/unified-systems-com/rampart-20x-playground-web
