@@ -1,0 +1,44 @@
+# Publish the playground's product image (spec-rampart_20x_playground-codespaces.md,
+# req-rampart-20x-playground-codespaces-16): tap-web with the `codespace` record's whole environment
+# baked in, so a Codespace or a local compose run installs nothing at start.
+#
+# A THIN CALLER. Building, verifying the base, pushing per architecture, tagging and attesting all
+# live in core's reusable `bake-product-image.yml` (tap req-tap-bake-product-image,
+# req-tap-bake-attest); this file names the record, the profile, the base and the package.
+#
+# It runs on a push to the default branch that changes the record or this file, and by hand. Never
+# on a pull request: the called workflow refuses anything but the default branch, because a PR's
+# record would otherwise be baked and published with write tokens.
+#
+# Moving to a newer tap: change the `uses:` commit and `tap-web` digest together, to the same
+# release (`docker buildx imagetools inspect ghcr.io/unified-systems-com/tap-web:<version>`).
+name: publish-image
+on:
+  push:
+    branches: [main]
+    paths:
+      - tap_plugin/rampart_20x_playground/boot/codespace.boot.json
+      - .github/workflows/publish-image.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: publish-image
+  cancel-in-progress: false
+jobs:
+  product-image:
+    # tap v0.4.6
+    uses: unified-systems-com/tap/.github/workflows/bake-product-image.yml@be3c01532f46af5678548abd0449e7875774898d
+    # REQUIRED on this job: a called workflow's jobs get no more than the caller grants.
+    # `packages: write` pushes the image; `id-token` and `attestations` sign its provenance.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    with:
+      record: tap_plugin/rampart_20x_playground/boot/codespace.boot.json
+      profile: codespace
+      # tap v0.4.6, by digest
+      tap-web: ghcr.io/unified-systems-com/tap-web@sha256:ee3306019981fb3cac6e3c54e9acf3ef751a68081708e819f3e16879be1ac9c1
+      image: ghcr.io/unified-systems-com/rampart-20x-playground-web
