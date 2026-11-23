@@ -5,7 +5,7 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.6, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
+    # tap v0.4.8, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
     # bare tag is mutable). It moves with the tap release `web` is built on.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
@@ -25,24 +25,28 @@ services:
     environment:
       POSTGRES_DB: tap
       POSTGRES_USER: tap
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?generated into .devcontainer/.env by the devcontainer's initializeCommand}"
+      # A bootstrap value, the same in every Codespace and in a prebuild: on the Codespace's first start
+      # tap's initializer re-keys the role to a password minted into the installation volume.
+      POSTGRES_PASSWORD: bootstrap-replaced-at-first-start
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tap -d tap"]
       interval: 5s
       timeout: 5s
       retries: 5
   web:
-    # The product image publish-image.yml built from main at 59f1d44 on tap v0.4.6, by digest (see the db service
+    # The product image publish-image.yml built from main at 307acea on tap v0.4.8, by digest (see the db service
     # above). A change to the codespace record publishes a new image; move this digest to it in the next change
     # (`docker buildx imagetools inspect ghcr.io/unified-systems-com/rampart-20x-playground-web:sha-<commit>`).
-    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:4a913c677dfe27d24f6a578da876d14b956d142f941639536e2ba256d7fe3534
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:b96318200054a25002ac36986e55e8fb0bd83268d883b0cce4d9be17795073a0
     ports:
       - "8000:8000"
     volumes:
-      # Two files the image's entrypoint writes but a non-root container cannot create in the root-owned /app and /run;
-      # initializeCommand creates them world-writable on the Codespace host, gitignored.
-      - ./.codespace-secret-key:/app/.codespace-secret-key
+      # The file the image's entrypoint writes the derived origin and owner to; a non-root container cannot create it
+      # in the root-owned /run, so initializeCommand creates it world-writable on the Codespace host, gitignored.
       - ./tap-codespace.env:/run/tap-codespace.env
+      # This Codespace's identity, minted by tap's initializer at its first start: the secret key, the database
+      # passwords and the grid id. A prebuild never gets that far (the entrypoint waits for a Codespace name first).
+      - installation:/var/lib/tap/installation
       # The Codespace's name, forwarding domain and user, written by postStartCommand on every start
       # (codespace-identity.sh) and read by the entrypoint at TAP_CODESPACE_IDENTITY. initializeCommand creates it
       # empty; gitignored.
@@ -58,8 +62,8 @@ services:
       # by uid, which rootless Podman refuses.
       - /app/logs:size=64m,mode=1777
     environment:
-      DATABASE_URL: "postgres://tap:${POSTGRES_PASSWORD}@db:5432/tap"
-      TAP_SEARCH_READONLY_PASSWORD: "${TAP_SEARCH_READONLY_PASSWORD:?generated into .devcontainer/.env by the devcontainer's initializeCommand}"
+      DATABASE_URL: postgres://tap:bootstrap-replaced-at-first-start@db:5432/tap
+      TAP_INSTALLATION_DIR: /var/lib/tap/installation
       TAP_SERVE_PROFILE: development
       DEBUG: "false"
       # A fresh database has nothing to snapshot, and /app is not writable for the snapshot directory.
@@ -68,8 +72,8 @@ services:
       # migration is recorded as applied, in place of replaying each one (tap 0.4.2, req-boot-schema-from-models).
       # A database that already has a schema (a restarted Codespace) is migrated normally by the same command.
       TAP_BOOT_INSTALL__SCHEMA_FROM_MODELS: "true"
-      TAP_GRID_ID: 019c2a9a-cfdb-768e-82c5-7a037556064d
-      # The entrypoint derives the forwarded origin, the trusted-proxy header, SECRET_KEY and the owner from these.
+      # The entrypoint derives the forwarded origin, the trusted-proxy header and the owner from these; the secret key
+      # is the initializer's.
       CODESPACES: "${CODESPACES:-}"
       CODESPACE_NAME: "${CODESPACE_NAME:-}"
       GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}"
@@ -86,3 +90,4 @@ services:
         condition: service_healthy
 volumes:
   postgres_data:
+  installation:
