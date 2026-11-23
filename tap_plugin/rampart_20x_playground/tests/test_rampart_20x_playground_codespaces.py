@@ -124,22 +124,31 @@ def test_the_instance_is_named_in_the_record_not_in_the_environment() -> None:
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-5")
-def test_no_secret_ships() -> None:
+def test_no_secret_ships_or_is_made_before_the_codespace_starts() -> None:
+    """A prebuild runs initializeCommand, so anything it generated would be shared by every Codespace made from it."""
     compose = _compose()
     assert not re.search(r"PASSWORD:\s*[\"']?(tap|password|changeme|dev)[\"']?\s*$", compose, flags=re.M | re.I)
-    assert "${POSTGRES_PASSWORD:?" in compose and "${TAP_SEARCH_READONLY_PASSWORD:?" in compose
-    init = _devcontainer()["initializeCommand"]
-    assert "openssl rand" in init and ".env" in init
+    # Only the bootstrap password, which tap's initializer re-keys at the Codespace's first start.
+    passwords = set(re.findall(r"(?:PASSWORD: |tap:)([^@\s]+)", compose))
+    assert passwords == {"bootstrap-replaced-at-first-start"}, passwords
+    assert "SECRET_KEY" not in compose and "TAP_GRID_ID" not in compose and "SEARCH_READONLY" not in compose
+    maintainer = json.loads((DEVCONTAINER / "maintainer" / "devcontainer.json").read_text(encoding="utf-8"))
+    for init in (_devcontainer()["initializeCommand"], maintainer["initializeCommand"]):
+        assert "openssl" not in init and "secret" not in init and not re.search(r"(^|[\s/>])\.env\b", init)
     ignore = (REPO / ".gitignore").read_text(encoding="utf-8")
-    for name in (".env", ".codespace-secret-key", "tap-codespace.env", "codespace-identity.env"):
+    for name in ("tap-codespace.env", "codespace-identity.env"):
         assert f"/.devcontainer/{name}" in ignore
 
 
 @pytest.mark.spec("req-rampart-20x-playground-codespaces-6")
 def test_the_writable_paths_the_entrypoint_needs_are_provided() -> None:
     compose, init = _compose(), _devcontainer()["initializeCommand"]
-    assert "./.codespace-secret-key:/app/.codespace-secret-key" in compose and ".codespace-secret-key" in init
     assert "./tap-codespace.env:/run/tap-codespace.env" in compose and "tap-codespace.env" in init
+    # The installation's identity lives in a named volume the initializer owns, not in the workspace.
+    assert re.search(r"^\s+- installation:/var/lib/tap/installation$", compose, flags=re.M)
+    assert re.search(r"^\s+TAP_INSTALLATION_DIR: /var/lib/tap/installation$", compose, flags=re.M)
+    assert re.search(r"^  installation:$", compose, flags=re.M)
+    assert ".codespace-secret-key" not in compose
     # World-writable, not owned by uid: rootless Podman refuses a tmpfs `uid=`.
     assert re.search(r"/app/logs:[^\n]*mode=1777", compose) and not re.search(r"/app/logs:[^\n]*uid=", compose)
     assert re.search(r"TAP_BOOT_INSTALL__SNAPSHOT_BEFORE_MIGRATE:\s*\"false\"", compose)
