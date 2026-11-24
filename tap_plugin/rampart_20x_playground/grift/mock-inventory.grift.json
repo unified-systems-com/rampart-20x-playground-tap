@@ -677,11 +677,11 @@
               "dcom": "design",
               "overview": "shown",
               "column": "1",
-              "row": "0"
+              "row": "0",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "mock",
             "stable_id": "customer-a-computer",
             "kind": "workstation",
             "os": "Windows",
@@ -696,12 +696,11 @@
             "dimensions": {
               "device": "customer",
               "dcom": "design",
-              "overview": "shown"
+              "overview": "shown",
+              "tap.computing.host": "assert|customer-a-computer"
             }
           },
           "node": {
-            "host_realm": "mock",
-            "host_stable_id": "customer-a-computer",
             "local_id": "1000",
             "uid": 1000,
             "name": "customer-a"
@@ -738,11 +737,11 @@
               "column": "5",
               "row": "0",
               "line": "delivery",
-              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f"
+              "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "mock",
             "stable_id": "developer-a-computer",
             "kind": "workstation",
             "os": "macOS",
@@ -757,12 +756,11 @@
             "dimensions": {
               "device": "developer",
               "dcom": "design",
-              "overview": "shown"
+              "overview": "shown",
+              "tap.computing.host": "assert|developer-a-computer"
             }
           },
           "node": {
-            "host_realm": "mock",
-            "host_stable_id": "developer-a-computer",
             "local_id": "1000",
             "uid": 1000,
             "name": "developer-a"
@@ -797,11 +795,11 @@
               "overview": "shown",
               "column": "3",
               "row": "1",
-              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678"
+              "team.responsible": "01a15c19-6922-734d-9272-201be9b9d678",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "mock",
             "stable_id": "admin-a-computer",
             "kind": "workstation",
             "os": "Linux",
@@ -816,12 +814,11 @@
             "dimensions": {
               "device": "administrator",
               "dcom": "design",
-              "overview": "shown"
+              "overview": "shown",
+              "tap.computing.host": "assert|admin-a-computer"
             }
           },
           "node": {
-            "host_realm": "mock",
-            "host_stable_id": "admin-a-computer",
             "local_id": "1000",
             "uid": 1000,
             "name": "admin-a"

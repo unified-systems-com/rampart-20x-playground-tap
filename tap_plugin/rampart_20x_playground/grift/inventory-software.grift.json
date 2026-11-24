@@ -8638,11 +8638,11 @@
               "inventory": "containers",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "git-serious-web-image",
             "kind": "container",
             "name": "git-serious web image"

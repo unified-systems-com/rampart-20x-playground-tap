@@ -57,11 +57,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 1 image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-1-image",
             "kind": "container",
             "name": "memo example 1 image"
@@ -73,11 +73,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 1 container",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-1-container",
             "kind": "container",
             "name": "memo example 1 container"
@@ -162,11 +162,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 2 image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-2-image",
             "kind": "container",
             "name": "memo example 2 image"
@@ -178,11 +178,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 2 container",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-2-container",
             "kind": "container",
             "name": "memo example 2 container"
@@ -267,11 +267,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 3 image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-3-image",
             "kind": "container",
             "name": "memo example 3 image"
@@ -283,11 +283,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 3 container",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-3-container",
             "kind": "container",
             "name": "memo example 3 container"
@@ -372,11 +372,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 4 image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-4-image",
             "kind": "container",
             "name": "memo example 4 image"
@@ -388,11 +388,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 4 container",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-4-container",
             "kind": "container",
             "name": "memo example 4 container"
@@ -477,11 +477,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 5 image",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-5-image",
             "kind": "container",
             "name": "memo example 5 image"
@@ -493,11 +493,11 @@
             "entity_type": "computing_core__host",
             "name": "memo example 5 container",
             "dimensions": {
-              "dcom": "design"
+              "dcom": "design",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "memo-example-5-container",
             "kind": "container",
             "name": "memo example 5 container"
