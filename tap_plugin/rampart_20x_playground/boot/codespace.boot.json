@@ -177,7 +177,7 @@
           "rev": "v0.4.1",
           "commit": "b4eb1738d204e04974800e334b2bb9b8bd7a5289"
         },
-        "note": "Self entry: pinned to its own release v0.4.1 by tag and by commit, like every other plugin. The commit is the release commit, the one that set the version and that the tag v0.3.0 is cut on; this record names it from the commit after, because a record cannot carry the commit that introduces it. The record reaches the Codespace by a mount from the workspace, not from the installed package; a release moves both fields."
+        "note": "Self entry: pinned to its own release v0.4.1 by tag and by commit, like every other plugin. The commit is the release commit, the one that set the version and that the tag v0.4.1 is cut on; this record names it from the commit after, because a record cannot carry the commit that introduces it. The record reaches the Codespace by a mount from the workspace, not from the installed package; a release moves both fields."
       }
     ]
   },
