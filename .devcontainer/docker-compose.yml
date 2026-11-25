@@ -5,8 +5,8 @@
 name: rampart-20x-playground
 services:
   db:
-    # tap v0.4.8, pinned by digest only (a tag@digest reference fails to parse in Codespaces, and a
-    # bare tag is mutable). It moves with the tap release `web` is built on.
+    # tap v0.4.9 (the same digest as v0.4.5 through v0.4.8), pinned by digest only (a tag@digest reference fails to
+    # parse in Codespaces, and a bare tag is mutable). It moves with the tap release `web` is built on.
     image: ghcr.io/unified-systems-com/tap-db@sha256:05104ed673d061e4e167d86e201275194f4b5934bf90eeeb7a5f8373029fd427
     command:
       - postgres
