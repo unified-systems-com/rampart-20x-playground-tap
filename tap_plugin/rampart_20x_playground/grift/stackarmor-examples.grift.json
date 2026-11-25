@@ -1,6 +1,21 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "CARRIES_COMPLIANCE_FINDING__compliance_core": 1,
+      "INSTALLS_PACKAGE__computing_core": 1,
+      "PROFILES_PROGRAM__stackarmor_vdr": 1,
+      "RUNS_IMAGE__computing_core": 1,
+      "RUNS_PACKAGE__computing_core": 1,
+      "RUNS_PROGRAM__computing_core": 1,
+      "batch": 1,
+      "compliance_core__compliance_finding": 1,
+      "computing_core__host": 1,
+      "computing_core__package": 1,
+      "computing_core__program": 1,
+      "stackarmor_vdr__asset_profile": 1
+    }
   },
   "_reserved": {},
   "batches": [

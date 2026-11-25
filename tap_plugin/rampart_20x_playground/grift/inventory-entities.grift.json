@@ -1,6 +1,14 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "batch": 1,
+      "computing_core__file": 1,
+      "computing_core__private_key": 1,
+      "computing_core__program": 1,
+      "computing_core__public_key": 1
+    }
   },
   "_reserved": {},
   "batches": [

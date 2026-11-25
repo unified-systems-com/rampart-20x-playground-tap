@@ -1,6 +1,27 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "ANSWERS_FOR_DIMENSION__identity_core": 1,
+      "BELONGS_TO_TEAM__identity_core": 1,
+      "LEADS_TEAM__identity_core": 1,
+      "USES_DEFAULT_ELEVATION": 1,
+      "USES_ELEVATION": 1,
+      "USES_LAYOUT": 1,
+      "USES_PANEL": 1,
+      "USES_PROJECTION": 1,
+      "USES_SEARCH": 1,
+      "batch": 1,
+      "elevation": 1,
+      "identity_core__human": 1,
+      "identity_core__team": 1,
+      "layout": 1,
+      "page": 1,
+      "panel": 1,
+      "projection": 1,
+      "search": 1
+    }
   },
   "_reserved": {},
   "batches": [

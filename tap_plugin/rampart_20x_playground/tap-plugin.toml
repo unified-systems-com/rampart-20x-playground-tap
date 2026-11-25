@@ -1,6 +1,6 @@
 manifest_version = "0"
 plugin_version = "0.3.0"
-requires_tap = ">=0.3.1"
+requires_tap = ">=0.4.9"
 slug = "rampart_20x_playground"
 name = "TAP Rampart 20x Playground"
 description = "A data-only instance plugin: the keystone, mocked GovCloud inventory and findings, and the pages that show a deployment design, an inventory, vulnerabilities and VDR reports."
@@ -68,14 +68,14 @@ vdr_max_nav = "grift/vdr-max-nav.grift.json"
 [[boot.records]]
 name = "demo"
 description = "The stack shown on screen: the composed plugin set, each pinned by commit, plus this plugin's seed bundles."
-sha256 = "7a1065bf506dcd8ba0eb834faf1d30d1df7de679556fcab122bf5bf939224016"
+sha256 = "b6d1007947e59da428d32d240ead3c2ca3dc05125c8b8b943f808405fa7beb0f"
 
 [[boot.records]]
 name = "codespace"
 description = "The record a GitHub Codespace launched from this repository boots: the demo record's plugins and population with GitHub device-flow sign-in for the account that opened it (profile_kind deploy)."
-sha256 = "a07b98e4512e89083dc00d4ddab614b5e71d20ca6090721bc996103a5e52258c"
+sha256 = "d61740bf0b7060109d172cad9d27a15b77abd544b6e133f6f2f9e65ce181fce9"
 
 [[boot.records]]
 name = "ci"
 description = "RESERVED NAME (req-boot-bootstrap-ci-record): the stack this plugin's own tests run in, offline and credential-free. The consumer flips self to editable."
-sha256 = "a742be694d0516eb1d8155ed531b25be8a8ada5f3f007817bb772a34e39460d5"
+sha256 = "31087c8d4109cfa2924058323d8afb54160981d50ba749be275c39ea09a098c4"

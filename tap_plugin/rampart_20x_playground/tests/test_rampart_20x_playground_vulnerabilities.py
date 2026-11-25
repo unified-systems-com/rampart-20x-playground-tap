@@ -594,7 +594,7 @@ class TestVulnerabilityPages:
         """`req-rampart-20x-playground-boot-7`: fedramp_20x_ksi v0.4.2 with its schedule bundle seeded; the description no longer claims that no collector runs."""
         demo = json.loads((PACKAGE_ROOT / "boot" / "demo.boot.json").read_text(encoding="utf-8"))
         (ksi,) = [p for p in demo["install"]["plugins"] if p["slug"] == "fedramp_20x_ksi"]
-        assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.3", "3cd9070c8d9b530dbb23852996cba31e1e51d782")
+        assert (ksi["source"]["rev"], ksi["source"]["commit"]) == ("v0.4.4", "19f77b163180e48d47eef5adbdd99f5ebf47b0fd")
         steps = [(s["plugin"], s.get("bundle")) for s in demo["population"]["steps"] if "plugin" in s]
         assert steps.index(("fedramp_20x_ksi", "ksi_schedule")) < steps.index(("rampart_20x_playground", None))
         assert "No collector runs" not in demo["description"]
