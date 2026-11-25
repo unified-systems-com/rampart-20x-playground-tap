@@ -135,6 +135,7 @@ def test_the_last_refresh_search_returns_the_newest_scan_run_time() -> None:
     """Imports the bundle's own Search node beside scan runs and runs it: with none the row is null (unobserved, never 0);
     with several the newest `observed_at` wins, and a run that states no time does not count."""
     from tap_grid.grift import grift_import
+    from tap_grid.grift.upgrade import build_header
     from tap_grid.models import Search
     from tap_grid.search import execute_search
 
@@ -156,7 +157,9 @@ def test_the_last_refresh_search_returns_the_newest_scan_run_time() -> None:
     def load(*nodes: dict[str, Any]) -> None:
         batch = {"batch_entity": {"entity_id": str(uuid.uuid7()), "entity_type": "batch", "name": "t", "dimensions": {}},
                  "batch_node": {"source": "t", "name": "t", "description": "t"}, "nodes": [search, *nodes], "edges": []}
-        result = grift_import({"metadata": {"grift_version": "0"}, "_reserved": {}, "batches": [batch]})
+        document: dict[str, Any] = {"_reserved": {}, "batches": [batch]}
+        document["metadata"] = build_header(document)
+        result = grift_import(document)
         assert result.success, [e.message for e in result.errors]
 
     load()
