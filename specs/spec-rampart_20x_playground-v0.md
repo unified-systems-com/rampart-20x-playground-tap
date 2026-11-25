@@ -154,8 +154,8 @@ plugin's own tests run in. `demo` is the stack George boots on screen.
 imports (none), and seeds only this plugin's bundles plus the dependency bundles its pages mount.
 `boot/demo.boot.json` installs `identity_core`, `administrivia`, `dcom`, `computing_core`, `aws_core`
 (after `computing_core`, which it requires), `github_core` (with `git_core` and `sigstore_core`, which it
-requires), `compliance_core`, `fedramp_20x_ksi` (v0.4.3), `fedramp_20x_vdr`,
-`vuln_mosaic` (v0.7.1), `rampart_20x` and this plugin, and seeds, in dependency order, `administrivia`,
+requires), `compliance_core`, `fedramp_20x_ksi` (v0.4.5), `fedramp_20x_vdr`,
+`vuln_mosaic` (v0.7.3), `rampart_20x` and this plugin, and seeds, in dependency order, `administrivia`,
 `dcom`, the `dimension` bundle of `aws_core`, `computing_core` and `fedramp_20x_ksi`, the `ksi_schedule`
 bundle of `fedramp_20x_ksi` (the KSI catalog collector, hourly at minute 17), `vuln_mosaic` (its refresh
 Schedule, hourly at minute 41) and this plugin; those plugins' pages, regions and KSI seed stay out until a
@@ -182,8 +182,8 @@ Okta, Duo and Teleport are not in either record.
 | req-rampart-20x-playground-boot-3 | Demo Boots And Logs In | Proposed | `spawn-session.sh <label> --from <demo record>` stands up healthy, and a locally stored passkey logs in. | Designed; not yet tried. |
 | req-rampart-20x-playground-boot-4 | No Excluded Plugins | Proposed | Neither record installs `okta`, `duo`, `teleport` or `highbar`. | |
 | req-rampart-20x-playground-boot-5 | Installed In Dependency Order | Proposed | In `demo`, every entry comes after the sibling plugins its distribution requires (for example `compliance_core` and `git_core` before `github_core`). | Each entry is installed on its own, so an unmet sibling dependency aborts pre-boot. Proved by booting the record. |
-| req-rampart-20x-playground-boot-6 | Vuln Mosaic In The Demo | Proposed | `demo` installs `vuln_mosaic` at v0.7.1 pinned by its peeled commit and seeds it before this plugin; the manifest's `depends_on` and the `ci` record do not name it. | Ruled 2026-10-21. Settings and wanted ids are operator files and are not declared by the record. |
-| req-rampart-20x-playground-boot-7 | KSI Catalog Hourly | Proposed | `demo` pins `fedramp_20x_ksi` at v0.4.3 and seeds its `ksi_schedule` bundle before this plugin, and the record's description names the three hourly schedules and their egress hosts without claiming more. | Ruled 2026-10-21. |
+| req-rampart-20x-playground-boot-6 | Vuln Mosaic In The Demo | Proposed | `demo` installs `vuln_mosaic` at v0.7.3 pinned by its peeled commit and seeds it before this plugin; the manifest's `depends_on` and the `ci` record do not name it. | Ruled 2026-10-21. Settings and wanted ids are operator files and are not declared by the record. |
+| req-rampart-20x-playground-boot-7 | KSI Catalog Hourly | Proposed | `demo` pins `fedramp_20x_ksi` at v0.4.5 and seeds its `ksi_schedule` bundle before this plugin, and the record's description names the three hourly schedules and their egress hosts without claiming more. | Ruled 2026-10-21. |
 
 ### Keystone
 ----
