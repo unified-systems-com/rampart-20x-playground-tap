@@ -34,10 +34,10 @@ services:
       timeout: 5s
       retries: 5
   web:
-    # The product image publish-image.yml built from main at 307acea on tap v0.4.8, by digest (see the db service
+    # The product image publish-image.yml built from main at 866e63a on tap v0.4.9, by digest (see the db service
     # above). A change to the codespace record publishes a new image; move this digest to it in the next change
     # (`docker buildx imagetools inspect ghcr.io/unified-systems-com/rampart-20x-playground-web:sha-<commit>`).
-    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:b96318200054a25002ac36986e55e8fb0bd83268d883b0cce4d9be17795073a0
+    image: ghcr.io/unified-systems-com/rampart-20x-playground-web@sha256:d3646b656369e4a5a19b24934844afe4b46d9af82c5f94b103e6d1159e075fcc
     ports:
       - "8000:8000"
     volumes:
