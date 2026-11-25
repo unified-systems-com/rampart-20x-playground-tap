@@ -85,7 +85,7 @@ You need git, Docker (Docker Desktop, or Docker Engine with the Compose v2 plugi
 mkdir -p ~/tap-sessions
 git clone https://github.com/unified-systems-com/tap ~/tap-sessions/main
 cd ~/tap-sessions/main
-scripts/spawn-session.sh playground --from 'git+https://github.com/unified-systems-com/rampart-20x-playground-tap@v0.3.0#demo'
+scripts/spawn-session.sh playground --from 'git+https://github.com/unified-systems-com/rampart-20x-playground-tap@v0.4.0#demo'
 ```
 
 The script fetches this repository's demo record at the tagged release, checks it against its published digest, pulls the TAP images, installs the plugins the record pins from their public repositories, seeds the data and starts the hourly jobs. The first run takes several minutes. When it finishes it prints the URL and the sign-in details; the instance opens on `/playground`. The hourly jobs fetch the KSI catalogue and public vulnerability data, so the instance needs outbound network access. To remove it: `scripts/despawn-session.sh playground`.
