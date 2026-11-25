@@ -166,7 +166,7 @@ data, and no boot step type writes them, so a fresh stack starts on vuln_mosaic'
 wanted list until the operator sets them; the record cannot declare them. Every plugin is pinned by the **peeled commit SHA** beside its
 tag (`git ls-remote <url> 'refs/tags/<tag>*'`, the `^{}` line). `rampart_20x` has no tag, so it is pinned
 by the SHA of its `main` at the time the record is written, and the record says so in a `note`. This
-plugin's own entry pins its release tag (`v0.4.0`, the first release that keys hosts on identity dimensions, on tap 0.4.9; `v0.3.0` was the first that seeds on tap 0.4, `v0.2.0` the first carrying the pages):
+plugin's own entry pins its release tag (`v0.4.1`, the first release whose boot records pin only format "1" GRIFT producers; `v0.4.0` was the first that keys hosts on identity dimensions, on tap 0.4.9, `v0.3.0` the first that seeds on tap 0.4, `v0.2.0` the first carrying the pages):
 a record cannot carry the commit that introduces it, and the validator exempts a self entry from `commit`
 only when `rev` is its own release tag. Until then a development spawn uses a copy of the record whose self
 entry names a branch. Login uses the local passkey that `spawn-session.sh` replays into the stack
