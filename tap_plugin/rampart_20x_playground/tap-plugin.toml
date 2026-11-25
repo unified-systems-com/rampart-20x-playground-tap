@@ -73,7 +73,7 @@ sha256 = "b27dcee9ae1c2487567f541f5c8f4b291604a33dc0c136dd6a48bda1766b7f30"
 [[boot.records]]
 name = "codespace"
 description = "The record a GitHub Codespace launched from this repository boots: the demo record's plugins and population with GitHub device-flow sign-in for the account that opened it (profile_kind deploy)."
-sha256 = "d61740bf0b7060109d172cad9d27a15b77abd544b6e133f6f2f9e65ce181fce9"
+sha256 = "25bf4dd4252f5b9872adb669df50da87e1bdc76f5a4d47daa67cffc99251b860"
 
 [[boot.records]]
 name = "ci"
