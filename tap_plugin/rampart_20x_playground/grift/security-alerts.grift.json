@@ -1,6 +1,16 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "CARRIES_COMPLIANCE_FINDING__compliance_core": 1,
+      "DETAILS_FINDING__github_core": 1,
+      "batch": 1,
+      "compliance_core__compliance_finding": 1,
+      "github_core__code_scanning_alert": 1,
+      "github_core__dependabot_alert": 1,
+      "github_core__github_repository": 1
+    }
   },
   "_reserved": {},
   "batches": [

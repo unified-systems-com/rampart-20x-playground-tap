@@ -1,6 +1,16 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "PROFILES_PROGRAM__stackarmor_vdr": 1,
+      "USES_ARCHETYPE__stackarmor_vdr": 1,
+      "USES_SEARCH": 1,
+      "batch": 1,
+      "panel": 1,
+      "search": 1,
+      "stackarmor_vdr__asset_profile": 1
+    }
   },
   "_reserved": {},
   "batches": [

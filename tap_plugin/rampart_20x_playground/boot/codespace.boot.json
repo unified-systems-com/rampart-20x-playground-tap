@@ -28,8 +28,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/identity-core-tap",
-          "rev": "v0.1.7",
-          "commit": "853ac4eeb7efebdd85e4baa2bfbde850c842d477"
+          "rev": "v0.1.8",
+          "commit": "c6a1d1dc28bfd627533d3adbb3af819910d62d19"
         }
       },
       {
@@ -58,8 +58,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/computing-core-tap",
-          "rev": "v0.10.8",
-          "commit": "f244539e7626cb8996238b32a53f0010eafe09d0"
+          "rev": "v0.11.0",
+          "commit": "e80e953802aac9974a4d33bf9c140dd9f1bb9dfe"
         },
         "note": "Installed before aws_core: aws_core 0.8.2 requires computing-core-tap 0.10.8 or later, and each entry is installed on its own."
       },
@@ -69,8 +69,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/aws-core-tap",
-          "rev": "v0.8.2",
-          "commit": "b21c3030ec93e780361e50ef5757c0d5ca39387a"
+          "rev": "v0.9.0",
+          "commit": "69dd6ce83b31d47736d4c7baf7cada2d56f7e5f7"
         }
       },
       {
@@ -79,8 +79,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/git-core-tap",
-          "rev": "v0.1.2",
-          "commit": "141b268de216402a643cbe1141642e697dd98bec"
+          "rev": "v0.1.3",
+          "commit": "06dd42cb4a6a2933e7df6d94ba5150e5a28749e6"
         }
       },
       {
@@ -89,8 +89,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/compliance-core-tap",
-          "rev": "v0.8.13",
-          "commit": "4169092e43aeb60ab23919688890318b584ea1a0"
+          "rev": "v0.8.14",
+          "commit": "9e71b838013951c34f456a29fd1976dd9b4a041a"
         }
       },
       {
@@ -99,8 +99,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/sigstore-core-tap",
-          "rev": "v0.5.1",
-          "commit": "b368fa2d4b53a7b4bc8247d9598beb059d31287e"
+          "rev": "v0.5.4",
+          "commit": "95687752825c3380b11c331cd2381b534c4119d0"
         },
         "note": "Installed before github_core: github_core 0.14 requires sigstore-core-tap, and each entry is installed on its own, so it must already be present."
       },
@@ -110,8 +110,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/github-core-tap",
-          "rev": "v0.14.1",
-          "commit": "f4ac200fcc2a2b4d51ed3900dd22184598f05937"
+          "rev": "v0.14.2",
+          "commit": "ea5bca7c64f9c26d6fb065816650fdc256533021"
         },
         "note": "Installed after git_core and compliance_core: each entry is installed on its own, so a sibling distribution it depends on must already be present (github_core 0.13.0 requires git-core-tap, tap-plugin-compliance-core and tap-plugin-identity-core)."
       },
@@ -121,8 +121,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-ksi-tap",
-          "rev": "v0.4.3",
-          "commit": "3cd9070c8d9b530dbb23852996cba31e1e51d782"
+          "rev": "v0.4.4",
+          "commit": "19f77b163180e48d47eef5adbdd99f5ebf47b0fd"
         }
       },
       {
@@ -131,8 +131,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/fedramp-20x-vdr-tap",
-          "rev": "v0.1.6",
-          "commit": "6472dfd784d19da28f749534fcb20bbf4ab47960"
+          "rev": "v0.1.7",
+          "commit": "8ccc39f6d35a8182b71ec0363c8eb175d171dbc0"
         },
         "note": "Installed after compliance_core: the coverage_snapshot collector subclasses compliance_core's SearchSnapshotCollector (first shipped in v0.8.7), and the classification mapping bundle's hourly Schedule targets that collector."
       },
@@ -142,8 +142,8 @@
         "source": {
           "type": "git",
           "url": "https://github.com/unified-systems-com/stackarmor-vdr-tap",
-          "rev": "v0.5.1",
-          "commit": "faf84013f17ab6a05ba6edf922c817de527dd4f6"
+          "rev": "v0.5.2",
+          "commit": "c8bfa69734eeaa5d73bcac450d3ec58c693b4f73"
         },
         "note": "The PAIN method for FedRAMP VDR (the stackArmor method). Installed after fedramp_20x_vdr, whose finding reach its runners import; it seeds the sixteen archetype nodes the pain bundle's stamps point at."
       },

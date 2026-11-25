@@ -1,6 +1,12 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "CAPTURES_SEARCH__compliance_core": 1,
+      "batch": 1,
+      "compliance_core__compliance_search_snapshot": 1
+    }
   },
   "_reserved": {},
   "batches": [

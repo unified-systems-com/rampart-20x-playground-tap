@@ -1,6 +1,20 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "APPLICATION_FLOW_DESTINATION__computing_core": 1,
+      "APPLICATION_FLOW_SOURCE__computing_core": 1,
+      "LOADS_LIBRARY__computing_core": 1,
+      "RUNS_CONTAINER__aws_core": 1,
+      "RUNS_IMAGE__computing_core": 1,
+      "RUNS_PROGRAM__computing_core": 1,
+      "RUNS_TASK__aws_core": 1,
+      "USES_KEY__computing_core": 1,
+      "aws_core__aws_ecs_container": 1,
+      "batch": 1,
+      "computing_core__application_flow": 1
+    }
   },
   "_reserved": {},
   "batches": [

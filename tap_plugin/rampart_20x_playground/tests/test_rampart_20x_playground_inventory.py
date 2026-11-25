@@ -99,6 +99,14 @@ def _stamped() -> list[dict]:
     ]
 
 
+
+def _field(node: dict, field: str, default: object = "") -> object:
+    """A key field as the importer reads it: a ``dimension:<name>`` entry from the envelope's dimensions
+    (form-3 natural keys, unified-systems-com/tap#1355), anything else from the node payload."""
+    if field.startswith("dimension:"):
+        return (node["entity"].get("dimensions") or {}).get(field.removeprefix("dimension:"), default)
+    return node["node"].get(field, default)
+
 class TestDimensionSplit:
     """`req-rampart-20x-playground-inventory-dimension`."""
 
@@ -232,7 +240,7 @@ class TestInventorySoftware:
             "computing_core__package": ("ecosystem", "name", "version"),
             "computing_core__library": ("ecosystem", "name", "version"),
             "computing_core__operating_system": ("os_id", "version_id", "build_id"),
-            "computing_core__host": ("realm", "stable_id"),
+            "computing_core__host": ("dimension:tap.computing.host_type", "stable_id"),
             "computing_core__crypto_provider": ("scope", "artifact", "provider"),
             "computing_core__source_package": ("ecosystem", "name", "version"),
             "computing_core__sbom_document": ("content_digest",),
@@ -240,7 +248,7 @@ class TestInventorySoftware:
         seen = set()
         for node in self.nodes:
             etype = node["entity"]["entity_type"]
-            key = (etype, *(node["node"].get(field, "") for field in keys[etype]))
+            key = (etype, *(_field(node, field) for field in keys[etype]))
             assert key not in seen, key
             seen.add(key)
 
@@ -249,14 +257,14 @@ class TestInventorySoftware:
             "computing_core__package": ("ecosystem", "name", "version"),
             "computing_core__library": ("ecosystem", "name", "version"),
             "computing_core__operating_system": ("os_id", "version_id", "build_id"),
-            "computing_core__host": ("realm", "stable_id"),
+            "computing_core__host": ("dimension:tap.computing.host_type", "stable_id"),
             "computing_core__crypto_provider": ("scope", "artifact", "provider", "provider_kind"),
             "computing_core__source_package": ("ecosystem", "name", "version"),
             "computing_core__sbom_document": ("content_digest", "verified", "signer", "subject_digest"),
         }
         for node in self.nodes:
             for field in required[node["entity"]["entity_type"]]:
-                assert field in node["node"], (node["entity"]["name"], field)
+                assert _field(node, field, None) is not None, (node["entity"]["name"], field)
 
     def test_packages_come_from_one_verified_sbom_in_the_three_ecosystems(self) -> None:
         packages = self._of("computing_core__package")

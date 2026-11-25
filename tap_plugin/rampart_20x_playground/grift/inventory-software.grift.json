@@ -1,6 +1,25 @@
 {
   "metadata": {
-    "grift_version": "0"
+    "grift_version": "1",
+    "spine_version": 1,
+    "type_versions": {
+      "CARRIES_CRYPTO_PROVIDER__computing_core": 1,
+      "DERIVES_FROM_SOURCE_PACKAGE__computing_core": 1,
+      "DESCRIBES_HOST__computing_core": 1,
+      "INSTALLS_PACKAGE__computing_core": 1,
+      "LOADS_LIBRARY__computing_core": 1,
+      "REQUIRES_PACKAGE__computing_core": 1,
+      "RUNS_OPERATING_SYSTEM__computing_core": 1,
+      "RUNS_PACKAGE__computing_core": 1,
+      "batch": 1,
+      "computing_core__crypto_provider": 1,
+      "computing_core__host": 1,
+      "computing_core__library": 1,
+      "computing_core__operating_system": 1,
+      "computing_core__package": 1,
+      "computing_core__sbom_document": 1,
+      "computing_core__source_package": 1
+    }
   },
   "_reserved": {},
   "batches": [
@@ -8638,11 +8657,11 @@
               "inventory": "containers",
               "overview": "shown",
               "team.responsible": "01a15c19-6922-734d-9272-201aa27ca26f",
-              "dataclass.action": "process"
+              "dataclass.action": "process",
+              "tap.computing.host_type": "assert"
             }
           },
           "node": {
-            "realm": "rampart-playground",
             "stable_id": "git-serious-web-image",
             "kind": "container",
             "name": "git-serious web image"
