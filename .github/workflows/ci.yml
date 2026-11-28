@@ -26,7 +26,7 @@ jobs:
       contents: read
       security-events: write
     # Pinned to tap v0.4.9 (86f9d918). The release-sbom and nightly callers keep their own pins.
-    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@86f9d918ad5ac2cce52225d3c5a4dd0596aab68e
+    uses: unified-systems-com/tap/.github/workflows/plugin-ci.yml@e4d2e5c144d629ba2a07bff0a2dde390ed132a01
     with:
       plugin_slug: rampart_20x_playground
       # aws_core takes longer to boot than the shared workflow's 25-minute default allows
