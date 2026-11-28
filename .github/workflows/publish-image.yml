@@ -31,7 +31,7 @@ jobs:
     # dispatch from another branch skips before anything is granted.
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     # tap v0.4.9
-    uses: unified-systems-com/tap/.github/workflows/bake-product-image.yml@86f9d918ad5ac2cce52225d3c5a4dd0596aab68e
+    uses: unified-systems-com/tap/.github/workflows/bake-product-image.yml@e4d2e5c144d629ba2a07bff0a2dde390ed132a01
     # REQUIRED on this job: a called workflow's jobs get no more than the caller grants.
     # `packages: write` pushes the image; `id-token` and `attestations` sign its provenance.
     permissions:
