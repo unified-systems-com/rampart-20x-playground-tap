@@ -10,6 +10,8 @@ import re
 import uuid
 from pathlib import Path
 
+import pytest
+
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GRIFT = PACKAGE_ROOT / "grift"
 FILE = "classification-mapping.grift.json"
@@ -17,8 +19,10 @@ TABLE = "tap_web/panels/table_panel.html"
 RUNNER = "tap_plugin.compliance_core.searches.dimension_mapping:"
 # The id fedramp_20x_vdr's coverage_snapshot collector hard-codes (COVERAGE_SUMMARY_SEARCH_ID). It must never differ.
 SUMMARY_SEARCH_ID = "01a15b2f-df3b-7569-bf22-9ead3f816b84"
-# uuid5(NAMESPACE_COLLECTOR, "fedramp_20x_vdr:coverage_snapshot")
-COLLECTOR_ID = "41611294-9c37-5013-8175-3b1c2c4a3908"
+# The not-configurable run configuration fedramp_20x_vdr seeds for its coverage_snapshot collector
+# (fedramp_20x_vdr grift/run-configuration.grift.json); a schedule targets a configuration, never a
+# collector (req-tap-cares-runconfig-selection-1).
+CONFIGURATION_ID = "01a222e8-7608-72a1-98b1-9ce290fb5872"
 SUMMARY_FIELDS = {"label", "denominator", "mapped", "unmapped", "mapped_incorrectly", "no_rule", "percent_mapped"}
 ENTITY_FIELDS = {"group", "label", "name", "found_text", "allowed_text"}
 
@@ -116,7 +120,7 @@ class TestClassificationMapping:
         targets = [e["edge"] for e in self.edges if e["edge"]["edge_type"] == "SCHEDULED_TARGET"]
         assert len(targets) == 1
         assert targets[0]["from_entity_id"] == schedules[0]["entity"]["entity_id"]
-        assert targets[0]["to_entity_id"] == COLLECTOR_ID
+        assert targets[0]["to_entity_id"] == CONFIGURATION_ID
 
     def test_the_summary_headings_and_its_numbers_centred(self) -> None:
         """`page-data-classification-11`."""
@@ -127,9 +131,16 @@ class TestClassificationMapping:
         numeric = [c for c in columns if c["field"] in {"denominator", "mapped", "unmapped", "mapped_incorrectly", "no_rule", "percent_mapped"}]
         assert len(numeric) == 6 and all(c["align"] == "center" for c in numeric)
 
-    def test_the_collector_id_is_derived_from_its_scope_and_key(self) -> None:
-        namespace = uuid.uuid5(uuid.NAMESPACE_DNS, "tap_cares.collector")
-        assert str(uuid.uuid5(namespace, "fedramp_20x_vdr:coverage_snapshot")) == COLLECTOR_ID
+    def test_the_schedule_targets_the_vdr_coverage_snapshot_configuration(self) -> None:
+        """fedramp_20x_vdr seeds the configuration; when it is installed, its seed must agree."""
+        from importlib import resources
+
+        try:
+            seed = resources.files("tap_plugin.fedramp_20x_vdr").joinpath("grift/run-configuration.grift.json")
+        except ModuleNotFoundError:
+            pytest.skip("fedramp_20x_vdr is not installed")
+        nodes = json.loads(seed.read_text(encoding="utf-8"))["batches"][0]["nodes"]
+        assert CONFIGURATION_ID in [n["entity"]["entity_id"] for n in nodes]
 
     def test_the_unmapped_table_omits_the_all_page_size_and_keeps_25_a_page(self) -> None:
         """`page-data-classification-11`."""

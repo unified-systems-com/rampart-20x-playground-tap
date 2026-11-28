@@ -105,7 +105,8 @@ def test_the_page_is_named_vdr_max_nests_under_the_section_and_a_schedule_runs_t
     assert schedule["node"]["cron_expression"] == "0 * * * *" and schedule["node"]["enabled"] is True
     targets = [e["edge"] for e in _batch()["edges"] if e["edge"]["edge_type"] == "SCHEDULED_TARGET"]
     assert [t["from_entity_id"] for t in targets] == [schedule["entity"]["entity_id"]]
-    assert targets[0]["to_entity_id"] == "ef175d1e-f754-5818-8e0a-22c69cfe81b9"
+    # fedramp_20x_vdr's seeded not-configurable configuration for vdr_max (req-tap-cares-runconfig-selection-1).
+    assert targets[0]["to_entity_id"] == "01a222e8-7608-72a1-98b1-9ce12412daaf"
     manifest = tomllib.loads((PACKAGE_ROOT / "tap-plugin.toml").read_text(encoding="utf-8"))
     order = list(manifest["grift"])
     assert order.index("vdr_max_nav") > max(order.index("vdr_implementations"), order.index("vdr_max_page"))
