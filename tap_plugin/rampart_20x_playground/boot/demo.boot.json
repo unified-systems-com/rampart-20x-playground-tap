@@ -201,6 +201,13 @@
       {
         "type": "seed-plugin",
         "plugin": "fedramp_20x_ksi",
+        "bundle": "run_configuration",
+        "enabled": true,
+        "note": "The KSI catalog collector's one not-configurable run configuration, which ksi_schedule's Schedule targets (req-tap-cares-runconfig-seed-guard-3: a profile that seeds a schedule seeds its configuration too)."
+      },
+      {
+        "type": "seed-plugin",
+        "plugin": "fedramp_20x_ksi",
         "bundle": "ksi_schedule",
         "enabled": true,
         "note": "fedramp_20x_ksi's hourly KSI catalog Schedule (minute 17); the collector's only egress is raw.githubusercontent.com and it needs no credential."

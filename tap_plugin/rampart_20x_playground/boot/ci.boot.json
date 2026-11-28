@@ -211,6 +211,13 @@
       },
       {
         "type": "seed-plugin",
+        "plugin": "fedramp_20x_vdr",
+        "bundle": "run_configuration",
+        "enabled": true,
+        "note": "fedramp_20x_vdr's not-configurable run configurations for vdr_max and coverage_snapshot, which the classification_mapping and vdr_max_page Schedules target (req-tap-cares-runconfig-seed-guard-3)."
+      },
+      {
+        "type": "seed-plugin",
         "plugin": "rampart_20x_playground",
         "bundle": "classification_mapping",
         "enabled": true
